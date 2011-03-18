@@ -86,6 +86,9 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/w3/lisp"
 			  "/usr/share/doc/git/contrib/emacs"))
 
+;;; Disable debug-on-error
+(setq debug-on-error nil)
+
 ;;; Appearance
 (setq inhibit-splash-screen t)
 (column-number-mode 1)
