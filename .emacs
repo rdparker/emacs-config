@@ -46,7 +46,7 @@ This may hang if circular symlinks are encountered."
 	(progn
 	  (setq file (if (file-name-absolute-p target)
 			 target
-		       (expand-file-name (concat directory target)))
+		       (expand-file-name target directory))
 		directory (file-name-directory file))
 	  (if recursive
 	      (readlink file t)
