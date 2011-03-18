@@ -1,5 +1,5 @@
 ;;; Augmented functions
-;;; 
+;;;
 ;;; These are "logical" extensions of existing functions.
 (defun directory-directories (directory &optional full match nosort)
   "Return a list of names of directories in DIRECTORY.
@@ -275,7 +275,7 @@ This may hang if circular symlinks are encountered."
 	     (function (lambda ()
 			 (paredit-mode 1)
 			 (show-paren-mode 1))))
-  
+
   ;; Make eldoc aware of paredit's most common commands so that it
   ;; refreshes the minibuffer after they are used.
   (eval-after-load "eldoc" '(lambda ()
