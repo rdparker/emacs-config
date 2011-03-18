@@ -55,10 +55,10 @@ This may hang if circular symlinks are encountered."
 
 
 ;;; ELPA
-(when (load (expand-file-name "~/.emacs.d/elpa/package.el")
-	     t)
-  (package-initialize))
-
+(if (not (load "package" t))
+  (load (expand-file-name "~/.emacs.d/elpa/package.el") t))
+(if (member 'package features)
+    (package-initialize))
 
 ;;; load-path
 (defun add-to-load-path (path)
@@ -312,7 +312,7 @@ This may hang if circular symlinks are encountered."
 (setq uniquify-buffer-name-style 'post-forward)
 
 ;;; yasnippet
-(require 'yasnippet-bundle)
+(require  'yasnippet-bundle nil t)
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
