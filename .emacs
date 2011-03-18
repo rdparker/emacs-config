@@ -53,20 +53,32 @@ This may hang if circular symlinks are encountered."
 	    file))
       file)))
 
-
-;;; ELPA
-(if (not (load "package" t))
-  (load (expand-file-name "~/.emacs.d/elpa/package.el") t))
-(if (member 'package features)
-    (package-initialize))
-
-;;; load-path
 (defun add-to-load-path (path)
   "If PATH exists add it to `load-path'"
   (let ((full-path (expand-file-name path)))
     (if (file-exists-p full-path)
 	(add-to-list 'load-path full-path))))
 
+;;; ELPA, integrated into emacs version 24
+;;
+;; Initially assume this is emacs 24 and just load it.  If that fails
+;; add a path to where a user-installed version may exist and try
+;; again.  If emacs 24 and older are to coexist on the same machine,
+;; then this too must be the emacs 24 version of ELPA because it makes
+;; changes to the ~/.emacs.d/elpa directory that are incompatible with
+;; older versions.  However, the code seems to still be compatible, at
+;; least with emacs 23.
+(if (not (load "package" t))
+    (progn
+      (add-to-load-path "~/lib/lisp/el")
+      (load "package" t)))
+(if (member 'package features)
+    (package-initialize))
+;; I'm not sure mixing GNU's and Tom Tromey's archive is a good idea.
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+			 ("tromey" . "http://tromey.com/elpa/")))
+
+;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/org-mode/lisp"
 			  "~/lib/lisp/el/cedet-1.0"
