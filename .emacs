@@ -78,6 +78,19 @@ This may hang if circular symlinks are encountered."
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("tromey" . "http://tromey.com/elpa/")))
 
+(defun my-require (feature)
+  "This `require's a package if it can be found, otherwise it gives a message."
+  (let ((found (require feature nil t)))
+    (unless found
+      (message "REQUIRE: %s not found.\n" (symbol-name feature))
+      nil)))
+(defun my-load (file)
+  "This `load's a file if it exists, otherwise it gives a message."
+  (let ((found (load file t)))
+    (unless found
+      (message "LOAD: \"%s\" not found.\n" file)
+      nil)))
+
 ;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/org-mode/lisp"
@@ -105,13 +118,13 @@ This may hang if circular symlinks are encountered."
 ;;  There is a bug, where help-mode must be loaded before
 ;;  ac-symbol-documentation is called.
 (require 'help-mode)
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories (expand-file-name "~/lib/elisp/ac-dict"))
-(ac-config-default)
-(global-auto-complete-mode 1)
-(setq ac-modes (append '(lisp-mode
-			 slime-repl-mode)
-		       ac-modes))
+(when (my-require 'auto-complete-config)
+  (add-to-list 'ac-dictionary-directories (expand-file-name "~/lib/elisp/ac-dict"))
+  (ac-config-default)
+  (global-auto-complete-mode 1)
+  (setq ac-modes (append '(lisp-mode
+			   slime-repl-mode)
+			 ac-modes)))
 
 ;;; dired-x -- extend dired
 (autoload 'dired-jump "dired-x")
@@ -178,30 +191,30 @@ This may hang if circular symlinks are encountered."
     (error nil))
 
 ;;; Cedet
-(require 'cedet)
-(global-ede-mode 1)
-;; * This enables the database and idle reparse engines
-(semantic-load-enable-minimum-features)
+(when (my-require 'cedet)
+  (global-ede-mode 1)
+  ;; * This enables the database and idle reparse engines
+  (semantic-load-enable-minimum-features)
 
-;; * This enables some tools useful for coding, such as summary mode
-;;   imenu support, and the semantic navigator
-(semantic-load-enable-code-helpers)
+  ;; * This enables some tools useful for coding, such as summary mode
+  ;;   imenu support, and the semantic navigator
+  (semantic-load-enable-code-helpers)
 
-;; * This enables even more coding tools such as intellisense mode
-;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-(semantic-load-enable-gaudy-code-helpers)
+  ;; * This enables even more coding tools such as intellisense mode
+  ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
+  (semantic-load-enable-gaudy-code-helpers)
 
-;; * This enables the use of Exuberent ctags if you have it installed.
-;;   If you use C++ templates or boost, you should NOT enable it.
-;; (semantic-load-enable-all-exuberent-ctags-support)
-;;   Or, use one of these two types of support.
-;;   Add support for new languges only via ctags.
-;; (semantic-load-enable-primary-exuberent-ctags-support)
-;;   Add support for using ctags as a backup parser.
-;; (semantic-load-enable-secondary-exuberent-ctags-support)
+  ;; * This enables the use of Exuberent ctags if you have it installed.
+  ;;   If you use C++ templates or boost, you should NOT enable it.
+  ;; (semantic-load-enable-all-exuberent-ctags-support)
+  ;;   Or, use one of these two types of support.
+  ;;   Add support for new languges only via ctags.
+  ;; (semantic-load-enable-primary-exuberent-ctags-support)
+  ;;   Add support for using ctags as a backup parser.
+  ;; (semantic-load-enable-secondary-exuberent-ctags-support)
 
-;; Enable SRecode (Template management) minor-mode.
-(global-srecode-minor-mode 1)
+  ;; Enable SRecode (Template management) minor-mode.
+  (global-srecode-minor-mode 1))
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
@@ -226,14 +239,14 @@ This may hang if circular symlinks are encountered."
 (autoload 'git-svn "git-svn" nil t)
 
 ;;; HTML
-(load "~/lib/lisp/el/nxhtml/autostart.el")
+(my-load "~/lib/lisp/el/nxhtml/autostart.el")
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
 
-(load (expand-file-name "~/lib/lisp/cl/quicklisp/slime-helper.el"))
+(my-load (expand-file-name "~/lib/lisp/cl/quicklisp/slime-helper.el"))
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
@@ -258,10 +271,10 @@ This may hang if circular symlinks are encountered."
 	       "non-public/init"))
       t)
 
-(require 'slime-autoloads)
-(slime-setup '(slime-fancy
-	       slime-tramp
-	       slime-asdf))
+(when (my-require 'slime-autoloads)
+  (slime-setup '(slime-fancy
+		 slime-tramp
+		 slime-asdf)))
 
 ;; paredit & show-paren
 (when (locate-library "paredit")
