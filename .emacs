@@ -93,6 +93,7 @@ This may hang if circular symlinks are encountered."
 
 ;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
+			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/org-mode/lisp"
 			  "~/lib/lisp/el/cedet-1.0"
 			  "~/lib/lisp/el/cedet-1.0/common"
@@ -125,6 +126,10 @@ This may hang if circular symlinks are encountered."
   (setq ac-modes (append '(lisp-mode
 			   slime-repl-mode)
 			 ac-modes)))
+
+;;; apt -- debian package support
+(when (shell-command "which apt-get")	; only on systems with apt-get
+  (autoload 'apt "apt-mode" "Create a new buffer with the APT mode." t))
 
 ;;; dired-x -- extend dired
 (autoload 'dired-jump "dired-x")
