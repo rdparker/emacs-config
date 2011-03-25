@@ -282,17 +282,34 @@ This may hang if circular symlinks are encountered."
 		 slime-asdf)))
 
 ;; paredit & show-paren
+(defun enable-paren-modes ()
+  "Turn on `paredit-mode' and `show-paren-mode'."
+  (interactive)
+  (paredit-mode 1)
+  (show-paren-mode 1))
+
 (when (locate-library "paredit")
   (autoload 'paredit-mode "paredit"
     "Minor mode for pseudo-structurally editing Lisp code."
     t)
   (add-hooks '(lisp-mode-hook
-	       lisp-interaction-mode-hook
 	       emacs-lisp-mode
 	       slime-repl-mode-hook)
-	     (function (lambda ()
-			 (paredit-mode 1)
-			 (show-paren-mode 1))))
+	     #'enable-paren-modes)
+
+  ;; When `paredit-mode' is enabled it takes precedence over the major
+  ;; mode effectively rebinding C-j to `paredit-newline' instead of
+  ;; `eval-print-last-sexp'.  I do not want this overridden in
+  ;; lisp-interaction-mode.  So, use the buffer-local
+  ;; `minor-mode-overriding-map-alist' to remove the C-j mapping from
+  ;; the standard `paredit-mode' bindings.
+  (add-hook 'lisp-interaction-mode-hook
+	    (lambda ()
+	      (enable-paren-modes)
+	      (setq minor-mode-overriding-map-alist
+		    `((paredit-mode
+		       ,@(remove (cons ?\C-j 'paredit-newline)
+				 paredit-mode-map))))))
 
   ;; Make eldoc aware of paredit's most common commands so that it
   ;; refreshes the minibuffer after they are used.
