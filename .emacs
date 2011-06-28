@@ -110,6 +110,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/cedet-1.0/common"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/el/emacs-w3m"
+			  "~/lib/lisp/el/redshank"
 			  "~/lib/lisp/el/git-emacs"
 			  "~/lib/lisp/el/gitsum"
 			  "~/lib/lisp/el/egit"
@@ -328,6 +329,13 @@ This may hang if circular symlinks are encountered."
   (slime-setup '(slime-fancy
 		 slime-tramp
 		 slime-asdf)))
+
+;; redshank
+(eval-after-load "redshank-loader"
+  `(redshank-setup '(lisp-mode-hook
+		     slime-repl-mode-hook) t))
+
+(require 'redshank-loader)
 
 ;; paredit & show-paren
 (defun enable-paren-modes ()
