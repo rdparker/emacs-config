@@ -126,7 +126,7 @@ This may hang if circular symlinks are encountered."
     (set-frame-width f (- (+ 199 80) (frame-width f)))))
 (global-set-key (kbd "M-RET") 'toggle-full-screen)
 
-;;; Autocompletion
+;;; Autocompletion and Autoinsertion
 ;;  There is a bug, where help-mode must be loaded before
 ;;  ac-symbol-documentation is called.
 (require 'help-mode)
@@ -137,6 +137,7 @@ This may hang if circular symlinks are encountered."
   (setq ac-modes (append '(lisp-mode
 			   slime-repl-mode)
 			 ac-modes)))
+(add-hook 'find-file-hook 'auto-insert)
 
 ;;; apt -- debian package support
 (when (shell-command "which apt-get")	; only on systems with apt-get
