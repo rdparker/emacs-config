@@ -295,7 +295,7 @@ This may hang if circular symlinks are encountered."
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
 
-(my-load (expand-file-name "~/lib/lisp/cl/quicklisp/slime-helper.el"))
+(my-load (expand-file-name "~/quicklisp/slime-helper.el"))
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
