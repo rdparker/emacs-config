@@ -110,6 +110,10 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/cedet-1.0/common"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/el/emacs-w3m"
+			  "~/lib/lisp/el/git-emacs"
+			  "~/lib/lisp/el/gitsum"
+			  "~/lib/lisp/el/egit"
+			  "~/lib/lisp/el/magit"
 			  "/usr/share/doc/git/contrib/emacs"))
 
 ;;; Disable debug-on-error
@@ -260,7 +264,27 @@ This may hang if circular symlinks are encountered."
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
 (require 'git nil t)
+(setq git-state-modeline-decoration 'git-state-decoration-large-dot)
+(require 'git-emacs-autoloads nil t)
 (autoload 'git-svn "git-svn" nil t)
+(autoload 'gitsum "gitsum" "Entry point into gitsum-diff-mode" t)
+(autoload 'egit "egit" "Emacs git history" t)
+(autoload 'egit-file "egit" "Emacs git history file" t)
+(autoload 'egit-dir "egit" "Emacs git history directory" t)
+(autoload 'magit-status "magit" nil t)
+(eval-after-load "magit"
+  '(progn
+     ;; (require 'magit-topgit)	; if I ever use these packages
+     ;; (require 'magit-stgit)  ; here are the extensions for them
+     (load "magit-svn" nil t)
+     (add-hook 'magit-log-edit-mode-hook
+	       (lambda ()
+		 (auto-fill-mode 1)
+		 (flyspell-mode 1)))))
+;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
+(add-hook 'dired-mode-hook
+	  (lambda ()
+	    (define-key dired-mode-map "r" 'magit-status)))
 
 ;;; HTML
 (my-load "~/lib/lisp/el/nxhtml/autostart.el")
