@@ -1,3 +1,10 @@
+;;; NOTES:
+;;;
+;;; Possible errors loading this file:
+;;;
+;;; If `called-interactively-p' is called with the wrong number of
+;;; parameters see ~/lib/el/README.org for a possible workaround.
+
 ;;; Augmented functions
 ;;;
 ;;; These are "logical" extensions of existing functions.
@@ -67,7 +74,9 @@ This may hang if circular symlinks are encountered."
 ;; then this too must be the emacs 24 version of ELPA because it makes
 ;; changes to the ~/.emacs.d/elpa directory that are incompatible with
 ;; older versions.  However, the code seems to still be compatible, at
-;; least with emacs 23.
+;; least with emacs 23.2.  A change to the file was necessary for
+;; emacs <= 23.1 due to a non-backward-compatible change to
+;; `called-interactively-p' in emacs 23.2.
 (if (not (load "package" t))
     (progn
       (add-to-load-path "~/lib/lisp/el")
