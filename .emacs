@@ -426,12 +426,14 @@ This may hang if circular symlinks are encountered."
 (keyfreq-mode 1)
 (keyfreq-autosave-mode 1)
 
+;;; customizations
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(safe-local-variable-values (quote ((Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf)))))
+ '(safe-local-variable-values (quote ((Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
+ '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
