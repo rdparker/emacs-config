@@ -303,7 +303,10 @@ This may hang if circular symlinks are encountered."
 ;; with a negative argument, thusly, M-- M-x slime.
 (setq slime-lisp-implementations
       `((ccl ("~/lib/lisp/ccl/lx86cl64"))
-	(clisp ("/usr/bin/clisp" "--quiet"))
+	(clisp (,(if (file-exists-p "/usr/bin/clisp")
+		     "/usr/bin/clisp"
+		   "clisp")
+		"--quiet"))
 	(ecl (,(if (file-exists-p "/opt/ecl/bin/ecl")
 		   "/opt/ecl/bin/ecl"
 		 "ecl")))
