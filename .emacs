@@ -318,10 +318,11 @@ This may hang if circular symlinks are encountered."
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
-(load (expand-file-name
-       (concat (file-name-directory (readlink user-init-file t))
-	       "non-public/init"))
-      t)
+(when user-init-file
+  (load (expand-file-name
+	 (concat (file-name-directory (readlink user-init-file t))
+		 "non-public/init"))
+	t))
 
 (when (my-require 'slime-autoloads)
   (slime-setup '(slime-fancy
