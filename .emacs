@@ -143,6 +143,10 @@ This may hang if circular symlinks are encountered."
 (when (shell-command "which apt-get")	; only on systems with apt-get
   (autoload 'apt "apt-mode" "Create a new buffer with the APT mode." t))
 
+;;; AUCTeX
+(load "auctex.el" nil t t)
+(load "preview-latex.el" nil t t)
+
 ;;; dired-x -- extend dired
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
