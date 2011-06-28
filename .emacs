@@ -420,6 +420,12 @@ This may hang if circular symlinks are encountered."
 ;;; yasnippet
 (require  'yasnippet-bundle nil t)
 
+
+;;; keyfreq -- track emacs command usage frequency
+(require 'keyfreq)
+(keyfreq-mode 1)
+(keyfreq-autosave-mode 1)
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
