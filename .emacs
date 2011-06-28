@@ -288,6 +288,7 @@ This may hang if circular symlinks are encountered."
 
 ;;; HTML
 (my-load "~/lib/lisp/el/nxhtml/autostart.el")
+(setq debug-on-error nil) ; nxhtml/autostart.el messes with this
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 
