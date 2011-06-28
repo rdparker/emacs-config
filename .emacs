@@ -109,6 +109,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/cedet-1.0"
 			  "~/lib/lisp/el/cedet-1.0/common"
 			  "~/lib/lisp/el/w3/lisp"
+			  "~/lib/lisp/el/emacs-w3m"
 			  "/usr/share/doc/git/contrib/emacs"))
 
 ;;; Disable debug-on-error
@@ -206,6 +207,8 @@ This may hang if circular symlinks are encountered."
   (add-hook 'mail-setup-hook 'my-bbdb-insinuate-mail))
 
 ;;; Browser
+(autoload 'w3m "w3m" "Visit World Wide Web pages using the external w3m command." t)
+(autoload 'w3m-browse-url "w3m" "Ask emacs-w3m to browse URL." t)
 (setq browse-url-browser-function 'w3m-browse-url)
 (condition-case ()
     (require 'w3-auto "w3-auto")
