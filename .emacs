@@ -89,8 +89,10 @@ This may hang if circular symlinks are encountered."
 
 (defun my-require (feature)
   "This `require's a package if it can be found, otherwise it gives a message."
-  (let ((found (require feature nil t)))
-    (unless found
+  (let ((found (or (member feature features)
+		   (require feature nil t))))
+    (if found
+	found
       (message "REQUIRE: %s not found.\n" (symbol-name feature))
       nil)))
 (defun my-load (file)
