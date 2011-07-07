@@ -444,6 +444,9 @@ This may hang if circular symlinks are encountered."
 	  (lambda ()
 	    (setq info-lookup-mode 'lisp-mode)))
 
+;;; Navigation
+(global-set-key [C-tab] 'other-window)
+
 ;;; Org-mode
 (setq org-todo-keywords
       '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
