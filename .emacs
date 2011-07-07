@@ -120,6 +120,13 @@ This may hang if circular symlinks are encountered."
 ;;; Disable debug-on-error
 (setq debug-on-error nil)
 
+;;; Revert undesirable settings from Lisp Cabinet
+(if (or (> emacs-major-version 23)
+		(and (eq emacs-major-version 23)
+			 (>= emacs-minor-version 2)))
+	(setq tab-width 4)
+	(setq default-tab-width 4))			; obsoleted in 23.2
+
 ;;; Appearance
 (setq inhibit-splash-screen t)
 (column-number-mode 1)
@@ -308,20 +315,21 @@ This may hang if circular symlinks are encountered."
 
 ;; To make use of one of the slime-lisp-implementations invoke slime
 ;; with a negative argument, thusly, M-- M-x slime.
-(setq slime-lisp-implementations
-      `((ccl ("~/lib/lisp/ccl/lx86cl64"))
-	(clisp (,(if (file-exists-p "/usr/bin/clisp")
-		     "/usr/bin/clisp"
-		   "clisp")
-		"--quiet"))
-	(ecl (,(if (file-exists-p "/opt/ecl/bin/ecl")
-		   "/opt/ecl/bin/ecl"
-		 "ecl")))
-	(sbcl (,(if (file-exists-p "/opt/sbcl/bin/sbcl")
-		   "/opt/sbcl/bin/sbcl"
-		  (if (file-exists-p "/usr/local/bin/sbcl")
-		      "/usr/local/bin/sbcl"
-		    "sbcl"))))))
+(unless slime-lisp-implementations
+  (setq slime-lisp-implementations
+		`((ccl ("~/lib/lisp/ccl/lx86cl64"))
+		  (clisp (,(if (file-exists-p "/usr/bin/clisp")
+					   "/usr/bin/clisp"
+					 "clisp")
+				  "--quiet"))
+		  (ecl (,(if (file-exists-p "/opt/ecl/bin/ecl")
+					 "/opt/ecl/bin/ecl"
+				   "ecl")))
+		  (sbcl (,(if (file-exists-p "/opt/sbcl/bin/sbcl")
+					  "/opt/sbcl/bin/sbcl"
+					(if (file-exists-p "/usr/local/bin/sbcl")
+						"/usr/local/bin/sbcl"
+					  "sbcl")))))))
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
