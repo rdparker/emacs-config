@@ -160,7 +160,7 @@ This may hang if circular symlinks are encountered."
 (load "auctex" t)
 (load "preview-latex.el" t)
 
-;;; dired-x -- extend dired
+;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
 (setq dired-omit-mode t)
@@ -168,7 +168,21 @@ This may hang if circular symlinks are encountered."
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 (add-hook 'dired-load-hook
 	  (function (lambda ()
-		      (load "dired-x"))))
+		      (load "dired-x")
+		      (my-require 'dired-sort-menu))))
+;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
+(defun mydired-sort ()
+  "Sort dired listings with directories first."
+  (save-excursion
+    (let (buffer-read-only)
+      (forward-line 2) ;; beyond dir. header 
+      (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+    (set-buffer-modified-p nil)))
+
+(defadvice dired-readin
+  (after dired-after-updating-hook first () activate)
+  "Sort dired listings with directories first before adding marks."
+  (mydired-sort))
 
 ;;; Minibuffer
 (iswitchb-mode 1)
