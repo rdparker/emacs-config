@@ -315,7 +315,8 @@ This may hang if circular symlinks are encountered."
 
 ;; To make use of one of the slime-lisp-implementations invoke slime
 ;; with a negative argument, thusly, M-- M-x slime.
-(unless slime-lisp-implementations
+(unless (and (boundp 'slime-lisp-implementations)
+	     slime-lisp-implementations)
   (setq slime-lisp-implementations
 		`((ccl ("~/lib/lisp/ccl/lx86cl64"))
 		  (clisp (,(if (file-exists-p "/usr/bin/clisp")
