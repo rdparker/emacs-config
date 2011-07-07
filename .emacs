@@ -160,6 +160,16 @@ This may hang if circular symlinks are encountered."
 (load "auctex" t)
 (load "preview-latex.el" t)
 
+;;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
+(desktop-save-mode 1)
+(setq desktop-buffers-not-to-save
+      (concat "\\("
+	      "^tags\\|^TAGS\\|^/ssh:\\|^/scp:"
+	      "\\)$"))
+(mapc (lambda (elt)
+	(add-to-list 'desktop-modes-not-to-save elt))
+      '(dired-mode Info-mode info-lookup-mode))
+
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
