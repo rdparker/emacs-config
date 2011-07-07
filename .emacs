@@ -150,8 +150,8 @@ This may hang if circular symlinks are encountered."
   (autoload 'apt "apt-mode" "Create a new buffer with the APT mode." t))
 
 ;;; AUCTeX
-(load "auctex.el" nil t t)
-(load "preview-latex.el" nil t t)
+(load "auctex" t)
+(load "preview-latex.el" t)
 
 ;;; dired-x -- extend dired
 (autoload 'dired-jump "dired-x")
@@ -222,28 +222,34 @@ This may hang if circular symlinks are encountered."
 ;;; Cedet
 (when (my-require 'cedet)
   (global-ede-mode 1)
-  ;; * This enables the database and idle reparse engines
-  (semantic-load-enable-minimum-features)
+  (mapc (lambda (elt)
+	  (when (fboundp (car elt))
+	    (apply (car elt) (rest elt))))
+	'(
+	  ;; * This enables the database and idle reparse engines
+	  (semantic-load-enable-minimum-features)
 
-  ;; * This enables some tools useful for coding, such as summary mode
-  ;;   imenu support, and the semantic navigator
-  (semantic-load-enable-code-helpers)
+	  ;; * This enables some tools useful for coding, such as
+	  ;;   summary mode imenu support, and the semantic navigator
+	  (semantic-load-enable-code-helpers)
 
-  ;; * This enables even more coding tools such as intellisense mode
-  ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-  (semantic-load-enable-gaudy-code-helpers)
+	  ;; * This enables even more coding tools such as
+	  ;;   intellisense mode decoration mode, and stickyfunc mode
+	  ;;   (plus regular code helpers)
+	  (semantic-load-enable-gaudy-code-helpers)
 
-  ;; * This enables the use of Exuberent ctags if you have it installed.
-  ;;   If you use C++ templates or boost, you should NOT enable it.
-  ;; (semantic-load-enable-all-exuberent-ctags-support)
-  ;;   Or, use one of these two types of support.
-  ;;   Add support for new languges only via ctags.
-  ;; (semantic-load-enable-primary-exuberent-ctags-support)
-  ;;   Add support for using ctags as a backup parser.
-  ;; (semantic-load-enable-secondary-exuberent-ctags-support)
+	  ;; * This enables the use of Exuberent ctags if you have it
+	  ;;   installed.  If you use C++ templates or boost, you
+	  ;;   should NOT enable it.
+	  ;; (semantic-load-enable-all-exuberent-ctags-support)
+	  ;;   Or, use one of these two types of support.
+	  ;;   Add support for new languges only via ctags.
+	  ;; (semantic-load-enable-primary-exuberent-ctags-support)
+	  ;;   Add support for using ctags as a backup parser.
+	  ;; (semantic-load-enable-secondary-exuberent-ctags-support)
 
-  ;; Enable SRecode (Template management) minor-mode.
-  (global-srecode-minor-mode 1))
+	  ;; Enable SRecode (Template management) minor-mode.
+	  (global-srecode-minor-mode 1))))
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
@@ -335,7 +341,7 @@ This may hang if circular symlinks are encountered."
   `(redshank-setup '(lisp-mode-hook
 		     slime-repl-mode-hook) t))
 
-(require 'redshank-loader)
+(my-require 'redshank-loader)
 
 ;; paredit & show-paren
 (defun enable-paren-modes ()
@@ -422,9 +428,9 @@ This may hang if circular symlinks are encountered."
 
 
 ;;; keyfreq -- track emacs command usage frequency
-(require 'keyfreq)
-(keyfreq-mode 1)
-(keyfreq-autosave-mode 1)
+(when (my-require 'keyfreq)
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
 
 ;;; customizations
 (custom-set-variables
