@@ -251,6 +251,7 @@ This may hang if circular symlinks are encountered."
     (error nil))
 
 ;;; Cedet
+(my-require 'semantic-load)
 (when (my-require 'cedet)
   (global-ede-mode 1)
   (mapc (lambda (elt)
@@ -268,6 +269,8 @@ This may hang if circular symlinks are encountered."
 	  ;;   intellisense mode decoration mode, and stickyfunc mode
 	  ;;   (plus regular code helpers)
 	  (semantic-load-enable-gaudy-code-helpers)
+
+	  (semantic-load-enable-excessive-code-helpers)
 
 	  ;; * This enables the use of Exuberent ctags if you have it
 	  ;;   installed.  If you use C++ templates or boost, you
