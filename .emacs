@@ -321,8 +321,8 @@ This may hang if circular symlinks are encountered."
      (add-hook 'magit-log-edit-mode-hook
 	       (lambda ()
 		 (auto-fill-mode 1)
-		 (flyspell-mode 1)))
-     (global-set-key [f5] 'magit-status)))
+		 (flyspell-mode 1)))))
+(global-set-key [f5] 'magit-status)
 ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
 (add-hook 'dired-mode-hook
 	  (lambda ()
