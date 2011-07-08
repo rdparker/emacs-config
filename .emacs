@@ -501,7 +501,8 @@ This may hang if circular symlinks are encountered."
 
 ;;; uniquify
 (require 'uniquify)
-(setq uniquify-buffer-name-style 'post-forward)
+;; Use file<partial-dir> instead of file<#>
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 ;;; yasnippet
 (require  'yasnippet-bundle nil t)
