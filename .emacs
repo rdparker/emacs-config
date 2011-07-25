@@ -453,6 +453,12 @@ This may hang if circular symlinks are encountered."
 ;;; Org-mode
 (setq org-todo-keywords
       '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+;; This is hackish, but just using (ede-minor-mode -1) in
+;; org-mode-hook did not seem to work.
+(add-hook 'org-mode-hook
+	  '(lambda ()
+	     (run-at-time "1 sec" nil (lambda ()
+					(ede-minor-mode -1)))))
 
 ;;; RPM spec files
 (autoload 'rpm-spec-mode "rpm-spec-mode.el" "RPM spec mode." t)
