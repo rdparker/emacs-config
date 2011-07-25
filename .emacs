@@ -284,6 +284,11 @@ This may hang if circular symlinks are encountered."
 
 	  ;; Enable SRecode (Template management) minor-mode.
 	  (global-srecode-minor-mode 1))))
+;; On emacs 23.2 I was getting a "Symbol's value as variable is void:
+;; warning-suppress-types" message. frequently.  From a little
+;; googling I think it is somehow related to cedet or ede.  This
+;; should work around it.
+(require 'warnings)
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
