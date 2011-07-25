@@ -474,6 +474,12 @@ This may hang if circular symlinks are encountered."
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)
 
+;;; whitespace
+(setq whitespace-style '(empty
+			 indentation space-before-tab
+			 newline lines-tail trailing))
+(global-whitespace-mode 1)
+
 ;;; yasnippet
 (require  'yasnippet-bundle nil t)
 
