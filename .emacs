@@ -291,8 +291,8 @@ This may hang if circular symlinks are encountered."
 
 ;;; Flymake
 (require 'flymake)
-(global-set-key [f3] 'flymake-display-err-menu-for-current-line)
-(global-set-key [f4] 'flymake-goto-next-error)
+(global-set-key [f6] 'flymake-display-err-menu-for-current-line)
+(global-set-key [f7] 'flymake-goto-next-error)
 (add-hook 'find-file-hook 'flymake-find-file-hook)
 
 ;;; Development
