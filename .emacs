@@ -118,6 +118,10 @@ This may hang if circular symlinks are encountered."
     (mapc 'add-to-load-path '("~/lib/lisp/el/cedet-1.0"
 			      "~/lib/lisp/el/cedet-1.0/common")))
 
+;;; I do too much remote work via tramp with odd NFS settings.  Get
+;;; tired of 'yes' to save a file.
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 ;;; Disable debug-on-error
 (setq debug-on-error nil)
 
