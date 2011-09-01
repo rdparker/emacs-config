@@ -106,8 +106,6 @@ This may hang if circular symlinks are encountered."
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/org-mode/lisp"
-			  "~/lib/lisp/el/cedet-1.0"
-			  "~/lib/lisp/el/cedet-1.0/common"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/el/emacs-w3m"
 			  "~/lib/lisp/el/redshank"
@@ -116,6 +114,9 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/magit"
 			  "/usr/share/doc/git/contrib/emacs"))
+(if (< emacs-major-version 24)
+    (mapc 'add-to-load-path '("~/lib/lisp/el/cedet-1.0"
+			      "~/lib/lisp/el/cedet-1.0/common")))
 
 ;;; Disable debug-on-error
 (setq debug-on-error nil)
