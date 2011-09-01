@@ -567,6 +567,9 @@ This may hang if circular symlinks are encountered."
 	     (run-at-time "1 sec" nil (lambda ()
 					(ede-minor-mode -1)))))
 
+;;; revert
+(setq revert-without-query '("\.xml$"))
+
 ;;; RPM spec files
 (autoload 'rpm-spec-mode "rpm-spec-mode.el" "RPM spec mode." t)
 (setq auto-mode-alist (append '(("\\.spec" . rpm-spec-mode))
@@ -581,6 +584,12 @@ This may hang if circular symlinks are encountered."
 			 indentation space-before-tab
 			 newline lines-tail trailing))
 (global-whitespace-mode 1)
+
+;;; nxml
+(eval-after-load "nxml-mode"
+
+  ;; Move by matching tags not just around a tag
+  (setq nxml-sexp-element-flag t))
 
 ;;; yasnippet
 (require  'yasnippet-bundle nil t)
