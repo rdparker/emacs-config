@@ -301,11 +301,28 @@ This may hang if circular symlinks are encountered."
 
 ;;; Flymake
 (require 'flymake)
+(require 'flymake-cursor)
 (global-set-key [f6] 'flymake-display-err-menu-for-current-line)
 (global-set-key [f7] 'flymake-goto-next-error)
 (add-hook 'find-file-hook 'flymake-find-file-hook)
+(require 'rfringe)
+
+(when (load "flymake" t)
+  (defun flymake-closure-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+		       'flymake-create-temp-inplace))
+	   (local-file (file-relative-name
+			temp-file
+			(file-name-directory buffer-file-name))))
+      (list "~/bin/closure.sh" (list local-file))))
+
+  (add-to-list 'flymake-allowed-file-name-masks
+	       '("\\.js\\'" flymake-closure-init)))
 
 ;;; Development
+(global-set-key [C-f6] 'previous-error)
+(global-set-key [C-f7] 'next-error)
+
 (defun make-dist
   "Run \"make dist\" in the current directory"
   (interactive)
