@@ -113,7 +113,9 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/gitsum"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/magit"
-			  "/usr/share/doc/git/contrib/emacs"))
+			  "/usr/share/doc/git/contrib/emacs"
+			  "~/lib/lisp/elib"
+			  "~/lib/lisp/el/jdee/lisp"))
 (if (< emacs-major-version 24)
     (mapc 'add-to-load-path '("~/lib/lisp/el/cedet-1.0"
 			      "~/lib/lisp/el/cedet-1.0/common")))
@@ -358,6 +360,9 @@ This may hang if circular symlinks are encountered."
 ;;; HTML
 (my-load "~/lib/lisp/el/nxhtml/autostart.el")
 (setq debug-on-error nil) ; nxhtml/autostart.el messes with this
+
+;;; Java
+(require 'jde-autoload)
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 
