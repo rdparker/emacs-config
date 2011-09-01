@@ -477,6 +477,86 @@ This may hang if circular symlinks are encountered."
 ;;; Navigation
 (global-set-key [C-tab] 'other-window)
 
+;;; Python
+
+;;----pydoc lookup----
+;; taken from
+;; http://koichitamura.blogspot.com/2009/06/pydoc-look-up-command-emacs.html
+(defun hohe2-lookup-pydoc ()
+  (interactive)
+  (let ((curpoint (point)) (prepoint) (postpoint) (cmd))
+    (save-excursion
+      (beginning-of-line)
+      (setq prepoint (buffer-substring (point) curpoint)))
+    (save-excursion
+      (end-of-line)
+      (setq postpoint (buffer-substring (point) curpoint)))
+    (if (string-match "[_a-z][_\\.0-9a-z]*$" prepoint)
+	(setq cmd (substring prepoint (match-beginning 0) (match-end 0))))
+    (if (string-match "^[_0-9a-z]*" postpoint)
+	(setq cmd (concat cmd (substring postpoint (match-beginning 0) (match-end 0)))))
+    (if (string= cmd "") nil
+      (let ((max-mini-window-height 0))
+	(shell-command (concat "pydoc " cmd))))))
+
+(add-hook 'python-mode-hook
+	  (lambda ()
+	    (local-set-key (kbd "C-h f") 'hohe2-lookup-pydoc)))
+
+;; (eval-after-load 'python
+;;   '(lambda ()
+;;      ;; So that a newer version of python-send-region, which may have
+;;      ;; tramp support is not overridden, check for
+;;      ;; python-font-lock-syntactic-keywords which exists in emacs 23,
+;;      ;; but not in the development version of emacs 24.
+;;      (if (not (boundp 'python-font-lock-syntactic-keywords))
+;; 	 (warn (concat "The custom tramp-supporting `python-send-region' "
+;; 		       "function only supports emacs version prior to 24"))
+
+;;        ;; This was taken from
+;;        ;; http://stackoverflow.com/questions/4465615/evaluating-buffer-in-emacs-python-mode-on-remote-host
+;;        (defun python-send-region (start end)
+;; 	 "Send the region to the inferior Python process."
+
+;; 	 (interactive "r")
+
+;; 	 (let* ((loc_name)
+;; 		(f (if (file-remote-p default-directory)
+;; 		       (let* ((con (tramp-dissect-file-name default-directory)))
+;; 			 (setq loc_name (tramp-make-tramp-temp-file con))
+;; 			 (concat "/"
+;; 				 (tramp-file-name-method con) ":"
+;; 				 (tramp-file-name-user con) "@"
+;; 				 (tramp-file-name-host con) ":"
+;; 				 loc_name
+;; 				 ))
+;; 		     (setq loc_name (make-temp-file "py"))))
+;; 		(command (format "emacs.eexecfile(%S)" loc_name))
+;; 		(orig-start (copy-marker start)))
+;; 	   (save-excursion
+;; 	     (let ((curbuf (current-buffer))
+;; 		   (tempbuf (get-buffer-create "*python_temp*")))
+;; 	       (set-buffer tempbuf)
+;; 	       (delete-region (point-min) (point-max))
+;; 	       (insert-buffer-substring curbuf start end)
+;; 	       (python-mode)
+;; 	       (when (save-excursion
+;; 		       (goto-char (point-min))
+;; 		       (/= 0 (current-indentation)))
+;; 		 (save-excursion
+;; 		   (goto-char orig-start)
+;; 		   ;; Wrong if we had indented code at buffer start.
+;; 		   (set-marker orig-start (line-beginning-position 0)))
+;; 		 (write-region "if True:\n" nil f nil 'nomsg))
+;; 	       (write-region start end f t 'nomsg))
+
+;; 	     (python-send-command command)
+;; 	     (with-current-buffer (process-buffer (python-proc))
+;; 	       ;; Tell compile.el to redirect error locations in file `f' to
+;; 	       ;; positions past marker `orig-start'.  It has to be done *after*
+;; 	       ;; `python-send-command''s call to `compilation-forget-errors'.
+;; 	       (compilation-fake-loc orig-start f))))))))
+
 ;;; Org-mode
 (setq org-todo-keywords
       '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
