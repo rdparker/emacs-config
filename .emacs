@@ -138,8 +138,8 @@ This may hang if circular symlinks are encountered."
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/org-mode/lisp"
-			  "~/lib/lisp/el/cedet-1.0"
-			  "~/lib/lisp/el/cedet-1.0/common"
+			  "~/lib/lisp/el/cedet"
+			  "~/lib/lisp/el/cedet/common"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/el/emacs-w3m"
 			  "~/lib/lisp/el/redshank"
@@ -316,6 +316,8 @@ This may hang if circular symlinks are encountered."
 
 	  ;; Enable SRecode (Template management) minor-mode.
 	  (global-srecode-minor-mode 1))))
+(require 'semantic-ia)			; interactive analysis functions
+(require 'semantic-gcc)			; locate system includes
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
