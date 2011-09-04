@@ -318,6 +318,9 @@ This may hang if circular symlinks are encountered."
 	  (global-srecode-minor-mode 1))))
 (require 'semantic-ia)			; interactive analysis functions
 (require 'semantic-gcc)			; locate system includes
+(unless (directory-files semanticdb-default-save-directory nil
+			 ".*!usr!include.*")
+  (semanticdb-create-ebrowse-database "/usr/include"))
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
