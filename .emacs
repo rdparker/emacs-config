@@ -181,8 +181,8 @@ This may hang if circular symlinks are encountered."
   (global-auto-complete-mode 1)
   (setq ac-modes (append '(lisp-mode
 			   slime-repl-mode)
-			 ac-modes)))
-(add-hook 'find-file-hook 'auto-insert)
+			 ac-modes))
+  (add-hook 'find-file-hook 'auto-insert))
 
 ;;; apt -- debian package support
 (when (shell-command "which apt-get")	; only on systems with apt-get
