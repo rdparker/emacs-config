@@ -135,8 +135,7 @@ This may hang if circular symlinks are encountered."
       nil)))
 
 ;;; load-path
-(mapc 'add-to-load-path '("/usr/share/doc/git/contrib/emacs"
-			  "~/lib/lisp/el"
+(mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/cedet"
 			  "~/lib/lisp/el/cedet/common"
@@ -150,6 +149,12 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/redshank"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/elib"))
+
+;; Find the system's git contrib/emacs directory
+(mapc (lambda (x)
+	(add-to-load-path (concat "/usr/share/doc/" x "/contrib/emacs")))
+      (directory-files "/usr/share/doc" nil "^git.*"))
+
 ;; Make sure the development version of cedet is being used
 (let* ((cedet (expand-file-name "~/lib/lisp/el/cedet"))
        (dir (if (file-exists-p cedet)
