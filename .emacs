@@ -322,6 +322,9 @@ This may hang if circular symlinks are encountered."
 (unless (directory-files semanticdb-default-save-directory nil
 			 ".*!usr!include.*")
   (semanticdb-create-ebrowse-database "/usr/include"))
+(setq global-semantic-tag-folding-mode t)
+;; restore srecode bindings that semantic-ia overrode
+(define-key srecode-mode-map srecode-prefix-key srecode-prefix-map)
 
 ;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
 (defun ao-semantic-hook ()		; Alex Ott
@@ -333,7 +336,10 @@ This may hang if circular symlinks are encountered."
   (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
   (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
   (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
-  (local-set-key "\C-c,J" semantic-ia-fast-jump))
+  (local-set-key "\C-ci" 'semantic-decoration-include-visit)
+  (local-set-key "\C-c,J" 'semantic-ia-fast-jump)
+  (local-set-key "\C-c,-" 'semantic-tag-folding-fold-children)
+  (local-set-key "\C-c,+" 'semantic-tag-folding-show-children))
 (add-hook 'c-mode-common-hook 'my-cedet-hook)
 
 (defun ao-c-mode-cedet-hook ()
