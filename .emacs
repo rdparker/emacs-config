@@ -66,6 +66,38 @@ This may hang if circular symlinks are encountered."
     (if (file-exists-p full-path)
 	(add-to-list 'load-path full-path))))
 
+;;; Cygwin integration
+;; Sets your shell to use cygwin's bash, if Emacs finds it's running
+;; under Windows and c:\cygwin exists. Assumes that C:\cygwin\bin is
+;; not already in your Windows Path (it generally should not be).
+;;
+(let* ((cygwin-root "c:/cygwin")
+       (cygwin-bin (concat cygwin-root "/bin")))
+  (when (and (eq 'windows-nt system-type)
+  	     (file-readable-p cygwin-root))
+
+    (setq exec-path (cons cygwin-bin exec-path))
+    (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
+
+    ;; By default use the Windows HOME.
+    ;; Otherwise, uncomment below to set a HOME
+    ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
+
+      ;; NT-emacs assumes a Windows shell. Change to baash.
+    (setq shell-file-name "bash")
+    (setenv "SHELL" shell-file-name)
+    (setq explicit-shell-file-name shell-file-name)
+
+    ;; This removes unsightly ^M characters that would otherwise
+    ;; appear in the output of java applications.
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
+
+    (add-to-list 'load-path
+	     (concat (expand-file-name "~") "/.emacs.d"))
+
+    (require 'cygwin-mount)
+    (cygwin-mount-activate)))
+
 ;;; ELPA, integrated into emacs version 24
 ;;
 ;; Initially assume this is emacs 24 and just load it.  If that fails
@@ -103,19 +135,21 @@ This may hang if circular symlinks are encountered."
       nil)))
 
 ;;; load-path
-(mapc 'add-to-load-path '("~/lib/lisp/el"
+(mapc 'add-to-load-path '("/usr/share/doc/git/contrib/emacs"
+			  "~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
-			  "~/lib/lisp/el/org-mode/lisp"
-			  "~/lib/lisp/el/w3/lisp"
+			  "~/lib/lisp/el/cedet"
+			  "~/lib/lisp/el/cedet/common"
+			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/emacs-w3m"
-			  "~/lib/lisp/el/redshank"
 			  "~/lib/lisp/el/git-emacs"
 			  "~/lib/lisp/el/gitsum"
-			  "~/lib/lisp/el/egit"
+			  "~/lib/lisp/el/jdee/lisp"
 			  "~/lib/lisp/el/magit"
-			  "/usr/share/doc/git/contrib/emacs"
-			  "~/lib/lisp/elib"
-			  "~/lib/lisp/el/jdee/lisp"))
+			  "~/lib/lisp/el/org-mode/lisp"
+			  "~/lib/lisp/el/redshank"
+			  "~/lib/lisp/el/w3/lisp"
+			  "~/lib/lisp/elib"))
 (if (< emacs-major-version 24)
     (mapc 'add-to-load-path '("~/lib/lisp/el/cedet-1.0"
 			      "~/lib/lisp/el/cedet-1.0/common")))
@@ -156,8 +190,8 @@ This may hang if circular symlinks are encountered."
   (global-auto-complete-mode 1)
   (setq ac-modes (append '(lisp-mode
 			   slime-repl-mode)
-			 ac-modes)))
-(add-hook 'find-file-hook 'auto-insert)
+			 ac-modes))
+  (add-hook 'find-file-hook 'auto-insert))
 
 ;;; apt -- debian package support
 (when (shell-command "which apt-get")	; only on systems with apt-get
@@ -296,6 +330,37 @@ This may hang if circular symlinks are encountered."
 ;; googling I think it is somehow related to cedet or ede.  This
 ;; should work around it.
 (require 'warnings)
+
+;; TODO:  Look at semantic-ia functions and determine what do do with them.
+(require 'semantic-ia)			; interactive analysis functions
+(require 'semantic-gcc)			; locate system includes
+(unless (directory-files semanticdb-default-save-directory nil
+			 ".*!usr!include.*")
+  (semanticdb-create-ebrowse-database "/usr/include"))
+(setq global-semantic-tag-folding-mode t)
+;; restore srecode bindings that semantic-ia overrode
+(define-key srecode-mode-map srecode-prefix-key srecode-prefix-map)
+
+;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
+(defun ao-semantic-hook ()		; Alex Ott
+  (imenu-add-to-menubar "Tags"))
+(add-hook 'semantic-init-hooks 'ao-semantic-hook)
+
+(defun my-cedet-hook ()
+  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
+  (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
+  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+  (local-set-key "\C-ci" 'semantic-decoration-include-visit)
+  (local-set-key "\C-c,J" 'semantic-ia-fast-jump)
+  (local-set-key "\C-c,-" 'semantic-tag-folding-fold-children)
+  (local-set-key "\C-c,+" 'semantic-tag-folding-show-children))
+(add-hook 'c-mode-common-hook 'my-cedet-hook)
+
+(defun ao-c-mode-cedet-hook ()
+ (local-set-key "." 'semantic-complete-self-insert)
+ (local-set-key ">" 'semantic-complete-self-insert))
+(add-hook 'c-mode-common-hook 'ao-c-mode-cedet-hook)
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
@@ -582,7 +647,8 @@ This may hang if circular symlinks are encountered."
 
 ;;; uniquify
 (require 'uniquify)
-(setq uniquify-buffer-name-style 'post-forward)
+;; Use file<partial-dir> instead of file<#>
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 ;;; whitespace
 (setq whitespace-style '(empty
