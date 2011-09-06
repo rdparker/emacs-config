@@ -597,8 +597,8 @@ This may hang if circular symlinks are encountered."
   (setq nxml-sexp-element-flag t))
 
 ;;; yasnippet
-(require  'yasnippet-bundle nil t)
-
+(global-set-key (kbd "C-M-y") 'yas/expand)
+(require  'yasnippet-bundle-autoloads nil t)
 
 ;;; keyfreq -- track emacs command usage frequency
 (when (my-require 'keyfreq)
