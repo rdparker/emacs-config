@@ -316,11 +316,30 @@ This may hang if circular symlinks are encountered."
 
 	  ;; Enable SRecode (Template management) minor-mode.
 	  (global-srecode-minor-mode 1))))
+;; TODO:  Look at semantic-ia functions and determine what do do with them.
 (require 'semantic-ia)			; interactive analysis functions
 (require 'semantic-gcc)			; locate system includes
 (unless (directory-files semanticdb-default-save-directory nil
 			 ".*!usr!include.*")
   (semanticdb-create-ebrowse-database "/usr/include"))
+
+;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
+(defun ao-semantic-hook ()		; Alex Ott
+  (imenu-add-to-menubar "Tags"))
+(add-hook 'semantic-init-hooks 'ao-semantic-hook)
+
+(defun my-cedet-hook ()
+  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
+  (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
+  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+  (local-set-key "\C-c,J" semantic-ia-fast-jump))
+(add-hook 'c-mode-common-hook 'my-cedet-hook)
+
+(defun ao-c-mode-cedet-hook ()
+ (local-set-key "." 'semantic-complete-self-insert)
+ (local-set-key ">" 'semantic-complete-self-insert))
+(add-hook 'c-mode-common-hook 'ao-c-mode-cedet-hook)
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
