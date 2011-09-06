@@ -139,6 +139,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/cedet"
 			  "~/lib/lisp/el/cedet/common"
+			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/emacs-w3m"
 			  "~/lib/lisp/el/git-emacs"
@@ -378,6 +379,11 @@ This may hang if circular symlinks are encountered."
 (defun python-mode-cedet-hook ()
  (local-set-key "." 'semantic-complete-self-insert))
 (add-hook 'python-mode-hook 'python-mode-cedet-hook)
+
+;; ECB has not been updated since 2009, override it's settings and
+;; tell it to go ahead and run with CEDET 1.1 beta.
+(require 'ecb)
+(setq ecb-cedet-required-version-max '(1 1 1 0))
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
@@ -694,6 +700,7 @@ This may hang if circular symlinks are encountered."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(ecb-options-version "2.40")
  '(safe-local-variable-values (quote ((Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
@@ -702,4 +709,5 @@ This may hang if circular symlinks are encountered."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Monaco"))))
- '(cursor ((t (:background "white" :foreground "white")))))
+ '(cursor ((t (:background "white" :foreground "white"))))
+ '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue")))))
