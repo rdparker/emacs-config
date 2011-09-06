@@ -363,13 +363,21 @@ This may hang if circular symlinks are encountered."
   (local-set-key "\C-ci" 'semantic-decoration-include-visit)
   (local-set-key "\C-c,J" 'semantic-ia-fast-jump)
   (local-set-key "\C-c,-" 'semantic-tag-folding-fold-children)
-  (local-set-key "\C-c,+" 'semantic-tag-folding-show-children))
-(add-hook 'c-mode-common-hook 'my-cedet-hook)
+  (local-set-key "\C-c,+" 'semantic-tag-folding-show-children)
+  (local-set-key "\C-cm" 'eassist-list-methods))
+(add-hooks '(c-mode-common-hook
+	     lisp-mode-hook
+	     scheme-mode-hook
+	     emacs-lisp-mode-hook
+	     python-mode-hook) 'my-cedet-hook)
 
 (defun ao-c-mode-cedet-hook ()
  (local-set-key "." 'semantic-complete-self-insert)
  (local-set-key ">" 'semantic-complete-self-insert))
 (add-hook 'c-mode-common-hook 'ao-c-mode-cedet-hook)
+(defun python-mode-cedet-hook ()
+ (local-set-key "." 'semantic-complete-self-insert))
+(add-hook 'python-mode-hook 'python-mode-cedet-hook)
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
