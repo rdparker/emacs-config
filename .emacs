@@ -708,7 +708,7 @@ This may hang if circular symlinks are encountered."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40")
- '(safe-local-variable-values (quote ((Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
+ '(safe-local-variable-values (quote ((c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
