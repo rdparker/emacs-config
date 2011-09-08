@@ -66,6 +66,15 @@ This may hang if circular symlinks are encountered."
     (if (file-exists-p full-path)
 	(add-to-list 'load-path full-path))))
 
+(defun my-require (feature)
+  "This `require's a package if it can be found, otherwise it gives a message."
+  (let ((found (or (member feature features)
+		   (require feature nil t))))
+    (if found
+	found
+      (message "REQUIRE: %s not found.\n" (symbol-name feature))
+      nil)))
+
 ;;; Cygwin integration
 ;; Sets your shell to use cygwin's bash, if Emacs finds it's running
 ;; under Windows and c:\cygwin exists. Assumes that C:\cygwin\bin is
@@ -95,8 +104,9 @@ This may hang if circular symlinks are encountered."
     (add-to-list 'load-path
 	     (concat (expand-file-name "~") "/.emacs.d"))
 
-    (require 'cygwin-mount)
-    (cygwin-mount-activate)))
+    (if (my-require 'cygwin-mount)
+	(cygwin-mount-activate)
+      (warn "On Windows cygwin-mount.el is recommended"))))
 
 ;;; ELPA, integrated into emacs version 24
 ;;
@@ -119,14 +129,6 @@ This may hang if circular symlinks are encountered."
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("tromey" . "http://tromey.com/elpa/")))
 
-(defun my-require (feature)
-  "This `require's a package if it can be found, otherwise it gives a message."
-  (let ((found (or (member feature features)
-		   (require feature nil t))))
-    (if found
-	found
-      (message "REQUIRE: %s not found.\n" (symbol-name feature))
-      nil)))
 (defun my-load (file)
   "This `load's a file if it exists, otherwise it gives a message."
   (let ((found (load file t)))
@@ -342,14 +344,16 @@ This may hang if circular symlinks are encountered."
 (require 'warnings)
 
 ;; TODO:  Look at semantic-ia functions and determine what do do with them.
-(require 'semantic-ia)			; interactive analysis functions
-(require 'semantic-gcc)			; locate system includes
-(unless (directory-files semanticdb-default-save-directory nil
-			 ".*!usr!include.*")
+(my-require 'semantic-ia)	      ; interactive analysis functions
+(my-require 'semantic-gcc)	      ; locate system includes
+(when (and (boundp 'semanticdb-default-save-directory)
+	   (not (directory-files semanticdb-default-save-directory nil
+				 ".*!usr!include.*")))
   (semanticdb-create-ebrowse-database "/usr/include"))
 
 ;; restore srecode bindings that semantic-ia overrode
-(define-key srecode-mode-map srecode-prefix-key srecode-prefix-map)
+(when (boundp 'srecode-mode-map)
+  (define-key srecode-mode-map srecode-prefix-key srecode-prefix-map))
 
 ;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
 (defun ao-semantic-hook ()		; Alex Ott
@@ -379,6 +383,9 @@ This may hang if circular symlinks are encountered."
 (defun python-mode-cedet-hook ()
  (local-set-key "." 'semantic-complete-self-insert))
 (add-hook 'python-mode-hook 'python-mode-cedet-hook)
+
+(when (my-require 'semantic-util-modes)
+  (setq global-semantic-tag-folding-mode t))
 
 ;; ECB has not been updated since 2009, override it's settings and
 ;; tell it to go ahead and run with CEDET 1.1 beta.
@@ -701,7 +708,6 @@ This may hang if circular symlinks are encountered."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40")
- '(global-semantic-tag-folding-mode t nil (semantic-util-modes))
  '(safe-local-variable-values (quote ((Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
