@@ -347,7 +347,7 @@ This may hang if circular symlinks are encountered."
 (unless (directory-files semanticdb-default-save-directory nil
 			 ".*!usr!include.*")
   (semanticdb-create-ebrowse-database "/usr/include"))
-(setq global-semantic-tag-folding-mode t)
+
 ;; restore srecode bindings that semantic-ia overrode
 (define-key srecode-mode-map srecode-prefix-key srecode-prefix-map)
 
@@ -701,6 +701,7 @@ This may hang if circular symlinks are encountered."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40")
+ '(global-semantic-tag-folding-mode t nil (semantic-util-modes))
  '(safe-local-variable-values (quote ((Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
