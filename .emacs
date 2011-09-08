@@ -382,8 +382,8 @@ This may hang if circular symlinks are encountered."
 
 ;; ECB has not been updated since 2009, override it's settings and
 ;; tell it to go ahead and run with CEDET 1.1 beta.
-(require 'ecb)
-(setq ecb-cedet-required-version-max '(1 1 1 0))
+(when (my-require 'ecb)
+  (setq ecb-cedet-required-version-max '(1 1 1 0)))
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
@@ -391,11 +391,11 @@ This may hang if circular symlinks are encountered."
 
 ;;; Flymake
 (require 'flymake)
-(require 'flymake-cursor)
+(my-require 'flymake-cursor)
 (global-set-key [f6] 'flymake-display-err-menu-for-current-line)
 (global-set-key [f7] 'flymake-goto-next-error)
 (add-hook 'find-file-hook 'flymake-find-file-hook)
-(require 'rfringe)
+(my-require 'rfringe)
 
 (when (load "flymake" t)
   (defun flymake-closure-init ()
@@ -450,7 +450,7 @@ This may hang if circular symlinks are encountered."
 (setq debug-on-error nil) ; nxhtml/autostart.el messes with this
 
 ;;; Java
-(require 'jde-autoload)
+(my-require 'jde-autoload)
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 
