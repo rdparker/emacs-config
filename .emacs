@@ -416,6 +416,7 @@ This may hang if circular symlinks are encountered."
 
 ;;; Flymake
 (require 'flymake)
+<<<<<<< HEAD
 (my-require 'flymake-cursor)
 (require 'flymake-cursor)
 (autoload 'flymake-shell-load "flymake-shell")
