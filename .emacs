@@ -409,6 +409,8 @@ This may hang if circular symlinks are encountered."
 (add-to-list 'flymake-allowed-file-name-masks '("^/usr/" nil))
 (my-require 'rfringe)
 
+;; Run javascript files through the Google closure compiler to get
+;; warnings, errors, etc.
 (when (load "flymake" t)
   (defun flymake-closure-init ()
     (let* ((temp-file (flymake-init-create-temp-buffer-copy
