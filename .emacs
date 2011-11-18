@@ -231,11 +231,11 @@ This may hang if circular symlinks are encountered."
 (load "auctex" t)
 (load "preview-latex.el" t)
 
-;;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
+;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
 (desktop-save-mode 1)
 (setq desktop-buffers-not-to-save
       (concat "\\("
-	      "^tags\\|^TAGS\\|^/ssh:\\|^/scp:"
+	      "^tags\\|^TAGS\\|^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:"
 	      "\\)$"))
 (mapc (lambda (elt)
 	(add-to-list 'desktop-modes-not-to-save elt))
