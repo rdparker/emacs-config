@@ -529,7 +529,7 @@ This may hang if circular symlinks are encountered."
 
 ;; redshank
 (eval-after-load "redshank-loader"
-  `(redshank-setup '(lisp-mode-hook
+  '(redshank-setup '(lisp-mode-hook
 		     slime-repl-mode-hook) t))
 
 (my-require 'redshank-loader)
