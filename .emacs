@@ -425,6 +425,8 @@ This may hang if circular symlinks are encountered."
 (add-hook 'find-file-hook 'flymake-find-file-hook)
 ;; don't try flymaking system headers
 (add-to-list 'flymake-allowed-file-name-masks '("^/usr/" nil))
+;; even remote ones
+(add-to-list 'flymake-allowed-file-name-masks '(":/usr/" nil))
 (my-require 'rfringe)
 
 ;; Run javascript files through the Google closure compiler to get
