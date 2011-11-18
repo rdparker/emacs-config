@@ -707,6 +707,19 @@ This may hang if circular symlinks are encountered."
 ;; Use file<partial-dir> instead of file<#>
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
+;;; vc
+;;
+;; I had horrid performance problems with my system trying to use vc
+;; over TRAMP.  Also, ISTR that sometimes it would attempt to use
+;; locally available commands for the remote files, may be wrong about
+;; that.
+(defadvice vc-registered (around my-vc-svn-registered-tramp activate)
+  "Don't try to use vc on files accessed via TRAMP."
+  (if (and (fboundp 'tramp-tramp-file-p)
+	   (tramp-tramp-file-p (ad-get-arg 0)))
+      nil
+    ad-do-it))
+
 ;;; whitespace
 (setq whitespace-style '(empty
 			 indentation space-before-tab
