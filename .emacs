@@ -432,7 +432,6 @@ This may hang if circular symlinks are encountered."
 ;;; Flymake
 (require 'flymake)
 (my-require 'flymake-cursor)
-(require 'flymake-cursor)
 (autoload 'flymake-shell-load "flymake-shell")
 
 (global-set-key [f6] 'flymake-display-err-menu-for-current-line)
