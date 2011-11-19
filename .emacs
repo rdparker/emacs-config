@@ -239,7 +239,7 @@ This may hang if circular symlinks are encountered."
 (defvar ac-source-slime '((candidates . jsn-slime-source)))
 
 ;;; apt -- debian package support
-(when (shell-command "which apt-get")	; only on systems with apt-get
+(when (executable-find "apt-get")	; only on systems with apt-get
   (autoload 'apt "apt-mode" "Create a new buffer with the APT mode." t))
 
 ;;; AUCTeX
