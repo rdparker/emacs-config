@@ -552,7 +552,7 @@ This may hang if circular symlinks are encountered."
 (defun enable-paren-modes ()
   "Turn on `paredit-mode' and `show-paren-mode'."
   (interactive)
-  (paredit-mode 1)
+  (enable-paredit-mode)
   (show-paren-mode 1))
 
 (when (locate-library "paredit")
