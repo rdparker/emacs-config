@@ -561,44 +561,45 @@ This may hang if circular symlinks are encountered."
 ;;; TODO Figure out why this block breaks daemonization
 ;;
 ;; It results in a returning to top-level sort of message loop.
-(unless (daemonp)
-  (when (locate-library "paredit")
-    (autoload 'paredit-mode "paredit"
-      "Minor mode for pseudo-structurally editing Lisp code."
-      t)
-    (add-hooks '(lisp-mode-hook
-		 emacs-lisp-mode
-		 slime-repl-mode-hook)
-	       #'enable-paren-modes)
+(when (locate-library "paredit")
+  (autoload 'paredit-mode "paredit"
+    "Minor mode for pseudo-structurally editing Lisp code."
+    t)
+  (autoload 'enable-paredit-mode "paredit"
+    "Turn on pseudo-structural editing of Lisp code."
+    t)
+  (add-hooks '(lisp-mode-hook
+	       emacs-lisp-mode
+	       slime-repl-mode-hook)
+	     #'enable-paren-modes)
 
-    ;; When `paredit-mode' is enabled it takes precedence over the major
-    ;; mode effectively rebinding C-j to `paredit-newline' instead of
-    ;; `eval-print-last-sexp'.  I do not want this overridden in
-    ;; lisp-interaction-mode.  So, use the buffer-local
-    ;; `minor-mode-overriding-map-alist' to remove the C-j mapping from
-    ;; the standard `paredit-mode' bindings.
-    (add-hook 'lisp-interaction-mode-hook
-	      (lambda ()
-		(enable-paren-modes)
-		(setq minor-mode-overriding-map-alist
-		      `((paredit-mode
-			 ,@(remove (cons ?\C-j 'paredit-newline)
-				   paredit-mode-map))))))
+  ;; When `paredit-mode' is enabled it takes precedence over the major
+  ;; mode effectively rebinding C-j to `paredit-newline' instead of
+  ;; `eval-print-last-sexp'.  I do not want this overridden in
+  ;; lisp-interaction-mode.  So, use the buffer-local
+  ;; `minor-mode-overriding-map-alist' to remove the C-j mapping from
+  ;; the standard `paredit-mode' bindings.
+  (add-hook 'lisp-interaction-mode-hook
+	    (lambda ()
+	      (enable-paren-modes)
+	      (setq minor-mode-overriding-map-alist
+		    `((paredit-mode
+		       ,@(remove (cons ?\C-j 'paredit-newline)
+				 paredit-mode-map))))))
 
-    ;; Make eldoc aware of paredit's most common commands so that it
-    ;; refreshes the minibuffer after they are used.
-    (eval-after-load "eldoc" '(lambda ()
-				(eldoc-add-command
-				 'paredit-backward-delete
-				 'paredit-close-round)))
+  ;; Make eldoc aware of paredit's most common commands so that it
+  ;; refreshes the minibuffer after they are used.
+  (eval-after-load "eldoc" '(lambda ()
+			      (eldoc-add-command
+			       'paredit-backward-delete
+			       'paredit-close-round)))
 
-    ;; Stop SLIME's REPL from grabbing DEL,
-    ;; which is annoying when backspacing over a '('
-    (defun override-slime-repl-bindings-with-paredit ()
-      (define-key slime-repl-mode-map
-	(read-kbd-macro paredit-backward-delete-key) nil))
-    (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit))
-  )
+  ;; Stop SLIME's REPL from grabbing DEL,
+  ;; which is annoying when backspacing over a '('
+  (defun override-slime-repl-bindings-with-paredit ()
+    (define-key slime-repl-mode-map
+      (read-kbd-macro paredit-backward-delete-key) nil))
+  (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit))
 
 ;; eldoc
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
