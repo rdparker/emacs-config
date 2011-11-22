@@ -783,7 +783,7 @@ This may hang if circular symlinks are encountered."
 (defun reload-custom-set-faces (&optional frame)
   "Reloads the `custom-set-faces' block in the `user-init-file'.
 
-This comes in handy as an `after-make-frame-functions' hook when
+This comes in handy as an `before-make-frame-functions' hook when
 emacs is daemonized because a daemonized emacs does nat have a
 `window-system' and cannot apply your fancy fonts and settings
 when it starts up.  Using this as a frame creation hook allows
@@ -800,4 +800,8 @@ by emacsclient."
     (eval-last-sexp nil)))
 
 ;; Reset the desired fonts when emacsclient creates a new frame.
-(add-hook 'after-make-frame-functions 'reload-custom-set-faces)
+;;
+;; Originally this was implemented with `after-make-frame-functions',
+;; but that caused what appeared to be a lockup when emacsclient was
+;; called with a filename on the command line.
+(add-hook 'before-make-frame-functions 'reload-custom-set-faces)
