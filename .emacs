@@ -201,6 +201,9 @@ This may hang if circular symlinks are encountered."
 ;;; Appearance
 (setq inhibit-splash-screen t)
 (column-number-mode 1)
+(setq-default indicate-buffer-boundaries '((top . left) (t . right)))
+(blink-cursor-mode 1)
+(global-hl-line-mode 1)
 
 (defun toggle-full-screen (&optional frame)
   "Toggle the screen between 80 columns and full-screen."
@@ -747,6 +750,8 @@ This may hang if circular symlinks are encountered."
 (setq whitespace-style '(empty face indentation space-before-tab
 			 newline lines-tail trailing))
 (global-whitespace-mode 1)
+(setq-default indicate-empty-lines t
+	      show-trailing-whitespace t)
 
 ;;; nxml
 (eval-after-load "nxml-mode"
