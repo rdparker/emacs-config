@@ -771,3 +771,22 @@ This may hang if circular symlinks are encountered."
  '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Monaco"))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue")))))
+
+(defun reload-custom-set-faces (&optional frame)
+  "Reloads the `custom-set-faces' block in the `user-init-file'.
+
+This comes in handy as an `after-make-frame-functions' hook when
+emacs is daemonized because a daemonized emacs does nat have a
+`window-system' and cannot apply your fancy fonts and settings
+when it starts up.  Using this as a frame creation hook allows
+you to still have your custom settings in a frame that is created
+by emacsclient."
+  (interactive)
+  (save-excursion
+    (find-file (or user-init-file "~/.emacs"))
+    (end-of-buffer)
+    (while (progn
+	     (backward-sexp)
+	     (not (looking-at "^(custom-set-faces$"))))
+    (forward-sexp)
+    (eval-last-sexp nil)))
