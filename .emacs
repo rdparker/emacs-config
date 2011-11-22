@@ -735,7 +735,7 @@ This may hang if circular symlinks are encountered."
     ad-do-it))
 
 ;;; whitespace
-(setq whitespace-style '(empty
+(setq whitespace-style '(empty face
 			 indentation space-before-tab
 			 newline lines-tail trailing))
 (global-whitespace-mode 1)
