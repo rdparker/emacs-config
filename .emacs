@@ -83,7 +83,7 @@ This may hang if circular symlinks are encountered."
 (let* ((cygwin-root "c:/cygwin")
        (cygwin-bin (concat cygwin-root "/bin")))
   (when (and (eq 'windows-nt system-type)
-  	     (file-readable-p cygwin-root))
+	     (file-readable-p cygwin-root))
 
     (setq exec-path (cons cygwin-bin exec-path))
     (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
@@ -735,8 +735,7 @@ This may hang if circular symlinks are encountered."
     ad-do-it))
 
 ;;; whitespace
-(setq whitespace-style '(empty face
-			 indentation space-before-tab
+(setq whitespace-style '(empty face indentation space-before-tab
 			 newline lines-tail trailing))
 (global-whitespace-mode 1)
 
