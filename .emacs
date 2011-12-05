@@ -257,9 +257,7 @@ This may hang if circular symlinks are encountered."
 (load "preview-latex.el" t)
 
 ;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
-(when (daemonp)
-  (when (file-exists-p "~/.emacs.desktop.lock")
-    (delete-file "~/.emacs.desktop.lock")))
+(setq desktop-load-locked-desktop (or (daemonp) 'ask))
 (desktop-save-mode 1)
 (setq desktop-buffers-not-to-save
       (concat "\\("
