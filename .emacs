@@ -261,7 +261,9 @@ This may hang if circular symlinks are encountered."
 (desktop-save-mode 1)
 (setq desktop-buffers-not-to-save
       (concat "\\("
-	      "^tags\\|^TAGS\\|^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:"
+	      "^tags\\|^TAGS\\|"
+	      "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
+	      "\\.tar\\|\\.zip$"
 	      "\\)$"))
 (mapc (lambda (elt)
 	(add-to-list 'desktop-modes-not-to-save elt))
