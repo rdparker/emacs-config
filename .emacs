@@ -331,7 +331,16 @@ This may hang if circular symlinks are encountered."
 			 (mode . emacs-lisp-mode)
 			 (mode . Info-mode)
 			 (mode . Buffer-menu-mode)
-			 (mode . Custom-mode)))))))
+			 (mode . Custom-mode)))
+	       ("c/c++" (or
+			 (mode . c-mode)
+			 (mode . cc-mode)
+			 (mode . c++-mode)
+			 (mode . autoconf-mode)
+			 (mode . makefile-mode)
+			 (mode . makefile-automake-mode)
+			 (mode . makefile-gmake-mode)
+			 (mode . autoconf-mode)))))))
 (add-hook 'ibuffer-mode-hook
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")
