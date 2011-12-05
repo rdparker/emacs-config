@@ -655,6 +655,19 @@ This may hang if circular symlinks are encountered."
 
 ;;; Python
 
+(defadvice run-python
+  (after run-python-disable-process-query () activate compile)
+  "Clear the process-query-on-exit flag for python processes.
+
+This gets started by python mode."
+  ;; set flag to allow exit without query on any
+  ;;active flymake processes
+  (let ((py-process (find-if (lambda (proc)
+			       (string= "*Python*"
+					(buffer-name (process-buffer proc))))
+			     (process-list))))
+    (set-process-query-on-exit-flag py-process nil)))
+
 ;;----pydoc lookup----
 ;; taken from
 ;; http://koichitamura.blogspot.com/2009/06/pydoc-look-up-command-emacs.html
