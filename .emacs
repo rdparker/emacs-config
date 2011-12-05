@@ -274,6 +274,10 @@ This may hang if circular symlinks are encountered."
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
 (setq dired-omit-mode t)
+(eval-after-load "dired-x"
+  '(setq dired-omit-files (concat dired-omit-files
+				  "\\|^\\.zfs$\\|\\.\\$EXTEND$")))
+
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 (add-hook 'dired-load-hook
