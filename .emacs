@@ -356,7 +356,8 @@ This may hang if circular symlinks are encountered."
   (add-hook 'mail-setup-hook 'my-bbdb-insinuate-mail))
 
 ;;; Browser
-(autoload 'w3m "w3m" "Visit World Wide Web pages using the external w3m command." t)
+(autoload 'w3m "w3m"
+  "Visit World Wide Web pages using the external w3m command." t)
 (autoload 'w3m-browse-url "w3m" "Ask emacs-w3m to browse URL." t)
 (setq browse-url-browser-function 'w3m-browse-url)
 (condition-case ()
