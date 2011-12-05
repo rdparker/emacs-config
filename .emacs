@@ -833,4 +833,14 @@ by emacsclient."
 ;; Originally this was implemented with `after-make-frame-functions',
 ;; but that caused what appeared to be a lockup when emacsclient was
 ;; called with a filename on the command line.
+(defun fix-mvl-fonts ()
+  "If we are on a MontaVista system set the font to \"fixed\".
+
+At least on MontaVista Linux 5.1 there is no TrueType support, so
+my regular font will not work.  Instead use \"fixed\"."
+  (when (file-exists-p "/etc/mvl-release")
+    (set-face-font 'default "fixed")
+    (set-face-attribute 'default (selected-frame) :height 80)))
 (add-hook 'before-make-frame-functions 'reload-custom-set-faces)
+(add-hook 'before-make-frame-functions 'fix-mvl-fonts)
+(fix-mvl-fonts)
