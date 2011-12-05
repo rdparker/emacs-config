@@ -486,6 +486,16 @@ This may hang if circular symlinks are encountered."
   (add-to-list 'flymake-allowed-file-name-masks
 	       '("\\.js\\'" flymake-closure-init)))
 
+(defadvice flymake-start-syntax-check-process
+  (after
+   flymake-start-syntax-check-disable-process-query
+   (cmd args dir)
+   activate compile)
+  "Clear the process-query-on-exit flag for flymake processes."
+  ;; set flag to allow exit without query on any
+  ;;active flymake processes
+  (set-process-query-on-exit-flag ad-return-value nil))
+
 ;;; Development
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
