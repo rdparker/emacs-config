@@ -211,7 +211,6 @@ This may hang if circular symlinks are encountered."
 (column-number-mode 1)
 (setq-default indicate-buffer-boundaries '((top . left) (t . right)))
 (blink-cursor-mode 1)
-(global-hl-line-mode 1)
 
 (defun toggle-full-screen (&optional frame)
   "Toggle the screen between 80 columns and full-screen."
