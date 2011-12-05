@@ -454,6 +454,29 @@ This may hang if circular symlinks are encountered."
 (when (my-require 'ecb)
   (setq ecb-cedet-required-version-max '(1 1 1 0)))
 
+;;; Daemon mode
+(defun shutdown-emacs-server ()
+  "Allow the user to save their work when running daemonized.
+This tries to create frame on the X display and clears
+`last-nonmenu-event' so that emacs will use dialogs when
+prompting the user to save things.
+
+The original code came from Soenke's reply on
+http://stackoverflow.com/questions/1167484/how-to-gracefully-shutdown-emacs-daemon.
+It is invoked via my gnome-shutdown-emacs.py script which is
+configured as a GNOME Startup Application."
+  (interactive)
+  (when (not (eq window-system 'x))
+    (message "Initializing x windows system.")
+    (x-initialize-window-system)
+    (when (not x-display-name)
+      (setq x-display-name (getenv "DISPLAY")))
+    (select-frame (make-frame-on-display x-display-name
+					 '((window-system . x)))))
+  (let ((last-nonmenu-event nil)
+	(window-system "x"))
+    (save-buffers-kill-emacs)))
+
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
 (global-set-key (kbd "M-/") 'hippie-expand)
