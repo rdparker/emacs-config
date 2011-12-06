@@ -183,12 +183,14 @@ This may hang if circular symlinks are encountered."
       (directory-files "/usr/share/doc" nil "^git.*"))
 
 ;; Make sure the development version of cedet is being used
-(let* ((cedet (expand-file-name "~/lib/lisp/el/cedet"))
-       (dir (if (file-exists-p cedet)
-		(directory-files cedet))))
-  (unless (or (member ".git" dir)	; I use git-bzr-ng
-	      (member ".bzr" dir))
-    (warn "Development version of cedet recommended")))
+(let ((cedet-library (locate-library "cedet")))
+  (when cedet-library
+    (let* ((cedet (expand-file-name (concat cedet-library "/../../")))
+	   (dir (if (file-exists-p cedet)
+		    (directory-files cedet))))
+      (unless (or (member ".git" dir)	; I use git-bzr-ng
+		  (member ".bzr" dir))
+	(warn "Development version of cedet recommended")))))
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
 ;;; tired of 'yes' to save a file.
