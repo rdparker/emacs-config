@@ -77,36 +77,42 @@ This may hang if circular symlinks are encountered."
 
 ;;; Cygwin integration
 ;; Sets your shell to use cygwin's bash, if Emacs finds it's running
-;; under Windows and c:\cygwin exists. Assumes that C:\cygwin\bin is
-;; not already in your Windows Path (it generally should not be).
+;; under Windows and c:\cygwin exists, unless it's part of my custom
+;; emacs/ecl/slime install in C:/lisp (cygwin would interfere with
+;; MinGW in that case).  Assumes that C:\cygwin\bin is not already in
+;; your Windows Path (it generally should not be).
 ;;
-(let* ((cygwin-root "c:/cygwin")
-       (cygwin-bin (concat cygwin-root "/bin")))
-  (when (and (eq 'windows-nt system-type)
-	     (file-readable-p cygwin-root))
+(unless (find-if (lambda (path)
+		   (string-prefix-p "C:/lisp/bin/emacs" path))
+		 load-path)
 
-    (setq exec-path (cons cygwin-bin exec-path))
-    (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
+  (let* ((cygwin-root "c:/cygwin")
+	 (cygwin-bin (concat cygwin-root "/bin")))
+    (when (and (eq 'windows-nt system-type)
+	       (file-readable-p cygwin-root))
 
-    ;; By default use the Windows HOME.
-    ;; Otherwise, uncomment below to set a HOME
-    ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
+      (setq exec-path (cons cygwin-bin exec-path))
+      (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
+
+      ;; By default use the Windows HOME.
+      ;; Otherwise, uncomment below to set a HOME
+      ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
 
       ;; NT-emacs assumes a Windows shell. Change to baash.
-    (setq shell-file-name "bash")
-    (setenv "SHELL" shell-file-name)
-    (setq explicit-shell-file-name shell-file-name)
+      (setq shell-file-name "bash")
+      (setenv "SHELL" shell-file-name)
+      (setq explicit-shell-file-name shell-file-name)
 
-    ;; This removes unsightly ^M characters that would otherwise
-    ;; appear in the output of java applications.
-    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
+      ;; This removes unsightly ^M characters that would otherwise
+      ;; appear in the output of java applications.
+      (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
 
-    (add-to-list 'load-path
-	     (concat (expand-file-name "~") "/.emacs.d"))
+      (add-to-list 'load-path
+		   (concat (expand-file-name "~") "/.emacs.d"))
 
-    (if (my-require 'cygwin-mount)
-	(cygwin-mount-activate)
-      (warn "On Windows cygwin-mount.el is recommended"))))
+      (if (my-require 'cygwin-mount)
+	  (cygwin-mount-activate)
+	(warn "On Windows cygwin-mount.el is recommended")))))
 
 ;;; OpenIndiana
 ;;
