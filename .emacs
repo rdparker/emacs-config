@@ -394,6 +394,7 @@ This may hang if circular symlinks are encountered."
 (my-require 'semantic-ia)	      ; interactive analysis functions
 (my-require 'semantic-gcc)	      ; locate system includes
 (when (and (boundp 'semanticdb-default-save-directory)
+	   (file-directory-p "/usr/include")
 	   (not (directory-files semanticdb-default-save-directory nil
 				 ".*!usr!include.*")))
   (semanticdb-create-ebrowse-database "/usr/include"))
