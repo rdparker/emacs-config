@@ -528,20 +528,20 @@ This may hang if circular symlinks are encountered."
 ;; with a negative argument, thusly, M-- M-x slime.
 (unless (and (boundp 'slime-lisp-implementations)
 	     slime-lisp-implementations)
-  (setq slime-lisp-implementations
-		`((ccl ("~/lib/lisp/ccl/lx86cl64"))
+  (dolist (impl `((ccl ("~/lib/lisp/ccl/lx86cl64"))
 		  (clisp (,(if (file-exists-p "/usr/bin/clisp")
-					   "/usr/bin/clisp"
-					 "clisp")
-				  "--quiet"))
+			       "/usr/bin/clisp"
+			     "clisp")
+			  "--quiet"))
 		  (ecl (,(if (file-exists-p "/opt/ecl/bin/ecl")
-					 "/opt/ecl/bin/ecl"
-				   "ecl")))
+			     "/opt/ecl/bin/ecl"
+			   "ecl")))
 		  (sbcl (,(if (file-exists-p "/opt/sbcl/bin/sbcl")
-					  "/opt/sbcl/bin/sbcl"
-					(if (file-exists-p "/usr/local/bin/sbcl")
-						"/usr/local/bin/sbcl"
-					  "sbcl")))))))
+			      "/opt/sbcl/bin/sbcl"
+			    (if (file-exists-p "/usr/local/bin/sbcl")
+				"/usr/local/bin/sbcl"
+			      "sbcl"))))))
+    (add-to-list 'slime-lisp-implementations impl t)))
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
