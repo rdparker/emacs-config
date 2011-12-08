@@ -579,8 +579,7 @@ configured as a GNOME Startup Application."
 
 ;; To make use of one of the slime-lisp-implementations invoke slime
 ;; with a negative argument, thusly, M-- M-x slime.
-(unless (and (boundp 'slime-lisp-implementations)
-	     slime-lisp-implementations)
+(when (boundp 'slime-lisp-implementations)
   (dolist (impl `((ccl ("~/lib/lisp/ccl/lx86cl64"))
 		  (clisp (,(if (file-exists-p "/usr/bin/clisp")
 			       "/usr/bin/clisp"
