@@ -425,6 +425,42 @@ This may hang if circular symlinks are encountered."
 (when (my-require 'ecb)
   (setq ecb-cedet-required-version-max '(1 1 1 0)))
 
+;; Tags a la semanatic
+;;
+;; From http://thread.gmane.org/gmane.emacs.cedet/5127/focus=5128
+(defvar semantic-tags-location-ring (make-ring 20))
+
+(defun semantic-goto-definition (point)
+  "Goto definition using semantic-ia-fast-jump
+save the pointer marker if tag is found"
+  (interactive "d")
+  (condition-case err
+      (progn
+	(ring-insert semantic-tags-location-ring (point-marker))
+	(semantic-ia-fast-jump point))
+    (error
+     ;;if not found remove the tag saved in the ring
+     (set-marker (ring-remove semantic-tags-location-ring 0) nil nil)
+     (signal (car err) (cdr err)))))
+
+(defun semantic-pop-tag-mark ()
+  "popup the tag save by semantic-goto-definition"
+  (interactive)
+  (if (ring-empty-p semantic-tags-location-ring)
+      (message "%s" "No more tags available")
+    (let* ((marker (ring-remove semantic-tags-location-ring 0))
+	      (buff (marker-buffer marker))
+		 (pos (marker-position marker)))
+      (if (not buff)
+	    (message "Buffer has been deleted")
+	(switch-to-buffer buff)
+	(goto-char pos))
+      (set-marker marker nil nil))))
+
+(global-set-key (kbd "M-.") 'semantic-goto-definition)
+(global-set-key (kbd "M-*") 'semantic-pop-tag-mark)
+;; End of tags a la semanatic
+
 ;;; Daemon mode
 (defun shutdown-emacs-server ()
   "Allow the user to save their work when running daemonized.
