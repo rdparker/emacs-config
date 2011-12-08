@@ -5,6 +5,8 @@
 ;;; If `called-interactively-p' is called with the wrong number of
 ;;; parameters see ~/lib/el/README.org for a possible workaround.
 
+(eval-when-compile (require 'cl))
+
 ;;; Augmented functions
 ;;;
 ;;; These are "logical" extensions of existing functions.
