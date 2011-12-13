@@ -233,7 +233,6 @@ This may hang if circular symlinks are encountered."
   (setq ac-modes (append '(lisp-mode
 			   slime-repl-mode)
 			 ac-modes))
-  (add-hook 'find-file-hook 'auto-insert)
   (add-hook 'lisp-mode-hook
 	    (lambda ()
 	      (add-to-list 'ac-sources 'ac-source-slime))))
@@ -249,6 +248,8 @@ This may hang if circular symlinks are encountered."
 	 (completion-set (first completion-result)))
     completion-set))
 (defvar ac-source-slime '((candidates . jsn-slime-source)))
+(when (my-require 'autoinsert)
+  (add-hook 'find-file-hook 'auto-insert))
 
 ;;; apt -- debian package support
 (when (executable-find "apt-get")	; only on systems with apt-get
