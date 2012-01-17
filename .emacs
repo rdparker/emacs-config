@@ -84,9 +84,10 @@ This may hang if circular symlinks are encountered."
 ;; MinGW in that case).  Assumes that C:\cygwin\bin is not already in
 ;; your Windows Path (it generally should not be).
 ;;
-(unless (find-if (lambda (path)
-		   (string-prefix-p "C:/lisp/bin/emacs" path))
-		 load-path)
+(unless (or (not (fboundp 'string-prefix-p))
+	    (find-if (lambda (path)
+		       (string-prefix-p "C:/lisp/bin/emacs" path))
+		     load-path))
 
   (let* ((cygwin-root "c:/cygwin")
 	 (cygwin-bin (concat cygwin-root "/bin")))
