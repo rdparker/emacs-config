@@ -876,7 +876,10 @@ This gets started by python mode."
   ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Monaco"))))
  '(cursor ((t (:background "white" :foreground "white"))))
- '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue")))))
+ '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
+ '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
+ '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
+ '(whitespace-line ((t (:background "gray20")))))
 
 (defun reload-custom-set-faces (&optional frame)
   "Reloads the `custom-set-faces' block in the `user-init-file'.
