@@ -7,6 +7,8 @@
 
 (eval-when-compile (require 'cl))
 
+(setq initial-debug-on-error-status debug-on-error)
+
 ;;; Augmented functions
 ;;;
 ;;; These are "logical" extensions of existing functions.
@@ -200,7 +202,7 @@ This may hang if circular symlinks are encountered."
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;; Disable debug-on-error
-(setq debug-on-error nil)
+(setq debug-on-error initial-debug-on-error-status)
 
 ;;; Revert undesirable settings from Lisp Cabinet
 (if (or (> emacs-major-version 23)
@@ -568,7 +570,8 @@ configured as a GNOME Startup Application."
 
 ;;; HTML
 (my-load "~/lib/lisp/el/nxhtml/autostart.el")
-(setq debug-on-error nil) ; nxhtml/autostart.el messes with this
+;; Fix up debug-on-error since  nxhtml/autostart.el messes with it.
+(setq debug-on-error initial-debug-on-error-status)
 
 ;;; Java
 (my-require 'jde-autoload)
