@@ -275,6 +275,9 @@ This may hang if circular symlinks are encountered."
 	(add-to-list 'desktop-modes-not-to-save elt))
       '(dired-mode Info-mode info-lookup-mode))
 
+;; Save buffer-display-time so midnight works across desktop sessions.
+(add-to-list 'desktop-locals-to-save 'buffer-display-time)
+
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
@@ -701,6 +704,10 @@ configured as a GNOME Startup Application."
 (add-hook 'lisp-mode-hook
 	  (lambda ()
 	    (setq info-lookup-mode 'lisp-mode)))
+
+;;; Midnight
+(require 'midnight)
+(midnight-delay-set 'midnight-delay 43200) ; Noon: 12*3600
 
 ;;; Navigation
 (global-set-key [C-tab] 'other-window)
