@@ -810,6 +810,16 @@ This gets started by python mode."
 (setq auto-mode-alist (append '(("\\.spec" . rpm-spec-mode))
 			      auto-mode-alist))
 
+;;; Skeletons -- text templates
+(define-skeleton author
+  "Insert author attribution at cursor."
+  "Company: "
+  comment-start
+  "Author: " `(user-full-name) " <"
+  `(or user-mail-address
+       str) ">"
+  comment-end \n)
+
 ;;; uniquify
 (require 'uniquify)
 ;; Use file<partial-dir> instead of file<#>
