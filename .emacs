@@ -913,3 +913,4 @@ my regular font will not work.  Instead use \"fixed\"."
 (add-hook 'before-make-frame-functions 'reload-custom-set-faces)
 (add-hook 'before-make-frame-functions 'fix-mvl-fonts)
 (fix-mvl-fonts)
+(put 'narrow-to-region 'disabled nil)
