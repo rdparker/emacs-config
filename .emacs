@@ -528,9 +528,15 @@ configured as a GNOME Startup Application."
    (cmd args dir)
    activate compile)
   "Clear the process-query-on-exit flag for flymake processes."
-  ;; set flag to allow exit without query on any
-  ;;active flymake processes
-  (set-process-query-on-exit-flag ad-return-value nil))
+
+  ;; ad-return-value may be nil if the process failed to start and
+  ;; flymake was disabled for the buffer, but there will still be a
+  ;; process associated with the buffer, which will cause a query on
+  ;; ext.  This gets returned or phantom process.
+  (let ((process (or ad-return-value
+		     (get-buffer-process (current-buffer)))))
+    (when (processp process)
+	(set-process-query-on-exit-flag process nil))))
 
 ;;; Development
 (global-set-key [C-f6] 'previous-error)
