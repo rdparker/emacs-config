@@ -373,10 +373,10 @@ This may hang if circular symlinks are encountered."
     (error nil))
 
 ;;; Cedet
-(my-require 'semantic-load)
-(when (my-require 'cedet)
-  (global-ede-mode 1)
+(when (my-require 'semantic-load)
   (semantic-load-enable-excessive-code-helpers))
+(when (my-require 'cedet)
+  (global-ede-mode 1))
 
 ;; On emacs 23.2 I was getting a "Symbol's value as variable is void:
 ;; warning-suppress-types" message. frequently.  From a little
