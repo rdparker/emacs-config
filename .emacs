@@ -137,6 +137,10 @@ This may hang if circular symlinks are encountered."
 ;;   (setq x-alt-keysym 'meta)
 ;;   (setq x-meta-keysym 'super))
 
+;;; Mac OS X
+(when (featurep 'ns)
+  (setq mac-command-modifier 'meta))
+
 ;;; ELPA, integrated into emacs version 24
 ;;
 ;; Initially assume this is emacs 24 and just load it.  If that fails
