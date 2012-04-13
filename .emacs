@@ -600,23 +600,32 @@ configured as a GNOME Startup Application."
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
+(defvar rdp-lisp-implementations
+  '((("ecl"))
+    (("ccl"))
+    (("ccl64"))
+    (("clisp" "--quiet") :coding-system utf-8-unix)
+    (("sbcl")))
+  "The Lisps to consider for `slime-lisp-implementations'.
+The list should have the form:
+  ((PROGRAM-NAME PROGRAM-ARGS...) &key KEYWORD-ARGS) ...)  which
+is the same as `slime-lisp-implementitions' without the NAME
+portion.  PROGRAM-NAME provides both the implementation's name
+and the basename of the executable.")
+
 ;; To make use of one of the slime-lisp-implementations invoke slime
 ;; with a negative argument, thusly, M-- M-x slime.
 (when (boundp 'slime-lisp-implementations)
-  (dolist (impl `((ccl ("~/lib/lisp/ccl/lx86cl64"))
-		  (clisp (,(if (file-exists-p "/usr/bin/clisp")
-			       "/usr/bin/clisp"
-			     "clisp")
-			  "--quiet"))
-		  (ecl (,(if (file-exists-p "/opt/ecl/bin/ecl")
-			     "/opt/ecl/bin/ecl"
-			   "ecl")))
-		  (sbcl (,(if (file-exists-p "/opt/sbcl/bin/sbcl")
-			      "/opt/sbcl/bin/sbcl"
-			    (if (file-exists-p "/usr/local/bin/sbcl")
-				"/usr/local/bin/sbcl"
-			      "sbcl"))))))
-    (add-to-list 'slime-lisp-implementations impl t)))
+  (dolist (lisp rdp-lisp-implementations)
+    (dolist (path '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"))
+      (let* ((name (caar lisp))
+	     (args (cdar lisp))
+	     (keywords (cdr lisp))
+	     (file (concat path name)))
+	(when (file-exists-p file)
+	  (add-to-list 'slime-lisp-implementations `(,(intern name)
+						     ,(cons file args)
+						     ,@keywords)))))))
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
