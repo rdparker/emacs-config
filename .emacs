@@ -178,6 +178,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/gitsum"
 			  "~/lib/lisp/el/jdee/lisp"
 			  "~/lib/lisp/el/magit"
+			  "~/lib/lisp/el/markdown-mode"
 			  "~/lib/lisp/el/org-mode/lisp"
 			  "~/lib/lisp/el/redshank"
 			  "~/lib/lisp/el/w3/lisp"
@@ -705,6 +706,13 @@ configured as a GNOME Startup Application."
 (add-hook 'lisp-mode-hook
 	  (lambda ()
 	    (setq info-lookup-mode 'lisp-mode)))
+
+;;; Markdown
+(autoload 'markdown-mode "markdown-mode"
+  "Major mode for editing Markdown files" t)
+(setq auto-mode-alist
+      (cons '("\\.md" . markdown-mode)
+	    (cons '("\\.mdwn" . markdown-mode) auto-mode-alist)))
 
 ;;; Midnight
 (require 'midnight)
