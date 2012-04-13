@@ -170,6 +170,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/cedet"
 			  "~/lib/lisp/el/cedet/common"
+			  "~/lib/lisp/el/cedet/semantic"
 			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/emacs-w3m"
@@ -373,10 +374,10 @@ This may hang if circular symlinks are encountered."
     (error nil))
 
 ;;; Cedet
-(when (my-require 'semantic-load)
-  (semantic-load-enable-excessive-code-helpers))
 (when (my-require 'cedet)
   (global-ede-mode 1))
+(when (my-require 'semantic-load)
+  (semantic-load-enable-excessive-code-helpers))
 
 ;; On emacs 23.2 I was getting a "Symbol's value as variable is void:
 ;; warning-suppress-types" message. frequently.  From a little
