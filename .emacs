@@ -79,6 +79,12 @@ This may hang if circular symlinks are encountered."
       (message "REQUIRE: %s not found.\n" (symbol-name feature))
       nil)))
 
+;;; bitbake
+(setq auto-mode-alist (append '(("\\.bb" . conf-mode)
+				("\\.bbclass" . conf-mode)
+				("\\.inc" . conf-mode))
+			      auto-mode-alist))
+
 ;;; Cygwin integration
 ;; Sets your shell to use cygwin's bash, if Emacs finds it's running
 ;; under Windows and c:\cygwin exists, unless it's part of my custom
