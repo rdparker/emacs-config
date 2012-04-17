@@ -290,6 +290,10 @@ This may hang if circular symlinks are encountered."
 ;; Save buffer-display-time so midnight works across desktop sessions.
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
+;;; CFEngine
+(require 'cfengine3)
+(add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode))
+
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
