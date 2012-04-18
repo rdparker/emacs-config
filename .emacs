@@ -734,8 +734,12 @@ and the basename of the executable.")
 (autoload 'markdown-mode "markdown-mode"
   "Major mode for editing Markdown files" t)
 (setq auto-mode-alist
-      (cons '("\\.md" . markdown-mode)
-	    (cons '("\\.mdwn" . markdown-mode) auto-mode-alist)))
+      (cons '("\\.markdown" . markdown-mode)
+	    (cons '("\\.md" . markdown-mode)
+		  (cons '("\\.mdwn" . markdown-mode) auto-mode-alist))))
+(when (and (not (executable-find "markdown"))
+	   (executable-find "markdown_py"))
+  (setq markdown-command "markdown_py"))
 
 ;;; Midnight
 (require 'midnight)
