@@ -191,6 +191,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/markdown-mode"
 			  "~/lib/lisp/el/org-mode/lisp"
 			  "~/lib/lisp/el/redshank"
+			  "~/lib/lisp/el/sunrise-commander"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/elib"))
 
@@ -876,6 +877,10 @@ This gets started by python mode."
   `(or user-mail-address
        str) ">"
   comment-end \n)
+
+;;; Sunrise Commander -- emacs answer to Midnight Commander
+(my-require 'sunrise-commander-autoloads)
+(my-require 'sunrise-x-tree-autoloads)
 
 ;;; uniquify
 (require 'uniquify)
