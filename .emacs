@@ -194,6 +194,14 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/elib"))
 
+;;; Info paths
+(let ((org-mode-info-dir (expand-file-name "~/lib/lisp/el/org-mode/doc")))
+  (when (file-exists-p (concat org-mode-info-dir "/dir"))
+	(eval-after-load "info"
+	  `(progn
+		 (info-initialize)				; get default dirs first
+		 (add-to-list 'Info-directory-list ,org-mode-info-dir)))))
+
 ;; Find the system's git contrib/emacs directory
 (mapc (lambda (x)
 	(add-to-load-path (concat "/usr/share/doc/" x "/contrib/emacs")))
