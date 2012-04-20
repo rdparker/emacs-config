@@ -399,7 +399,8 @@ This may hang if circular symlinks are encountered."
 
 ;;; Cedet
 (when (my-require 'cedet)
-  (global-ede-mode 1))
+  (global-ede-mode 1)
+  (global-srecode-minor-mode 1))      ; Enable template insertion menu
 (when (my-require 'semantic-load)
   (semantic-load-enable-excessive-code-helpers))
 
