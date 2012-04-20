@@ -11,15 +11,28 @@ installpkg() {
     $ADMINPROG $PKGPROG install "$@"
 }
 
-updateclone() {
-    dir=$(basename "$1" .git)
+gitupdate() {
+    git fetch
+    git merge origin/master || true
+}
+
+gitit() {
+    if [ -n "$2" ]; then
+	dir=$2
+    else
+	dir=$(basename "$1" .git)
+    fi
+
     if cd $dir; then
-	git fetch
-	git merge origin/master || true
+	gitupdate
 	cd ..
     else
-	git clone "$1"
+	git $SUBCMD clone "$@"
     fi
+}
+
+bzrit() {
+    SUBCMD=bzr gitit "$@"
 }
 
 for prog in aptitude yum pkg; do
