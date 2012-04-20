@@ -1,6 +1,6 @@
 #! /bin/sh
 isprog() {
-    which "$1" 2>&1 >/dev/null
+    which "$1" >/dev/null 2>&1
 }
 
 qmkdir() {
