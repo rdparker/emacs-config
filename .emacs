@@ -309,7 +309,8 @@ This may hang if circular symlinks are encountered."
 (setq dired-omit-mode t)
 (eval-after-load "dired-x"
   '(setq dired-omit-files (concat dired-omit-files
-				  "\\|^\\.zfs$\\|\\.\\$EXTEND$")))
+				  "\\|^\\.zfs$\\|\\.\\$EXTEND$"
+				  "\\|_flymake\\.")))
 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
