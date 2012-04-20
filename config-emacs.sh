@@ -11,9 +11,17 @@ installpkg() {
     $ADMINPROG $PKGPROG install "$@"
 }
 
-gitupdate() {
-    git fetch
-    git merge origin/master || true
+update() {
+    case "$1" in
+	"")
+	    git fetch
+	    git merge --ff-only origin/master || true
+	    ;;
+
+	bzr)
+	    git bzr pull
+	    ;;
+    esac
 }
 
 gitit() {
@@ -23,8 +31,9 @@ gitit() {
 	dir=$(basename "$1" .git)
     fi
 
-    if cd $dir; then
-	gitupdate
+    echo $1
+    if cd $dir 2>/dev/null; then
+	update $SUBCMD
 	cd ..
     else
 	git $SUBCMD clone "$@"
@@ -87,3 +96,9 @@ qmkdir -p ~/lib/lisp/el
 cd ~/lib/lisp/el
 
 bzrit bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk cedet
+if isprog make; then
+    (cd cedet && find -name Makefile -exec touch '{}' \; && make)
+else
+    isprog emacs || installpkg emacs
+    emacs -q --no-site-file -l cedet-build.el -f cedet-build.el
+fi
