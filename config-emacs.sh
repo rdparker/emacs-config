@@ -74,8 +74,16 @@ isprog git || installpkg git-core
 qmkdir ~/.dotfiles
 cd ~/.dotfiles
 
-updateclone git://github.com/rdparker/emacs-config.git
-ln -sf ~/.dotfiles/emacs-config/.emacs ~
+gitit git://github.com/rdparker/emacs-config.git
+ln -sf .dotfiles/emacs-config/.emacs ~
+
+qmkdir ~/src
+cd ~/src
+
+gitit git://github.com/termie/git-bzr-ng.git
+ln -sf ../src/git-bzr-ng/git-bzr ~/bin
 
 qmkdir -p ~/lib/lisp/el
 cd ~/lib/lisp/el
+
+bzrit bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk cedet
