@@ -19,9 +19,25 @@ update() {
 	    ;;
 
 	bzr)
-	    git bzr pull
+	    git bzr pull $(basename "$2")
 	    ;;
     esac
+}
+
+bzrit() {
+    if [ -n "$2" ]; then
+	dir=$2
+    else
+	dir=$(basename "$1" | sed 's/^lp://')
+    fi
+
+    echo $1
+    if cd $dir 2>/dev/null; then
+	bzr update
+	cd ..
+    else
+	bzr branch "$@"
+    fi
 }
 
 gitit() {
@@ -33,15 +49,25 @@ gitit() {
 
     echo $1
     if cd $dir 2>/dev/null; then
-	update $SUBCMD
+	update $SUBCMD "$@"
 	cd ..
     else
 	git $SUBCMD clone "$@"
     fi
 }
 
-bzrit() {
+gitbzrit() {
     SUBCMD=bzr gitit "$@"
+}
+
+install_bazaar() {
+    case $(uname -r) in
+	*.el5.*)
+	    $ADMINPROG rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+	    ;;
+    esac
+
+    installpkg bzr
 }
 
 for prog in aptitude yum pkg; do
@@ -71,7 +97,8 @@ trap cleanup EXIT
 cleanup() {
     retval=$?
     trap - EXIT
-    if [ $retval -eq 1 ]; then
+    if [ $retval -eq 1 ]
+    then
 	echo Error running \"$_\" >&2
 	exit 2
     fi
@@ -103,9 +130,18 @@ if ! isprog git-bzr; then
 fi
 
 qmkdir -p ~/lib/lisp/el
-cd ~/lib/lisp/el
 
-bzrit bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk cedet
+isprog bzr || install_bazaar
+[ -e ~/.bazaar/plugins/bzr-fastimport ] && rm ~/.bazaar/plugins/bzr-fastimport
+bzrit lp:bzr-fastimport fastimport
+ln -sf fastimport ~/src/bzr-fastimport
+qmkdir -p ~/.bazaar/plugins
+ln -sf ~/src/fastimport ~/.bazaar/plugins
+
+cd ~/lib/lisp/el
+# Remove an not git-bzr or bad cedet checkout, if any
+[ ! -d cedet/.git/bzr -a -d cedet ] && rm -rf cedet
+gitbzrit bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk cedet
 if isprog make; then
     (cd cedet && find -name Makefile -exec touch '{}' \; && make)
 else
