@@ -77,6 +77,10 @@ cleanup() {
     fi
 }
 
+isprog ssh || installpkg ssh || true
+isprog ssh || installpkg openssh
+test -n "$SSH_AGENT_PID" || eval `ssh-agent`
+
 isprog git || installpkg git || true
 isprog git || installpkg git-core
 
