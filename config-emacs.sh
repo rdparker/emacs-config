@@ -90,7 +90,13 @@ qmkdir ~/src
 cd ~/src
 
 gitit git://github.com/termie/git-bzr-ng.git
+qmkdir ~/bin
 ln -sf ../src/git-bzr-ng/git-bzr ~/bin
+if ! isprog git-bzr; then
+    PATH=~/bin:$PATH
+    export PATH
+    echo WARNING:  Add ~/bin to your PATH for git-bzr. >&2
+fi
 
 qmkdir -p ~/lib/lisp/el
 cd ~/lib/lisp/el
