@@ -133,10 +133,14 @@ qmkdir -p ~/lib/lisp/el
 
 isprog bzr || install_bazaar
 [ -e ~/.bazaar/plugins/bzr-fastimport ] && rm ~/.bazaar/plugins/bzr-fastimport
-bzrit lp:bzr-fastimport fastimport
-ln -sf fastimport ~/src/bzr-fastimport
-qmkdir -p ~/.bazaar/plugins
-ln -sf ~/src/fastimport ~/.bazaar/plugins
+if bzr fast-import 2>&1 | grep -q "unknown command"; then
+    installpkg bzr-fastimport
+fi
+if bzr fast-import 2>&1 | grep -q "unknown command"; then
+    bzrit lp:bzr-fastimport fastimport
+    qmkdir -p ~/.bazaar/plugins
+    ln -sf ~/src/fastimport ~/.bazaar/plugins
+fi
 
 cd ~/lib/lisp/el
 # Remove cedit if it is corrupt or was not checked out with git-bzr
