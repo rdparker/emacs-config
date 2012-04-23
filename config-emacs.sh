@@ -139,8 +139,9 @@ qmkdir -p ~/.bazaar/plugins
 ln -sf ~/src/fastimport ~/.bazaar/plugins
 
 cd ~/lib/lisp/el
-# Remove an not git-bzr or bad cedet checkout, if any
-[ ! -d cedet/.git/bzr -a -d cedet ] && rm -rf cedet
+# Remove cedit if it is corrupt or was not checked out with git-bzr
+[ -d cedet ] && [ ! -d cedet/.git/bzr -o ! -f cedet/.git/bzr/map/master.git ] \
+    && rm -rf cedet
 gitbzrit bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk cedet
 if isprog make; then
     (cd cedet && find -name Makefile -exec touch '{}' \; && make)
