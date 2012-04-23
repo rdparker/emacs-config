@@ -1,4 +1,7 @@
 #! /bin/sh
+PYTHON=python
+EASY_INSTALL=EASY_INSTALL
+
 isprog() {
     which "$1" >/dev/null 2>&1
 }
@@ -9,6 +12,10 @@ qmkdir() {
 
 installpkg() {
     $ADMINPROG $PKGPROG install "$@"
+}
+
+removepkg() {
+    $ADMINPROG $PKGPROG remove "$@"
 }
 
 update() {
@@ -60,14 +67,71 @@ gitbzrit() {
     SUBCMD=bzr gitit "$@"
 }
 
-install_bazaar() {
+# bzr fast-import will require Python 2.6+ make a new enough bzr is loaded
+check_bzr() {
+    epelrpm=http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+    if ! isprog bzr || bzr --version | grep -q 'python.2\.4'; then
+	# Remove any bzr using python 2.4
+	isprog bzr && removepkg bzr
+	# Red Hat and CentOS 5 do not have a bzr package.  Get it from EPEL
+	case $(uname -r) in
+	    *.el5.*)
+		[ -f /etc/yum.repos.d/epel.repo ] || $ADMINPROG rpm -Uvh $epelrpm
+		isprog python26 || installpkg python26
+		isprog easy_install-2.6 || installpkg python26-distribute
+		[ -f /usr/include/python2.6/compile.h ] || installpkg python26-devel
+		$ADMINPROG easy_install-2.6 bzr
+		;;
+
+	    *)
+		installpkg bzr
+		;;
+
+	esac
+
+    fi
     case $(uname -r) in
 	*.el5.*)
-	    $ADMINPROG rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+	    PYTHON=python2.6
+	    EASY_INSTALL=easy_install-2.6
 	    ;;
     esac
+}
 
-    installpkg bzr
+check_bzr_fastimport() {
+    check_fastimport
+    # Remove mis-installed plugin
+    [ -e ~/.bazaar/plugins/bzr-fastimport ] && \
+	rm ~/.bazaar/plugins/bzr-fastimport
+
+    if bzr fast-import 2>&1 | grep -q "unknown command"; then
+	installpkg bzr-fastimport
+    fi
+    if bzr fast-import 2>&1 | grep -q "unknown command"; then
+	qmkdir -p ~/.bazaar/plugins
+	cd ~/.bazaar/plugins
+	rm fastimport || true
+	bzrit lp:bzr-fastimport fastimport
+    fi
+
+    # Make sure it works
+    check_testtools		# dependency
+}
+
+check_fastimport() {
+    if ! $PYTHON -c 'import fastimport'; then
+	installpkg python-fastimport
+	# Can't rely on the exit code of installpkg, so retest
+	$PYTHON -c 'import fastimport' || $ADMINPROG $EASY_INSTALL fastimport
+    fi
+}
+
+check_testtools() {
+    if ! $PYTHON -c 'import testtools'; then
+	installpkg python-testtools
+	# Can't rely on the exit code of installpkg, so retest
+	$PYTHON -c 'import testtools' || $ADMINPROG $EASY_INSTALL testtools
+    fi
 }
 
 for prog in aptitude yum pkg; do
@@ -97,7 +161,7 @@ trap cleanup EXIT
 cleanup() {
     retval=$?
     trap - EXIT
-    if [ $retval -eq 1 ]
+    if [ $retval == 1 ]
     then
 	echo Error running \"$_\" >&2
 	exit 2
@@ -131,16 +195,9 @@ fi
 
 qmkdir -p ~/lib/lisp/el
 
-isprog bzr || install_bazaar
-[ -e ~/.bazaar/plugins/bzr-fastimport ] && rm ~/.bazaar/plugins/bzr-fastimport
-if bzr fast-import 2>&1 | grep -q "unknown command"; then
-    installpkg bzr-fastimport
-fi
-if bzr fast-import 2>&1 | grep -q "unknown command"; then
-    bzrit lp:bzr-fastimport fastimport
-    qmkdir -p ~/.bazaar/plugins
-    ln -sf ~/src/fastimport ~/.bazaar/plugins
-fi
+
+check_bzr
+check_bzr_fastimport
 
 # Required making CEDET
 isprog makeinfo || installpkg texinfo
