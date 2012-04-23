@@ -1,6 +1,6 @@
 #! /bin/sh
 PYTHON=python
-EASY_INSTALL=EASY_INSTALL
+EASY_INSTALL=easy_install
 
 isprog() {
     which "$1" >/dev/null 2>&1
