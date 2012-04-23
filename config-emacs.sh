@@ -99,7 +99,6 @@ check_bzr() {
 }
 
 check_bzr_fastimport() {
-    check_fastimport
     # Remove mis-installed plugin
     [ -e ~/.bazaar/plugins/bzr-fastimport ] && \
 	rm ~/.bazaar/plugins/bzr-fastimport
@@ -113,9 +112,10 @@ check_bzr_fastimport() {
 	rm fastimport || true
 	bzrit lp:bzr-fastimport fastimport
     fi
+}
 
-    # Make sure it works
-    check_testtools		# dependency
+check_easyinstall() {
+    isprog easy_install || installpkg python-setuptools
 }
 
 check_fastimport() {
@@ -195,8 +195,10 @@ fi
 
 qmkdir -p ~/lib/lisp/el
 
-
+check_easyinstall
+check_testtools		# for testing bzr fast-import
 check_bzr
+check_fastimport
 check_bzr_fastimport
 
 # Required making CEDET
