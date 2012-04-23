@@ -161,7 +161,7 @@ trap cleanup EXIT
 cleanup() {
     retval=$?
     trap - EXIT
-    if [ $retval == 1 ]
+    if [ $retval = 1 ]
     then
 	echo Error running \"$_\" >&2
 	exit 2
