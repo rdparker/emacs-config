@@ -142,6 +142,9 @@ if bzr fast-import 2>&1 | grep -q "unknown command"; then
     ln -sf ~/src/fastimport ~/.bazaar/plugins
 fi
 
+# Required making CEDET
+isprog makeinfo || installpkg texinfo
+
 cd ~/lib/lisp/el
 # Remove cedit if it is corrupt or was not checked out with git-bzr
 [ -d cedet ] && [ ! -d cedet/.git/bzr -o ! -f cedet/.git/bzr/map/master.git ] \
