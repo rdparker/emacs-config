@@ -938,6 +938,7 @@ This gets started by python mode."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40")
+ '(face-font-family-alternatives (quote (("Monaco" "Monospace" "courier" "fixed") ("Monaco" "courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
@@ -945,46 +946,11 @@ This gets started by python mode."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Monaco"))))
+ '(default ((t (:background "black" :foreground "white"))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-line ((t (:background "gray20")))))
 
-(defun reload-custom-set-faces (&optional frame)
-  "Reloads the `custom-set-faces' block in the `user-init-file'.
-
-This comes in handy as an `before-make-frame-functions' hook when
-emacs is daemonized because a daemonized emacs does nat have a
-`window-system' and cannot apply your fancy fonts and settings
-when it starts up.  Using this as a frame creation hook allows
-you to still have your custom settings in a frame that is created
-by emacsclient."
-  (interactive)
-  (save-excursion
-	(find-file (or user-init-file "~/.emacs"))
-	(end-of-buffer)
-	(while (progn
-		 (backward-sexp)
-		 (not (looking-at "^(custom-set-faces$"))))
-	(forward-sexp)
-	(eval-last-sexp nil)))
-
-;; Reset the desired fonts when emacsclient creates a new frame.
-;;
-;; Originally this was implemented with `after-make-frame-functions',
-;; but that caused what appeared to be a lockup when emacsclient was
-;; called with a filename on the command line.
-(defun fix-mvl-fonts ()
-  "If we are on a MontaVista system set the font to \"fixed\".
-
-At least on MontaVista Linux 5.1 there is no TrueType support, so
-my regular font will not work.  Instead use \"fixed\"."
-  (when (file-exists-p "/etc/mvl-release")
-	(set-face-font 'default "fixed")
-	(set-face-attribute 'default (selected-frame) :height 80)))
-(add-hook 'before-make-frame-functions 'reload-custom-set-faces)
-(add-hook 'before-make-frame-functions 'fix-mvl-fonts)
-(fix-mvl-fonts)
 (put 'narrow-to-region 'disabled nil)
