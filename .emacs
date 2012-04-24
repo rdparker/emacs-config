@@ -21,9 +21,12 @@ If MATCH is non-nil, mention only file names that match the regexp MATCH.
 If NOSORT is non-nil, the list is not sorted--its order is unpredictable.
  Otherwise, the list returned is sorted with `string-lessp'.
  NOSORT is useful if you plan to sort the result yourself."
-  (remove-if (function (lambda (filename)
-				 (not (file-directory-p filename))))
-		 (directory-files directory full match nosort)))
+  (when (file-directory-p directory)
+	(setq directory (file-name-as-directory directory))
+	(remove-if (function (lambda (filename)
+						   (not (file-directory-p
+								 (concat directory filename)))))
+		 (directory-files directory full match nosort))))
 
 (defun add-hooks (hooks function &optional append local)
   "Add to the value of each element of HOOKS the function FUNCTION.
