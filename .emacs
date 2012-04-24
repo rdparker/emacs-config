@@ -300,8 +300,8 @@ This may hang if circular symlinks are encountered."
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
 ;;; CFEngine
-(require 'cfengine3)
-(add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode))
+(when (my-require 'cfengine3)
+  (add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode)))
 
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
