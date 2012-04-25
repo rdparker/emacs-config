@@ -21,9 +21,12 @@ If MATCH is non-nil, mention only file names that match the regexp MATCH.
 If NOSORT is non-nil, the list is not sorted--its order is unpredictable.
  Otherwise, the list returned is sorted with `string-lessp'.
  NOSORT is useful if you plan to sort the result yourself."
-  (remove-if (function (lambda (filename)
-    			 (not (file-directory-p filename))))
-	     (directory-files directory full match nosort)))
+  (when (file-directory-p directory)
+	(setq directory (file-name-as-directory directory))
+	(remove-if (function (lambda (filename)
+						   (not (file-directory-p
+								 (concat directory filename)))))
+		 (directory-files directory full match nosort))))
 
 (defun add-hooks (hooks function &optional append local)
   "Add to the value of each element of HOOKS the function FUNCTION.
@@ -53,31 +56,37 @@ This may hang if circular symlinks are encountered."
   (setq file (expand-file-name file))
   (let* ((directory (file-name-directory file))
 	 (target (file-symlink-p file)))
-    (if (setq target (file-symlink-p file))
+	(if (setq target (file-symlink-p file))
 	(progn
 	  (setq file (if (file-name-absolute-p target)
 			 target
-		       (expand-file-name target directory))
+			   (expand-file-name target directory))
 		directory (file-name-directory file))
 	  (if recursive
-	      (readlink file t)
-	    file))
-      file)))
+		  (readlink file t)
+		file))
+	  file)))
 
 (defun add-to-load-path (path)
   "If PATH exists add it to `load-path'"
   (let ((full-path (expand-file-name path)))
-    (if (file-exists-p full-path)
+	(if (file-exists-p full-path)
 	(add-to-list 'load-path full-path))))
 
 (defun my-require (feature)
   "This `require's a package if it can be found, otherwise it gives a message."
   (let ((found (or (member feature features)
 		   (require feature nil t))))
-    (if found
+	(if found
 	found
-      (message "REQUIRE: %s not found.\n" (symbol-name feature))
-      nil)))
+	  (message "REQUIRE: %s not found.\n" (symbol-name feature))
+	  nil)))
+
+;;; bitbake
+(setq auto-mode-alist (append '(("\\.bb" . conf-mode)
+				("\\.bbclass" . conf-mode)
+				("\\.inc" . conf-mode))
+				  auto-mode-alist))
 
 ;;; Cygwin integration
 ;; Sets your shell to use cygwin's bash, if Emacs finds it's running
@@ -87,35 +96,35 @@ This may hang if circular symlinks are encountered."
 ;; your Windows Path (it generally should not be).
 ;;
 (unless (or (not (fboundp 'string-prefix-p))
-	    (find-if (lambda (path)
-		       (string-prefix-p "C:/lisp/bin/emacs" path))
-		     load-path))
+		(find-if (lambda (path)
+			   (string-prefix-p "C:/lisp/bin/emacs" path))
+			 load-path))
 
   (let* ((cygwin-root "c:/cygwin")
 	 (cygwin-bin (concat cygwin-root "/bin")))
-    (when (and (eq 'windows-nt system-type)
-	       (file-readable-p cygwin-root))
+	(when (and (eq 'windows-nt system-type)
+		   (file-readable-p cygwin-root))
 
-      (setq exec-path (cons cygwin-bin exec-path))
-      (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
+	  (setq exec-path (cons cygwin-bin exec-path))
+	  (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
 
-      ;; By default use the Windows HOME.
-      ;; Otherwise, uncomment below to set a HOME
-      ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
+	  ;; By default use the Windows HOME.
+	  ;; Otherwise, uncomment below to set a HOME
+	  ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
 
-      ;; NT-emacs assumes a Windows shell. Change to baash.
-      (setq shell-file-name "bash")
-      (setenv "SHELL" shell-file-name)
-      (setq explicit-shell-file-name shell-file-name)
+	  ;; NT-emacs assumes a Windows shell. Change to baash.
+	  (setq shell-file-name "bash")
+	  (setenv "SHELL" shell-file-name)
+	  (setq explicit-shell-file-name shell-file-name)
 
-      ;; This removes unsightly ^M characters that would otherwise
-      ;; appear in the output of java applications.
-      (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
+	  ;; This removes unsightly ^M characters that would otherwise
+	  ;; appear in the output of java applications.
+	  (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
 
-      (add-to-list 'load-path
+	  (add-to-list 'load-path
 		   (concat (expand-file-name "~") "/.emacs.d"))
 
-      (if (my-require 'cygwin-mount)
+	  (if (my-require 'cygwin-mount)
 	  (cygwin-mount-activate)
 	(warn "On Windows cygwin-mount.el is recommended")))))
 
@@ -153,11 +162,11 @@ This may hang if circular symlinks are encountered."
 ;; emacs <= 23.1 due to a non-backward-compatible change to
 ;; `called-interactively-p' in emacs 23.2.
 (if (not (load "package" t))
-    (progn
-      (add-to-load-path "~/lib/lisp/el")
-      (load "package" t)))
+	(progn
+	  (add-to-load-path "~/lib/lisp/el")
+	  (load "package" t)))
 (if (member 'package features)
-    (package-initialize))
+	(package-initialize))
 ;; I'm not sure mixing GNU's and Tom Tromey's archive is a good idea.
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("tromey" . "http://tromey.com/elpa/")))
@@ -165,9 +174,9 @@ This may hang if circular symlinks are encountered."
 (defun my-load (file)
   "This `load's a file if it exists, otherwise it gives a message."
   (let ((found (load file t)))
-    (unless found
-      (message "LOAD: \"%s\" not found.\n" file)
-      nil)))
+	(unless found
+	  (message "LOAD: \"%s\" not found.\n" file)
+	  nil)))
 
 ;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
@@ -185,21 +194,30 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/markdown-mode"
 			  "~/lib/lisp/el/org-mode/lisp"
 			  "~/lib/lisp/el/redshank"
+			  "~/lib/lisp/el/sunrise-commander"
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/elib"))
+
+;;; Info paths
+(let ((org-mode-info-dir (expand-file-name "~/lib/lisp/el/org-mode/doc")))
+  (when (file-exists-p (concat org-mode-info-dir "/dir"))
+	(eval-after-load "info"
+	  `(progn
+		 (info-initialize)				; get default dirs first
+		 (add-to-list 'Info-directory-list ,org-mode-info-dir)))))
 
 ;; Find the system's git contrib/emacs directory
 (mapc (lambda (x)
 	(add-to-load-path (concat "/usr/share/doc/" x "/contrib/emacs")))
-      (directory-files "/usr/share/doc" nil "^git.*"))
+	  (directory-files "/usr/share/doc" nil "^git.*"))
 
 ;; Make sure the development version of cedet is being used
 (let ((cedet-library (locate-library "cedet")))
   (when cedet-library
-    (let* ((cedet (expand-file-name (concat cedet-library "/../../")))
+	(let* ((cedet (expand-file-name (concat cedet-library "/../../")))
 	   (dir (if (file-exists-p cedet)
-		    (directory-files cedet))))
-      (unless (or (member ".git" dir)	; I use git-bzr-ng
+			(directory-files cedet))))
+	  (unless (or (member ".git" dir)	; I use git-bzr-ng
 		  (member ".bzr" dir))
 	(warn "Development version of cedet recommended")))))
 
@@ -227,8 +245,8 @@ This may hang if circular symlinks are encountered."
   "Toggle the screen between 80 columns and full-screen."
   (interactive)
   (let ((f (or frame
-	       (selected-frame))))
-    (set-frame-width f (- (+ 199 80) (frame-width f)))))
+		   (selected-frame))))
+	(set-frame-width f (- (+ 199 80) (frame-width f)))))
 (global-set-key (kbd "M-RET") 'toggle-full-screen)
 
 ;;; Autocompletion and Autoinsertion
@@ -243,8 +261,8 @@ This may hang if circular symlinks are encountered."
 			   slime-repl-mode)
 			 ac-modes))
   (add-hook 'lisp-mode-hook
-	    (lambda ()
-	      (add-to-list 'ac-sources 'ac-source-slime))))
+		(lambda ()
+		  (add-to-list 'ac-sources 'ac-source-slime))))
 ;; Teaching auto-complete about slime.  Mostly taken from
 ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
 ;; with docs added.
@@ -255,7 +273,7 @@ This may hang if circular symlinks are encountered."
 	 (prefix (buffer-substring-no-properties beg end))
 	 (completion-result (slime-contextual-completions beg end))
 	 (completion-set (first completion-result)))
-    completion-set))
+	completion-set))
 (defvar ac-source-slime '((candidates . jsn-slime-source)))
 (when (my-require 'autoinsert)
   (add-hook 'find-file-hook 'auto-insert))
@@ -272,17 +290,21 @@ This may hang if circular symlinks are encountered."
 (setq desktop-load-locked-desktop (or (daemonp) 'ask))
 (desktop-save-mode 1)
 (setq desktop-buffers-not-to-save
-      (concat "\\("
-	      "^tags\\|^TAGS\\|"
-	      "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
-	      "\\.tar\\|\\.zip$"
-	      "\\)$"))
+	  (concat "\\("
+		  "^tags\\|^TAGS\\|"
+		  "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
+		  "\\.tar\\|\\.zip$"
+		  "\\)$"))
 (mapc (lambda (elt)
 	(add-to-list 'desktop-modes-not-to-save elt))
-      '(dired-mode Info-mode info-lookup-mode))
+	  '(dired-mode Info-mode info-lookup-mode))
 
 ;; Save buffer-display-time so midnight works across desktop sessions.
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
+
+;;; CFEngine
+(when (my-require 'cfengine3)
+  (add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode)))
 
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
@@ -290,22 +312,23 @@ This may hang if circular symlinks are encountered."
 (setq dired-omit-mode t)
 (eval-after-load "dired-x"
   '(setq dired-omit-files (concat dired-omit-files
-				  "\\|^\\.zfs$\\|\\.\\$EXTEND$")))
+				  "\\|^\\.zfs$\\|\\.\\$EXTEND$"
+				  "\\|_flymake\\.")))
 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 (add-hook 'dired-load-hook
 	  (function (lambda ()
-		      (load "dired-x")
-		      (my-require 'dired-sort-menu))))
+			  (load "dired-x")
+			  (my-require 'dired-sort-menu))))
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
 (defun mydired-sort ()
   "Sort dired listings with directories first."
   (save-excursion
-    (let (buffer-read-only)
-      (forward-line 2) ;; beyond dir. header
-      (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
-    (set-buffer-modified-p nil)))
+	(let (buffer-read-only)
+	  (forward-line 2) ;; beyond dir. header
+	  (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+	(set-buffer-modified-p nil)))
 
 (defadvice dired-readin
   (after dired-after-updating-hook first () activate)
@@ -320,15 +343,15 @@ This may hang if circular symlinks are encountered."
 (global-set-key (kbd "C-x C-b")		'ibuffer)
 (global-set-key (kbd "C-x 4 C-b")	'ibuffer-other-window)
 (setq ibuffer-saved-filter-groups
-      (quote (("default"
-	       ("dired" (mode . dired-mode))
-	       ("erc" (mode . erc-mode))
-	       ("planner" (or
+	  (quote (("default"
+		   ("dired" (mode . dired-mode))
+		   ("erc" (mode . erc-mode))
+		   ("planner" (or
 			   (name . "^\\*Calendar\\*$")
 			   (name . "^diary$")
 			   (mode . muse-mode)
 			   (mode . org-mode)))
-	       ("gnus" (or
+		   ("gnus" (or
 			(mode . message-mode)
 			(mode . bbdb-mode)
 			(mode . mail-mode)
@@ -337,8 +360,8 @@ This may hang if circular symlinks are encountered."
 			(mode . gnus-article-mode)
 			(name . "^\\.bbdb$")
 			(name . "^\\.newsrc-dribble")))
-	       ("xml" (mode . nxml-mode))
-	       ("emacs" (or
+		   ("xml" (mode . nxml-mode))
+		   ("emacs" (or
 			 (name . "^\\*scratch\\*$")
 			 (name . "^\\*Messages\\*$")
 			 (mode . help-mode)
@@ -346,7 +369,7 @@ This may hang if circular symlinks are encountered."
 			 (mode . Info-mode)
 			 (mode . Buffer-menu-mode)
 			 (mode . Custom-mode)))
-	       ("c/c++" (or
+		   ("c/c++" (or
 			 (mode . c-mode)
 			 (mode . cc-mode)
 			 (mode . c++-mode)
@@ -357,8 +380,8 @@ This may hang if circular symlinks are encountered."
 			 (mode . autoconf-mode)))))))
 (add-hook 'ibuffer-mode-hook
 	  (lambda ()
-	    (ibuffer-switch-to-saved-filter-groups "default")
-	    (ibuffer-add-to-tmp-hide "^TAGS.*$")))
+		(ibuffer-switch-to-saved-filter-groups "default")
+		(ibuffer-add-to-tmp-hide "^TAGS.*$")))
 
 ;;; bbdb
 (defun my-bbdb-insinuate-mail ()
@@ -375,12 +398,13 @@ This may hang if circular symlinks are encountered."
 (autoload 'w3m-browse-url "w3m" "Ask emacs-w3m to browse URL." t)
 (setq browse-url-browser-function 'w3m-browse-url)
 (condition-case ()
-    (require 'w3-auto "w3-auto")
-    (error nil))
+	(require 'w3-auto "w3-auto")
+	(error nil))
 
 ;;; Cedet
 (when (my-require 'cedet)
-  (global-ede-mode 1))
+  (global-ede-mode 1)
+  (global-srecode-minor-mode 1))      ; Enable template insertion menu
 (when (my-require 'semantic-load)
   (semantic-load-enable-excessive-code-helpers))
 
@@ -420,10 +444,10 @@ This may hang if circular symlinks are encountered."
   (local-set-key "\C-c,+" 'semantic-tag-folding-show-children)
   (local-set-key "\C-cm" 'eassist-list-methods))
 (add-hooks '(c-mode-common-hook
-	     lisp-mode-hook
-	     scheme-mode-hook
-	     emacs-lisp-mode-hook
-	     python-mode-hook) 'my-cedet-hook)
+		 lisp-mode-hook
+		 scheme-mode-hook
+		 emacs-lisp-mode-hook
+		 python-mode-hook) 'my-cedet-hook)
 
 (defun ao-c-mode-cedet-hook ()
  (local-set-key "." 'semantic-complete-self-insert)
@@ -451,27 +475,27 @@ This may hang if circular symlinks are encountered."
 save the pointer marker if tag is found"
   (interactive "d")
   (condition-case err
-      (progn
+	  (progn
 	(ring-insert semantic-tags-location-ring (point-marker))
 	(semantic-ia-fast-jump point))
-    (error
-     ;;if not found remove the tag saved in the ring
-     (set-marker (ring-remove semantic-tags-location-ring 0) nil nil)
-     (signal (car err) (cdr err)))))
+	(error
+	 ;;if not found remove the tag saved in the ring
+	 (set-marker (ring-remove semantic-tags-location-ring 0) nil nil)
+	 (signal (car err) (cdr err)))))
 
 (defun semantic-pop-tag-mark ()
   "popup the tag save by semantic-goto-definition"
   (interactive)
   (if (ring-empty-p semantic-tags-location-ring)
-      (message "%s" "No more tags available")
-    (let* ((marker (ring-remove semantic-tags-location-ring 0))
-	      (buff (marker-buffer marker))
+	  (message "%s" "No more tags available")
+	(let* ((marker (ring-remove semantic-tags-location-ring 0))
+		  (buff (marker-buffer marker))
 		 (pos (marker-position marker)))
-      (if (not buff)
-	    (message "Buffer has been deleted")
+	  (if (not buff)
+		(message "Buffer has been deleted")
 	(switch-to-buffer buff)
 	(goto-char pos))
-      (set-marker marker nil nil))))
+	  (set-marker marker nil nil))))
 
 (global-set-key (kbd "M-.") 'semantic-goto-definition)
 (global-set-key (kbd "M-*") 'semantic-pop-tag-mark)
@@ -490,15 +514,15 @@ It is invoked via my gnome-shutdown-emacs.py script which is
 configured as a GNOME Startup Application."
   (interactive)
   (when (not (eq window-system 'x))
-    (message "Initializing x windows system.")
-    (x-initialize-window-system)
-    (when (not x-display-name)
-      (setq x-display-name (getenv "DISPLAY")))
-    (select-frame (make-frame-on-display x-display-name
+	(message "Initializing x windows system.")
+	(x-initialize-window-system)
+	(when (not x-display-name)
+	  (setq x-display-name (getenv "DISPLAY")))
+	(select-frame (make-frame-on-display x-display-name
 					 '((window-system . x)))))
   (let ((last-nonmenu-event nil)
 	(window-system "x"))
-    (save-buffers-kill-emacs)))
+	(save-buffers-kill-emacs)))
 
 ;;; Dynamic Expansion (Hippie)
 (require 'hippie-exp)
@@ -521,15 +545,15 @@ configured as a GNOME Startup Application."
 ;; warnings, errors, etc.
 (when (load "flymake" t)
   (defun flymake-closure-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-		       'flymake-create-temp-inplace))
+	(let* ((temp-file (flymake-init-create-temp-buffer-copy
+			   'flymake-create-temp-inplace))
 	   (local-file (file-relative-name
 			temp-file
 			(file-name-directory buffer-file-name))))
-      (list "~/bin/closure.sh" (list local-file))))
+	  (list "~/bin/closure.sh" (list local-file))))
 
   (add-to-list 'flymake-allowed-file-name-masks
-	       '("\\.js\\'" flymake-closure-init)))
+		   '("\\.js\\'" flymake-closure-init)))
 
 (defadvice flymake-start-syntax-check-process
   (after
@@ -543,8 +567,8 @@ configured as a GNOME Startup Application."
   ;; process associated with the buffer, which will cause a query on
   ;; ext.  This gets returned or phantom process.
   (let ((process (or ad-return-value
-		     (get-buffer-process (current-buffer)))))
-    (when (processp process)
+			 (get-buffer-process (current-buffer)))))
+	(when (processp process)
 	(set-process-query-on-exit-flag process nil))))
 
 ;;; Development
@@ -570,18 +594,22 @@ configured as a GNOME Startup Application."
 (autoload 'magit-status "magit" nil t)
 (eval-after-load "magit"
   '(progn
-     ;; (require 'magit-topgit)	; if I ever use these packages
-     ;; (require 'magit-stgit)  ; here are the extensions for them
-     (load "magit-svn" nil t)
-     (add-hook 'magit-log-edit-mode-hook
-	       (lambda ()
-		 (auto-fill-mode 1)
-		 (flyspell-mode 1)))))
+	 ;; (require 'magit-topgit)	; if I ever use these packages
+	 ;; (require 'magit-stgit)  ; here are the extensions for them
+	 (load "magit-svn" nil t)
+	 (add-hook 'magit-log-edit-mode-hook
+			   (lambda ()
+				 (auto-fill-mode 1)
+				 (flyspell-mode 1)))
+	 (add-hook 'magit-mode-hook
+			   (lambda ()
+				 (when (magit-svn-enabled)
+				   (magit-svn-mode 1))))))
 (global-set-key [f5] 'magit-status)
 ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
 (add-hook 'dired-mode-hook
 	  (lambda ()
-	    (define-key dired-mode-map "r" 'magit-status)))
+		(define-key dired-mode-map "r" 'magit-status)))
 
 ;;; HTML
 (my-load "~/lib/lisp/el/nxhtml/autostart.el")
@@ -646,7 +674,7 @@ and the basename of the executable.")
 ;; redshank
 (eval-after-load "redshank-loader"
   '(redshank-setup '(lisp-mode-hook
-		     slime-repl-mode-hook) t))
+			 slime-repl-mode-hook) t))
 
 (my-require 'redshank-loader)
 
@@ -662,15 +690,15 @@ and the basename of the executable.")
 ;; It results in a returning to top-level sort of message loop.
 (when (locate-library "paredit")
   (autoload 'paredit-mode "paredit"
-    "Minor mode for pseudo-structurally editing Lisp code."
-    t)
+	"Minor mode for pseudo-structurally editing Lisp code."
+	t)
   (autoload 'enable-paredit-mode "paredit"
-    "Turn on pseudo-structural editing of Lisp code."
-    t)
+	"Turn on pseudo-structural editing of Lisp code."
+	t)
   (add-hooks '(lisp-mode-hook
-	       emacs-lisp-mode
-	       slime-repl-mode-hook)
-	     #'enable-paren-modes)
+		   emacs-lisp-mode
+		   slime-repl-mode-hook)
+		 #'enable-paren-modes)
 
   ;; When `paredit-mode' is enabled it takes precedence over the major
   ;; mode effectively rebinding C-j to `paredit-newline' instead of
@@ -679,25 +707,25 @@ and the basename of the executable.")
   ;; `minor-mode-overriding-map-alist' to remove the C-j mapping from
   ;; the standard `paredit-mode' bindings.
   (add-hook 'lisp-interaction-mode-hook
-	    (lambda ()
-	      (enable-paren-modes)
-	      (setq minor-mode-overriding-map-alist
-		    `((paredit-mode
-		       ,@(remove (cons ?\C-j 'paredit-newline)
+		(lambda ()
+		  (enable-paren-modes)
+		  (setq minor-mode-overriding-map-alist
+			`((paredit-mode
+			   ,@(remove (cons ?\C-j 'paredit-newline)
 				 paredit-mode-map))))))
 
   ;; Make eldoc aware of paredit's most common commands so that it
   ;; refreshes the minibuffer after they are used.
   (eval-after-load "eldoc" '(lambda ()
-			      (eldoc-add-command
-			       'paredit-backward-delete
-			       'paredit-close-round)))
+				  (eldoc-add-command
+				   'paredit-backward-delete
+				   'paredit-close-round)))
 
   ;; Stop SLIME's REPL from grabbing DEL,
   ;; which is annoying when backspacing over a '('
   (defun override-slime-repl-bindings-with-paredit ()
-    (define-key slime-repl-mode-map
-      (read-kbd-macro paredit-backward-delete-key) nil))
+	(define-key slime-repl-mode-map
+	  (read-kbd-macro paredit-backward-delete-key) nil))
   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit))
 
 ;; eldoc
@@ -718,17 +746,21 @@ and the basename of the executable.")
  :doc-spec '(("(ansicl)Symbol Index" nil nil nil)))
 (add-hook 'lisp-interaction-mode-hook
 	  (lambda ()
-	    (setq info-lookup-mode 'lisp-interaction-mode)))
+		(setq info-lookup-mode 'lisp-interaction-mode)))
 (add-hook 'lisp-mode-hook
 	  (lambda ()
-	    (setq info-lookup-mode 'lisp-mode)))
+		(setq info-lookup-mode 'lisp-mode)))
 
 ;;; Markdown
 (autoload 'markdown-mode "markdown-mode"
   "Major mode for editing Markdown files" t)
 (setq auto-mode-alist
-      (cons '("\\.md" . markdown-mode)
-	    (cons '("\\.mdwn" . markdown-mode) auto-mode-alist)))
+	  (cons '("\\.markdown" . markdown-mode)
+		(cons '("\\.md" . markdown-mode)
+		  (cons '("\\.mdwn" . markdown-mode) auto-mode-alist))))
+(when (and (not (executable-find "markdown"))
+	   (executable-find "markdown_py"))
+  (setq markdown-command "markdown_py"))
 
 ;;; Midnight
 (require 'midnight)
@@ -747,10 +779,10 @@ This gets started by python mode."
   ;; set flag to allow exit without query on any
   ;;active flymake processes
   (let ((py-process (find-if (lambda (proc)
-			       (string= "*Python*"
+				   (string= "*Python*"
 					(buffer-name (process-buffer proc))))
-			     (process-list))))
-    (set-process-query-on-exit-flag py-process nil)))
+				 (process-list))))
+	(set-process-query-on-exit-flag py-process nil)))
 
 ;;----pydoc lookup----
 ;; taken from
@@ -758,23 +790,23 @@ This gets started by python mode."
 (defun hohe2-lookup-pydoc ()
   (interactive)
   (let ((curpoint (point)) (prepoint) (postpoint) (cmd))
-    (save-excursion
-      (beginning-of-line)
-      (setq prepoint (buffer-substring (point) curpoint)))
-    (save-excursion
-      (end-of-line)
-      (setq postpoint (buffer-substring (point) curpoint)))
-    (if (string-match "[_a-z][_\\.0-9a-z]*$" prepoint)
+	(save-excursion
+	  (beginning-of-line)
+	  (setq prepoint (buffer-substring (point) curpoint)))
+	(save-excursion
+	  (end-of-line)
+	  (setq postpoint (buffer-substring (point) curpoint)))
+	(if (string-match "[_a-z][_\\.0-9a-z]*$" prepoint)
 	(setq cmd (substring prepoint (match-beginning 0) (match-end 0))))
-    (if (string-match "^[_0-9a-z]*" postpoint)
+	(if (string-match "^[_0-9a-z]*" postpoint)
 	(setq cmd (concat cmd (substring postpoint (match-beginning 0) (match-end 0)))))
-    (if (string= cmd "") nil
-      (let ((max-mini-window-height 0))
+	(if (string= cmd "") nil
+	  (let ((max-mini-window-height 0))
 	(shell-command (concat "pydoc " cmd))))))
 
 (add-hook 'python-mode-hook
 	  (lambda ()
-	    (local-set-key (kbd "C-h f") 'hohe2-lookup-pydoc)))
+		(local-set-key (kbd "C-h f") 'hohe2-lookup-pydoc)))
 
 ;; (eval-after-load 'python
 ;;   '(lambda ()
@@ -832,12 +864,12 @@ This gets started by python mode."
 
 ;;; Org-mode
 (setq org-todo-keywords
-      '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+	  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
 ;; This is hackish, but just using (ede-minor-mode -1) in
 ;; org-mode-hook did not seem to work.
 (add-hook 'org-mode-hook
 	  '(lambda ()
-	     (run-at-time "1 sec" nil (lambda ()
+		 (run-at-time "1 sec" nil (lambda ()
 					(ede-minor-mode -1)))))
 
 ;;; revert
@@ -846,7 +878,7 @@ This gets started by python mode."
 ;;; RPM spec files
 (autoload 'rpm-spec-mode "rpm-spec-mode.el" "RPM spec mode." t)
 (setq auto-mode-alist (append '(("\\.spec" . rpm-spec-mode))
-			      auto-mode-alist))
+				  auto-mode-alist))
 
 ;;; Skeletons -- text templates
 (define-skeleton author
@@ -855,8 +887,12 @@ This gets started by python mode."
   comment-start
   "Author: " `(user-full-name) " <"
   `(or user-mail-address
-       str) ">"
+	   str) ">"
   comment-end \n)
+
+;;; Sunrise Commander -- emacs answer to Midnight Commander
+(my-require 'sunrise-commander-autoloads)
+(my-require 'sunrise-x-tree-autoloads)
 
 ;;; uniquify
 (require 'uniquify)
@@ -873,15 +909,15 @@ This gets started by python mode."
   "Don't try to use vc on files accessed via TRAMP."
   (if (and (fboundp 'tramp-tramp-file-p)
 	   (tramp-tramp-file-p (ad-get-arg 0)))
-      nil
-    ad-do-it))
+	  nil
+	ad-do-it))
 
 ;;; whitespace
 (setq whitespace-style '(empty face indentation space-before-tab
 			 newline lines-tail trailing))
 (global-whitespace-mode 1)
 (setq-default indicate-empty-lines t
-	      show-trailing-whitespace t)
+		  show-trailing-whitespace t)
 
 ;;; nxml
 (eval-after-load "nxml-mode"
@@ -905,53 +941,19 @@ This gets started by python mode."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40")
- '(safe-local-variable-values (quote ((c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
+ '(face-font-family-alternatives (quote (("Monaco" "Monospace" "courier" "fixed") ("Monaco" "courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Monaco"))))
+ '(default ((t (:background "black" :foreground "white"))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-line ((t (:background "gray20")))))
 
-(defun reload-custom-set-faces (&optional frame)
-  "Reloads the `custom-set-faces' block in the `user-init-file'.
-
-This comes in handy as an `before-make-frame-functions' hook when
-emacs is daemonized because a daemonized emacs does nat have a
-`window-system' and cannot apply your fancy fonts and settings
-when it starts up.  Using this as a frame creation hook allows
-you to still have your custom settings in a frame that is created
-by emacsclient."
-  (interactive)
-  (save-excursion
-    (find-file (or user-init-file "~/.emacs"))
-    (end-of-buffer)
-    (while (progn
-	     (backward-sexp)
-	     (not (looking-at "^(custom-set-faces$"))))
-    (forward-sexp)
-    (eval-last-sexp nil)))
-
-;; Reset the desired fonts when emacsclient creates a new frame.
-;;
-;; Originally this was implemented with `after-make-frame-functions',
-;; but that caused what appeared to be a lockup when emacsclient was
-;; called with a filename on the command line.
-(defun fix-mvl-fonts ()
-  "If we are on a MontaVista system set the font to \"fixed\".
-
-At least on MontaVista Linux 5.1 there is no TrueType support, so
-my regular font will not work.  Instead use \"fixed\"."
-  (when (file-exists-p "/etc/mvl-release")
-    (set-face-font 'default "fixed")
-    (set-face-attribute 'default (selected-frame) :height 80)))
-(add-hook 'before-make-frame-functions 'reload-custom-set-faces)
-(add-hook 'before-make-frame-functions 'fix-mvl-fonts)
-(fix-mvl-fonts)
 (put 'narrow-to-region 'disabled nil)
