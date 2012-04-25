@@ -601,10 +601,11 @@ configured as a GNOME Startup Application."
 (global-set-key (kbd "<f9>") 'slime-selector)
 
 (defvar rdp-lisp-implementations
-  '((("ecl"))
+  '((("lisp"))				; cmucl
+    (("ecl"))
     (("ccl"))
     (("ccl64"))
-    (("clisp" "--quiet") :coding-system utf-8-unix)
+    (("clisp" "--quiet" "-K" "full") :coding-system utf-8-unix)
     (("sbcl")))
   "The Lisps to consider for `slime-lisp-implementations'.
 The list should have the form:
@@ -615,17 +616,19 @@ and the basename of the executable.")
 
 ;; To make use of one of the slime-lisp-implementations invoke slime
 ;; with a negative argument, thusly, M-- M-x slime.
-(when (boundp 'slime-lisp-implementations)
-  (dolist (lisp rdp-lisp-implementations)
-    (dolist (path '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"))
-      (let* ((name (caar lisp))
-	     (args (cdar lisp))
-	     (keywords (cdr lisp))
-	     (file (concat path name)))
-	(when (file-exists-p file)
-	  (add-to-list 'slime-lisp-implementations `(,(intern name)
-						     ,(cons file args)
-						     ,@keywords)))))))
+(unless (boundp 'slime-lisp-implementations)
+  (setq slime-lisp-implementations '()))
+(dolist (lisp rdp-lisp-implementations)
+  (dolist (path '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"
+		  "/opt/cmucl/bin/"))
+    (let* ((name (caar lisp))
+	   (args (cdar lisp))
+	   (keywords (cdr lisp))
+	   (file (concat path name)))
+      (when (file-exists-p file)
+	(add-to-list 'slime-lisp-implementations `(,(intern name)
+						   ,(cons file args)
+						   ,@keywords))))))
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
