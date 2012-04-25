@@ -67,35 +67,38 @@ gitbzrit() {
     SUBCMD=bzr gitit "$@"
 }
 
+install_elpa() {
+    epelrpm=http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+    [ -f /etc/yum.repos.d/epel.repo ] || $ADMINPROG rpm -Uvh $epelrpm
+}
+
+isel5() {
+    case $(uname -r) in
+	*.el5 | *.el5.*) true;;
+	*) false;;
+    esac
+}
+
 # bzr fast-import will require Python 2.6+ make a new enough bzr is loaded
 check_bzr() {
-    epelrpm=http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
     if ! isprog bzr || bzr --version | grep -q 'python.2\.4'; then
 	# Remove any bzr using python 2.4
 	isprog bzr && removepkg bzr
 	# Red Hat and CentOS 5 do not have a bzr package.  Get it from EPEL
-	case $(uname -r) in
-	    *.el5.*)
-		[ -f /etc/yum.repos.d/epel.repo ] || $ADMINPROG rpm -Uvh $epelrpm
-		isprog python26 || installpkg python26
-		isprog easy_install-2.6 || installpkg python26-distribute
-		[ -f /usr/include/python2.6/compile.h ] || installpkg python26-devel
-		$ADMINPROG easy_install-2.6 bzr
-		;;
-
-	    *)
-		installpkg bzr
-		;;
-
-	esac
-
+	if isel5; then
+	    install_elpa
+	    isprog python26 || installpkg python26
+	    isprog easy_install-2.6 || installpkg python26-distribute
+	    [ -f /usr/include/python2.6/compile.h ] || installpkg python26-devel
+	    $ADMINPROG easy_install-2.6 bzr
+	else
+	    installpkg bzr
+	fi
     fi
-    case $(uname -r) in
-	*.el5.*)
-	    PYTHON=python2.6
-	    EASY_INSTALL=easy_install-2.6
-	    ;;
-    esac
+    if isel5; then
+        PYTHON=python2.6
+        EASY_INSTALL=easy_install-2.6
+    fi
 }
 
 check_bzr_fastimport() {
@@ -174,6 +177,7 @@ test -n "$SSH_AGENT_PID" || eval `ssh-agent`
 
 isprog git || installpkg git || true
 isprog git || installpkg git-core
+isprog git || (isel5 && install_elpa && installpkg git)
 
 qmkdir ~/.dotfiles
 cd ~/.dotfiles
