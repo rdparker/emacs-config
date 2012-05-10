@@ -323,7 +323,8 @@ This may hang if circular symlinks are encountered."
 (add-hook 'dired-load-hook
 	  (function (lambda ()
 			  (load "dired-x")
-			  (my-require 'dired-sort-menu))))
+			  (my-require 'dired-sort-menu)
+			  (ede-dired-minor-mode 1 ))))
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
 (defun mydired-sort ()
   "Sort dired listings with directories first."
