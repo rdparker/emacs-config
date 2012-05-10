@@ -322,9 +322,11 @@ This may hang if circular symlinks are encountered."
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 (add-hook 'dired-load-hook
 	  (function (lambda ()
-			  (load "dired-x")
-			  (my-require 'dired-sort-menu)
-			  (ede-dired-minor-mode 1 ))))
+		      (load "dired-x")
+		      (my-require 'dired-sort-menu)
+		      (run-at-time "1 sec" nil (lambda ()
+						 (ede-dired-minor-mode 1))))))
+
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
 (defun mydired-sort ()
   "Sort dired listings with directories first."
