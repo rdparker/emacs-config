@@ -593,7 +593,7 @@ configured as a GNOME Startup Application."
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
 
-(defun make-dist
+(defun make-dist ()
   "Run \"make dist\" in the current directory"
   (interactive)
   (compile "make -kw dist"))
