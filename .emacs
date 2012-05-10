@@ -406,68 +406,80 @@ This may hang if circular symlinks are encountered."
 	(error nil))
 
 ;;; Cedet
-(when (my-require 'cedet)
+(when (or (my-require 'cedet-devel-load)
+	  (my-require 'cedet))
   (global-ede-mode 1)
   (global-srecode-minor-mode 1))      ; Enable template insertion menu
-(when (my-require 'semantic-load)
-  (semantic-load-enable-excessive-code-helpers))
+(global-semantic-idle-completions-mode t)
+(global-semantic-decoration-mode t)
+(global-semantic-highlight-func-mode t)
+(global-semantic-show-unmatched-syntax-mode t)
 
-;; On emacs 23.2 I was getting a "Symbol's value as variable is void:
-;; warning-suppress-types" message. frequently.  From a little
-;; googling I think it is somehow related to cedet or ede.  This
-;; should work around it.
-(require 'warnings)
+(add-hooks '(c-mode-hook c-mode-common-hook)
+	   '(lambda ()
+	      (setq ac-sources (append '(ac-source-semantic) ac-sources))
+	      (local-set-key (kbd "RET") 'newline-and-indent)
+	      (linum-mode t)
+	      (semantic-mode t)))
 
-;; TODO:  Look at semantic-ia functions and determine what do do with them.
-(my-require 'semantic-ia)	      ; interactive analysis functions
-(my-require 'semantic-gcc)	      ; locate system includes
-(when (and (boundp 'semanticdb-default-save-directory)
+(semantic-load-enable-excessive-code-helpers)
+
+;; ;; On emacs 23.2 I was getting a "Symbol's value as variable is void:
+;; ;; warning-suppress-types" message. frequently.  From a little
+;; ;; googling I think it is somehow related to cedet or ede.  This
+;; ;; should work around it.
+;; (require 'warnings)
+
+;; ;; TODO:  Look at semantic-ia functions and determine what do do with them.
+;; (my-require 'semantic-ia)	      ; interactive analysis functions
+;; (my-require 'semantic-gcc)	      ; locate system includes
+(when (and (my-require 'semantic/db-ebrowse)
+	   (boundp 'semanticdb-default-save-directory)
 	   (file-directory-p "/usr/include")
 	   (file-directory-p semanticdb-default-save-directory)
 	   (not (directory-files semanticdb-default-save-directory nil
 				 ".*!usr!include.*")))
   (semanticdb-create-ebrowse-database "/usr/include"))
 
-;; restore srecode bindings that semantic-ia overrode
-(when (boundp 'srecode-mode-map)
-  (define-key srecode-mode-map srecode-prefix-key srecode-prefix-map))
+;; ;; restore srecode bindings that semantic-ia overrode
+;; (when (boundp 'srecode-mode-map)
+;;   (define-key srecode-mode-map srecode-prefix-key srecode-prefix-map))
 
-;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
+;; ;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
 (defun ao-semantic-hook ()		; Alex Ott
   (imenu-add-to-menubar "Tags"))
 (add-hook 'semantic-init-hooks 'ao-semantic-hook)
 
-(defun my-cedet-hook ()
-  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
-  (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
-  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
-  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
-  (local-set-key "\C-ci" 'semantic-decoration-include-visit)
-  (local-set-key "\C-c,J" 'semantic-ia-fast-jump)
-  (local-set-key "\C-c,-" 'semantic-tag-folding-fold-children)
-  (local-set-key "\C-c,+" 'semantic-tag-folding-show-children)
-  (local-set-key "\C-cm" 'eassist-list-methods))
-(add-hooks '(c-mode-common-hook
-		 lisp-mode-hook
-		 scheme-mode-hook
-		 emacs-lisp-mode-hook
-		 python-mode-hook) 'my-cedet-hook)
+;; (defun my-cedet-hook ()
+;;   (local-set-key [(control return)] 'semantic-ia-complete-symbol)
+;;   (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
+;;   (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+;;   (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+;;   (local-set-key "\C-ci" 'semantic-decoration-include-visit)
+;;   (local-set-key "\C-c,J" 'semantic-ia-fast-jump)
+;;   (local-set-key "\C-c,-" 'semantic-tag-folding-fold-children)
+;;   (local-set-key "\C-c,+" 'semantic-tag-folding-show-children)
+;;   (local-set-key "\C-cm" 'eassist-list-methods))
+;; (add-hooks '(c-mode-common-hook
+;; 		 lisp-mode-hook
+;; 		 scheme-mode-hook
+;; 		 emacs-lisp-mode-hook
+;; 		 python-mode-hook) 'my-cedet-hook)
 
-(defun ao-c-mode-cedet-hook ()
- (local-set-key "." 'semantic-complete-self-insert)
- (local-set-key ">" 'semantic-complete-self-insert))
-(add-hook 'c-mode-common-hook 'ao-c-mode-cedet-hook)
-(defun python-mode-cedet-hook ()
- (local-set-key "." 'semantic-complete-self-insert))
-(add-hook 'python-mode-hook 'python-mode-cedet-hook)
+;; (defun ao-c-mode-cedet-hook ()
+;;  (local-set-key "." 'semantic-complete-self-insert)
+;;  (local-set-key ">" 'semantic-complete-self-insert))
+;; (add-hook 'c-mode-common-hook 'ao-c-mode-cedet-hook)
+;; (defun python-mode-cedet-hook ()
+;;  (local-set-key "." 'semantic-complete-self-insert))
+;; (add-hook 'python-mode-hook 'python-mode-cedet-hook)
 
-(when (my-require 'semantic-util-modes)
-  (setq global-semantic-tag-folding-mode t))
+(setq global-semantic-tag-folding-mode t)
 
-;; ECB has not been updated since 2009, override it's settings and
-;; tell it to go ahead and run with CEDET 1.1 beta.
-(when (my-require 'ecb)
-  (setq ecb-cedet-required-version-max '(1 1 1 0)))
+;; ;; ECB has not been updated since 2009, override it's settings and
+;; ;; tell it to go ahead and run with CEDET 1.1 beta.
+;; (when (my-require 'ecb)
+;;   (setq ecb-cedet-required-version-max '(1 1 1 0)))
 
 ;; Tags a la semanatic
 ;;
