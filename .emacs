@@ -942,6 +942,8 @@ This gets started by python mode."
   (setq nxml-sexp-element-flag t))
 
 ;;; yasnippet
+(require 'yasnippet)
+(yas/global-mode 1)
 (global-set-key (kbd "C-M-y") 'yas/expand)
 (require  'yasnippet-bundle-autoloads nil t)
 
