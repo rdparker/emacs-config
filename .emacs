@@ -181,6 +181,7 @@ This may hang if circular symlinks are encountered."
 ;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
+			  "~/lib/lisp/el/auto-complete"
 			  "~/lib/lisp/el/cedet"
 			  "~/lib/lisp/el/cedet/common"
 			  "~/lib/lisp/el/cedet/semantic"
@@ -193,9 +194,11 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/magit"
 			  "~/lib/lisp/el/markdown-mode"
 			  "~/lib/lisp/el/org-mode/lisp"
+			  "~/lib/lisp/el/popup-el"
 			  "~/lib/lisp/el/redshank"
 			  "~/lib/lisp/el/sunrise-commander"
 			  "~/lib/lisp/el/w3/lisp"
+			  "~/lib/lisp/el/yasnippet"
 			  "~/lib/lisp/elib"))
 
 ;;; Info paths
