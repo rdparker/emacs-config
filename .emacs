@@ -22,11 +22,11 @@ If NOSORT is non-nil, the list is not sorted--its order is unpredictable.
  Otherwise, the list returned is sorted with `string-lessp'.
  NOSORT is useful if you plan to sort the result yourself."
   (when (file-directory-p directory)
-	(setq directory (file-name-as-directory directory))
-	(remove-if (function (lambda (filename)
-						   (not (file-directory-p
-								 (concat directory filename)))))
-		 (directory-files directory full match nosort))))
+    (setq directory (file-name-as-directory directory))
+    (remove-if (function (lambda (filename)
+			   (not (file-directory-p
+				 (concat directory filename)))))
+	       (directory-files directory full match nosort))))
 
 (defun add-hooks (hooks function &optional append local)
   "Add to the value of each element of HOOKS the function FUNCTION.
@@ -201,10 +201,10 @@ This may hang if circular symlinks are encountered."
 ;;; Info paths
 (let ((org-mode-info-dir (expand-file-name "~/lib/lisp/el/org-mode/doc")))
   (when (file-exists-p (concat org-mode-info-dir "/dir"))
-	(eval-after-load "info"
-	  `(progn
-		 (info-initialize)				; get default dirs first
-		 (add-to-list 'Info-directory-list ,org-mode-info-dir)))))
+    (eval-after-load "info"
+      `(progn
+	 (info-initialize)		; get default dirs first
+	 (add-to-list 'Info-directory-list ,org-mode-info-dir)))))
 
 ;; Find the system's git contrib/emacs directory
 (mapc (lambda (x)
