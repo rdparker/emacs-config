@@ -945,10 +945,10 @@ This gets started by python mode."
   (setq nxml-sexp-element-flag t))
 
 ;;; yasnippet
-(require 'yasnippet)
-(yas/global-mode 1)
-(global-set-key (kbd "C-M-y") 'yas/expand)
-(my-require  'yasnippet-bundle-autoloads)
+(when (my-require 'yasnippet)
+  (yas/global-mode 1)
+  (global-set-key (kbd "C-M-y") 'yas/expand))
+(my-require 'yasnippet-bundle-autoloads)
 (autoload 'el-autoyas-enable "el-autoyas")
 (add-hook 'emacs-lisp-mode-hook 'el-autoyas-enable)
 
