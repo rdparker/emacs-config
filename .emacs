@@ -947,7 +947,7 @@ This gets started by python mode."
 (require 'yasnippet)
 (yas/global-mode 1)
 (global-set-key (kbd "C-M-y") 'yas/expand)
-(require  'yasnippet-bundle-autoloads nil t)
+(my-require  'yasnippet-bundle-autoloads)
 
 ;;; keyfreq -- track emacs command usage frequency
 (when (my-require 'keyfreq)
