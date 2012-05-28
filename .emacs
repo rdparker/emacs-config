@@ -950,7 +950,11 @@ This gets started by python mode."
 (global-set-key (kbd "C-M-y") 'yas/expand)
 (my-require  'yasnippet-bundle-autoloads)
 (autoload 'el-autoyas-enable "el-autoyas")
-(add-hook 'emacs-lisp-mode-hook 'el-autoyas-enable)
+(add-hook 'emacs-lisp-mode-hook
+	  (lambda ()
+	    (when (or (fboundp 'el-autoyas)
+		      (my-require 'el-autoyas))
+	      (el-autoyas-enable))))
 
 ;;; keyfreq -- track emacs command usage frequency
 (when (my-require 'keyfreq)
