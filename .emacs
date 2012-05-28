@@ -417,7 +417,7 @@ This may hang if circular symlinks are encountered."
 (global-semantic-highlight-func-mode t)
 (global-semantic-show-unmatched-syntax-mode t)
 
-(add-hooks '(c-mode-hook c-mode-common-hook)
+(add-hooks '(c-mode-hook)
 	   '(lambda ()
 	      (setq ac-sources (append '(ac-source-semantic) ac-sources))
 	      (local-set-key (kbd "RET") 'newline-and-indent)
