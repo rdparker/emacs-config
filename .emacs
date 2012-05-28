@@ -187,6 +187,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/cedet/semantic"
 			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
+			  "~/lib/lisp/el/el-autoyas"
 			  "~/lib/lisp/el/emacs-w3m"
 			  "~/lib/lisp/el/git-emacs"
 			  "~/lib/lisp/el/gitsum"
@@ -948,6 +949,8 @@ This gets started by python mode."
 (yas/global-mode 1)
 (global-set-key (kbd "C-M-y") 'yas/expand)
 (my-require  'yasnippet-bundle-autoloads)
+(autoload 'el-autoyas-enable "el-autoyas")
+(add-hook 'emacs-lisp-mode-hook 'el-autoyas-enable)
 
 ;;; keyfreq -- track emacs command usage frequency
 (when (my-require 'keyfreq)
