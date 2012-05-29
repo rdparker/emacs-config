@@ -950,7 +950,7 @@ This gets started by python mode."
 ;;; whitespace
 (setq whitespace-style '(empty face indentation space-before-tab
 			 newline lines-tail trailing))
-(global-whitespace-mode 1)
+(global-whitespace-mode 0)
 (setq-default indicate-empty-lines t
 		  show-trailing-whitespace t)
 
