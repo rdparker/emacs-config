@@ -182,6 +182,8 @@ This may hang if circular symlinks are encountered."
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/auto-complete"
+			  "~/lib/lisp/el/color-theme"
+			  "~/lib/lisp/el/emacs-color-theme-solarized"
 			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/el-autoyas"
@@ -294,8 +296,30 @@ This may hang if circular symlinks are encountered."
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
 ;;; CFEngine
-(when (my-require 'cfengine3)
+(when (my-require 'cfengine)
   (add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode)))
+(defcustom cfengine-align-modes '(cfengine-mode)
+  "A list of modes whose syntax resembles CFEngine."
+  :type '(repeat symbol)
+  :group 'align)
+
+(require 'align)
+(defcustom cfengine-align-rules-list
+  '((cfengine-properties
+     (regexp . "\\(\\s-*[^ \t\n]*.=\\)>")
+     (justify . t)
+     (modes . cfengine-align-modes)
+     (tab-stop . nil)))
+  "The alignment rules for cfengine-mode.
+See `align-rules-list` for an explaination of these setting."
+  :type align-rules-list-type
+  :group 'align)
+
+(put 'cfengine-align-rules-list 'risky-local-variable t)
+
+(add-hook 'cfengine-mode-hook
+	  (lambda ()
+	    (setq align-mode-rules-list cfengine-align-rules-list)))
 
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
@@ -311,9 +335,7 @@ This may hang if circular symlinks are encountered."
 (add-hook 'dired-load-hook
 	  (function (lambda ()
 		      (load "dired-x")
-		      (my-require 'dired-sort-menu)
-		      (run-at-time "1 sec" nil (lambda ()
-						 (ede-dired-minor-mode 1))))))
+		      (my-require 'dired-sort-menu))))
 
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
 (defun mydired-sort ()
@@ -447,19 +469,25 @@ configured as a GNOME Startup Application."
 (autoload 'egit "egit" "Emacs git history" t)
 (autoload 'egit-file "egit" "Emacs git history file" t)
 (autoload 'egit-dir "egit" "Emacs git history directory" t)
-(autoload 'magit-status "magit" nil t)
+
+;; Magit does not ship autoloads.  Generate them if necessary.
+(unless (my-require 'magit-autoloads)
+  (let* ((magit-source-dir (file-name-directory (locate-library "magit")))
+	 (generated-autoload-file (expand-file-name "magit-autoloads.el"
+						    magit-source-dir)))
+    (update-directory-autoloads magit-source-dir)))
+
 (eval-after-load "magit"
   '(progn
 	 ;; (require 'magit-topgit)	; if I ever use these packages
 	 ;; (require 'magit-stgit)  ; here are the extensions for them
-	 (load "magit-svn" nil t)
 	 (add-hook 'magit-log-edit-mode-hook
 			   (lambda ()
 				 (auto-fill-mode 1)
 				 (flyspell-mode 1)))
 	 (add-hook 'magit-mode-hook
 			   (lambda ()
-				 (when (magit-svn-enabled)
+				 (when (magit-get "svn-remote" "svn" "url")
 				   (magit-svn-mode 1))))))
 (global-set-key [f5] 'magit-status)
 ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
@@ -541,6 +569,9 @@ and the basename of the executable.")
   (enable-paredit-mode)
   (show-paren-mode 1))
 
+;; dim parens
+(my-require 'parenface)
+
 ;;; TODO Figure out why this block breaks daemonization
 ;;
 ;; It results in a returning to top-level sort of message loop.
@@ -617,6 +648,10 @@ and the basename of the executable.")
 (when (and (not (executable-find "markdown"))
 	   (executable-find "markdown_py"))
   (setq markdown-command "markdown_py"))
+(add-hook 'markdown-mode-hook
+	  (lambda ()
+	    (flyspell-mode 1)
+	    (auto-fill-mode 1)))
 
 ;;; Midnight
 (require 'midnight)
@@ -721,12 +756,6 @@ This gets started by python mode."
 ;;; Org-mode
 (setq org-todo-keywords
 	  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
-;; This is hackish, but just using (ede-minor-mode -1) in
-;; org-mode-hook did not seem to work.
-(add-hook 'org-mode-hook
-	  '(lambda ()
-		 (run-at-time "1 sec" nil (lambda ()
-					(ede-minor-mode -1)))))
 
 ;;; revert
 (setq revert-without-query '("\.xml$"))
@@ -842,7 +871,7 @@ This gets started by python mode."
 ;;; whitespace
 (setq whitespace-style '(empty face indentation space-before-tab
 			 newline lines-tail trailing))
-(global-whitespace-mode 1)
+(global-whitespace-mode 0)
 (setq-default indicate-empty-lines t
 		  show-trailing-whitespace t)
 
@@ -853,10 +882,10 @@ This gets started by python mode."
   (setq nxml-sexp-element-flag t))
 
 ;;; yasnippet
-(require 'yasnippet)
-(yas/global-mode 1)
-(global-set-key (kbd "C-M-y") 'yas/expand)
-(my-require  'yasnippet-bundle-autoloads)
+(when (my-require 'yasnippet)
+  (yas/global-mode 1)
+  (global-set-key (kbd "C-M-y") 'yas/expand))
+(my-require 'yasnippet-bundle-autoloads)
 (autoload 'el-autoyas-enable "el-autoyas")
 (add-hook 'emacs-lisp-mode-hook
 	  (lambda ()
@@ -876,8 +905,11 @@ This gets started by python mode."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(auto-insert-query t)
+ '(cfengine-align-rules-list (quote ((cfengine-properties (regexp . "^\\s-\\([^ 	]*\\)\\(\\s-*[^ 	
+]*\\s-=\\)>") (group . 2) (justify . t) (modes . cfengine-align-modes) (tab-stop)))))
  '(ecb-options-version "2.40")
- '(face-font-family-alternatives (quote (("Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(face-font-family-alternatives (quote (("Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
@@ -885,11 +917,30 @@ This gets started by python mode."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "apple" :family "Verily Serif Mono"))))
+ '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Verily Serif Mono"))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-line ((t (:background "gray20")))))
 
+(defun reload-custom-set-faces (&optional frame)
+  "Reloads the `custom-set-faces' block in the `user-init-file'.
+
+This comes in handy as an `before-make-frame-functions' hook when
+emacs is daemonized because a daemonized emacs does nat have a
+`window-system' and cannot apply your fancy fonts and settings
+when it starts up.  Using this as a frame creation hook allows
+you to still have your custom settings in a frame that is created
+by emacsclient."
+  (interactive)
+  (save-excursion
+	(find-file (or user-init-file "~/.emacs"))
+	(end-of-buffer)
+	(while (progn
+		 (backward-sexp)
+		 (not (looking-at "^(custom-set-faces$"))))
+	(forward-sexp)
+	(eval-last-sexp nil)))
+(add-hook 'after-make-frame-functions 'reload-custom-set-faces)
 (put 'narrow-to-region 'disabled nil)
