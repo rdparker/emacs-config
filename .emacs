@@ -971,7 +971,7 @@ This gets started by python mode."
  '(cfengine-align-rules-list (quote ((cfengine-properties (regexp . "^\\s-\\([^ 	]*\\)\\(\\s-*[^ 	
 ]*\\s-=\\)>") (group . 2) (justify . t) (modes . cfengine-align-modes) (tab-stop)))))
  '(ecb-options-version "2.40")
- '(face-font-family-alternatives (quote (("Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(face-font-family-alternatives (quote (("Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
@@ -979,7 +979,7 @@ This gets started by python mode."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "apple" :family "Verily Serif Mono"))))
+ '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Verily Serif Mono"))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
