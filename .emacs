@@ -722,6 +722,9 @@ and the basename of the executable.")
   (enable-paredit-mode)
   (show-paren-mode 1))
 
+;; dim parens
+(my-require 'parenface)
+
 ;;; TODO Figure out why this block breaks daemonization
 ;;
 ;; It results in a returning to top-level sort of message loop.
