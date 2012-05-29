@@ -182,9 +182,6 @@ This may hang if circular symlinks are encountered."
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/auto-complete"
-			  "~/lib/lisp/el/cedet"
-			  "~/lib/lisp/el/cedet/common"
-			  "~/lib/lisp/el/cedet/semantic"
 			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/el-autoyas"
@@ -214,16 +211,6 @@ This may hang if circular symlinks are encountered."
 (mapc (lambda (x)
 	(add-to-load-path (concat "/usr/share/doc/" x "/contrib/emacs")))
 	  (directory-files "/usr/share/doc" nil "^git.*"))
-
-;; Make sure the development version of cedet is being used
-(let ((cedet-library (locate-library "cedet")))
-  (when cedet-library
-	(let* ((cedet (expand-file-name (concat cedet-library "/../../")))
-	   (dir (if (file-exists-p cedet)
-			(directory-files cedet))))
-	  (unless (or (member ".git" dir)	; I use git-bzr-ng
-		  (member ".bzr" dir))
-	(warn "Development version of cedet recommended")))))
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
 ;;; tired of 'yes' to save a file.
@@ -408,118 +395,6 @@ This may hang if circular symlinks are encountered."
 	(require 'w3-auto "w3-auto")
 	(error nil))
 
-;;; Cedet
-(when (or (my-require 'cedet-devel-load)
-	  (my-require 'cedet))
-  (global-ede-mode 1)
-  (global-srecode-minor-mode 1))      ; Enable template insertion menu
-(global-semantic-idle-completions-mode t)
-(global-semantic-decoration-mode t)
-(global-semantic-highlight-func-mode t)
-(global-semantic-show-unmatched-syntax-mode t)
-
-(add-hooks '(c-mode-hook)
-	   '(lambda ()
-	      (setq ac-sources (append '(ac-source-semantic) ac-sources))
-	      (local-set-key (kbd "RET") 'newline-and-indent)
-	      (linum-mode t)
-	      (semantic-mode t)))
-
-(semantic-load-enable-excessive-code-helpers)
-
-;; ;; On emacs 23.2 I was getting a "Symbol's value as variable is void:
-;; ;; warning-suppress-types" message. frequently.  From a little
-;; ;; googling I think it is somehow related to cedet or ede.  This
-;; ;; should work around it.
-;; (require 'warnings)
-
-;; ;; TODO:  Look at semantic-ia functions and determine what do do with them.
-;; (my-require 'semantic-ia)	      ; interactive analysis functions
-;; (my-require 'semantic-gcc)	      ; locate system includes
-(when (and (my-require 'semantic/db-ebrowse)
-	   (boundp 'semanticdb-default-save-directory)
-	   (file-directory-p "/usr/include")
-	   (file-directory-p semanticdb-default-save-directory)
-	   (not (directory-files semanticdb-default-save-directory nil
-				 ".*!usr!include.*")))
-  (semanticdb-create-ebrowse-database "/usr/include"))
-
-;; ;; restore srecode bindings that semantic-ia overrode
-;; (when (boundp 'srecode-mode-map)
-;;   (define-key srecode-mode-map srecode-prefix-key srecode-prefix-map))
-
-;; ;; from http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
-(defun ao-semantic-hook ()		; Alex Ott
-  (imenu-add-to-menubar "Tags"))
-(add-hook 'semantic-init-hooks 'ao-semantic-hook)
-
-;; (defun my-cedet-hook ()
-;;   (local-set-key [(control return)] 'semantic-ia-complete-symbol)
-;;   (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
-;;   (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
-;;   (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
-;;   (local-set-key "\C-ci" 'semantic-decoration-include-visit)
-;;   (local-set-key "\C-c,J" 'semantic-ia-fast-jump)
-;;   (local-set-key "\C-c,-" 'semantic-tag-folding-fold-children)
-;;   (local-set-key "\C-c,+" 'semantic-tag-folding-show-children)
-;;   (local-set-key "\C-cm" 'eassist-list-methods))
-;; (add-hooks '(c-mode-common-hook
-;; 		 lisp-mode-hook
-;; 		 scheme-mode-hook
-;; 		 emacs-lisp-mode-hook
-;; 		 python-mode-hook) 'my-cedet-hook)
-
-;; (defun ao-c-mode-cedet-hook ()
-;;  (local-set-key "." 'semantic-complete-self-insert)
-;;  (local-set-key ">" 'semantic-complete-self-insert))
-;; (add-hook 'c-mode-common-hook 'ao-c-mode-cedet-hook)
-;; (defun python-mode-cedet-hook ()
-;;  (local-set-key "." 'semantic-complete-self-insert))
-;; (add-hook 'python-mode-hook 'python-mode-cedet-hook)
-
-(setq global-semantic-tag-folding-mode t)
-
-;; ;; ECB has not been updated since 2009, override it's settings and
-;; ;; tell it to go ahead and run with CEDET 1.1 beta.
-;; (when (my-require 'ecb)
-;;   (setq ecb-cedet-required-version-max '(1 1 1 0)))
-
-;; Tags a la semanatic
-;;
-;; From http://thread.gmane.org/gmane.emacs.cedet/5127/focus=5128
-(defvar semantic-tags-location-ring (make-ring 20))
-
-(defun semantic-goto-definition (point)
-  "Goto definition using semantic-ia-fast-jump
-save the pointer marker if tag is found"
-  (interactive "d")
-  (condition-case err
-	  (progn
-	(ring-insert semantic-tags-location-ring (point-marker))
-	(semantic-ia-fast-jump point))
-	(error
-	 ;;if not found remove the tag saved in the ring
-	 (set-marker (ring-remove semantic-tags-location-ring 0) nil nil)
-	 (signal (car err) (cdr err)))))
-
-(defun semantic-pop-tag-mark ()
-  "popup the tag save by semantic-goto-definition"
-  (interactive)
-  (if (ring-empty-p semantic-tags-location-ring)
-	  (message "%s" "No more tags available")
-	(let* ((marker (ring-remove semantic-tags-location-ring 0))
-		  (buff (marker-buffer marker))
-		 (pos (marker-position marker)))
-	  (if (not buff)
-		(message "Buffer has been deleted")
-	(switch-to-buffer buff)
-	(goto-char pos))
-	  (set-marker marker nil nil))))
-
-(global-set-key (kbd "M-.") 'semantic-goto-definition)
-(global-set-key (kbd "M-*") 'semantic-pop-tag-mark)
-;; End of tags a la semanatic
-
 ;;; Daemon mode
 (defun shutdown-emacs-server ()
   "Allow the user to save their work when running daemonized.
@@ -547,50 +422,12 @@ configured as a GNOME Startup Application."
 (require 'hippie-exp)
 (global-set-key (kbd "M-/") 'hippie-expand)
 
-;;; Flymake
-(require 'flymake)
-(autoload 'flymake-shell-load "flymake-shell")
-
-(global-set-key [f6] 'flymake-display-err-menu-for-current-line)
-(global-set-key [f7] 'flymake-goto-next-error)
-(add-hook 'find-file-hook 'flymake-find-file-hook)
-;; don't try flymaking system headers
-(add-to-list 'flymake-allowed-file-name-masks '("^/usr/" nil))
-;; even remote ones
-(add-to-list 'flymake-allowed-file-name-masks '(":/usr/" nil))
 (my-require 'rfringe)
 
-;; Run javascript files through the Google closure compiler to get
-;; warnings, errors, etc.
-(when (load "flymake" t)
-  (defun flymake-closure-init ()
-	(let* ((temp-file (flymake-init-create-temp-buffer-copy
-			   'flymake-create-temp-inplace))
-	   (local-file (file-relative-name
-			temp-file
-			(file-name-directory buffer-file-name))))
-	  (list "~/bin/closure.sh" (list local-file))))
-
-  (add-to-list 'flymake-allowed-file-name-masks
-		   '("\\.js\\'" flymake-closure-init)))
-
-(defadvice flymake-start-syntax-check-process
-  (after
-   flymake-start-syntax-check-disable-process-query
-   (cmd args dir)
-   activate compile)
-  "Clear the process-query-on-exit flag for flymake processes."
-
-  ;; ad-return-value may be nil if the process failed to start and
-  ;; flymake was disabled for the buffer, but there will still be a
-  ;; process associated with the buffer, which will cause a query on
-  ;; ext.  This gets returned or phantom process.
-  (let ((process (or ad-return-value
-			 (get-buffer-process (current-buffer)))))
-	(when (processp process)
-	(set-process-query-on-exit-flag process nil))))
-
 ;;; Development
+(unless (boundp 'stack-trace-on-error)
+  (setq stack-trace-on-error t))
+(my-require 'ecb-autoloads)
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
 
@@ -715,9 +552,9 @@ and the basename of the executable.")
 	"Turn on pseudo-structural editing of Lisp code."
 	t)
   (add-hooks '(lisp-mode-hook
-		   emacs-lisp-mode
-		   slime-repl-mode-hook)
-		 #'enable-paren-modes)
+	       emacs-lisp-mode-hook
+	       slime-repl-mode-hook)
+	     'enable-paren-modes)
 
   ;; When `paredit-mode' is enabled it takes precedence over the major
   ;; mode effectively rebinding C-j to `paredit-newline' instead of
@@ -908,6 +745,77 @@ This gets started by python mode."
   `(or user-mail-address
 	   str) ">"
   comment-end \n)
+
+;;; Semantic
+(when (my-require 'semantic)
+  (mapc (lambda (mode)
+	  (add-to-list 'semantic-default-submodes mode))
+	'(global-semantic-decoration-mode
+	  global-semantic-highlight-func-mode
+	  global-semantic-idle-completions-mode
+	  global-semantic-idle-scheduler-mode
+	  global-semantic-idle-summary-mode
+	  global-semantic-stickyfunc-mode
+	  global-semanticdb-minor-mode))
+  (semantic-mode 1)
+  (require 'semantic/bovine/c)
+  (require 'semantic/bovine/el)
+  (require 'semantic/bovine/gcc)
+  ;; (require 'semantic/bovine/clang)
+  (require 'semantic/ia)
+  (require 'semantic/decorate/include)
+  (require 'semantic/lex-spp)
+  ;; (require 'eassist)
+
+  ;; customisation of modes
+  (defun alexott/cedet-hook ()
+    (local-set-key "\C-c?" 'semantic-ia-complete-symbol)
+    ;;
+    (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+    (local-set-key "\C-c=" 'semantic-decoration-include-visit)
+
+    (local-set-key "\C-cj" 'semantic-ia-fast-jump)
+    (local-set-key "\C-cq" 'semantic-ia-show-doc)
+    (local-set-key "\C-cs" 'semantic-ia-show-summary)
+    (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+    (local-set-key (kbd "C-c <left>") 'semantic-tag-folding-fold-block)
+    (local-set-key (kbd "C-c <right>") 'semantic-tag-folding-show-block)
+
+    (add-to-list 'ac-sources 'ac-source-semantic)
+    )
+  ;; (add-hook 'semantic-init-hooks 'alexott/cedet-hook)
+  (add-hook 'c-mode-common-hook 'alexott/cedet-hook)
+  (add-hook 'lisp-mode-hook 'alexott/cedet-hook)
+  (add-hook 'scheme-mode-hook 'alexott/cedet-hook)
+  (add-hook 'emacs-lisp-mode-hook 'alexott/cedet-hook)
+  (add-hook 'erlang-mode-hook 'alexott/cedet-hook)
+
+  (defun alexott/c-mode-cedet-hook ()
+    ;; (local-set-key "." 'semantic-complete-self-insert)
+    ;; (local-set-key ">" 'semantic-complete-self-insert)
+    ;; (local-set-key "\C-ct" 'eassist-switch-h-cpp)
+    ;; (local-set-key "\C-xt" 'eassist-switch-h-cpp)
+    ;; (local-set-key "\C-ce" 'eassist-list-methods)
+    (local-set-key "\C-c\C-r" 'semantic-symref)
+
+    ;; (add-to-list 'ac-sources 'ac-source-etags)
+    (add-to-list 'ac-sources 'ac-source-gtags)
+    )
+  (add-hook 'c-mode-common-hook 'alexott/c-mode-cedet-hook)
+
+  (semanticdb-enable-gnu-global-databases 'c-mode)
+  (semanticdb-enable-gnu-global-databases 'c++-mode)
+
+  ;; (when (cedet-ectag-version-check t)
+  ;;   (semantic-load-enable-primary-ectags-support))
+
+  ;; SRecode
+  (when (my-require 'srecode)
+    (global-srecode-minor-mode 1))
+
+  ;; EDE
+  (global-ede-mode 1)
+  (ede-enable-generic-projects))
 
 ;;; Sunrise Commander -- emacs answer to Midnight Commander
 (my-require 'sunrise-commander-autoloads)
