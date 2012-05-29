@@ -336,9 +336,7 @@ See `align-rules-list` for an explaination of these setting."
 (add-hook 'dired-load-hook
 	  (function (lambda ()
 		      (load "dired-x")
-		      (my-require 'dired-sort-menu)
-		      (run-at-time "1 sec" nil (lambda ()
-						 (ede-dired-minor-mode 1))))))
+		      (my-require 'dired-sort-menu))))
 
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
 (defun mydired-sort ()
@@ -896,12 +894,6 @@ This gets started by python mode."
 ;;; Org-mode
 (setq org-todo-keywords
 	  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
-;; This is hackish, but just using (ede-minor-mode -1) in
-;; org-mode-hook did not seem to work.
-(add-hook 'org-mode-hook
-	  '(lambda ()
-		 (run-at-time "1 sec" nil (lambda ()
-					(ede-minor-mode -1)))))
 
 ;;; revert
 (setq revert-without-query '("\.xml$"))
