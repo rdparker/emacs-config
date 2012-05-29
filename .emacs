@@ -998,4 +998,23 @@ This gets started by python mode."
  '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-line ((t (:background "gray20")))))
 
+(defun reload-custom-set-faces (&optional frame)
+  "Reloads the `custom-set-faces' block in the `user-init-file'.
+
+This comes in handy as an `before-make-frame-functions' hook when
+emacs is daemonized because a daemonized emacs does nat have a
+`window-system' and cannot apply your fancy fonts and settings
+when it starts up.  Using this as a frame creation hook allows
+you to still have your custom settings in a frame that is created
+by emacsclient."
+  (interactive)
+  (save-excursion
+	(find-file (or user-init-file "~/.emacs"))
+	(end-of-buffer)
+	(while (progn
+		 (backward-sexp)
+		 (not (looking-at "^(custom-set-faces$"))))
+	(forward-sexp)
+	(eval-last-sexp nil)))
+(add-hook 'after-make-frame-functions 'reload-custom-set-faces)
 (put 'narrow-to-region 'disabled nil)
