@@ -622,7 +622,14 @@ configured as a GNOME Startup Application."
 (autoload 'egit "egit" "Emacs git history" t)
 (autoload 'egit-file "egit" "Emacs git history file" t)
 (autoload 'egit-dir "egit" "Emacs git history directory" t)
-(autoload 'magit-status "magit" nil t)
+
+;; Magit does not ship autoloads.  Generate them if necessary.
+(unless (my-require 'magit-autoloads)
+  (let* ((magit-source-dir (file-name-directory (locate-library "magit")))
+	 (generated-autoload-file (expand-file-name "magit-autoloads.el"
+						    magit-source-dir)))
+    (update-directory-autoloads magit-source-dir)))
+
 (eval-after-load "magit"
   '(progn
 	 ;; (require 'magit-topgit)	; if I ever use these packages
