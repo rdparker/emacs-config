@@ -798,6 +798,10 @@ and the basename of the executable.")
 (when (and (not (executable-find "markdown"))
 	   (executable-find "markdown_py"))
   (setq markdown-command "markdown_py"))
+(add-hook 'markdown-mode-hook
+	  (lambda ()
+	    (flyspell-mode 1)
+	    (auto-fill-mode 1)))
 
 ;;; Midnight
 (require 'midnight)
