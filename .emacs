@@ -634,14 +634,13 @@ configured as a GNOME Startup Application."
   '(progn
 	 ;; (require 'magit-topgit)	; if I ever use these packages
 	 ;; (require 'magit-stgit)  ; here are the extensions for them
-	 (load "magit-svn" nil t)
 	 (add-hook 'magit-log-edit-mode-hook
 			   (lambda ()
 				 (auto-fill-mode 1)
 				 (flyspell-mode 1)))
 	 (add-hook 'magit-mode-hook
 			   (lambda ()
-				 (when (magit-svn-enabled)
+				 (when (magit-get "svn-remote" "svn" "url")
 				   (magit-svn-mode 1))))))
 (global-set-key [f5] 'magit-status)
 ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
