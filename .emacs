@@ -298,7 +298,7 @@ This may hang if circular symlinks are encountered."
 ;;; CFEngine
 (when (my-require 'cfengine)
   (add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode)))
-(defcustom cfengine-align-modes '(cfengine-mode)
+(defcustom cfengine-align-modes '(cfengine-mode cfengine3-mode)
   "A list of modes whose syntax resembles CFEngine."
   :type '(repeat symbol)
   :group 'align)
@@ -306,7 +306,7 @@ This may hang if circular symlinks are encountered."
 (require 'align)
 (defcustom cfengine-align-rules-list
   '((cfengine-properties
-     (regexp . "\\(\\s-*[^ \t\n]*.=\\)>")
+     (regexp . "^\\s-\\([^ \t]*\\)\\(\\s-*[^ \t\n]*\\s-=\\)>")
      (justify . t)
      (modes . cfengine-align-modes)
      (tab-stop . nil)))
@@ -317,7 +317,7 @@ See `align-rules-list` for an explaination of these setting."
 
 (put 'cfengine-align-rules-list 'risky-local-variable t)
 
-(add-hook 'cfengine-mode-hook
+(add-hook 'cfengine3-mode-hook
 	  (lambda ()
 	    (setq align-mode-rules-list cfengine-align-rules-list)))
 
@@ -905,8 +905,6 @@ This gets started by python mode."
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(auto-insert-query t)
- '(cfengine-align-rules-list (quote ((cfengine-properties (regexp . "^\\s-\\([^ 	]*\\)\\(\\s-*[^ 	
-]*\\s-=\\)>") (group . 2) (justify . t) (modes . cfengine-align-modes) (tab-stop)))))
  '(ecb-options-version "2.40")
  '(face-font-family-alternatives (quote (("Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(rpm-spec-build-command "rpmbuild")
