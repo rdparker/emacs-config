@@ -987,6 +987,7 @@ This gets started by python mode."
 ]*\\s-=\\)>") (group . 2) (justify . t) (modes . cfengine-align-modes) (tab-stop)))))
  '(ecb-options-version "2.40")
  '(face-font-family-alternatives (quote (("Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
