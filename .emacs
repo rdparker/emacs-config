@@ -464,6 +464,7 @@ configured as a GNOME Startup Application."
 (my-require 'ecb-autoloads)
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
+(setq compilation-scroll-output t)
 
 (defun make-dist ()
   "Run \"make dist\" in the current directory"
