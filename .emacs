@@ -187,6 +187,7 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/el-autoyas"
+			  "~/lib/lisp/el/el-get/el-get"
 			  "~/lib/lisp/el/emacs-w3m"
 			  "~/lib/lisp/el/git-emacs"
 			  "~/lib/lisp/el/gitsum"
@@ -200,6 +201,17 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/w3/lisp"
 			  "~/lib/lisp/el/yasnippet"
 			  "~/lib/lisp/elib"))
+
+;;; el-get, the unpackaged elisp library manager
+(setq el-get-dir "~/lib/lisp/el/el-get/")
+(when (my-require 'el-get)
+  (let ((el-get-sources
+	 '((:name c-eldoc	   :type elpa)
+	   (:name nxml-mode	   :type elpa)
+	   (:name yasnippet-bundle :type elpa)))))
+  (el-get 'sync (append
+		 '(asciidoc org-mode paredit)
+		 (mapcar 'el-get-source-name el-get-sources))))
 
 ;;; Info paths
 (let ((org-mode-info-dir (expand-file-name "~/lib/lisp/el/org-mode/doc")))
