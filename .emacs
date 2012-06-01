@@ -181,28 +181,16 @@ This may hang if circular symlinks are encountered."
 ;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
-			  "~/lib/lisp/el/auto-complete"
-			  "~/lib/lisp/el/color-theme"
-			  "~/lib/lisp/el/emacs-color-theme-solarized"
-			  "~/lib/lisp/el/ecb"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/el-autoyas"
 			  "~/lib/lisp/el/el-get/el-get"
-			  "~/lib/lisp/el/emacs-w3m"
-			  "~/lib/lisp/el/git-emacs"
 			  "~/lib/lisp/el/gitsum"
 			  "~/lib/lisp/el/jdee/lisp"
-			  "~/lib/lisp/el/magit"
-			  "~/lib/lisp/el/markdown-mode"
-			  "~/lib/lisp/el/org-mode/lisp"
-			  "~/lib/lisp/el/popup-el"
 			  "~/lib/lisp/el/redshank"
-			  "~/lib/lisp/el/sunrise-commander"
 			  "~/lib/lisp/el/w3/lisp"
-			  "~/lib/lisp/el/yasnippet"
 			  "~/lib/lisp/elib"))
 
-;;; el-get, the unpackaged elisp library manager
+;;; el-get, an elisp library manager
 ;; 
 ;; If this fails with:
 ;;
@@ -226,18 +214,41 @@ This may hang if circular symlinks are encountered."
   (let ((el-get-sources
 	 '((:name c-eldoc	   :type elpa)
 	   (:name nxml-mode	   :type elpa)
-	   (:name yasnippet-bundle :type elpa)))))
+	   (:name yasnippet-bundle :type elpa)
+	   (:name w3		   :type elpa)))))
   (el-get 'sync (append
-		 '(asciidoc org-mode paredit)
+		 '(asciidoc
+		   auto-complete
+		   clojure-mode
+		   color-theme
+		   color-theme-solarized
+		   ecb
+		   emacs-w3m
+		   git-blame
+		   git-modeline		; includes git-emacs
+		   graphviz-dot-mode
+		   magit
+		   markdown-mode
+		   nxhtml
+		   org-mode
+		   paredit
+		   parenface
+		   ;; Not all my systems have darcs, so instead of
+		   ;; pulling in redshank via el-get, I am using a git
+		   ;; submodule to maintain my local copy of redshank.
+		   ;;
+		   ;; redshank
+		   ;;
+		   ;; It also seems to make a hash of loading slime,
+		   ;; using a non-authoritative source, wanting
+		   ;; texi2pdf first and then trying to use apt to
+		   ;; install tetex on systems that do not use apt.
+		   ;;
+		   ;; slime
+		   sunrise-commander)
 		 (mapcar 'el-get-source-name el-get-sources))))
 
 ;;; Info paths
-(let ((org-mode-info-dir (expand-file-name "~/lib/lisp/el/org-mode/doc")))
-  (when (file-exists-p (concat org-mode-info-dir "/dir"))
-    (eval-after-load "info"
-      `(progn
-	 (info-initialize)		; get default dirs first
-	 (add-to-list 'Info-directory-list ,org-mode-info-dir)))))
 
 ;; Find the system's git contrib/emacs directory
 (mapc (lambda (x)
