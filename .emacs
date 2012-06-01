@@ -203,6 +203,24 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/elib"))
 
 ;;; el-get, the unpackaged elisp library manager
+;; 
+;; If this fails with:
+;;
+;;     error: error setting certificate verify locations:
+;;       CAfile: /etc/curl/curlCA
+;;       CApath: none
+;;      while accessing https://...
+;;
+;; It is because the curl CA certificates could not be found.  This is
+;; a known error on the Illumos Userland used by OpenIndiana,
+;; https://www.illumos.org/issues/1536.
+;;
+;; It may be corrected by running
+;;
+;;     mkdir -p /etc/curl && cat /etc/certs/CA/*.pem > /etc/curl/curlCA
+;;
+;; as root.
+;;
 (setq el-get-dir "~/lib/lisp/el/el-get/")
 (when (my-require 'el-get)
   (let ((el-get-sources
