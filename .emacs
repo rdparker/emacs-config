@@ -365,7 +365,6 @@ See `align-rules-list` for an explaination of these setting."
 ;;; dired-x & dired-sort-menu -- extend dired
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
-(setq dired-omit-mode t)
 (eval-after-load "dired-x"
   '(setq dired-omit-files (concat dired-omit-files
 				  "\\|^\\.zfs$\\|\\.\\$EXTEND$"
@@ -374,9 +373,12 @@ See `align-rules-list` for an explaination of these setting."
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 (add-hook 'dired-load-hook
-	  (function (lambda ()
-		      (load "dired-x")
-		      (my-require 'dired-sort-menu))))
+	  (lambda ()
+	    (load "dired-x")
+	    (my-require 'dired-sort-menu)))
+(add-hook 'dired-mode-hook
+	  (lambda ()
+	    (dired-omit-mode 1)))
 
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
 (defun mydired-sort ()
