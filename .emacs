@@ -389,6 +389,7 @@ See `align-rules-list` for an explaination of these setting."
 	    (my-require 'dired-sort-menu)))
 (add-hook 'dired-mode-hook
 	  (lambda ()
+	    (load "dired-x")
 	    (dired-omit-mode 1)))
 
 ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
