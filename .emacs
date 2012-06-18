@@ -215,40 +215,49 @@ This may hang if circular symlinks are encountered."
 (when (my-require 'el-get)
   (let ((el-get-sources
 	 '((:name c-eldoc	   :type elpa)
-	   (:name nxml-mode	   :type elpa)
+	   (:name nxhtml
+		  :type bzr
+		  :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
+		  :description "An addon for Emacs mainly for web development."
+		  :build
+		  (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
+		  :load "autostart.el")
 	   (:name yasnippet-bundle :type elpa)
-	   (:name w3		   :type elpa)))))
-  (el-get 'sync (append
-		 '(asciidoc
-		   auto-complete
-		   clojure-mode
-		   color-theme
-		   color-theme-solarized
-		   ecb
-		   emacs-w3m
-		   git-blame
-		   git-modeline		; includes git-emacs
-		   graphviz-dot-mode
-		   magit
-		   markdown-mode
-		   nxhtml
-		   org-mode
-		   paredit
-		   parenface
-		   ;; Not all my systems have darcs, so instead of
-		   ;; pulling in redshank via el-get, I am using a git
-		   ;; submodule to maintain my local copy of redshank.
-		   ;;
-		   ;; redshank
-		   ;;
-		   ;; It also seems to make a hash of loading slime,
-		   ;; using a non-authoritative source, wanting
-		   ;; texi2pdf first and then trying to use apt to
-		   ;; install tetex on systems that do not use apt.
-		   ;;
-		   ;; slime
-		   sunrise-commander)
-		 (mapcar 'el-get-source-name el-get-sources))))
+	   (:name w3		   :type elpa))))
+    (when (< emacs-major-version 24)
+	 (add-to-list 'el-get-sources
+		      '(:name nxml-mode :type elpa)))
+    (el-get 'sync (append
+		   '(asciidoc
+		     auto-complete
+		     clojure-mode
+		     color-theme
+		     color-theme-solarized
+		     ecb
+		     emacs-w3m
+		     git-blame
+		     git-modeline		; includes git-emacs
+		     graphviz-dot-mode
+		     magit
+		     markdown-mode
+					;		   nxhtml
+		     org-mode
+		     paredit
+		     parenface
+		     ;; Not all my systems have darcs, so instead of
+		     ;; pulling in redshank via el-get, I am using a git
+		     ;; submodule to maintain my local copy of redshank.
+		     ;;
+		     ;; redshank
+		     ;;
+		     ;; It also seems to make a hash of loading slime,
+		     ;; using a non-authoritative source, wanting
+		     ;; texi2pdf first and then trying to use apt to
+		     ;; install tetex on systems that do not use apt.
+		     ;;
+		     ;; slime
+		     sunrise-commander)
+		   (mapcar 'el-get-source-name el-get-sources)))))
 
 ;;; Info paths
 
