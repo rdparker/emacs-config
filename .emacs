@@ -342,7 +342,7 @@ This may hang if circular symlinks are encountered."
 		  "\\)$"))
 (mapc (lambda (elt)
 	(add-to-list 'desktop-modes-not-to-save elt))
-	  '(dired-mode Info-mode info-lookup-mode))
+	  '(dired-mode Info-mode info-lookup-mode sr-mode))
 
 ;; Save buffer-display-time so midnight works across desktop sessions.
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
