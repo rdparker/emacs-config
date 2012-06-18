@@ -168,8 +168,10 @@ This may hang if circular symlinks are encountered."
 (if (member 'package features)
 	(package-initialize))
 ;; I'm not sure mixing GNU's and Tom Tromey's archive is a good idea.
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-			 ("tromey" . "http://tromey.com/elpa/")))
+(setq package-archives
+      '(("gnu" . "http://elpa.gnu.org/packages/")
+	("tromey" . "http://tromey.com/elpa/")
+	("marmalade" . "http://marmalade-repo.org/packages/")))
 
 (defun my-load (file)
   "This `load's a file if it exists, otherwise it gives a message."
