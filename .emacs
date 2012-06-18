@@ -552,8 +552,9 @@ configured as a GNOME Startup Application."
 		(define-key dired-mode-map "r" 'magit-status)))
 
 ;;; HTML
-(my-load "~/lib/lisp/el/nxhtml/autostart.el")
-;; Fix up debug-on-error since  nxhtml/autostart.el messes with it.
+
+;; Fix up debug-on-error since nxhtml/nxhtml-base.el may mess with it
+;; on Windows.
 (setq debug-on-error initial-debug-on-error-status)
 
 ;;; Java
