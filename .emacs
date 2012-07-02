@@ -1126,3 +1126,4 @@ by emacsclient."
 	(eval-last-sexp nil)))
 (add-hook 'after-make-frame-functions 'reload-custom-set-faces)
 (put 'narrow-to-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
