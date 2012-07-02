@@ -215,6 +215,11 @@ This may hang if circular symlinks are encountered."
 (when (my-require 'el-get)
   (let ((el-get-sources
 	 '((:name c-eldoc	   :type elpa)
+	   (:name haskell-ac
+		  :type git
+		  :url "git://gist.github.com/1241063.git"
+		  :description "Autocomplete mode for Haskell"
+		  :features (haskell-ac))
 	   (:name nxhtml
 		  :type bzr
 		  :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
@@ -238,6 +243,8 @@ This may hang if circular symlinks are encountered."
 		     git-blame
 		     git-modeline		; includes git-emacs
 		     graphviz-dot-mode
+		     haskell-mode
+		     hs-lint		; haskell linting
 		     magit
 		     markdown-mode
 					;		   nxhtml
@@ -550,6 +557,74 @@ configured as a GNOME Startup Application."
 (add-hook 'dired-mode-hook
 	  (lambda ()
 		(define-key dired-mode-map "r" 'magit-status)))
+
+;;; Haskell
+;;
+;; Most of tis came from Sam Ritchie's "Haskell in Emacs" page,
+;; http://sritchie.github.com/2011/09/25/haskell-in-emacs.html,
+;; with some tweaks.
+;;
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+
+;; hslint on the command line only likes this indentation mode;
+;; alternatives commented out below.
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
+
+(defun flymake-haskell-init ()
+  "When flymake triggers, generates a tempfile containing the
+  contents of the current buffer, runs `hslint` on it, and
+  deletes file. Put this file path (and run `chmod a+x hslint`)
+  to enable hslint: https://gist.github.com/1241073"
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "~/lib/lisp/el/bin/hslint" (list local-file))))
+
+(defun flymake-haskell-enable ()
+  "Enables flymake-mode for haskell, and sets <C-c d> as command
+  to show current error."
+  (interactive)
+  (when (and buffer-file-name
+             (file-writable-p
+              (file-name-directory buffer-file-name))
+             (file-writable-p buffer-file-name))
+    (local-set-key (kbd "C-c d") 'flymake-display-err-menu-for-current-line)
+    (flymake-mode t)))
+
+;; Forces flymake to underline bad lines, instead of fully
+;; highlighting them; remove this if you prefer full highlighting.
+;; (custom-set-faces
+;;  '(flymake-errline ((((class color)) (:underline "red"))))
+;;  '(flymake-warnline ((((class color)) (:underline "yellow")))))
+
+;; Ignore compiled Haskell files in filename completions
+(add-to-list 'completion-ignored-extensions ".hi")
+
+(defun my-haskell-mode-hook ()
+  "hs-lint binding, plus autocompletion and paredit."
+  (local-set-key "\C-cl" 'hs-lint)
+  (setq ac-sources
+        (append '(ac-source-yasnippet
+                  ac-source-abbrev
+                  ac-source-words-in-buffer
+                  my/ac-source-haskell)
+                ac-sources))
+  (dolist (x '(haskell literate-haskell))
+    (add-hook
+     (intern (concat (symbol-name x)
+                     "-mode-hook"))
+     'turn-on-paredit)))
+
+(eval-after-load 'haskell-mode
+  '(progn
+     (require 'flymake)
+     (push '("\\.l?hs\\'" flymake-haskell-init) flymake-allowed-file-name-masks)
+     (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
+     (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
 
 ;;; HTML
 
