@@ -263,7 +263,14 @@ This may hang if circular symlinks are encountered."
 		     ;; install tetex on systems that do not use apt.
 		     ;;
 		     ;; slime
-		     sunrise-commander)
+
+		     sunrise-commander
+
+		     ;; If this barfs get the 3.stable branch from
+		     ;; git@github.com:rdparker/el-get.git which
+		     ;; includes changes cherry-picked onto
+		     ;; topic/fix-sunrise-x-tree.
+		     sunrise-x-tree)
 		   (mapcar 'el-get-source-name el-get-sources)))))
 
 ;;; Info paths
@@ -1027,10 +1034,6 @@ This gets started by python mode."
   ;; EDE
   (global-ede-mode 1)
   (ede-enable-generic-projects))
-
-;;; Sunrise Commander -- emacs answer to Midnight Commander
-(my-require 'sunrise-commander-autoloads)
-(my-require 'sunrise-x-tree-autoloads)
 
 ;;; uniquify
 (require 'uniquify)
