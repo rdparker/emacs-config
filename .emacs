@@ -356,6 +356,7 @@ This may hang if circular symlinks are encountered."
 ;;; AUCTeX
 (load "auctex" t)
 (load "preview-latex.el" t)
+(add-hook 'org-mode-hook 'turn-on-org-cdlatex)
 
 ;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
 (setq desktop-load-locked-desktop (or (daemonp) 'ask))
