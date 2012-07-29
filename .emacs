@@ -692,7 +692,7 @@ expands it. Else calls `smart-indent'."
     (add-hook
      (intern (concat (symbol-name x)
                      "-mode-hook"))
-     'turn-on-paredit)))
+     'enable-paredit-mode)))
 
 (eval-after-load 'haskell-mode
   '(progn
