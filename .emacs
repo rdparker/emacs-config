@@ -478,6 +478,12 @@ See `align-rules-list` for an explaination of these setting."
   (add-hook 'mail-setup-hook 'my-bbdb-insinuate-mail))
 
 ;;; Browser
+(unless (executable-find "w3m")
+  (let ((path exec-path))
+    (add-to-list 'exec-path "/opt/local/bin")
+    (unless (executable-find "w3m")
+      (setq exec-path path))))
+
 (autoload 'w3m "w3m"
   "Visit World Wide Web pages using the external w3m command." t)
 (autoload 'w3m-browse-url "w3m" "Ask emacs-w3m to browse URL." t)
