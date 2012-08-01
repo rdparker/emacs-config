@@ -187,10 +187,11 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/el-autoyas"
 			  "~/lib/lisp/el/el-get/el-get"
 			  "~/lib/lisp/el/gitsum"
-			  "~/lib/lisp/el/jdee/lisp"
+			  ;; "~/lib/lisp/el/jdee/lisp"
 			  "~/lib/lisp/el/redshank"
 			  "~/lib/lisp/el/w3/lisp"
-			  "~/lib/lisp/elib"))
+			  ;; "~/lib/lisp/elib"
+			  ))
 
 ;;; el-get, an elisp library manager
 ;; 
@@ -213,22 +214,32 @@ This may hang if circular symlinks are encountered."
 ;;
 (setq el-get-dir "~/lib/lisp/el/el-get/")
 (when (my-require 'el-get)
-  (let ((el-get-sources
-	 '((:name c-eldoc	   :type elpa)
-	   (:name haskell-ac
-		  :type git
-		  :url "git://gist.github.com/1241063.git"
-		  :description "Autocomplete mode for Haskell"
-		  :features (haskell-ac))
-	   (:name nxhtml
-		  :type bzr
-		  :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
-		  :description "An addon for Emacs mainly for web development."
-		  :build
-		  (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
-		  :load "autostart.el")
-	   (:name yasnippet-bundle :type elpa)
-	   (:name w3		   :type elpa))))
+  (setq el-get-sources
+	'((:name c-eldoc
+		 :type elpa
+		 :load "c-eldoc-autoloads")
+	  (:name haskell-ac
+		 :type git
+		 :url "git://gist.github.com/1241063.git"
+		 :description "Autocomplete mode for Haskell"
+		 :features (haskell-ac))
+	  (:name jdee
+		 :website "http://jdee.sourceforge.net/"
+		 :description "The JDEE is an add-on software package that turns Emacs into a comprehensive system for creating, editing, debugging, and documenting Java applications."
+		 :type svn
+		 :url "https://jdee.svn.sourceforge.net/svnroot/jdee/trunk/jdee"
+		 ;; :build ("touch `find . -name Makefile`" "make")
+		 :load-path ("lisp"))
+	  (:name nxhtml
+		 :type bzr
+		 :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
+		 :description "An addon for Emacs mainly for web development."
+		 :build
+		 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
+		 :load "autostart.el")
+	  (:name yasnippet-bundle :type elpa)
+	  (:name w3		   :type elpa)))
+
     (when (< emacs-major-version 24)
 	 (add-to-list 'el-get-sources
 		      '(:name nxml-mode :type elpa)))
@@ -245,9 +256,10 @@ This may hang if circular symlinks are encountered."
 		     graphviz-dot-mode
 		     haskell-mode
 		     hs-lint		; haskell linting
+		     jdee
 		     magit
 		     markdown-mode
-					;		   nxhtml
+		     ;; nxhtml
 		     org-mode
 		     paredit
 		     parenface
@@ -271,14 +283,14 @@ This may hang if circular symlinks are encountered."
 		     ;; includes changes cherry-picked onto
 		     ;; topic/fix-sunrise-x-tree.
 		     sunrise-x-tree)
-		   (mapcar 'el-get-source-name el-get-sources)))))
+		   (mapcar 'el-get-source-name el-get-sources))))
 
 ;;; Info paths
 
 ;; Find the system's git contrib/emacs directory
 (mapc (lambda (x)
 	(add-to-load-path (concat "/usr/share/doc/" x "/contrib/emacs")))
-	  (directory-files "/usr/share/doc" nil "^git.*"))
+      (directory-files "/usr/share/doc" nil "^git.*"))
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
 ;;; tired of 'yes' to save a file.
