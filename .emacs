@@ -828,6 +828,8 @@ and the basename of the executable.")
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 
 ;; CLHS info file
+;;
+;; cf. http://users-phys.au.dk/harder/dpans.html.
 (require 'info-look)
 (info-lookup-add-help
  :mode 'lisp-mode
@@ -845,6 +847,12 @@ and the basename of the executable.")
 (add-hook 'lisp-mode-hook
 	  (lambda ()
 		(setq info-lookup-mode 'lisp-mode)))
+(let ((dpansdir (expand-file-name "~/lib/lisp/cl/dpans2texi")))
+  (when (file-directory-p dpansdir)
+    (add-to-list 'Info-additional-directory-list dpansdir)))
+
+;; CLHS from quicklisp
+(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)
 
 ;;; Markdown
 (autoload 'markdown-mode "markdown-mode"
