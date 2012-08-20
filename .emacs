@@ -615,12 +615,20 @@ expands it. Else calls `smart-indent'."
 (autoload 'egit-file "egit" "Emacs git history file" t)
 (autoload 'egit-dir "egit" "Emacs git history directory" t)
 
+(defmacro if*  (var cond then &optional else)
+  "Bind VAR to COND and if it is non-nil, do THEN, else do ELSE."
+  `(let ((,var ,cond))
+     (if ,var
+	 ,then
+       ,else)))
+
 ;; Magit does not ship autoloads.  Generate them if necessary.
 (unless (my-require 'magit-autoloads)
-  (let* ((magit-source-dir (file-name-directory (locate-library "magit")))
-	 (generated-autoload-file (expand-file-name "magit-autoloads.el"
-						    magit-source-dir)))
-    (update-directory-autoloads magit-source-dir)))
+  (if* filename (locate-library "magit")
+       (let* ((magit-source-dir (file-name-directory filename))
+	      (generated-autoload-file (expand-file-name "magit-autoloads.el"
+							 magit-source-dir)))
+	 (update-directory-autoloads magit-source-dir))))
 
 (eval-after-load "magit"
   '(progn
