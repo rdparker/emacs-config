@@ -283,7 +283,6 @@ This may hang if circular symlinks are encountered."
 		     auto-complete
 		     clojure-mode
 		     color-theme
-		     color-theme-solarized
 		     ecb
 		     emacs-w3m
 		     git-blame
