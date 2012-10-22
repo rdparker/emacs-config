@@ -271,9 +271,13 @@ This may hang if circular symlinks are encountered."
 ;;	  (:name yasnippet-bundle :type elpa)
 	  (:name w3		   :type elpa)))
 
-    (when (< emacs-major-version 24)
-	 (add-to-list 'el-get-sources
-		      '(:name nxml-mode :type elpa)))
+    ;; Temporarily comment this out, it breaks:
+    ;; GNU Emacs 24.1.1 (x86_64-unknown-linux-gnu, GTK+ Version
+    ;; 2.18.9) of 2012-08-20 on rparker-latitude.a123systems.com
+    ;;
+    ;; (when (< emacs-major-version 24)
+    ;; 	 (add-to-list 'el-get-sources
+    ;; 		      '(:name nxml-mode :type elpa)))
     (el-get 'sync (append
 		   '(asciidoc
 		     auto-complete
