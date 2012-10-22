@@ -930,6 +930,14 @@ and the basename of the executable.")
 	    (flyspell-mode 1)
 	    (auto-fill-mode 1)))
 
+;;; Maxima
+(add-to-list 'load-path "/usr/local/share/maxima/5.25.1/emacs/")
+(autoload 'maxima-mode "maxima" "Maxima mode" t)
+(autoload 'imaxima "imaxima" "Frontend for maxima with Image support" t)
+(autoload 'maxima "maxima" "Maxima interaction" t)
+(autoload 'imath-mode "imath" "Imath mode for math formula input" t)
+(setq imaxima-use-maxima-mode-flag t)
+
 ;;; Midnight
 (require 'midnight)
 (midnight-delay-set 'midnight-delay 43200) ; Noon: 12*3600
