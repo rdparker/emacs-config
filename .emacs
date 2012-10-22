@@ -283,7 +283,9 @@ This may hang if circular symlinks are encountered."
 		     auto-complete
 		     clojure-mode
 		     color-theme
-		     ecb
+		     ;; Don't install ECB until I figure out what to
+		     ;; do with it on Emacs 23.
+		     ;; ecb
 		     emacs-w3m
 		     git-blame
 		     git-modeline		; includes git-emacs
