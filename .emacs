@@ -388,6 +388,7 @@ This may hang if circular symlinks are encountered."
 ;;; AUCTeX
 (load "auctex" t)
 (load "preview-latex.el" t)
+(add-hook 'org-mode-hook 'turn-on-org-cdlatex)
 
 ;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
 (setq desktop-load-locked-desktop (or (daemonp) 'ask))
@@ -649,12 +650,20 @@ expands it. Else calls `smart-indent'."
 (autoload 'egit-file "egit" "Emacs git history file" t)
 (autoload 'egit-dir "egit" "Emacs git history directory" t)
 
+(defmacro if*  (var cond then &optional else)
+  "Bind VAR to COND and if it is non-nil, do THEN, else do ELSE."
+  `(let ((,var ,cond))
+     (if ,var
+	 ,then
+       ,else)))
+
 ;; Magit does not ship autoloads.  Generate them if necessary.
 (unless (my-require 'magit-autoloads)
-  (let* ((magit-source-dir (file-name-directory (locate-library "magit")))
-	 (generated-autoload-file (expand-file-name "magit-autoloads.el"
-						    magit-source-dir)))
-    (update-directory-autoloads magit-source-dir)))
+  (if* filename (locate-library "magit")
+       (let* ((magit-source-dir (file-name-directory filename))
+	      (generated-autoload-file (expand-file-name "magit-autoloads.el"
+							 magit-source-dir)))
+	 (update-directory-autoloads magit-source-dir))))
 
 (eval-after-load "magit"
   '(progn
@@ -726,7 +735,7 @@ expands it. Else calls `smart-indent'."
     (add-hook
      (intern (concat (symbol-name x)
                      "-mode-hook"))
-     'turn-on-paredit)))
+     'enable-paredit-mode)))
 
 (eval-after-load 'haskell-mode
   '(progn
@@ -898,6 +907,8 @@ and the basename of the executable.")
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 
 ;; CLHS info file
+;;
+;; cf. http://users-phys.au.dk/harder/dpans.html.
 (require 'info-look)
 (info-lookup-add-help
  :mode 'lisp-mode
@@ -915,6 +926,12 @@ and the basename of the executable.")
 (add-hook 'lisp-mode-hook
 	  (lambda ()
 		(setq info-lookup-mode 'lisp-mode)))
+(let ((dpansdir (expand-file-name "~/lib/lisp/cl/dpans2texi")))
+  (when (file-directory-p dpansdir)
+    (add-to-list 'Info-additional-directory-list dpansdir)))
+
+;; CLHS from quicklisp
+(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)
 
 ;;; Markdown
 (autoload 'markdown-mode "markdown-mode"
