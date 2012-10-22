@@ -314,7 +314,8 @@ This may hang if circular symlinks are encountered."
 		     ;; git@github.com:rdparker/el-get.git which
 		     ;; includes changes cherry-picked onto
 		     ;; topic/fix-sunrise-x-tree.
-		     sunrise-x-tree)
+		     sunrise-x-tree
+		     yasnippet)
 		   (mapcar 'el-get-source-name el-get-sources))))
 
 ;;; Info paths
@@ -1155,7 +1156,8 @@ This gets started by python mode."
 
 ;;; yasnippet
 (when (my-require 'yasnippet)
-  (yas/global-mode 1)
+  ;; Temporarily disable this it mucks with magit buffers
+  ;; (yas/global-mode 1)
   (global-set-key (kbd "C-M-y") 'yas/expand))
 (my-require 'yasnippet-bundle-autoloads)
 (autoload 'el-autoyas-enable "el-autoyas")
