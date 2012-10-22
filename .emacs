@@ -627,6 +627,9 @@ expands it. Else calls `smart-indent'."
 (my-require 'ecb-autoloads)
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
+(global-set-key [f6] 'flymake-goto-prev-error)
+(global-set-key [f7] 'flymake-goto-next-error)
+(global-set-key [f8] 'comment-or-uncomment-region)
 (setq compilation-scroll-output t)
 
 (defun make-dist ()
@@ -705,7 +708,6 @@ expands it. Else calls `smart-indent'."
              (file-writable-p
               (file-name-directory buffer-file-name))
              (file-writable-p buffer-file-name))
-    (local-set-key (kbd "C-c d") 'flymake-display-err-menu-for-current-line)
     (flymake-mode t)))
 
 ;; Ignore compiled Haskell files in filename completions
