@@ -358,7 +358,6 @@ This may hang if circular symlinks are encountered."
 ;;  ac-symbol-documentation is called.
 (require 'help-mode)
 (when (my-require 'auto-complete-config)
-  (add-to-list 'ac-dictionary-directories (expand-file-name "~/lib/elisp/ac-dict"))
   (ac-config-default)
   (global-auto-complete-mode 1)
   (setq ac-modes (append '(lisp-mode
