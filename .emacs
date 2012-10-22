@@ -217,7 +217,7 @@ This may hang if circular symlinks are encountered."
   (setq el-get-sources
 	'((:name c-eldoc
 		 :type elpa
-		 :load "c-eldoc-autoloads")
+		 :features (c-eldoc-autoloads))
 	  (:name haskell-ac
 		 :type git
 		 :url "git://gist.github.com/1241063.git"
@@ -905,6 +905,7 @@ and the basename of the executable.")
 ;; eldoc
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
 
 ;; CLHS info file
 ;;
