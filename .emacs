@@ -268,7 +268,7 @@ This may hang if circular symlinks are encountered."
 	  	 :type git
 	  	 :url "https://github.com/magnars/mark-multiple.el"
 	  	 :description "Mark multiple regions")
-	  (:name yasnippet-bundle :type elpa)
+;;	  (:name yasnippet-bundle :type elpa)
 	  (:name w3		   :type elpa)))
 
     (when (< emacs-major-version 24)
