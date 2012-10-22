@@ -658,16 +658,16 @@ expands it. Else calls `smart-indent'."
 
 (eval-after-load "magit"
   '(progn
-	 ;; (require 'magit-topgit)	; if I ever use these packages
-	 ;; (require 'magit-stgit)  ; here are the extensions for them
-	 (add-hook 'magit-log-edit-mode-hook
-			   (lambda ()
-				 (auto-fill-mode 1)
-				 (flyspell-mode 1)))
-	 (add-hook 'magit-mode-hook
-			   (lambda ()
-				 (when (magit-get "svn-remote" "svn" "url")
-				   (magit-svn-mode 1))))))
+     ;; (require 'magit-topgit)	; if I ever use these packages
+     ;; (require 'magit-stgit)  ; here are the extensions for them
+     (add-hook 'magit-log-edit-mode-hook
+	       (lambda ()
+		 (auto-fill-mode 1)
+		 (flyspell-mode 1)))
+     (add-hook 'magit-mode-hook
+	       (lambda ()
+		 (when (magit-get "svn-remote" "svn" "url")
+		   (magit-svn-mode 1))))))
 (global-set-key [f5] 'magit-status)
 ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
 (add-hook 'dired-mode-hook
