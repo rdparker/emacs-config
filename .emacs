@@ -230,6 +230,33 @@ This may hang if circular symlinks are encountered."
 		 :url "https://jdee.svn.sourceforge.net/svnroot/jdee/trunk/jdee"
 		 ;; :build ("touch `find . -name Makefile`" "make")
 		 :load-path ("lisp"))
+	  (:name js2-mode
+	  	 :type git
+	  	 :url "git://github.com/mooz/js2-mode.git"
+	  	 :description "Improved js2-mode"
+	  	 :features (js2-mode))
+	  (:name js2-refactor
+	  	 :type git
+	  	 :url "git://github.com/magnars/js2-refactor.el.git"
+	  	 :description "Javascript refactoring"
+	  	 :features (js2-refactor)
+	  	 :depends (js2-mode mark-multiple dash))
+	  (:name dash
+		 :type elpa
+		 :description "A modern list api for Emacs. No 'cl required.")
+	  (:name jshint-mode
+		 :type git
+		 ;; I am not using the upstream repo because it has an
+		 ;; undefined error related to ARGV which is fixed in
+		 ;; yaru22's repo.  The pull request has never been
+		 ;; merged.
+		 ;;
+		 ;; Apparently yaru22's repo is no longer available,
+		 ;; so switch back to upstream.
+		 :url "git://github.com/daleharvey/jshint-mode.git"
+		 ;; :url "git://github.com/yaru22/jshint-mode.git"
+		 :description "Run JSHint with emacs"
+		 :features (flymake-jshint))
 	  (:name nxhtml
 		 :type bzr
 		 :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
@@ -237,6 +264,10 @@ This may hang if circular symlinks are encountered."
 		 :build
 		 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
 		 :load "autostart.el")
+	  (:name mark-multiple
+	  	 :type git
+	  	 :url "https://github.com/magnars/mark-multiple.el"
+	  	 :description "Mark multiple regions")
 	  (:name yasnippet-bundle :type elpa)
 	  (:name w3		   :type elpa)))
 
@@ -257,6 +288,7 @@ This may hang if circular symlinks are encountered."
 		     haskell-mode
 		     hs-lint		; haskell linting
 		     jdee
+		     js-comint
 		     magit
 		     markdown-mode
 		     ;; nxhtml
@@ -709,6 +741,43 @@ expands it. Else calls `smart-indent'."
 
 ;;; Java
 (my-require 'jde-autoload)
+
+;;; Javascript
+(unless (executable-find "npm")
+  (let ((path exec-path))
+    (add-to-list 'exec-path "/opt/node-v0.8.4/bin")
+    (unless (executable-find "npm")
+      (setq exec-path path))))
+(when (my-require 'flymake-jshint)
+   (add-hook 'js-mode-hook (lambda ()
+ 			    (flymake-mode 1)
+			    ;; Scan the file for nested code blocks
+			    (imenu-add-menubar-index)
+			    (hs-minor-mode 1))))
+(defun flymake-jshint-init ()
+  "My custom flymake-jshint-init that runs jshint and closure"
+  (if (eq (jshint-mode-init) 'started)
+      (let* ((temp-file (flymake-init-create-temp-buffer-copy 'flymake-create-temp-inplace))
+             (local-file (file-relative-name temp-file
+                                             (file-name-directory buffer-file-name)))
+             (jshint-url (format "http://%s:%d/check" jshint-mode-host jshint-mode-port)))
+	(list "~/bin/flymake-js.sh" (list local-file jshint-mode-mode jshint-url)))))
+
+(when (my-require 'js-comint)
+  ;; Use node as our repl
+  (setq inferior-js-program-command "node")
+  (setq inferior-js-mode-hook
+	(lambda ()
+	  ;; We like nice colors
+	  (ansi-color-for-comint-mode-on)
+	  ;; Deal with some prompt nonsense
+	  (add-to-list 'comint-preoutput-filter-functions
+		       (lambda (output)
+			 (replace-regexp-in-string
+			  ".*1G\.\.\..*5G" "..."
+			  (replace-regexp-in-string ".*1G.*3G" "&gt;" output)))))))
+
+(my-require 'js-beautify)
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 
