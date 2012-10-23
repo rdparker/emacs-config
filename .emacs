@@ -192,6 +192,10 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/w3/lisp"
 			  ;; "~/lib/lisp/elib"
 			  ))
+(when user-init-file
+  (add-to-load-path
+	 (concat (file-name-directory (readlink user-init-file t))
+		 "rdp")))
 
 ;;; el-get, an elisp library manager
 ;; 
@@ -1080,75 +1084,7 @@ This gets started by python mode."
   comment-end \n)
 
 ;;; Semantic
-(when (my-require 'semantic)
-  (mapc (lambda (mode)
-	  (add-to-list 'semantic-default-submodes mode))
-	'(global-semantic-decoration-mode
-	  global-semantic-highlight-func-mode
-	  global-semantic-idle-completions-mode
-	  global-semantic-idle-scheduler-mode
-	  global-semantic-idle-summary-mode
-	  global-semantic-stickyfunc-mode
-	  global-semanticdb-minor-mode))
-  (semantic-mode 1)
-  (require 'semantic/bovine/c)
-  (require 'semantic/bovine/el)
-  (require 'semantic/bovine/gcc)
-  ;; (require 'semantic/bovine/clang)
-  (require 'semantic/ia)
-  (require 'semantic/decorate/include)
-  (require 'semantic/lex-spp)
-  ;; (require 'eassist)
-
-  ;; customisation of modes
-  (defun alexott/cedet-hook ()
-    (local-set-key "\C-c?" 'semantic-ia-complete-symbol)
-    ;;
-    (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
-    (local-set-key "\C-c=" 'semantic-decoration-include-visit)
-
-    (local-set-key "\C-cj" 'semantic-ia-fast-jump)
-    (local-set-key "\C-cq" 'semantic-ia-show-doc)
-    (local-set-key "\C-cs" 'semantic-ia-show-summary)
-    (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
-    (local-set-key (kbd "C-c <left>") 'semantic-tag-folding-fold-block)
-    (local-set-key (kbd "C-c <right>") 'semantic-tag-folding-show-block)
-
-    (add-to-list 'ac-sources 'ac-source-semantic)
-    )
-  ;; (add-hook 'semantic-init-hooks 'alexott/cedet-hook)
-  (add-hook 'c-mode-common-hook 'alexott/cedet-hook)
-  (add-hook 'lisp-mode-hook 'alexott/cedet-hook)
-  (add-hook 'scheme-mode-hook 'alexott/cedet-hook)
-  (add-hook 'emacs-lisp-mode-hook 'alexott/cedet-hook)
-  (add-hook 'erlang-mode-hook 'alexott/cedet-hook)
-
-  (defun alexott/c-mode-cedet-hook ()
-    ;; (local-set-key "." 'semantic-complete-self-insert)
-    ;; (local-set-key ">" 'semantic-complete-self-insert)
-    ;; (local-set-key "\C-ct" 'eassist-switch-h-cpp)
-    ;; (local-set-key "\C-xt" 'eassist-switch-h-cpp)
-    ;; (local-set-key "\C-ce" 'eassist-list-methods)
-    (local-set-key "\C-c\C-r" 'semantic-symref)
-
-    ;; (add-to-list 'ac-sources 'ac-source-etags)
-    (add-to-list 'ac-sources 'ac-source-gtags)
-    )
-  (add-hook 'c-mode-common-hook 'alexott/c-mode-cedet-hook)
-
-  (semanticdb-enable-gnu-global-databases 'c-mode)
-  (semanticdb-enable-gnu-global-databases 'c++-mode)
-
-  ;; (when (cedet-ectag-version-check t)
-  ;;   (semantic-load-enable-primary-ectags-support))
-
-  ;; SRecode
-  (when (my-require 'srecode)
-    (global-srecode-minor-mode 1))
-
-  ;; EDE
-  (global-ede-mode 1)
-  (ede-enable-generic-projects))
+(require 'rdp-cedet)
 
 ;;; uniquify
 (require 'uniquify)
