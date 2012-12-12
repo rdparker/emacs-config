@@ -1085,14 +1085,20 @@ This gets started by python mode."
 (require 'rdp-cedet)
 
 ;;; Tar-mode
+;;
 ;; Teach jka-compr about .txz files
-(add-to-list 'jka-compr-mode-alist-additions '(("\\.txz\\'" . tar-mode)))
-(add-to-list 'jka-compr-compression-info-list
-			 ["\\.txz\\'"
-			  "XZ compressing" "xz" ("-c" "-q")
-			  "XZ uncompressing" "xz" ("-c" "-q" "-d")
-			  nil nil "\3757zXZ "])
-(jka-compr-update)
+;;
+;; eval-after-load does not work here when a .txz is passed to emacs
+;; on the command line.  The buffer has been fully loaded by the time
+;; this is called.
+(when (my-require 'jka-compr)
+  (add-to-list 'jka-compr-mode-alist-additions '("\\.txz\\'" . tar-mode))
+  (add-to-list 'jka-compr-compression-info-list
+	       ["\\.txz\\'"
+		"XZ compressing" "xz" ("-c" "-q")
+		"XZ uncompressing" "xz" ("-c" "-q" "-d")
+		nil nil "\3757zXZ "])
+  (jka-compr-update))
 
 ;;; uniquify
 (require 'uniquify)
