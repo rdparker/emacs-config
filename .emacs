@@ -130,21 +130,13 @@ This may hang if circular symlinks are encountered."
 
 ;;; OpenIndiana
 ;;
-;; On OpenIndiana the Windows key generates Meta_L and the left Alt
-;; key generates Alt_L.  Since Meta exists emacs does not treat Alt as
-;; Meta, which I am used to.  So tell emacs to treat them as follows
-;; on OpenIndiana and all Solaris derivatives.
-;;
 ;; The variable system-type on OI is usg-unix-v, which I believe can
 ;; apply to other unices, so look for "Solaris" in the X server vendor
 ;; instead.  Since this is a related to how X is setup.
 ;;
-;; Apparently my setxkmap changes have rendered this unnecessary.
-;;
-;; (when (and (fboundp 'x-server-vendor)
-;; 		   (string-match "Solaris" (x-server-vendor)))
-;;   (setq x-alt-keysym 'meta)
-;;   (setq x-meta-keysym 'super))
+(when (and (fboundp 'x-server-vendor)
+	   (string-match "Solaris" (x-server-vendor)))
+  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH"))))
 
 ;;; Mac OS X
 (when (featurep 'ns)
