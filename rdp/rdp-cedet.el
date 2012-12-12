@@ -58,8 +58,9 @@
     (local-set-key (kbd "C-c <left>") 'semantic-tag-folding-fold-block)
     (local-set-key (kbd "C-c <right>") 'semantic-tag-folding-show-block)
 
-    (add-to-list 'ac-sources 'ac-source-semantic)
-    )
+    (unless (boundp 'ac-sources)
+      (setq ac-sources nil))
+    (add-to-list 'ac-sources 'ac-source-semantic))
   ;; (add-hook 'semantic-init-hooks 'alexott/cedet-hook)
   (add-hook 'c-mode-common-hook 'alexott/cedet-hook)
   (add-hook 'lisp-mode-hook 'alexott/cedet-hook)
