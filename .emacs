@@ -1079,6 +1079,16 @@ This gets started by python mode."
 ;;; Semantic
 (require 'rdp-cedet)
 
+;;; Tar-mode
+;; Teach jka-compr about .txz files
+(add-to-list 'jka-compr-mode-alist-additions '(("\\.txz\\'" . tar-mode)))
+(add-to-list 'jka-compr-compression-info-list
+			 ["\\.txz\\'"
+			  "XZ compressing" "xz" ("-c" "-q")
+			  "XZ uncompressing" "xz" ("-c" "-q" "-d")
+			  nil nil "\3757zXZ "])
+(jka-compr-update)
+
 ;;; uniquify
 (require 'uniquify)
 ;; Use file<partial-dir> instead of file<#>
