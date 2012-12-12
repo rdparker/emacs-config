@@ -265,17 +265,18 @@ This may hang if circular symlinks are encountered."
 	  	 :url "https://github.com/magnars/mark-multiple.el"
 	  	 :description "Mark multiple regions")
 ;;	  (:name yasnippet-bundle :type elpa)
-	  (:name w3		   :type elpa)))
+	  ;; (:name w3		   :type elpa)
+	  ))
 
     (when (< emacs-major-version 24)
-	 (add-to-list 'el-get-sources
-		      '(:name nxml-mode :type elpa)))
+    	 (add-to-list 'el-get-sources
+    		      '(:name nxml-mode :type elpa)))
     (el-get 'sync (append
 		   '(asciidoc
 		     auto-complete
 		     clojure-mode
-		     color-theme
-		     color-theme-solarized
+;		     color-theme
+;		     color-theme-solarized
 		     ecb
 		     emacs-w3m
 		     git-blame
