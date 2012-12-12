@@ -268,16 +268,21 @@ This may hang if circular symlinks are encountered."
 	  ;; (:name w3		   :type elpa)
 	  ))
 
-    (when (< emacs-major-version 24)
-    	 (add-to-list 'el-get-sources
-    		      '(:name nxml-mode :type elpa)))
+    ;; Temporarily comment this out, it breaks:
+    ;; GNU Emacs 24.1.1 (x86_64-unknown-linux-gnu, GTK+ Version
+    ;; 2.18.9) of 2012-08-20 on rparker-latitude.a123systems.com
+    ;;
+    ;; (when (< emacs-major-version 24)
+    ;; 	 (add-to-list 'el-get-sources
+    ;; 		      '(:name nxml-mode :type elpa)))
     (el-get 'sync (append
 		   '(asciidoc
 		     auto-complete
 		     clojure-mode
-;		     color-theme
-;		     color-theme-solarized
-		     ecb
+		     color-theme
+		     ;; Don't install ECB until I figure out what to
+		     ;; do with it on Emacs 23.
+		     ;; ecb
 		     emacs-w3m
 		     git-blame
 		     git-modeline		; includes git-emacs
