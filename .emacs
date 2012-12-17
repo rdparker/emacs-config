@@ -216,7 +216,7 @@ This may hang if circular symlinks are encountered."
 		 :features (c-eldoc-autoloads))
 	  (:name haskell-ac
 		 :type git
-		 :url "git://gist.github.com/1241063.git"
+		 :url "https://gist.github.com/1241063.git"
 		 :description "Autocomplete mode for Haskell"
 		 :features (haskell-ac))
 	  (:name jdee
@@ -236,7 +236,7 @@ This may hang if circular symlinks are encountered."
 	  	 :url "git://github.com/magnars/js2-refactor.el.git"
 	  	 :description "Javascript refactoring"
 	  	 :features (js2-refactor)
-	  	 :depends (js2-mode mark-multiple dash))
+	  	 :depends (js2-mode multiple-cursors dash))
 	  (:name dash
 		 :type elpa
 		 :description "A modern list api for Emacs. No 'cl required.")
@@ -260,9 +260,9 @@ This may hang if circular symlinks are encountered."
 		 :build
 		 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
 		 :load "autostart.el")
-	  (:name mark-multiple
+	  (:name multiple-cursors
 	  	 :type git
-	  	 :url "https://github.com/magnars/mark-multiple.el"
+	  	 :url "https://github.com/magnars/multiple-cursors.el"
 	  	 :description "Mark multiple regions")
 ;;	  (:name yasnippet-bundle :type elpa)
 	  ;; (:name w3		   :type elpa)
