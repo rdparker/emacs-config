@@ -253,13 +253,6 @@ This may hang if circular symlinks are encountered."
 		 ;; :url "git://github.com/yaru22/jshint-mode.git"
 		 :description "Run JSHint with emacs"
 		 :features (flymake-jshint))
-	  (:name nxhtml
-		 :type bzr
-		 :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
-		 :description "An addon for Emacs mainly for web development."
-		 :build
-		 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
-		 :load "autostart.el")
 	  (:name multiple-cursors
 	  	 :type git
 	  	 :url "https://github.com/magnars/multiple-cursors.el"
@@ -267,6 +260,15 @@ This may hang if circular symlinks are encountered."
 ;;	  (:name yasnippet-bundle :type elpa)
 	  ;; (:name w3		   :type elpa)
 	  ))
+  (when (executable-find "bzr")
+    (add-to-list 'el-get-sources
+		 '(:name nxhtml
+			 :type bzr
+			 :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
+			 :description "An addon for Emacs mainly for web development."
+			 :build
+			 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
+			 :load "autostart.el")))
 
     ;; Temporarily comment this out, it breaks:
     ;; GNU Emacs 24.1.1 (x86_64-unknown-linux-gnu, GTK+ Version
