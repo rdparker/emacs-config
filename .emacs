@@ -1159,7 +1159,7 @@ This gets started by python mode."
  ;; If there is more than one, they won't work right.
  '(auto-insert-query t)
  '(ecb-options-version "2.40")
- '(face-font-family-alternatives (quote (("Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(face-font-family-alternatives (quote (("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))
