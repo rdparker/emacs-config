@@ -134,7 +134,8 @@ This may hang if circular symlinks are encountered."
 ;; apply to other unices, so look for "Solaris" in the X server vendor
 ;; instead.  Since this is a related to how X is setup.
 ;;
-(when (and (fboundp 'x-server-vendor)
+(when (and (eq window-system 'x)
+	   (fboundp 'x-server-vendor)
 	   (string-match "Solaris" (x-server-vendor)))
   (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH"))))
 
