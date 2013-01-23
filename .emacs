@@ -395,21 +395,7 @@ This may hang if circular symlinks are encountered."
 (load "preview-latex.el" t)
 (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
 
-;; desktop -- cf. http://www.emacswiki.org/emacs/DeskTop for more ideas
-(setq desktop-load-locked-desktop (or (daemonp) 'ask))
-(desktop-save-mode 1)
-(setq desktop-buffers-not-to-save
-	  (concat "\\("
-		  "^tags\\|^TAGS\\|"
-		  "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
-		  "\\.tar\\|\\.zip$"
-		  "\\)$"))
-(mapc (lambda (elt)
-	(add-to-list 'desktop-modes-not-to-save elt))
-	  '(dired-mode Info-mode info-lookup-mode sr-mode))
-
-;; Save buffer-display-time so midnight works across desktop sessions.
-(add-to-list 'desktop-locals-to-save 'buffer-display-time)
+(require 'desktop-config)
 
 ;;; CFEngine
 (when (my-require 'cfengine)
