@@ -216,44 +216,6 @@ expands it. Else calls `smart-indent'."
 ;;; Development
 (unless (boundp 'stack-trace-on-error)
   (setq stack-trace-on-error t))
-(require 'ecb)
-(ecb-layout-define "left-rdp" left
-  "This function creates the following layout:
-
-   -------------------------------------------------------
-   |              |                                      |
-   |  Speedbar    |                                      |
-   |              |                                      |
-   |--------------|                                      |
-   |              |                                      |
-   |  Methods     |                                      |
-   |              |                                      |
-   |--------------|                 Edit                 |
-   |              |                                      |
-   |  Analyze     |                                      |
-   |              |                                      |
-   |              |                                      |
-   |--------------|                                      |
-   |  Symbol-defs |                                      |
-   |              |                                      |
-   -------------------------------------------------------
-   |                                                     |
-   |                    Compilation                      |
-   |                                                     |
-   -------------------------------------------------------
-
-If you have not set a compilation-window in `ecb-compile-window-height' then
-the layout contains no persistent compilation window and the other windows get a
-little more place."
-  (ecb-set-speedbar-buffer)
-  (ecb-split-ver 0.3)
-  (ecb-set-methods-buffer)
-  (ecb-split-ver 0.35)
-  (ecb-set-analyse-buffer)
-  (ecb-split-ver 0.65)
-  (ecb-set-symboldef-buffer)
-  (select-window (next-window)))
-(setq ecb-layout-name "left-rdp")
 
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)

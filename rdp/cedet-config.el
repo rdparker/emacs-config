@@ -28,7 +28,7 @@
 ;;; provided by emacs 24.
 (require 'el-get)
 (unless (member 'cedet-devel-load features)
-  (load-file (concat el-get-dir "cedet/cedet-devel-load.el")))
+  (my-load (concat el-get-dir "cedet/cedet-devel-load.el")))
 
 ;; This may be in the wrong place, but it appears that some semantic
 ;; or GNU GLOBAL related functions cause the invokation of a file
@@ -92,14 +92,16 @@
     )
   (add-hook 'c-mode-common-hook 'alexott/c-mode-cedet-hook)
 
-  (semanticdb-enable-gnu-global-databases 'c-mode)
-  (semanticdb-enable-gnu-global-databases 'c++-mode)
+  (when (member 'cedet-devel-load features)
+    (semanticdb-enable-gnu-global-databases 'c-mode)
+    (semanticdb-enable-gnu-global-databases 'c++-mode))
 
   ;; The cedet-ectag-version-check returns nil, but running it
   ;; interactively indicates all is well.  So ignore it's results.
   ;;
   ;; (when (cedet-ectag-version-check t)
-  (semantic-load-enable-primary-ectags-support)
+  (when (fboundp 'semantic-load-enable-primary-ectags-support)
+    (semantic-load-enable-primary-ectags-support))
   ;;    )
 
   ;; SRecode
