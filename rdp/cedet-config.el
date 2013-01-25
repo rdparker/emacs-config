@@ -1,9 +1,9 @@
-;;; rdp-cedet.el --- My CEDET configuration
+;;; cedet-config.el --- My CEDET configuration
 
-;; Copyright (C) 2012  A123 Systems, Inc.
+;; Copyright (C) 2012, 2013 Ron Parker
 
-;; Author: Ron Parker <rparker@rparker-oi>
-;; Keywords: 
+;; Author: Ron Parker <rdparker@gmail.com>
+;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,9 +20,20 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
+
+;;; Load the el-get installed version of cedet, not the version
+;;; provided by emacs 24.
+(require 'el-get)
+(unless (member 'cedet-devel-load features)
+  (load-file (concat el-get-dir "cedet/cedet-devel-load.el")))
+
+;; This may be in the wrong place, but it appears that some semantic
+;; or GNU GLOBAL related functions cause the invokation of a file
+;; dialog.  This should surpress that.
+(setq use-file-dialog nil)
 
 (when (my-require 'semantic)
   (mapc (lambda (mode)
@@ -84,8 +95,12 @@
   (semanticdb-enable-gnu-global-databases 'c-mode)
   (semanticdb-enable-gnu-global-databases 'c++-mode)
 
+  ;; The cedet-ectag-version-check returns nil, but running it
+  ;; interactively indicates all is well.  So ignore it's results.
+  ;;
   ;; (when (cedet-ectag-version-check t)
-  ;;   (semantic-load-enable-primary-ectags-support))
+  (semantic-load-enable-primary-ectags-support)
+  ;;    )
 
   ;; SRecode
   (when (my-require 'srecode)
@@ -96,5 +111,5 @@
   (ede-enable-generic-projects))
 
 
-(provide 'rdp-cedet)
-;;; rdp-cedet.el ends here
+(provide 'cedet-config)
+;;; cedet-config.el ends here

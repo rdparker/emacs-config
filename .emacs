@@ -7,171 +7,18 @@
 
 (eval-when-compile (require 'cl))
 
-(setq initial-debug-on-error-status debug-on-error)
+;;; Most of my configuration is kept in an "rdp" subdirectory of my
+;;; emacs-config git repo, add it to the load-path.
+(when user-init-file
+  (let* ((target (file-symlink-p user-init-file))
+	 (file (if target
+		   (expand-file-name target
+				     (file-name-directory user-init-file))
+		 user-init-file)))
+    (add-to-list 'load-path (concat (file-name-directory file) "rdp"))))
 
-;;; Augmented functions
-;;;
-;;; These are "logical" extensions of existing functions.
-(defun directory-directories (directory &optional full match nosort)
-  "Return a list of names of directories in DIRECTORY.
-There are three optional arguments:
-If FULL is non-nil, return absolute file names.  Otherwise return names
- that are relative to the specified directory.
-If MATCH is non-nil, mention only file names that match the regexp MATCH.
-If NOSORT is non-nil, the list is not sorted--its order is unpredictable.
- Otherwise, the list returned is sorted with `string-lessp'.
- NOSORT is useful if you plan to sort the result yourself."
-  (when (file-directory-p directory)
-    (setq directory (file-name-as-directory directory))
-    (remove-if (function (lambda (filename)
-			   (not (file-directory-p
-				 (concat directory filename)))))
-	       (directory-files directory full match nosort))))
-
-(defun add-hooks (hooks function &optional append local)
-  "Add to the value of each element of HOOKS the function FUNCTION.
-FUNCTION is not added if already present.
-FUNCTION is added (if necessary) at the beginning of the hook list
-unless the optional argument APPEND is non-nil, in which case
-FUNCTION is added at the end.
-
-The optional fourth argument, LOCAL, if non-nil, says to modify
-the hook's buffer-local value rather than its default value.
-This makes the hook buffer-local if needed, and it makes t a member
-of the buffer-local value.  That acts as a flag to run the hook
-functions in the default value as well as in the local value.
-
-HOOK should be a symbol, and FUNCTION may be any valid function.  If
-HOOK is void, it is first set to nil.  If HOOK's value is a single
-function, it is changed to a list of functions."
-  (mapc (lambda (hook)
-	  (add-hook hook function append local))
-	hooks))
-
-(defun readlink (file &optional recursive)
-  "Return FILE or its target if it is a symlink.
-If RECURSIVE is non-nil repeat until a non-symlink is found.
-This may hang if circular symlinks are encountered."
-  (message "readlink %s %s\n" file recursive)
-  (setq file (expand-file-name file))
-  (let* ((directory (file-name-directory file))
-	 (target (file-symlink-p file)))
-	(if (setq target (file-symlink-p file))
-	(progn
-	  (setq file (if (file-name-absolute-p target)
-			 target
-			   (expand-file-name target directory))
-		directory (file-name-directory file))
-	  (if recursive
-		  (readlink file t)
-		file))
-	  file)))
-
-(defun add-to-load-path (path)
-  "If PATH exists add it to `load-path'"
-  (let ((full-path (expand-file-name path)))
-	(if (file-exists-p full-path)
-	(add-to-list 'load-path full-path))))
-
-(defun my-require (feature)
-  "This `require's a package if it can be found, otherwise it gives a message."
-  (let ((found (or (member feature features)
-		   (require feature nil t))))
-	(if found
-	found
-	  (message "REQUIRE: %s not found.\n" (symbol-name feature))
-	  nil)))
-
-;;; bitbake
-(setq auto-mode-alist (append '(("\\.bb" . conf-mode)
-				("\\.bbclass" . conf-mode)
-				("\\.inc" . conf-mode))
-				  auto-mode-alist))
-
-;;; Cygwin integration
-;; Sets your shell to use cygwin's bash, if Emacs finds it's running
-;; under Windows and c:\cygwin exists, unless it's part of my custom
-;; emacs/ecl/slime install in C:/lisp (cygwin would interfere with
-;; MinGW in that case).  Assumes that C:\cygwin\bin is not already in
-;; your Windows Path (it generally should not be).
-;;
-(unless (or (not (fboundp 'string-prefix-p))
-		(find-if (lambda (path)
-			   (string-prefix-p "C:/lisp/bin/emacs" path))
-			 load-path))
-
-  (let* ((cygwin-root "c:/cygwin")
-	 (cygwin-bin (concat cygwin-root "/bin")))
-	(when (and (eq 'windows-nt system-type)
-		   (file-readable-p cygwin-root))
-
-	  (setq exec-path (cons cygwin-bin exec-path))
-	  (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
-
-	  ;; By default use the Windows HOME.
-	  ;; Otherwise, uncomment below to set a HOME
-	  ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
-
-	  ;; NT-emacs assumes a Windows shell. Change to baash.
-	  (setq shell-file-name "bash")
-	  (setenv "SHELL" shell-file-name)
-	  (setq explicit-shell-file-name shell-file-name)
-
-	  ;; This removes unsightly ^M characters that would otherwise
-	  ;; appear in the output of java applications.
-	  (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
-
-	  (add-to-list 'load-path
-		   (concat (expand-file-name "~") "/.emacs.d"))
-
-	  (if (my-require 'cygwin-mount)
-	  (cygwin-mount-activate)
-	(warn "On Windows cygwin-mount.el is recommended")))))
-
-;;; OpenIndiana
-;;
-;; The variable system-type on OI is usg-unix-v, which I believe can
-;; apply to other unices, so look for "Solaris" in the X server vendor
-;; instead.  Since this is a related to how X is setup.
-;;
-(when (and (eq window-system 'x)
-	   (fboundp 'x-server-vendor)
-	   (string-match "Solaris" (x-server-vendor)))
-  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH"))))
-
-;;; Mac OS X
-(when (featurep 'ns)
-  (setq mac-command-modifier 'meta))
-
-;;; ELPA, integrated into emacs version 24
-;;
-;; Initially assume this is emacs 24 and just load it.  If that fails
-;; add a path to where a user-installed version may exist and try
-;; again.  If emacs 24 and older are to coexist on the same machine,
-;; then this too must be the emacs 24 version of ELPA because it makes
-;; changes to the ~/.emacs.d/elpa directory that are incompatible with
-;; older versions.  However, the code seems to still be compatible, at
-;; least with emacs 23.2.  A change to the file was necessary for
-;; emacs <= 23.1 due to a non-backward-compatible change to
-;; `called-interactively-p' in emacs 23.2.
-(if (not (load "package" t))
-	(progn
-	  (add-to-load-path "~/lib/lisp/el")
-	  (load "package" t)))
-(if (member 'package features)
-	(package-initialize))
-;; I'm not sure mixing GNU's and Tom Tromey's archive is a good idea.
-(setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages/")
-	("tromey" . "http://tromey.com/elpa/")
-	("marmalade" . "http://marmalade-repo.org/packages/")))
-
-(defun my-load (file)
-  "This `load's a file if it exists, otherwise it gives a message."
-  (let ((found (load file t)))
-	(unless found
-	  (message "LOAD: \"%s\" not found.\n" file)
-	  nil)))
+(require 'rdp-functions)
+(require 'os-x-config)
 
 ;;; load-path
 (mapc 'add-to-load-path '("~/lib/lisp/el"
@@ -185,276 +32,26 @@ This may hang if circular symlinks are encountered."
 			  "~/lib/lisp/el/w3/lisp"
 			  ;; "~/lib/lisp/elib"
 			  ))
-(when user-init-file
-  (add-to-load-path
-	 (concat (file-name-directory (readlink user-init-file t))
-		 "rdp")))
 
-;;; el-get, an elisp library manager
-;; 
-;; If this fails with:
-;;
-;;     error: error setting certificate verify locations:
-;;       CAfile: /etc/curl/curlCA
-;;       CApath: none
-;;      while accessing https://...
-;;
-;; It is because the curl CA certificates could not be found.  This is
-;; a known error on the Illumos Userland used by OpenIndiana,
-;; https://www.illumos.org/issues/1536.
-;;
-;; It may be corrected by running
-;;
-;;     mkdir -p /etc/curl && cat /etc/certs/CA/*.pem > /etc/curl/curlCA
-;;
-;; as root.
-;;
-(setq el-get-dir "~/lib/lisp/el/el-get/")
-(when (my-require 'el-get)
-  (setq el-get-sources
-	'((:name c-eldoc
-		 :type elpa
-		 :features (c-eldoc-autoloads))
-	  (:name haskell-ac
-		 :type git
-		 :url "https://gist.github.com/1241063.git"
-		 :description "Autocomplete mode for Haskell"
-		 :features (haskell-ac))
-	  (:name jdee
-		 :website "http://jdee.sourceforge.net/"
-		 :description "The JDEE is an add-on software package that turns Emacs into a comprehensive system for creating, editing, debugging, and documenting Java applications."
-		 :type svn
-		 :url "https://jdee.svn.sourceforge.net/svnroot/jdee/trunk/jdee"
-		 ;; :build ("touch `find . -name Makefile`" "make")
-		 :load-path ("lisp"))
-	  (:name js2-mode
-	  	 :type git
-	  	 :url "git://github.com/mooz/js2-mode.git"
-	  	 :description "Improved js2-mode"
-	  	 :features (js2-mode))
-	  (:name js2-refactor
-	  	 :type git
-	  	 :url "git://github.com/magnars/js2-refactor.el.git"
-	  	 :description "Javascript refactoring"
-	  	 :features (js2-refactor)
-	  	 :depends (js2-mode multiple-cursors dash))
-	  (:name dash
-		 :type elpa
-		 :description "A modern list api for Emacs. No 'cl required.")
-	  (:name jshint-mode
-		 :type git
-		 ;; I am not using the upstream repo because it has an
-		 ;; undefined error related to ARGV which is fixed in
-		 ;; yaru22's repo.  The pull request has never been
-		 ;; merged.
-		 ;;
-		 ;; Apparently yaru22's repo is no longer available,
-		 ;; so switch back to upstream.
-		 :url "git://github.com/daleharvey/jshint-mode.git"
-		 ;; :url "git://github.com/yaru22/jshint-mode.git"
-		 :description "Run JSHint with emacs"
-		 :features (flymake-jshint))
-	  (:name multiple-cursors
-	  	 :type git
-	  	 :url "https://github.com/magnars/multiple-cursors.el"
-	  	 :description "Mark multiple regions")
-;;	  (:name yasnippet-bundle :type elpa)
-	  ;; (:name w3		   :type elpa)
-	  ))
-  (when (executable-find "bzr")
-    (add-to-list 'el-get-sources
-		 '(:name nxhtml
-			 :type bzr
-			 :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
-			 :description "An addon for Emacs mainly for web development."
-			 :build
-			 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
-			 :load "autostart.el")))
-
-    ;; Temporarily comment this out, it breaks:
-    ;; GNU Emacs 24.1.1 (x86_64-unknown-linux-gnu, GTK+ Version
-    ;; 2.18.9) of 2012-08-20 on rparker-latitude.a123systems.com
-    ;;
-    ;; (when (< emacs-major-version 24)
-    ;; 	 (add-to-list 'el-get-sources
-    ;; 		      '(:name nxml-mode :type elpa)))
-    (el-get 'sync (append
-		   '(asciidoc
-		     auto-complete
-		     clojure-mode
-		     color-theme
-		     ;; Don't install ECB until I figure out what to
-		     ;; do with it on Emacs 23.
-		     ;; ecb
-		     emacs-w3m
-		     git-blame
-		     git-modeline		; includes git-emacs
-		     graphviz-dot-mode
-		     haskell-mode
-		     hs-lint		; haskell linting
-		     jdee
-		     js-comint
-		     magit
-		     markdown-mode
-		     ;; nxhtml
-		     org-mode
-		     paredit
-		     parenface
-		     ;; Not all my systems have darcs, so instead of
-		     ;; pulling in redshank via el-get, I am using a git
-		     ;; submodule to maintain my local copy of redshank.
-		     ;;
-		     ;; redshank
-		     ;;
-		     ;; It also seems to make a hash of loading slime,
-		     ;; using a non-authoritative source, wanting
-		     ;; texi2pdf first and then trying to use apt to
-		     ;; install tetex on systems that do not use apt.
-		     ;;
-		     ;; slime
-
-		     sunrise-commander
-
-		     ;; If this barfs get the 3.stable branch from
-		     ;; git@github.com:rdparker/el-get.git which
-		     ;; includes changes cherry-picked onto
-		     ;; topic/fix-sunrise-x-tree.
-		     sunrise-x-tree
-		     yasnippet)
-		   (mapcar 'el-get-source-name el-get-sources))))
-
-;;; Info paths
-
-;; Find the system's git contrib/emacs directory
-(mapc (lambda (x)
-	(add-to-load-path (concat "/usr/share/doc/" x "/contrib/emacs")))
-      (directory-files "/usr/share/doc" nil "^git.*"))
+(require 'el-get-config)
+(require 'grep-config)
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
 ;;; tired of 'yes' to save a file.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;;; Disable debug-on-error
-(setq debug-on-error initial-debug-on-error-status)
-
 ;;; Revert undesirable settings from Lisp Cabinet
 (if (or (> emacs-major-version 23)
 		(and (eq emacs-major-version 23)
 			 (>= emacs-minor-version 2)))
-	(setq tab-width 4)
-	(setq default-tab-width 4))			; obsoleted in 23.2
+	(setq tab-width 8)
+	(setq default-tab-width 8))			; obsoleted in 23.2
 
-;;; Appearance
-(setq inhibit-splash-screen t)
-(column-number-mode 1)
-(setq-default indicate-buffer-boundaries '((top . left) (t . right)))
-(blink-cursor-mode 1)
-
-(defun toggle-full-screen (&optional frame)
-  "Toggle the screen between 80 columns and full-screen."
-  (interactive)
-  (let ((f (or frame
-		   (selected-frame))))
-	(set-frame-width f (- (+ 199 80) (frame-width f)))))
-(global-set-key (kbd "M-RET") 'toggle-full-screen)
-
-;;; Autocompletion and Autoinsertion
-;;  There is a bug, where help-mode must be loaded before
-;;  ac-symbol-documentation is called.
-(require 'help-mode)
-(when (my-require 'auto-complete-config)
-  (ac-config-default)
-  (global-auto-complete-mode 1)
-  (setq ac-modes (append '(lisp-mode
-			   slime-repl-mode)
-			 ac-modes))
-  (add-hook 'lisp-mode-hook
-		(lambda ()
-		  (add-to-list 'ac-sources 'ac-source-slime))))
-;; Teaching auto-complete about slime.  Mostly taken from
-;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
-;; with docs added.
-(defun jsn-slime-source ()
-  "An auto-completion source that for slime buffers."
-  (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
-	 (beg (move-marker (make-marker) (slime-symbol-start-pos)))
-	 (prefix (buffer-substring-no-properties beg end))
-	 (completion-result (slime-contextual-completions beg end))
-	 (completion-set (first completion-result)))
-	completion-set))
-(defvar ac-source-slime '((candidates . jsn-slime-source)))
-(when (my-require 'autoinsert)
-  (add-hook 'find-file-hook 'auto-insert))
-
-;;; apt -- debian package support
-(when (executable-find "apt-get")	; only on systems with apt-get
-  (autoload 'apt "apt-mode" "Create a new buffer with the APT mode." t))
-
-;;; AUCTeX
-(load "auctex" t)
-(load "preview-latex.el" t)
-(add-hook 'org-mode-hook 'turn-on-org-cdlatex)
-
+(require 'appearance-config)
 (require 'desktop-config)
-
-;;; CFEngine
-(when (my-require 'cfengine)
-  (add-to-list 'auto-mode-alist '("\\.cf\\'" . cfengine-mode)))
-(defcustom cfengine-align-modes '(cfengine-mode cfengine3-mode)
-  "A list of modes whose syntax resembles CFEngine."
-  :type '(repeat symbol)
-  :group 'align)
-
-(require 'align)
-(defcustom cfengine-align-rules-list
-  '((cfengine-properties
-     (regexp . "^\\s-\\([^ \t]*\\)\\(\\s-*[^ \t\n]*\\s-=\\)>")
-     (justify . t)
-     (modes . cfengine-align-modes)
-     (tab-stop . nil)))
-  "The alignment rules for cfengine-mode.
-See `align-rules-list` for an explaination of these setting."
-  :type align-rules-list-type
-  :group 'align)
-
-(put 'cfengine-align-rules-list 'risky-local-variable t)
-
-(add-hook 'cfengine3-mode-hook
-	  (lambda ()
-	    (setq align-mode-rules-list cfengine-align-rules-list)))
-
-;;; dired-x & dired-sort-menu -- extend dired
-(autoload 'dired-jump "dired-x")
-(autoload 'dired-jump-other-window "dired-x")
-(eval-after-load "dired-x"
-  '(setq dired-omit-files (concat dired-omit-files
-				  "\\|^\\.zfs$\\|\\.\\$EXTEND$"
-				  "\\|_flymake\\.")))
-
-(global-set-key (kbd "C-x C-j") 'dired-jump)
-(global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
-(add-hook 'dired-load-hook
-	  (lambda ()
-	    (load "dired-x")
-	    (my-require 'dired-sort-menu)))
-(add-hook 'dired-mode-hook
-	  (lambda ()
-	    (load "dired-x")
-	    (dired-omit-mode 1)))
-
-;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
-(defun mydired-sort ()
-  "Sort dired listings with directories first."
-  (save-excursion
-	(let (buffer-read-only)
-	  (forward-line 2) ;; beyond dir. header
-	  (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
-	(set-buffer-modified-p nil)))
-
-(defadvice dired-readin
-  (after dired-after-updating-hook first () activate)
-  "Sort dired listings with directories first before adding marks."
-  (mydired-sort))
+(require 'auto-config)			; insertion and completion
+(require 'cfengine-config)
+(require 'dired-config)
 
 ;;; Minibuffer
 (iswitchb-mode 1)
@@ -498,7 +95,10 @@ See `align-rules-list` for an explaination of these setting."
 			 (mode . makefile-mode)
 			 (mode . makefile-automake-mode)
 			 (mode . makefile-gmake-mode)
-			 (mode . autoconf-mode)))))))
+			 (mode . autoconf-mode)))
+		   ("cfengine" (or
+				(mode . cf2engine-mode)
+				(mode . cf3engine-mode)))))))
 (add-hook 'ibuffer-mode-hook
 	  (lambda ()
 		(ibuffer-switch-to-saved-filter-groups "default")
@@ -616,7 +216,45 @@ expands it. Else calls `smart-indent'."
 ;;; Development
 (unless (boundp 'stack-trace-on-error)
   (setq stack-trace-on-error t))
-(my-require 'ecb-autoloads)
+(require 'ecb)
+(ecb-layout-define "left-rdp" left
+  "This function creates the following layout:
+
+   -------------------------------------------------------
+   |              |                                      |
+   |  Speedbar    |                                      |
+   |              |                                      |
+   |--------------|                                      |
+   |              |                                      |
+   |  Methods     |                                      |
+   |              |                                      |
+   |--------------|                 Edit                 |
+   |              |                                      |
+   |  Analyze     |                                      |
+   |              |                                      |
+   |              |                                      |
+   |--------------|                                      |
+   |  Symbol-defs |                                      |
+   |              |                                      |
+   -------------------------------------------------------
+   |                                                     |
+   |                    Compilation                      |
+   |                                                     |
+   -------------------------------------------------------
+
+If you have not set a compilation-window in `ecb-compile-window-height' then
+the layout contains no persistent compilation window and the other windows get a
+little more place."
+  (ecb-set-speedbar-buffer)
+  (ecb-split-ver 0.3)
+  (ecb-set-methods-buffer)
+  (ecb-split-ver 0.35)
+  (ecb-set-analyse-buffer)
+  (ecb-split-ver 0.65)
+  (ecb-set-symboldef-buffer)
+  (select-window (next-window)))
+(setq ecb-layout-name "left-rdp")
+
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
 (global-set-key [f6] 'flymake-goto-prev-error)
@@ -673,6 +311,44 @@ expands it. Else calls `smart-indent'."
 (add-hook 'dired-mode-hook
 	  (lambda ()
 		(define-key dired-mode-map "r" 'magit-status)))
+
+;;; gtags
+(add-to-load-path "/usr/share/gtags")
+(autoload 'gtags-mode "gtags" "" t)
+
+(add-hook 'c-mode-hook
+   '(lambda ()
+      (gtags-mode 1)))
+
+;; There are two hooks, gtags-mode-hook and gtags-select-mode-hook.
+(add-hook 'gtags-select-mode-hook
+  '(lambda ()
+     (define-key gtags-mode-map "\C-f" 'scroll-up)
+     (define-key gtags-mode-map "\C-b" 'scroll-down)))
+
+;; Setting to make 'Gtags select mode' easy to see
+(add-hook 'gtags-select-mode-hook
+  '(lambda ()
+     (setq hl-line-face 'underline)
+     (hl-line-mode 1)))
+
+;; This is from http://emacswiki.org/emacs/GnuGlobal
+(defun gtags-update-single(filename)
+  "Update Gtags database for changes in a single file"
+  (interactive)
+  (start-process "update-gtags" "update-gtags" "bash" "-c" (concat "cd " (gtags-root-dir) " ; gtags --single-update " filename )))
+(defun gtags-update-current-file()
+  (interactive)
+  (defvar filename)
+  (setq filename (replace-regexp-in-string (gtags-root-dir) "." (buffer-file-name (current-buffer))))
+  (gtags-update-single filename)
+  (message "Gtags updated for %s" filename))
+(defun gtags-update-hook()
+  "Update GTAGS file incrementally upon saving a file"
+  (when gtags-mode
+    (when (gtags-root-dir)
+      (gtags-update-current-file))))
+(add-hook 'after-save-hook 'gtags-update-hook)
 
 ;;; Haskell
 ;;
@@ -734,12 +410,6 @@ expands it. Else calls `smart-indent'."
      (push '("\\.l?hs\\'" flymake-haskell-init) flymake-allowed-file-name-masks)
      (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
      (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
-
-;;; HTML
-
-;; Fix up debug-on-error since nxhtml/nxhtml-base.el may mess with it
-;; on Windows.
-(setq debug-on-error initial-debug-on-error-status)
 
 ;;; Java
 (my-require 'jde-autoload)
@@ -1071,7 +741,7 @@ This gets started by python mode."
   comment-end \n)
 
 ;;; Semantic
-(require 'rdp-cedet)
+(require 'cedet-config)
 
 ;;; Tar-mode
 ;;
@@ -1148,6 +818,8 @@ This gets started by python mode."
  '(auto-insert-query t)
  '(ecb-options-version "2.40")
  '(face-font-family-alternatives (quote (("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(jiralib-host "us-dc1-jira1")
+ '(jiralib-url "http://us-dc1-jira1:8080")
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(warning-suppress-types (quote ((flymake)))))

@@ -1,8 +1,8 @@
 ;;; desktop-config.el --- configure desktop-save-mode
 
-;; Copyright (C) 2013  A123 Systems, Inc.
+;; Copyright (C) 2013  Ron Parker
 
-;; Author: Ron Parker <rparker@a123systems.com>
+;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
