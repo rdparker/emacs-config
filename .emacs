@@ -33,6 +33,15 @@
 			  ;; "~/lib/lisp/elib"
 			  ))
 
+;;; Emacs source path
+(eval-after-load "find-func"
+  '(when (not (and find-function-C-source-directory
+		   (file-directory-p find-function-C-source-directory)))
+     (setq find-function-C-source-directory
+	   (format "/usr/src/emacs-%d.%d/src/"
+		   emacs-major-version
+		   emacs-minor-version))))
+
 (require 'el-get-config)
 (require 'grep-config)
 
