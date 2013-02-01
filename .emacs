@@ -65,6 +65,7 @@
 (require 'auto-config)			; insertion and completion
 (require 'cfengine-config)
 (require 'dired-config)
+(require 'multiple-cursors-config)
 
 ;;; Minibuffer
 (iswitchb-mode 1)
