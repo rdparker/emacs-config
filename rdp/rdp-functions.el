@@ -103,5 +103,10 @@ This may hang if circular symlinks are encountered."
 	  (message "LOAD: \"%s\" not found.\n" file)
 	  nil)))
 
+(defun toggle-trailing-whitespace ()
+  "Toggle the state of `show-trailing-whitespace` in the current buffer."
+  (interactive)
+  (setq show-trailing-whitespace (not show-trailing-whitespace)))
+
 (provide 'rdp-functions)
 ;;; rdp-functions.el ends here
