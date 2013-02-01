@@ -50,8 +50,10 @@
 		 :type elpa
 		 :features (c-eldoc-autoloads))
 	  (:name haskell-ac
-		 :type git
-		 :url "https://gist.github.com/1241063.git"
+		 :type http
+		 :url "https://gist.github.com/raw/1241063/11b8bfcaec15459aa9f79eeed373658f20511ec5/haskell-ac.el"
+		 ;; :type git
+		 ;; :url "https://gist.github.com/1241063.git"
 		 :description "Autocomplete mode for Haskell"
 		 :features (haskell-ac))
 	  (:name jdee
