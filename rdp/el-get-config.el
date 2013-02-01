@@ -66,15 +66,6 @@
 		 :url "git://github.com/mooz/js2-mode.git"
 		 :description "Improved js2-mode"
 		 :features (js2-mode))
-	  (:name js2-refactor
-		 :type git
-		 :url "git://github.com/magnars/js2-refactor.el.git"
-		 :description "Javascript refactoring"
-		 :features (js2-refactor)
-		 :depends (js2-mode multiple-cursors dash))
-	  (:name dash
-		 :type elpa
-		 :description "A modern list api for Emacs. No 'cl required.")
 	  (:name jshint-mode
 		 :type git
 		 ;; I am not using the upstream repo because it has an
@@ -101,15 +92,44 @@
 		 :url "http://www.emacswiki.org/emacs-en/download/dired-sort-menu+.el"
 		 :description "Extensions to `dired-sort-menu.el`"
 		 :depends (dired-sort-menu))
-	  (:name org-jira
-		 :description "Bring Jira and OrgMode together"
+	  ;; Alex Ott's ECB branch has been updated to work with newer
+	  ;; versions of CEDET.
+	  (:name ecb
+		 :description "Emacs Code Browser"
 		 :type git
-		 :url "https://github.com/baohaojun/org-jira.git"
-		 :features (org-jira)
-		 :depends (org-mode))
+		 :module "ecb"
+		 :url "https://github.com/alexott/ecb.git"
+		 :build `(("make"
+			   ,(concat "CEDET="
+				    (shell-quote-argument
+				     (expand-file-name
+				      (concat el-get-dir "cedet"))))
+			   ,(concat "EMACS="
+				    (shell-quote-argument el-get-emacs))))
+		 :features (ecb)
+		 :depends (cedet))
 ;;	  (:name yasnippet-bundle :type elpa)
 	  ;; (:name w3		   :type elpa)
 	  ))
+  (when (> 23 emacs-major-version)
+    (mapc (lambda (pkg)
+	    (add-to-list 'el-get-sources pkg))
+	  '((:name org-jira
+		   :description "Bring Jira and OrgMode together"
+		   :type git
+		   :url "https://github.com/baohaojun/org-jira.git"
+		   :features (org-jira)
+		   :depends (org-mode))
+	    (:name js2-refactor
+		   :type git
+		   :url "git://github.com/magnars/js2-refactor.el.git"
+		   :description "Javascript refactoring"
+		   :features (js2-refactor)
+		   :depends (js2-mode multiple-cursors dash))
+	    (:name dash
+		   :type elpa
+		   :description "A modern list api for Emacs. No 'cl required."))))
+
   (when (executable-find "bzr")
     (add-to-list 'el-get-sources
 		 '(:name nxhtml
@@ -118,25 +138,7 @@
 			 :description "An addon for Emacs mainly for web development."
 			 :build
 			 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))
-			 :load "autostart.el"))
-    (add-to-list 'el-get-sources
-		 ;; Alex Ott's ECB branch has been updated to work
-		 ;; with newer versions of CEDET.
-		 `(:name ecb
-			 :description "Emacs Code Browser"
-			 :type git
-			 :module "ecb"
-			 :url "https://github.com/alexott/ecb.git"
-			 :build
-			 (("make"
-			   ,(concat "CEDET="
-				    (shell-quote-argument
-				     (expand-file-name
-				      (concat el-get-dir "cedet"))))
-			   ,(concat "EMACS="
-				    (shell-quote-argument el-get-emacs))))
-			 :features (ecb)
-			 :depends (cedet))))
+			 :load "autostart.el")))
 
     ;; Temporarily comment this out, it breaks:
     ;; GNU Emacs 24.1.1 (x86_64-unknown-linux-gnu, GTK+ Version
