@@ -82,9 +82,10 @@ This may hang if circular symlinks are encountered."
 
 (defun add-to-load-path (path)
   "If PATH exists add it to `load-path'"
-  (let ((full-path (expand-file-name path)))
-	(if (file-exists-p full-path)
-	(add-to-list 'load-path full-path))))
+  (when path
+    (let ((full-path (expand-file-name path)))
+      (if (file-exists-p full-path)
+	  (add-to-list 'load-path full-path)))))
 
 (defun my-require (feature)
   "This `require's a package if it can be found, otherwise it gives a message."
