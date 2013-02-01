@@ -442,7 +442,8 @@ expands it. Else calls `smart-indent'."
     (("ecl"))
     (("ccl"))
     (("ccl64"))
-    (("clisp" "--quiet" "-K" "full") :coding-system utf-8-unix)
+    ;; (("clisp" "--quiet" "-K" "full") :coding-system utf-8-unix)
+    (("clisp" "--quiet") :coding-system utf-8-unix)
     (("sbcl")))
   "The Lisps to consider for `slime-lisp-implementations'.
 The list should have the form:
