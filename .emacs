@@ -21,11 +21,15 @@
 (require 'os-x-config)
 
 ;;; load-path
-(mapc 'add-to-load-path '("~/lib/lisp/el"
+(mapc 'add-to-load-path `("~/lib/lisp/el"
 			  "~/lib/lisp/el/apt-el"
 			  "~/lib/lisp/el/egit"
 			  "~/lib/lisp/el/el-autoyas"
-			  "~/lib/lisp/el/el-get/el-get"
+			  ,(if (eql 23 emacs-major-version)
+			       "~/lib/lisp/el/elpa-23")
+			  ,(if (eql 23 emacs-major-version)
+			       "~/lib/lisp/el/el-get-23/el-get"
+			     "~/lib/lisp/el/el-get/el-get")
 			  "~/lib/lisp/el/gitsum"
 			  ;; "~/lib/lisp/el/jdee/lisp"
 			  "~/lib/lisp/el/redshank"

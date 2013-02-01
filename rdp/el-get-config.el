@@ -41,7 +41,9 @@
 ;;
 ;; as root.
 ;;
-(setq el-get-dir "~/lib/lisp/el/el-get/")
+(setq el-get-dir (if (eql 23 emacs-major-version)
+		     "~/lib/lisp/el/el-get-23/"
+		   "~/lib/lisp/el/el-get/"))
 (when (my-require 'el-get)
   (setq el-get-sources
 	'((:name c-eldoc
@@ -178,15 +180,16 @@
 		     ;;
 		     ;; slime
 
-		     sunrise-commander
-
-		     ;; If this barfs get the 3.stable branch from
-		     ;; git@github.com:rdparker/el-get.git which
-		     ;; includes changes cherry-picked onto
-		     ;; topic/fix-sunrise-x-tree.
-		     sunrise-x-tree
 		     yasnippet)
-		   (mapcar 'el-get-source-name el-get-sources))))
+		   (mapcar 'el-get-source-name el-get-sources)))
+    (if (> 23 emacs-major-version)
+	(el-get 'sync 'sunrise-commander
+
+		;; If this barfs get the 3.stable branch from
+		;; git@github.com:rdparker/el-get.git which
+		;; includes changes cherry-picked onto
+		;; topic/fix-sunrise-x-tree.
+		sunrise-x-tree)))
 
 (provide 'el-get-config)
 ;;; el-get-config.el ends here
