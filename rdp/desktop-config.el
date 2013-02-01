@@ -38,11 +38,9 @@
 ;; Save buffer-display-time so midnight works across desktop sessions.
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
-;;; Work around emacs hanging when it is started in daemon mode and it
-;;; encounters auto-save files or unsafe local variables.
 (defadvice desktop-read (around dont-wait-for-input
 				(&optional dirname))
-  "Avoid hanging in during daemon startup.
+  "Avoid `desktop-read' hanging when Emacs is started as a daemon.
 This includes not prompting when auto-save files or potentially
 unsafe local variables are encountered during startup."
   (if (not (daemonp))
