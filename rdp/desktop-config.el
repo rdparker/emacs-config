@@ -39,18 +39,23 @@
 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
 ;;; Work around emacs hanging when it is started in daemon mode and it
-;;; encounters auto-save files.
+;;; encounters auto-save files or unsafe local variables.
 (defadvice desktop-read (around dont-wait-for-input
 				(&optional dirname))
-  "Avoid hanging when auto-save files are found."
-  (let* ((debug-on-error t)
-	 (orig-sit-for (symbol-function 'sit-for)))
-    (fset 'sit-for
-	  (lambda (seconds &optional nodisp)
-	    nil))
-    ad-do-it
-    (fset 'sit-for orig-sit-for)
-    (ad-unadvise 'desktop-read)))
+  "Avoid hanging in during daemon startup.
+This includes not prompting when auto-save files or potentially
+unsafe local variables are encountered during startup."
+  (if (not (daemonp))
+      ad-do-it
+    (let* ((debug-on-error t)
+	   (enable-local-variables :safe)
+	   (orig-sit-for (symbol-function 'sit-for)))
+      (fset 'sit-for
+	    (lambda (seconds &optional nodisp)
+	      nil))
+      ad-do-it
+      (fset 'sit-for orig-sit-for)))
+  (ad-unadvise 'desktop-read))
 
 (ad-activate 'desktop-read)
 
