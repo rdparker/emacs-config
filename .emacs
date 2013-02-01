@@ -289,11 +289,13 @@ expands it. Else calls `smart-indent'."
 
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
-(autoload 'gtags-mode "gtags" "" t)
+(when (require 'gtags nil t)
+  (autoload 'gtags-mode "gtags" "" t)
 
-(add-hook 'c-mode-hook
-   '(lambda ()
-      (gtags-mode 1)))
+  (add-hook 'c-mode-hook
+	    '(lambda ()
+	       (gtags-mode 1)))
+  (add-hook 'after-save-hook 'gtags-update-hook))
 
 ;; There are two hooks, gtags-mode-hook and gtags-select-mode-hook.
 (add-hook 'gtags-select-mode-hook
@@ -323,7 +325,6 @@ expands it. Else calls `smart-indent'."
   (when gtags-mode
     (when (gtags-root-dir)
       (gtags-update-current-file))))
-(add-hook 'after-save-hook 'gtags-update-hook)
 
 ;;; Haskell
 ;;

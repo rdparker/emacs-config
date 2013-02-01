@@ -35,6 +35,9 @@
 ;; dialog.  This should surpress that.
 (setq use-file-dialog nil)
 
+(unless (boundp 'ac-sources)
+  (setq ac-sources nil))
+
 (when (my-require 'semantic)
   (mapc (lambda (mode)
 	  (add-to-list 'semantic-default-submodes mode))
@@ -69,8 +72,6 @@
     (local-set-key (kbd "C-c <left>") 'semantic-tag-folding-fold-block)
     (local-set-key (kbd "C-c <right>") 'semantic-tag-folding-show-block)
 
-    (unless (boundp 'ac-sources)
-      (setq ac-sources nil))
     (add-to-list 'ac-sources 'ac-source-semantic))
   ;; (add-hook 'semantic-init-hooks 'alexott/cedet-hook)
   (add-hook 'c-mode-common-hook 'alexott/cedet-hook)
@@ -88,8 +89,8 @@
     (local-set-key "\C-c\C-r" 'semantic-symref)
 
     ;; (add-to-list 'ac-sources 'ac-source-etags)
-    (add-to-list 'ac-sources 'ac-source-gtags)
-    )
+    (when (my-require 'gtags)
+          (add-to-list 'ac-sources 'ac-source-gtags)))
   (add-hook 'c-mode-common-hook 'alexott/c-mode-cedet-hook)
 
   (when (member 'cedet-devel-load features)
