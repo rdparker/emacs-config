@@ -48,6 +48,7 @@
 	  global-semantic-idle-summary-mode
 	  global-semantic-stickyfunc-mode
 	  global-semanticdb-minor-mode))
+  (require 'semantic/decorate/mode)
   (semantic-mode 1)
   (require 'semantic/bovine/c)
   (require 'semantic/bovine/el)
