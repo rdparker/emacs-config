@@ -22,6 +22,9 @@
 [submodule "lisp/chess"]
 	path = lisp/chess
 	url = https://github.com/jwiegley/emacs-chess.git
+[submodule "lisp/emacs-async"]
+	path = lisp/emacs-async
+	url = https://github.com/jwiegley/emacs-async.git
 [submodule "lisp/gnus-harvest"]
 	path = lisp/gnus-harvest
 	url = https://github.com/jwiegley/gnus-harvest.git
@@ -73,6 +76,9 @@
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = https://github.com/jwiegley/haskell-mode.git
+[submodule "site-lisp/hsenv"]
+	path = site-lisp/hsenv
+	url = https://github.com/hmhedberg/hsenv.git
 [submodule "site-lisp/info-lookmore"]
 	path = site-lisp/info-lookmore
 	url = https://github.com/emacsmirror/info-lookmore.git
@@ -157,9 +163,6 @@
 [submodule "site-lisp/ido-hacks"]
 	path = site-lisp/ido-hacks
 	url = https://github.com/jwiegley/ido-hacks.git
-[submodule "lisp/bind-key"]
-	path = lisp/bind-key
-	url = git://github.com/jwiegley/bind-key.git
 [submodule "lisp/use-package"]
 	path = lisp/use-package
 	url = git://github.com/jwiegley/use-package.git
@@ -240,7 +243,7 @@
 	url = git://github.com/jwiegley/haskell-config.git
 [submodule "site-lisp/hpaste"]
 	path = site-lisp/hpaste
-	url = git://git.swclan.homelinux.org/hpaste.git
+	url = http://code.haskell.org/hpaste.git
 [submodule "site-lisp/yaml-mode"]
 	path = site-lisp/yaml-mode
 	url = https://github.com/yoshiki/yaml-mode.git
