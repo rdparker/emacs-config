@@ -78,7 +78,7 @@
 	url = https://github.com/jwiegley/haskell-mode.git
 [submodule "site-lisp/hsenv"]
 	path = site-lisp/hsenv
-	url = https://github.com/hmhedberg/hsenv.git
+	url = git://github.com/tmhedberg/hsenv.git
 [submodule "site-lisp/info-lookmore"]
 	path = site-lisp/info-lookmore
 	url = https://github.com/emacsmirror/info-lookmore.git
