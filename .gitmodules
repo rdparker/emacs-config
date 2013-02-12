@@ -294,4 +294,4 @@
 	url = git://git.naquadah.org/erc-track-score.git
 [submodule "site-lisp/flycheck"]
 	path = site-lisp/flycheck
-	url = https://github.com/magnars/s.el.git
+	url = git@github.com:jwiegley/flyparse.git
