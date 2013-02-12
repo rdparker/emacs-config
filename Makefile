@@ -16,6 +16,14 @@ all: $(SPECIAL) $(TARGET)
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
 
+submodules:
+	git submodule init
+	git submodule update
+	while git submodule status --recursive | grep -q ^-; do \
+	    git submodule foreach --recursive git submodule init; \
+	    git submodule foreach --recursive git submodule update; \
+	done
+
 cus-dirs.el: Makefile $(LIB_SOURCE)
 	$(EMACS_BATCH) -l cus-dep -f custom-make-dependencies $(DIRS)
 	mv cus-load.el cus-dirs.el
