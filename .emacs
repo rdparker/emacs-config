@@ -829,6 +829,8 @@ This gets started by python mode."
  '(flymake-errline ((t (:underline "Firebrick4"))))
  '(flymake-warnline ((t (:underline "DarkBlue"))))
  '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "DejaVu Serif"))))
+ '(mumamo-background-chunk-major ((t (:background "#00213f"))))
+ '(mumamo-background-chunk-submode1 ((t (:background "#003c1d"))))
  '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-line ((t (:background "gray20")))))
