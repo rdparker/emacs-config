@@ -37,6 +37,13 @@ autoloads.el: Makefile autoloads.in $(LIB_SOURCE)
 
 autoloads.elc: autoloads.el
 
+lisp/wg-tabs.elc: lisp/wg-tabs.el
+	$(BATCH_LOAD) -l load-path -l lib/apel/alist.el -f batch-byte-compile $<
+
+site-lisp/ac-math.elc: site-lisp/ac-math.el
+	$(BATCH_LOAD) -l load-path -L site-lisp/ac/auto-complete \
+	    -L site-lisp/ac/popup-el -f batch-byte-compile $<
+
 %.elc: %.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
 
