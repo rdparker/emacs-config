@@ -77,6 +77,7 @@
 (setq ibuffer-saved-filter-groups
 	  (quote (("default"
 		   ("dired" (mode . dired-mode))
+		   ("erc" (mode . circe-mode))
 		   ("erc" (mode . erc-mode))
 		   ("planner" (or
 			   (name . "^\\*Calendar\\*$")
@@ -795,6 +796,15 @@ This gets started by python mode."
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
  '(ecb-options-version "2.40")
+ '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))))
+ '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
+ '(erc-log-mode t)
+ '(erc-log-write-after-insert t)
+ '(erc-log-write-after-send t)
+ '(erc-max-buffer-size 1000000)
+ '(erc-modules (quote (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
+ '(erc-truncate-mode t)
+ '(erc-warn-about-blank-lines t)
  '(face-font-family-alternatives (quote (("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
