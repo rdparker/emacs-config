@@ -89,6 +89,7 @@
 			   (name . "^diary$")
 			   (mode . muse-mode)
 			   (mode . org-mode)))
+		   ("docs" (mode . markdown-mode))
 		   ("gnus" (or
 			(mode . message-mode)
 			(mode . bbdb-mode)
@@ -793,6 +794,7 @@ This gets started by python mode."
   (keyfreq-autosave-mode 1))
 
 ;;; customizations
+(setq ansi-term-color-vector [unspecified "black" "red3" "green3" "yellow3" "#9bf" "magenta3" "cyan3" "white"])
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
