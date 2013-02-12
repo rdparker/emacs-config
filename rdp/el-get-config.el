@@ -96,20 +96,45 @@
 		 :depends (dired-sort-menu))
 	  ;; Alex Ott's ECB branch has been updated to work with newer
 	  ;; versions of CEDET.
-	  (:name ecb
-		 :description "Emacs Code Browser"
-		 :type git
-		 :module "ecb"
-		 :url "https://github.com/alexott/ecb.git"
-		 :build `(("make"
-			   ,(concat "CEDET="
-				    (shell-quote-argument
-				     (expand-file-name
-				      (concat el-get-dir "cedet"))))
-			   ,(concat "EMACS="
-				    (shell-quote-argument el-get-emacs))))
-		 :features (ecb)
-		 :depends (cedet))
+	  ;; (:name ecb
+	  ;; 	 :description "Emacs Code Browser"
+	  ;; 	 :type git
+	  ;; 	 :module "ecb"
+	  ;; 	 :url "https://github.com/alexott/ecb.git"
+	  ;; 	 :build `(("make"
+	  ;; 		   ,(concat "CEDET="
+	  ;; 			    (shell-quote-argument
+	  ;; 			     (expand-file-name
+	  ;; 			      (concat el-get-dir "cedet"))))
+	  ;; 		   ,(concat "EMACS="
+	  ;; 			    (shell-quote-argument el-get-emacs))))
+	  ;; 	 :features (ecb)
+	  ;; 	 :depends (cedet))
+	  ;; Stolen directly from the el-get recipes but using a
+	  ;; different url to deal with spaces in path names.
+	  ;; (:name cedet
+	  ;; 	 :website "http://cedet.sourceforge.net/"
+	  ;; 	 :description "CEDET is a Collection of Emacs Development Environment Tools written with the end goal of creating an advanced development environment in Emacs."
+	  ;; 	 :type bzr
+	  ;; 	 :url "lp:~rdparker/cedet/fix-windows"
+	  ;; 	 :build
+	  ;; 	 ;; `((,el-get-emacs "-batch" "-Q" "-l" "cedet-build.el" "-f" "cedet-build"))
+	  ;; 	 `(("sh" "-c" "touch `find . -name Makefile`")
+	  ;; 	   ("make" ,(format "EMACS=%s" (shell-quote-argument el-get-emacs))))
+	  ;; 	 :build/berkeley-unix
+	  ;; 	 `(("sh" "-c" "touch `find . -name Makefile`")
+	  ;; 	   ("gmake" ,(format "EMACS=%s" (shell-quote-argument el-get-emacs))))
+	  ;; 	 :build/windows-nt ("echo #!/bin/sh > tmp.sh & echo touch `/usr/bin/find . -name Makefile` >> tmp.sh & echo make FIND=/usr/bin/find >> tmp.sh"
+	  ;; 			    "sed 's/^M$//' tmp.sh  > tmp2.sh"
+	  ;; 			    "sh ./tmp2.sh" "rm ./tmp.sh ./tmp2.sh")
+	  ;; 	 :features nil
+	  ;; 	 ;; This package isn't really non-lazy, but we want to call the
+	  ;; 	 ;; post-init immediately, because it handles the lazy autoload
+	  ;; 	 ;; setup.
+	  ;; 	 :lazy nil
+	  ;; 	 :post-init
+	  ;; 	 (unless (featurep 'cedet-devel-load)
+	  ;; 	   (load (expand-file-name "cedet-devel-load.el" pdir))))
 ;;	  (:name yasnippet-bundle :type elpa)
 	  ;; (:name w3		   :type elpa)
 	  ))
@@ -136,7 +161,7 @@
     (add-to-list 'el-get-sources
 		 '(:name nxhtml
 			 :type bzr
-			 :url "https://code.launchpad.net/~rdparker/nxhtml/fix-emacs24-solaris"
+			 :url "lp:~rdparker/nxhtml/fix-emacs24-solaris"
 			 :description "An addon for Emacs mainly for web development."
 			 :build
 			 (list (concat el-get-emacs " -batch -q -no-site-file -L . -l nxhtmlmaint.el -f nxhtmlmaint-start-byte-compilation"))

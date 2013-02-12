@@ -726,7 +726,7 @@ This gets started by python mode."
   comment-end \n)
 
 ;;; Semantic
-(require 'cedet-config)
+;;(require 'cedet-config)
 
 ;;; Tar-mode
 ;;
