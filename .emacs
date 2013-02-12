@@ -67,6 +67,11 @@
 (require 'dired-config)
 (require 'multiple-cursors-config)
 
+;;; Configuration files
+;;
+;; MySQL configuration files are named *.cnf.
+(setq auto-mode-alist (cons '("\\.cnf" . conf-mode) auto-mode-alist))
+
 ;;; Minibuffer
 (iswitchb-mode 1)
 (setq enable-recursive-minibuffers t)
