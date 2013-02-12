@@ -406,7 +406,7 @@ expands it. Else calls `smart-indent'."
       (setq exec-path path))))
 (when (my-require 'flymake-jshint)
    (add-hook 'js-mode-hook (lambda ()
- 			    (flymake-mode 1)
+			    (flymake-mode 1)
 			    ;; Scan the file for nested code blocks
 			    (imenu-add-menubar-index)
 			    (hs-minor-mode 1))))
