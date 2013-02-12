@@ -243,7 +243,7 @@
 	url = git://github.com/jwiegley/haskell-config.git
 [submodule "site-lisp/hpaste"]
 	path = site-lisp/hpaste
-	url = http://code.haskell.org/hpaste.git
+	url = git@github.com:suhailshergill/hpaste.git
 [submodule "site-lisp/yaml-mode"]
 	path = site-lisp/yaml-mode
 	url = https://github.com/yoshiki/yaml-mode.git
