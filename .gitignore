@@ -1,4 +1,25 @@
+*.elc
 *~
 .#*
 \#*
 non-public
+autoloads.el
+cus-dirs.el
+archive/
+backups/
+compile.log
+data-alt/
+data/
+ede-projects.el
+emms/
+eshell/
+info/
+mirror
+override/cc-mode/
+site-lisp/.loaddefs.el
+site-lisp/.status.el
+srecode-map.el
+var/
+broken.el
+logs/
+>>>>>>> johnw/master
