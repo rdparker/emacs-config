@@ -58,6 +58,7 @@ SCHEDULED: %t
  '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
  '(org-export-babel-evaluate nil)
+ '(org-export-html-style-extra "<style type=\"text/css\">\n <!--/*--><![CDATA[/*><!--*/\n    code { font-size: 10pt; }\n  /*]]>*/-->\n</style>")
  '(org-export-latex-classes (quote (("article" "\\documentclass[11pt]{article}" ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}") ("\\paragraph{%s}" . "\\paragraph*{%s}") ("\\subparagraph{%s}" . "\\subparagraph*{%s}")) ("linalg" "\\documentclass{article}
 \\usepackage{linalgjh}
 [DEFAULT-PACKAGES]
