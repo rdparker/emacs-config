@@ -151,7 +151,6 @@
  '(find-ls-subdir-switches "-alh")
  '(flymake-compilation-prevents-syntax-check nil)
  '(flyspell-abbrev-p nil)
- '(flyspell-incorrect-hook (quote (flyspell-maybe-correct-transposition)))
  '(flyspell-use-meta-tab nil)
  '(font-lock-support-mode (quote jit-lock-mode))
  '(font-lock-verbose nil)
