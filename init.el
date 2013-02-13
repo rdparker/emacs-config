@@ -1554,6 +1554,15 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
               (call-interactively #'sr-change-window)
             (call-interactively #'other-window)))
 
+        ;; From http://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
+        (defun mydired-sort ()
+          "Sort dired listings with directories first."
+          (save-excursion
+           (let (buffer-read-only)
+             (forward-line 2) ;; beyond dir. header
+             (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+           (set-buffer-modified-p nil)))
+
         (bind-key "<tab>" 'my-dired-switch-window dired-mode-map)
 
         (bind-key "M-!" 'async-shell-command dired-mode-map)
@@ -1563,6 +1572,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (defadvice dired-omit-startup (after diminish-dired-omit activate)
           "Make sure to remove \"Omit\" from the modeline."
           (diminish 'dired-omit-mode) dired-mode-map)
+
+        (defadvice dired-readin
+          (after dired-after-updating-hook first () activate)
+          "Sort dired listings with directories first before adding marks."
+          (mydired-sort))
 
         (defadvice dired-next-line (around dired-next-line+ activate)
           "Replace current buffer if file is a directory."
@@ -1662,6 +1676,11 @@ The output appears in the buffer `*Async Shell Command*'."
       (dired-other-window second-dir))
 
     (bind-key "C-c J" 'dired-double-jump)))
+
+;;;_ , dired-x
+(use-package dired-x
+  :bind (("C-x C-j" . dired-jump)
+         ("C-x 4 C-j" . dired-jump-other-window)))
 
 ;;;_ , doxymacs
 
