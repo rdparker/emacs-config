@@ -383,7 +383,6 @@
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
  '(magit-header ((t (:weight bold))))
  '(magit-topgit-current ((t nil)))
- '(match ((t (:background "light cyan"))))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
  '(trailing-whitespace ((((class color) (background light)) (:background "light salmon"))))
  '(wg-brace-face ((((class color)) (:foreground "dark slate blue"))))
