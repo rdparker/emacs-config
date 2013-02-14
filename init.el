@@ -4041,6 +4041,14 @@ FORM => (eval FORM)."
     (defvar zencoding-mode-keymap (make-sparse-keymap))
     (bind-key "C-c C-c" 'zencoding-expand-line zencoding-mode-keymap)))
 
+;;;_. Private initialization
+
+;;; 
+(when user-init-file
+  (add-to-list 'load-path (expand-file-name "private/" (file-name-directory
+                                                        user-init-file)))
+  (load "init" t))
+
 ;;;_. Post initialization
 
 (when window-system
