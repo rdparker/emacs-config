@@ -393,5 +393,4 @@
  '(wg-message-face ((((class color)) (:foreground "dark blue"))))
  '(wg-mode-line-face ((((class color)) (:foreground "dark blue"))))
  '(wg-other-workgroup-face ((((class color)) (:foreground "dark slate grey"))))
- '(wg-previous-workgroup-face ((((class color)) (:foreground "dark blue"))))
- '(whitespace-line ((t (:background "lemon chiffon" :foreground "dark violet")))))
+ '(wg-previous-workgroup-face ((((class color)) (:foreground "dark blue")))))
