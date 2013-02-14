@@ -215,6 +215,7 @@
 
 (bind-key "M-s n" 'find-name-dired)
 (bind-key "M-s o" 'occur)
+(bind-key "M-s r" 'rgrep)
 
 ;;;_  . M-C-?
 
