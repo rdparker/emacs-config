@@ -4044,11 +4044,12 @@ FORM => (eval FORM)."
 
 ;;;_. Private initialization
 
-;;; 
+;;;
 (when user-init-file
-  (add-to-list 'load-path (expand-file-name "private/" (file-name-directory
-                                                        user-init-file)))
-  (load "init" t))
+  (let ((dir (expand-file-name "private/" (file-name-directory
+                                           user-init-file))))
+    (add-to-list 'load-path dir)
+    (load (expand-file-name "init" dir) t)))
 
 ;;;_. Post initialization
 
