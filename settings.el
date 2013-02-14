@@ -372,7 +372,6 @@
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
  '(helm-M-x-key ((t (:foreground "dark red" :underline t))))
  '(helm-candidate-number ((t (:background "#faffb5" :foreground "black"))))
- '(helm-selection ((t (:background "#b5ffd1" :underline t))))
  '(helm-separator ((t (:foreground "#ffbfb5"))))
  '(helm-source-header ((t (:background "#abd7f0" :foreground "black" :underline t))))
  '(helm-visible-mark ((t (:background "#d1f5ae"))))
