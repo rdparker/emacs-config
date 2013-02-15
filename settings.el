@@ -308,6 +308,7 @@
  '(tramp-auto-save-directory "~/.emacs.d/backups")
  '(tramp-default-method "rsyncc")
  '(tramp-default-method-alist (quote (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))))
+ '(tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
  '(tramp-persistency-file-name "~/.emacs.d/data/tramp")
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
