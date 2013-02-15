@@ -4149,7 +4149,7 @@ FORM => (eval FORM)."
 
 ;;;_. Private initialization
 
-;;; 
+;;;
 (when user-init-file
   (add-to-list 'load-path (expand-file-name "private/" (file-name-directory
                                                         user-init-file)))

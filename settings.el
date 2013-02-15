@@ -337,7 +337,7 @@
  '(whitespace-line-column 80)
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)
- '(whitespace-style (quote (face trailing lines space-before-tab empty)))
+ '(whitespace-style (quote (empty face indentation space-before-tab newline lines-tail trailing)))
  '(workgroups-mode t)
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
