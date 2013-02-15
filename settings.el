@@ -80,7 +80,7 @@
  '(dired-dwim-target t)
  '(dired-listing-switches "-lah")
  '(dired-no-confirm (quote (byte-compile chgrp chmod chown copy hardlink symlink touch)))
- '(dired-omit-files "^\\.?#\\|^\\.\\(DS_Store\\|localized\\|AppleDouble\\)$\\|^\\.\\.$")
+ '(dired-omit-files "^\\.?#\\|^\\.\\(DS_Store\\|localized\\|AppleDouble\\)$\\|^\\.\\.$\\|^\\.zfs$\\|\\.\\$EXTEND$\\|_flymake\\.")
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
