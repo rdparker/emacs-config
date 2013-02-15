@@ -845,4 +845,4 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
 ;; End:
 
-;;; dot-gnus.el ends here
+;;; dot-org.el ends here
