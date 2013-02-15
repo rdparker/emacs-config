@@ -104,6 +104,10 @@
 
   (load (expand-file-name "settings" user-emacs-directory)))
 
+;;; I do too much remote work via tramp with odd NFS settings.  Get
+;;; tired of 'yes' to save a file.
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 ;;;_ , Enable disabled commands
 
 (put 'downcase-region  'disabled nil)   ; Let downcasing work
