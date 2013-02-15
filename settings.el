@@ -63,7 +63,7 @@
  '(coq-unicode-tokens-enable t)
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
- '(custom-file "/Users/johnw/.emacs.d/settings.el")
+ '(custom-file "~/.emacs.d/settings.el")
  '(custom-raised-buttons nil)
  '(default-frame-alist (quote ((font . "-apple-Courier-medium-normal-normal-*-15-*-*-*-m-0-iso10646-1") (cursor-color . "#b247ee"))))
  '(default-input-method "latin-1-prefix")
