@@ -13,6 +13,7 @@ data/
 ede-projects.el
 emms/
 eshell/
+flycheck-*
 info/
 logs/
 mirror
