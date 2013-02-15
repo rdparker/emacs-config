@@ -1370,6 +1370,107 @@
 
 (use-package browse-kill-ring+)
 
+;;;_ , cfengine
+(use-package cfengine
+  :mode ("\\.cf\\'" . cfengine-mode)
+  :config
+  (progn
+    (defvar cfengine-parameters-indent '(promise arrow 16))
+
+    (defun rdp-cfengine3-indent-line ()
+      "Indent a line in Cfengine 3 mode.
+This is the same as `cfengine3-indent-line' except it handles
+hanging braces.
+
+Intended as the value of `indent-line-function'."
+      (let ((pos (- (point-max) (point)))
+            parse)
+        (save-restriction
+          (narrow-to-defun)
+          (back-to-indentation)
+          (setq parse (parse-partial-sexp (point-min) (point)))
+          (when cfengine-mode-debug
+            (message "%S" parse))
+
+          (cond
+           ;; Body/bundle blocks start at 0.
+           ((looking-at (concat cfengine3-defuns-regex "\\>"))
+            (indent-line-to 0))
+           ;; Categories are indented one step.
+           ((looking-at (concat cfengine3-category-regex "[ \t]*\\(#.*\\)*$"))
+            (indent-line-to cfengine-indent))
+           ;; Class selectors are indented two steps.
+           ((looking-at (concat cfengine3-class-selector-regex
+                                "[ \t]*\\(#.*\\)*$"))
+            (indent-line-to (* 2 cfengine-indent)))
+           ;; Outdent leading close brackets one step.
+           ((or (eq ?\} (char-after))
+                (eq ?\) (char-after)))
+            (condition-case ()
+                (indent-line-to (save-excursion
+                                  (forward-char)
+                                  (backward-sexp)
+                                  (move-beginning-of-line nil)
+                                  (message "Ron's indent")
+                                  (skip-chars-forward " \t")
+                                  (current-column)))
+              (error nil)))
+           ;; Inside a string and it starts before this line.
+           ((and (nth 3 parse)
+                 (< (nth 8 parse) (save-excursion (beginning-of-line) (point))))
+            (indent-line-to 0))
+
+           ;; Inside a defun, but not a nested list (depth is 1).  This is
+           ;; a promise, usually.
+           ((= 1 (nth 0 parse))
+            (let ((p-anchor (nth 0 cfengine-parameters-indent))
+                  (p-what (nth 1 cfengine-parameters-indent))
+                  (p-indent (nth 2 cfengine-parameters-indent)))
+              ;; Do we have the parameter anchor and location and indent
+              ;; defined, and are we looking at a promise parameter?
+              (if (and p-anchor p-what p-indent
+                       (looking-at  "\\([[:alnum:]_]+[ \t]*\\)=>"))
+                  (let* ((arrow-offset (* -1 (length (match-string 1))))
+                         (extra-offset (if (eq p-what 'arrow) arrow-offset 0))
+                         (base-offset
+                          (if (eq p-anchor 'promise)
+                              (* (+ 2 (nth 0 parse)) cfengine-indent)
+                            0)))
+                    (indent-line-to
+                     (max 0 (+ p-indent base-offset extra-offset))))
+                ;; Else, indent to cfengine-indent times the nested depth
+                ;; plus 2.  That way, promises indent deeper than class
+                ;; selectors, which in turn are one deeper than categories.
+                (indent-line-to (* (+ 2 (nth 0 parse)) cfengine-indent)))))
+           ;; Inside brackets/parens: indent to start column of non-comment
+           ;; token on line following open bracket or by one step from open
+           ;; bracket's column.
+           ((condition-case ()
+                (progn (indent-line-to (save-excursion
+                                         (backward-up-list)
+                                         (forward-char)
+                                         (skip-chars-forward " \t")
+                                         (cond
+                                          ((looking-at "[^\n#]")
+                                           (current-column))
+                                          ((looking-at "[^\n#]")
+                                           (current-column))
+                                          (t
+                                           (skip-chars-backward " \t")
+                                           (+ (current-column) -1
+                                              cfengine-indent)))))
+                       t)
+              (error nil)))
+           ;; Else don't indent.
+           (t (indent-line-to 0))))
+        ;; If initial point was within line's indentation,
+        ;; position after the indentation.  Else stay at same point in text.
+        (if (> (- (point-max) pos) (point))
+            (goto-char (- (point-max) pos)))))
+
+    (defalias 'cfengine3-indent-line 'rdp-cfengine3-indent-line
+      "Make CFEngine 3 indentation recognize hanging braces.")))
+
 ;;;_ , cmake-mode
 
 (use-package cmake-mode
