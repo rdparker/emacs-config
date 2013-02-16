@@ -103,9 +103,6 @@
 [submodule "site-lisp/session"]
 	path = site-lisp/session
 	url = https://github.com/jwiegley/session.git
-[submodule "site-lisp/slime"]
-	path = site-lisp/slime
-	url = https://github.com/jwiegley/slime.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/jwiegley/yasnippet.git

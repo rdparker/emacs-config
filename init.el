@@ -3566,6 +3566,7 @@ FORM => (eval FORM)."
   :bind ("C-. C-z" . shell-toggle))
 
 ;;;_ , slime
+(load (expand-file-name "~/quicklisp/slime-helper.el") t)
 
 (use-package slime
   :commands (sbcl slime)
