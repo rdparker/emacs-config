@@ -3613,17 +3613,37 @@ FORM => (eval FORM)."
 
     (setq slime-net-coding-system 'utf-8-unix)
 
-    (setq slime-lisp-implementations
-          '((sbcl
-             ("sbcl" "--core"
-              "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-             :init
-             (lambda (port-file _)
-               (format "(swank:start-server %S)\n" port-file)))
-            (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/init.lisp"))
-            (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
+    (defvar rdp-lisp-implementations
+      '((("lisp"))                      ; cmucl
+        (("ecl"))
+        (("ccl"))
+        (("ccl64"))
+        ;; (("clisp" "--quiet" "-K" "full") :coding-system utf-8-unix)
+        (("clisp" "--quiet") :coding-system utf-8-unix)
+        (("sbcl")))
+      "The Lisps to consider for `slime-lisp-implementations'.
+The list should have the form:
+  ((PROGRAM-NAME PROGRAM-ARGS...) &key KEYWORD-ARGS) ...)  which
+is the same as `slime-lisp-implementitions' without the NAME
+portion.  PROGRAM-NAME provides both the implementation's name
+and the basename of the executable.")
 
-    (setq slime-default-lisp 'sbcl)
+    ;; To make use of one of the slime-lisp-implementations invoke slime
+    ;; with a negative argument, thusly, M-- M-x slime.
+    (unless (boundp 'slime-lisp-implementations)
+      (setq slime-lisp-implementations '()))
+    (dolist (lisp rdp-lisp-implementations)
+      (dolist (path '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"
+                      "/opt/cmucl/bin/"))
+        (let* ((name (caar lisp))
+               (args (cdar lisp))
+               (keywords (cdr lisp))
+               (file (concat path name)))
+          (when (file-exists-p file)
+            (add-to-list 'slime-lisp-implementations `(,(intern name)
+                                                       ,(cons file args)
+                                                       ,@keywords))))))
+
     (setq slime-complete-symbol*-fancy t)
     (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
