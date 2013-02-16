@@ -53,12 +53,16 @@ SCHEDULED: %t
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
  '(org-default-notes-file "~/Documents/Tasks/todo.txt")
- '(org-directory "~/Documents/Tasks/")
+ '(org-directory "~/Documents/Tasks/" t)
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
  '(org-export-babel-evaluate nil)
- '(org-export-html-style-extra "<style type=\"text/css\">\n <!--/*--><![CDATA[/*><!--*/\n    code { font-size: 10pt; }\n  /*]]>*/-->\n</style>")
+ '(org-export-html-style-extra "<style type=\"text/css\">
+ <!--/*--><![CDATA[/*><!--*/
+    code { font-size: 10pt; }
+  /*]]>*/-->
+</style>")
  '(org-export-latex-classes (quote (("article" "\\documentclass[11pt]{article}" ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}") ("\\paragraph{%s}" . "\\paragraph*{%s}") ("\\subparagraph{%s}" . "\\subparagraph*{%s}")) ("linalg" "\\documentclass{article}
 \\usepackage{linalgjh}
 [DEFAULT-PACKAGES]
@@ -75,10 +79,10 @@ SCHEDULED: %t
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)
  '(org-mobile-agendas (quote ("Z")))
- '(org-mobile-directory "~/Dropbox/MobileOrg")
+ '(org-mobile-directory "~/Dropbox/MobileOrg" t)
  '(org-mobile-files (quote ("~/Documents/Tasks/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org" t)
  '(org-modules (quote (org-gnus org-id org-info org-habit org-depend)))
  '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/Documents/Tasks/assembly.txt" :todo . "PROJECT") ("~/Documents/Tasks/notes.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-return-follows-link t)
