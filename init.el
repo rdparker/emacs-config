@@ -3826,7 +3826,11 @@ FORM => (eval FORM)."
          ("C-. A-u" . w3m-browse-chrome-url-new-session))
   :init
   (progn
-    (setq w3m-command "/usr/local/bin/w3m")
+    (unless (executable-find "w3m")
+      (let ((path exec-path))
+        (add-to-list 'exec-path "/opt/local/bin")
+        (when (executable-find "w3m")
+          (setq exec-path path))))
 
     (setq w3m-coding-system 'utf-8
           w3m-file-coding-system 'utf-8
