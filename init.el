@@ -2618,7 +2618,7 @@ FORM => (eval FORM)."
           (delete-window)))))
 
 (use-package info-look
-  :commadns info-lookup-add-help)
+  :commands info-lookup-add-help)
 
 ;;;_ , indirect
 
