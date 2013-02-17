@@ -11,6 +11,7 @@ cus-dirs.el
 data-alt/
 data/
 ede-projects.el
+elpa/
 emms/
 eshell/
 flycheck-*
