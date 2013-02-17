@@ -3685,7 +3685,6 @@ FORM => (eval FORM)."
 ;;;_ , sunrise-commander
 
 (use-package sunrise-commander
-  :disabled t
   :commands (sunrise sunrise-cd)
   :init
   (progn
