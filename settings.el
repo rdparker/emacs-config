@@ -369,7 +369,7 @@
  '(flycheck-error-face ((t (:background "LightPink"))))
  '(flycheck-warning-face ((t (:background "DeepSkyBlue"))))
  '(flymake-errline ((t (:underline "Firebrick4"))))
- '(flymake-warnline ((t (:underline "DarkBlue"))))
+ '(flymake-warnline ((t (:underline "RoyalBlue4"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
  '(helm-M-x-key ((t (:foreground "dark red" :underline t))))
  '(helm-candidate-number ((t (:background "#faffb5" :foreground "black"))))
