@@ -108,6 +108,9 @@
 ;;; tired of 'yes' to save a file.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;;; Ignore compiled Haskell files in filename completions
+(add-to-list 'completion-ignored-extensions ".hi")
+
 ;;;_ , Enable disabled commands
 
 (put 'downcase-region  'disabled nil)   ; Let downcasing work
