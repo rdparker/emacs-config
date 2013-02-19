@@ -11,7 +11,7 @@ EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(SPECIAL) $(TARGET)
+all: $(SPECIAL) $(TARGET) submodules site-lisp/ghc-mod/cabal-dev/bin/ghc-mod
 	for dir in $(DIRS); do \
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
@@ -50,6 +50,15 @@ site-lisp/ac-math.elc: site-lisp/ac-math.el
 init.elc: init.el
 	@rm -f $@
 	$(BATCH_LOAD) -l init -f batch-byte-compile $<
+
+site-lisp/ghc-mod/cabal-dev/bin/ghc-mod:
+	cabal install convertible ghc-paths ghc-syb-utils happy hlint \
+		io-choice regex-posix
+	cd site-lisp/ghc-mod;					      \
+		ghc --make Setup &&				      \
+		./Setup configure --user --prefix=$$(pwd)/cabal-dev && \
+		./Setup build && \
+		./Setup install
 
 clean:
 	rm -f autoloads.el* cus-dirs.el *.elc
