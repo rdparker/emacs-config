@@ -113,7 +113,7 @@
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
  '(erc-log-write-after-send t)
- '(erc-modules (quote (autojoin button completion dcc fill identd irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling track truncate highlight-nicknames)))
+ '(erc-modules (quote (autojoin button completion dcc fill identd irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services stamp spelling track truncate highlight-nicknames)))
  '(erc-port 6667)
  '(erc-priority-people-regexp "\\`[^#].+")
  '(erc-prompt-for-nickserv-password nil)
