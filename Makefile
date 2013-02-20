@@ -11,7 +11,8 @@ EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(SPECIAL) $(TARGET) submodules site-lisp/ghc-mod/cabal-dev/bin/ghc-mod
+all: $(SPECIAL) $(TARGET) submodules site-lisp/ghc-mod/cabal-dev/bin/ghc-mod \
+     site-lisp/ghc-mod/cabal-dev/bin/hlint
 	for dir in $(DIRS); do \
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
@@ -59,6 +60,9 @@ site-lisp/ghc-mod/cabal-dev/bin/ghc-mod:
 		./Setup configure --user --prefix=$$(pwd)/cabal-dev && \
 		./Setup build && \
 		./Setup install
+
+site-lisp/ghc-mod/cabal-dev/bin/hlint:
+	cabal install --prefix=$$(pwd)/cabal-dev hlint
 
 clean:
 	rm -f autoloads.el* cus-dirs.el *.elc
