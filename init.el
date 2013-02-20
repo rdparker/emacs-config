@@ -2993,7 +2993,13 @@ FORM => (eval FORM)."
     (add-hook 'magit-log-edit-mode-hook
               #'(lambda ()
                   (set-fill-column 72)
-                  (flyspell-mode)))
+                  (flyspell-mode 1)
+                  (auto-fill-mode 1)))
+
+    (add-hook 'magit-mode-hook
+              #'(lambda ()
+                  (when (magit-get "svn-remote" "svn" "url")
+                    (magit-svn-mode 1))))
 
     (require 'magit-topgit)
     (require 'rebase-mode)
