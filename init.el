@@ -4223,6 +4223,7 @@ and the basename of the executable.")
 ;;   mode: emacs-lisp
 ;;   mode: allout
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
+;;   coding: utf-8
 ;; End:
 
 ;;; init.el ends here
