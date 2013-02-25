@@ -2516,9 +2516,13 @@ FORM => (eval FORM)."
 
   :config
   (progn
-    (use-package ido-hacks
+    (use-package ido-ubiquitous
       :init
-      (ido-hacks-mode 1))
+      (ido-ubiquitous-mode))
+    
+    ;; (use-package ido-hacks
+    ;;   :init
+    ;;   (ido-hacks-mode 1))
 
     (use-package ido-springboard)
 
