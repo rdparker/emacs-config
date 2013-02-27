@@ -3230,6 +3230,20 @@ FORM => (eval FORM)."
 
     (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
 
+;;;_ , nxhtml-mode
+(load "site-lisp/nxhtml/autostart")
+
+;;; nxhtml-autoload pollutes `auto-mode-alist' overriding my setting for
+;;; JavaScript files.
+(setq auto-mode-alist
+      (remove '("\\.js\\'" . javascript-mode)
+              auto-mode-alist))
+
+(add-hook 'nxhtml-mode-hook
+          #'(lambda ()
+              "Turn on `nxhtml-menu-mode' in `nxhtml-mode' buffers."
+              (nxhtml-menu-mode 1)))
+
 ;;;_ , org-mode
 
 (use-package dot-org

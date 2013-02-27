@@ -289,6 +289,9 @@
 [submodule "site-lisp/flycheck"]
 	path = site-lisp/flycheck
 	url = git@github.com:jwiegley/flyparse.git
+[submodule "site-lisp/nxhtml"]
+	path = site-lisp/nxhtml
+	url = git@github.com:rdparker/nxhtml.git
 [submodule "site-lisp/ido-ubiquitous"]
 	path = site-lisp/ido-ubiquitous
 	url = https://github.com/rdparker/ido-ubiquitous
