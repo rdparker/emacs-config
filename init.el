@@ -3234,7 +3234,7 @@ FORM => (eval FORM)."
 
 (use-package dot-org
   :commands org-agenda-list
-  :bind (("M-C"   . jump-to-org-agenda)
+  :bind (("M-A"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
          ("M-M"   . org-inline-note)
          ("C-c a" . org-agenda)
