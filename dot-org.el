@@ -799,7 +799,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
             (require 'yasnippet)
             (set (make-local-variable 'yas/trigger-key) [tab])
             (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-            (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+            (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)
+            (turn-on-org-cdlatex)))
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
