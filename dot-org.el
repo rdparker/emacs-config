@@ -17,6 +17,7 @@
 (require 'ob-python)
 (require 'ob-ruby)
 (require 'ob-emacs-lisp)
+(require 'ob-plantuml)
 ;;(require 'ob-haskell)
 (require 'ob-sh)
 
