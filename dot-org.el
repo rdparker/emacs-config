@@ -174,7 +174,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
+  (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.org")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -241,7 +241,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
+        (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.org")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -437,13 +437,13 @@ This can be 0 for immediate, or a floating point value.")
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
+:END:" "~/Documents/Tasks/todo.org" "Inbox"))))
         (org-remember))))
   (set-fill-column 72))
 
 (defun org-inline-note ()
   (interactive)
-  (switch-to-buffer-other-window "todo.txt")
+  (switch-to-buffer-other-window "todo.org")
   (goto-char (point-min))
   (re-search-forward "^\\* Inbox$")
   (re-search-forward "^:END:")

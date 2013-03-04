@@ -9,7 +9,7 @@
  '(org-agenda-custom-commands (quote (("h" "Current Hotlist" tags "HOT&TODO=\"PROJECT\"" ((org-agenda-overriding-header "Current Hotlist"))) ("H" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"" ((org-agenda-overriding-header "Non-Hot Projects"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("b" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("E" "Errands (next 7 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+7d>\"" ((org-agenda-overriding-header "Errands (next 7 days)"))) ("Z" "Agenda (next 7 days)" agenda "" ((org-agenda-ndays 7) (org-agenda-overriding-header "Agenda (next 7 days)"))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("z" "Computer-related tasks" tags "AREA=\"Computer\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-overriding-header "Computer-related tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("u" "Unscheduled tasks" tags "AREA<>{Work\\|Computer\\|Statements}&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-overriding-header "Deferred tasks:"))) ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("w" "Unscheduled work-related tasks" tags "AREA=\"Work\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Unscheduled work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp)))))) ("v" "All work-related tasks" tags "AREA=\"Work\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up category-up priority-down alpha-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\* \\(SOMEDAY\\)"))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|CANCELED\\|WONTFIX\\|WORKSFORME\\|INVALID\\|DUPLICATE\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "[^(]#[0-9]+\\]"))))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("n" "Notes" tags "TODO=\"NOTE\"" ((org-agenda-files (quote ("~/Documents/Tasks/archive-2009.txt" "~/Documents/Tasks/archive-2010.txt" "~/Documents/Tasks/archive-2011.txt" "~/Documents/Tasks/archive.txt" "~/Documents/Tasks/notes.txt"))) (org-agenda-overriding-header "Notes") (org-agenda-sorting-strategy (quote (time-down))))) ("S" "Assembly Action Items" tags-todo "TODO<>\"PROJECT\"" ((org-agenda-files (quote ("~/Documents/Tasks/assembly.txt"))) (org-agenda-overriding-header "Assembly Action Items") (org-agenda-sorting-strategy (quote (alpha-up time-up))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/Documents/Tasks/assembly.txt" "~/src/vps/INSTALL.org" "~/Documents/Tasks/todo.txt" "~/src/ledger/plan/TODO")))
+ '(org-agenda-files (quote ("~/Documents/Tasks/assembly.org" "~/Documents/Tasks/todo.org")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-log-mode-items (quote (closed clock state)))
@@ -33,7 +33,8 @@
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
- '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.txt" "Inbox") "* TODO %?
+ '(org-babel-load-languages (quote ((plantuml . t) (emacs-lisp . t))))
+ '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.org" "Inbox") "* TODO %?
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
@@ -79,12 +80,13 @@ SCHEDULED: %t
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)
  '(org-mobile-agendas (quote ("Z")))
- '(org-mobile-directory "~/Dropbox/MobileOrg" t)
- '(org-mobile-files (quote ("~/Documents/Tasks/todo.txt")))
+ '(org-mobile-directory "~/Dropbox/MobileOrg")
+ '(org-mobile-files (quote ("~/Documents/Tasks/todo.org")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org" t)
+ '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
  '(org-modules (quote (org-gnus org-id org-info org-habit org-depend)))
- '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/Documents/Tasks/assembly.txt" :todo . "PROJECT") ("~/Documents/Tasks/notes.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
+ '(org-plantuml-jar-path "~/bin/plantuml.jar")
+ '(org-refile-targets (quote (("~/Documents/Tasks/todo.org" :level . 1) ("~/Documents/Tasks/todo.org" :todo . "PROJECT") ("~/Documents/Tasks/assembly.org" :todo . "PROJECT") ("~/Documents/Tasks/notes.org" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-src-fontify-natively t)
