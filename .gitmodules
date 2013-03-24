@@ -295,3 +295,6 @@
 [submodule "site-lisp/ido-ubiquitous"]
 	path = site-lisp/ido-ubiquitous
 	url = https://github.com/rdparker/ido-ubiquitous
+[submodule "override/org-jira"]
+	path = override/org-jira
+	url = https://github.com/rdparker/org-jira.git

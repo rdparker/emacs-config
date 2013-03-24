@@ -1,6 +1,7 @@
 ### -*- mode: makefile-gmake -*-
 
 DIRS	    = override lib lisp site-lisp
+DOC_DIRS    = lisp/planner lisp/muse override/org-mode/doc site-lisp/auctex
 SPECIAL	    = cus-dirs.el autoloads.el
 INIT_SOURCE = $(wildcard *.el)
 LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
@@ -11,8 +12,9 @@ EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(SPECIAL) $(TARGET) submodules site-lisp/ghc-mod/cabal-dev/bin/ghc-mod \
-     site-lisp/ghc-mod/cabal-dev/bin/hlint
+all: $(SPECIAL) $(TARGET) submodules docs			\
+	  site-lisp/ghc-mod/cabal-dev/bin/ghc-mod		\
+	  site-lisp/ghc-mod/cabal-dev/bin/hlint override/tramp
 	for dir in $(DIRS); do \
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
@@ -23,6 +25,14 @@ submodules:
 	while git submodule status --recursive | grep -q ^-; do \
 	    git submodule foreach --recursive git submodule init; \
 	    git submodule foreach --recursive git submodule update; \
+	done
+
+docs:
+	TOP=`pwd`;		   \
+	for dir in $(DOC_DIRS); do \
+	    cd $$dir;		   \
+	    make doc; \
+	    cd $$TOP;		   \
 	done
 
 cus-dirs.el: Makefile $(LIB_SOURCE)
@@ -44,6 +54,9 @@ lisp/wg-tabs.elc: lisp/wg-tabs.el
 site-lisp/ac-math.elc: site-lisp/ac-math.el
 	$(BATCH_LOAD) -l load-path -l site-lisp/ac/popup-el/popup -l \
 	    site-lisp/ac/auto-complete/auto-complete batch-byte-compile $<
+
+site-lisp/auctex/auctex.el:
+	cd site-lisp/auctex; ./configure && make
 
 %.elc: %.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<

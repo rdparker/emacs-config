@@ -3,6 +3,8 @@
 (load "org-settings")
 
 (require 'org)
+
+(require 'org-jira)
 (require 'org-agenda)
 (require 'org-smart-capture)
 
@@ -47,9 +49,11 @@
 
 (defun jump-to-org-agenda ()
   (interactive)
-  (let ((recordings-dir "~/Dropbox/iTalk Recordings"))
-    (if (directory-files recordings-dir nil "\\`[^.]")
-        (find-file recordings-dir)))
+  ;; johnw uses iTalk to send things directly to his machine for later
+  ;; integration into his Org agenda.
+  ;; (let ((recordings-dir "~/Dropbox/iTalk Recordings"))
+  ;;   (if (directory-files recordings-dir nil "\\`[^.]")
+  ;;       (find-file recordings-dir)))
   (let ((buf (get-buffer "*Org Agenda*"))
         wind)
     (if buf
@@ -93,7 +97,7 @@ To achieve this, I have the following in my todo file:
   * Work
     :PROPERTIES:
     :CATEGORY: Work
-    :OVERLAY:  (face (:background \"#fdfdeb\"))
+    :OVERLAY:  (face (:background \\\"#fdfdeb\"))
     :END:
   ** TODO Task
   * Family

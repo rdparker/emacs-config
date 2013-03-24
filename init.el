@@ -70,9 +70,30 @@
 (read-system-environment)
 (add-hook 'after-init-hook 'read-system-environment)
 
+;;;_ , Augmented function
+;;;
+;;; These are logical extensions of existing functions.
+(defun assoc-delete-all (key alist)
+  "Delete from ALIST all elements whose car is `equal' to KEY.
+Return the modified alist.
+Elements of ALIST that are not conses are ignored."
+  (while (and (consp (car alist))
+              (equal (car (car alist)) key))
+    (setq alist (cdr alist)))
+  (let ((tail alist) tail-cdr)
+    (while (setq tail-cdr (cdr tail))
+      (if (and (consp (car tail-cdr))
+               (equal (car (car tail-cdr)) key))
+          (setcdr tail (cdr tail-cdr))
+        (setq tail tail-cdr))))
+  alist)
+
 ;;;_ , Load customization settings
 
-(defvar running-alternate-emacs nil)
+(defvar running-alternate-emacs
+  (string= "erc" (cdr (assoc 'title default-frame-alist)))
+  "Is this a secondary emacs?
+As in, one that is used for ERC or some other dedicated purpose.")
 
 (if (string-match (concat "/Applications/\\(Misc/\\)?"
                           "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
@@ -1192,6 +1213,11 @@
     (bind-key "A-M-?" 'ac-last-help)
     (unbind-key "C-s" ac-completing-map)))
 
+;;;_ , autoinsert
+;; (use-package autoinsert
+;;   :commands auto-insert
+;;   )
+
 ;;;_ , autopair
 
 (use-package autopair
@@ -1678,8 +1704,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (unbind-key "M-G" dired-mode-map)
         (unbind-key "M-s f" dired-mode-map)
 
-        (dired-omit-mode 1)
-
         (defadvice dired-omit-startup (after diminish-dired-omit activate)
           "Make sure to remove \"Omit\" from the modeline."
           (diminish 'dired-omit-mode) dired-mode-map)
@@ -1708,49 +1732,50 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
           (when (bobp)
             (call-interactively 'dired-next-line)))
 
-        (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+        ;; (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
-        ;; Omit files that Git would ignore
-        (defun dired-omit-regexp ()
-          (let ((file (expand-file-name ".git"))
-                parent-dir)
-            (while (and (not (file-exists-p file))
-                        (progn
-                          (setq parent-dir
-                                (file-name-directory
-                                 (directory-file-name
-                                  (file-name-directory file))))
-                          ;; Give up if we are already at the root dir.
-                          (not (string= (file-name-directory file)
-                                        parent-dir))))
-              ;; Move up to the parent dir and try again.
-              (setq file (expand-file-name ".git" parent-dir)))
-            ;; If we found a change log in a parent, use that.
-            (if (file-exists-p file)
-                (let ((regexp (funcall dired-omit-regexp-orig))
-                      (omitted-files
-                       (shell-command-to-string "git clean -d -x -n")))
-                  (if (= 0 (length omitted-files))
-                      regexp
-                    (concat
-                     regexp
-                     (if (> (length regexp) 0)
-                         "\\|" "")
-                     "\\("
-                     (mapconcat
-                      #'(lambda (str)
-                          (concat
-                           "^"
-                           (regexp-quote
-                            (substring str 13
-                                       (if (= ?/ (aref str (1- (length str))))
-                                           (1- (length str))
-                                         nil)))
-                           "$"))
-                      (split-string omitted-files "\n" t)
-                      "\\|")
-                     "\\)")))
-              (funcall dired-omit-regexp-orig))))))
+        ;; ;; Omit files that Git would ignore
+        ;; (defun dired-omit-regexp ()
+        ;;   (let ((file (expand-file-name ".git"))
+        ;;         parent-dir)
+        ;;     (while (and (not (file-exists-p file))
+        ;;                 (progn
+        ;;                   (setq parent-dir
+        ;;                         (file-name-directory
+        ;;                          (directory-file-name
+        ;;                           (file-name-directory file))))
+        ;;                   ;; Give up if we are already at the root dir.
+        ;;                   (not (string= (file-name-directory file)
+        ;;                                 parent-dir))))
+        ;;       ;; Move up to the parent dir and try again.
+        ;;       (setq file (expand-file-name ".git" parent-dir)))
+        ;;     ;; If we found a change log in a parent, use that.
+        ;;     (if (file-exists-p file)
+        ;;         (let ((regexp (funcall dired-omit-regexp-orig))
+        ;;               (omitted-files
+        ;;                (shell-command-to-string "git clean -d -x -n")))
+        ;;           (if (= 0 (length omitted-files))
+        ;;               regexp
+        ;;             (concat
+        ;;              regexp
+        ;;              (if (> (length regexp) 0)
+        ;;                  "\\|" "")
+        ;;              "\\("
+        ;;              (mapconcat
+        ;;               #'(lambda (str)
+        ;;                   (concat
+        ;;                    "^"
+        ;;                    (regexp-quote
+        ;;                     (substring str 13
+        ;;                                (if (= ?/ (aref str (1- (length str))))
+        ;;                                    (1- (length str))
+        ;;                                  nil)))
+        ;;                    "$"))
+        ;;               (split-string omitted-files "\n" t)
+        ;;               "\\|")
+        ;;              "\\)")))
+        ;;       (funcall dired-omit-regexp-orig))))
+        ))
 
     (eval-after-load "dired-aux"
       '(defun dired-do-async-shell-command (command &optional arg file-list)
@@ -1790,6 +1815,7 @@ The output appears in the buffer `*Async Shell Command*'."
 
 ;;;_ , dired-x
 (use-package dired-x
+  :commands (dired-jump dired-jump-other-window dired-omit-mode)
   :bind (("C-x C-j" . dired-jump)
          ("C-x 4 C-j" . dired-jump-other-window)))
 
@@ -1884,6 +1910,8 @@ The output appears in the buffer `*Async Shell Command*'."
 
 ;;;_ , erc
 
+(use-package erc-alert
+  commands: my-erc-hook)
 (use-package erc
   ;; :commands erc
   :if running-alternate-emacs
@@ -1998,7 +2026,6 @@ The output appears in the buffer `*Async Shell Command*'."
     (erc-track-minor-mode 1)
     (erc-track-mode 1)
 
-    (use-package erc-alert)
     (use-package erc-highlight-nicknames)
     (use-package erc-patch)
 
@@ -2382,6 +2409,10 @@ FORM => (eval FORM)."
   (progn
     (use-package grep-ed)
 
+    (mapc (lambda (elt)
+            (add-to-list 'grep-find-ignored-files elt))
+          '("*_flymake" "*_flymake.*" "flycheck-*" "ext-all*.js" "ext.js"))
+
     (grep-apply-setting 'grep-command "egrep -nH -e ")
     (if nil
         (grep-apply-setting 'grep-find-command '("gf -e " . 7))
@@ -2660,9 +2691,10 @@ FORM => (eval FORM)."
     (jka-compr-update)))
 
 ;;;_ , js2-mode
-
 (use-package js2-mode
-  :mode ("\\.js\\'" . js2-mode))
+  :mode ("\\.js\\'" . js2-mode)
+  :init (setq auto-mode-alist
+              (assoc-delete-all "\\.js\\'" auto-mode-alist)))
 
 ;;;_ , ledger
 
@@ -3015,6 +3047,9 @@ FORM => (eval FORM)."
     ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
     ))
 
+(use-package magit-svn
+  :command magit-svn-mode)
+
 ;;;_ , markdown-mode
 
 (use-package markdown-mode
@@ -3265,6 +3300,12 @@ FORM => (eval FORM)."
                       (org-agenda-list)
                       (org-fit-agenda-window)
                       (org-resolve-clocks))) t)))
+
+(use-package org-jira
+  :load-path "override/org-jira"
+  :commands (org-jira-get-issues
+             org-jira-get-projects
+             org-jira-mode))
 
 ;;;_ , pabbrev
 
@@ -3880,7 +3921,7 @@ and the basename of the executable.")
 ;;;_ , w3m
 
 (use-package w3m
-  :commands (w3m-search w3m-find-file)
+  :commands (w3m w3m-search w3m-find-file)
   :bind (("C-. u"   . w3m-browse-url)
          ("C-. U"   . w3m-browse-url-new-session)
          ("C-. A-u" . w3m-browse-chrome-url-new-session))
