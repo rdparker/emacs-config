@@ -198,7 +198,7 @@
  '(ido-save-directory-list-file "~/.emacs.d/data/ido.last")
  '(ido-use-virtual-buffers t)
  '(image-dired-dir "~/.emacs.d/data/image-dired/")
- '(indent-tabs-mode nil)
+ '(indent-tabs-mode t)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-major-mode (quote fundamental-mode))
