@@ -142,7 +142,7 @@
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(eval-expr-print-function (quote pp))
  '(exec-path (quote ("/Users/johnw/bin" "/usr/local/bin" "/usr/local/opt/git/share/git-core" "/usr/bin" "/bin" "/usr/local/sbin" "/usr/sbin" "/sbin" "/usr/X11R6/bin")))
- '(face-font-family-alternatives (quote (("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(face-font-family-alternatives (quote (("Onuava" "Consolas" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(fill-column 78)
  '(find-ls-subdir-switches "-alh")
  '(flymake-compilation-prevents-syntax-check nil)
