@@ -433,7 +433,8 @@ As in, one that is used for ERC or some other dedicated purpose.")
   (defvar emacs-min-height)
   (defvar emacs-min-width))
 
-(unless noninteractive
+(when (and window-system
+	   (not noninteractive))
   (if running-alternate-emacs
       (progn
         (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 722))
