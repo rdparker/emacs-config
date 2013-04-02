@@ -92,7 +92,7 @@
  '(org-src-fontify-natively t)
  '(org-tags-column -97)
  '(org-time-clocksum-use-fractional t)
- '(org-todo-keyword-faces (quote (("TODO" :foreground "royal blue" :weight bold) ("APPT" :foreground "dodger blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "royal blue" :weight bold) ("SOMEDAY" :foreground "royal blue" :weight bold) ("PROJECT" :foreground "#088e8e" :weight bold))))
+ '(org-todo-keyword-faces (quote (("TODO" :foreground "#8fde21" :weight bold) ("APPT" :foreground "dodger blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red3" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "#8fde21" :weight bold) ("SOMEDAY" :foreground "#8fde21" :weight bold) ("PROJECT" :foreground "#088e8e" :weight bold))))
  '(org-todo-repeat-to-state "TODO")
  '(org-use-property-inheritance (quote ("AREA")))
  '(org-use-speed-commands t)
