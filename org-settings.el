@@ -35,7 +35,6 @@
  '(org-attach-method (quote mv))
  '(org-babel-load-languages (quote ((plantuml . t) (emacs-lisp . t))))
  '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.org" "Inbox") "* TODO %?
-SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))
