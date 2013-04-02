@@ -199,7 +199,6 @@
  '(ido-use-virtual-buffers t)
  '(image-dired-dir "~/.emacs.d/data/image-dired/")
  '(indent-tabs-mode t)
- '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-major-mode (quote fundamental-mode))
  '(initsplit-customizations-alist (quote (("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil) ("\\`\\(org-\\)" "~/.emacs.d/org-settings.el" nil nil) ("\\`\\(jiralib-\\)" "~/.emacs.d/private/settings.el" nil t))))
