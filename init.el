@@ -2430,6 +2430,13 @@ FORM => (eval FORM)."
           (call-interactively #'semantic-complete-jump)
         (call-interactively #'gtags-find-tag)))
 
+    (defun my-gtags-or-semantic-pop-tag-mark ()
+      (interactive)
+      (if (and (fboundp 'semantic-active-p)
+               (funcall #'semantic-active-p))
+          (call-interactively #'semantic-complete-jump)
+        (call-interactively #'gtags-pop-stack)))
+    
     (bind-key "M-." 'my-gtags-or-semantic-find-tag gtags-mode-map)
 
     (bind-key "C-c t ." 'gtags-find-rtag)
@@ -3775,19 +3782,19 @@ and the basename of the executable.")
   :init
   (setq smerge-command-prefix (kbd "C-. C-.")))
 
-;;;_ , stopwatch
-
-(use-package stopwatch
-  :bind ("<f8>" . stopwatch))
-
-;;;_ , sunrise-commander
-
 ;;;_ , sql-mode
 (use-package sql
   :commands sql-mode
   :config (add-hook 'sql-mode-hook
           (lambda ()
             (sql-highlight-mysql-keywords))))
+
+;;;_ , stopwatch
+
+(use-package stopwatch
+  :bind ("<f8>" . stopwatch))
+
+;;;_ , sunrise-commander
 
 (use-package sunrise-commander
   :commands (sunrise sunrise-cd)
