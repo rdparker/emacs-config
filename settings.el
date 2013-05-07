@@ -365,7 +365,7 @@
  '(diff-removed2 ((t (:foreground "Orange"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(erc-timestamp-face ((t (:foreground "dark violet"))))
- '(flycheck-error-face ((t (:background "LightPink"))))
+ '(flycheck-error-face ((t (:background "LightPink4"))))
  '(flycheck-warning-face ((t (:background "DeepSkyBlue"))))
  '(flymake-errline ((t (:underline "Firebrick4"))))
  '(flymake-warnline ((t (:underline "RoyalBlue4"))))
