@@ -3787,6 +3787,13 @@ and the basename of the executable.")
 
 ;;;_ , sunrise-commander
 
+;;;_ , sql-mode
+(use-package sql
+  :commands sql-mode
+  :config (add-hook 'sql-mode-hook
+          (lambda ()
+            (sql-highlight-mysql-keywords))))
+
 (use-package sunrise-commander
   :commands (sunrise sunrise-cd)
   :init
