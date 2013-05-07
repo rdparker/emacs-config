@@ -20,6 +20,7 @@
 (require 'ob-ruby)
 (require 'ob-emacs-lisp)
 (require 'ob-plantuml)
+(require 'ob-sql)
 ;;(require 'ob-haskell)
 (require 'ob-sh)
 

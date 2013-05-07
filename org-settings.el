@@ -33,7 +33,7 @@
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
- '(org-babel-load-languages (quote ((plantuml . t) (emacs-lisp . t))))
+ '(org-babel-load-languages (quote ((plantuml . t) (sql . t) (emacs-lisp . t))))
  '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.org" "Inbox") "* TODO %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
