@@ -20,6 +20,7 @@ logs/
 mirror
 override/cc-mode/
 private/
+semanticdb/
 site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
