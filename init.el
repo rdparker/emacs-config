@@ -1921,9 +1921,6 @@ The output appears in the buffer `*Async Shell Command*'."
     (defun setup-irc-environment ()
       (interactive)
 
-      (set-frame-font
-       "-*-Lucida Grande-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1" nil
-       nil)
       (set-frame-parameter (selected-frame) 'width 90)
       (custom-set-faces
        '(erc-timestamp-face ((t (:foreground "dark violet")))))
