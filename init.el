@@ -1934,8 +1934,6 @@ The output appears in the buffer `*Async Shell Command*'."
             erc-fill-column 88
             erc-insert-timestamp-function 'erc-insert-timestamp-left)
 
-      (set-input-method "Agda")
-
       (defun reset-erc-track-mode ()
         (interactive)
         (setq erc-modified-channels-alist nil)
