@@ -5,9 +5,12 @@
 ;;; If `called-interactively-p' is called with the wrong number of
 ;;; parameters see ~/lib/el/README.org for a possible workaround.
 
+;;;_. Initialization
 (eval-when-compile (require 'cl))
 
 (load (expand-file-name "load-path" user-emacs-directory))
+
+(require 'use-package)
 
 (require 'rdp-functions)
 (require 'os-x-config)
@@ -244,31 +247,68 @@ expands it. Else calls `smart-indent'."
 	 ,then
        ,else)))
 
-;; Magit does not ship autoloads.  Generate them if necessary.
-(unless (my-require 'magit-autoloads)
-  (if* filename (locate-library "magit")
-       (let* ((magit-source-dir (file-name-directory filename))
-	      (generated-autoload-file (expand-file-name "magit-autoloads.el"
-							 magit-source-dir)))
-	 (update-directory-autoloads magit-source-dir))))
+;;;_ , magit
 
-(eval-after-load "magit"
-  '(progn
-     ;; (require 'magit-topgit)	; if I ever use these packages
-     ;; (require 'magit-stgit)  ; here are the extensions for them
-     (add-hook 'magit-log-edit-mode-hook
-	       (lambda ()
-		 (auto-fill-mode 1)
-		 (flyspell-mode 1)))
-     (add-hook 'magit-mode-hook
-	       (lambda ()
-		 (when (magit-get "svn-remote" "svn" "url")
-		   (magit-svn-mode 1))))))
-(global-set-key [f5] 'magit-status)
-;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
-(add-hook 'dired-mode-hook
-	  (lambda ()
-		(define-key dired-mode-map "r" 'magit-status)))
+(use-package magit
+  :bind (("C-x g" . magit-status)
+         ("C-x G" . magit-status-with-prefix))
+  :init
+  (progn
+    (defun magit-status-with-prefix ()
+      "Ask the user which repository to open in a Magit status buffer."
+      (interactive)
+      (let ((current-prefix-arg '(4)))
+	(call-interactively 'magit-status)))
+
+    ;; Magit does not ship autoloads.  Generate them if necessary.
+    (unless (require 'magit-autoloads nil t)
+      (if* filename (locate-library "magit")
+	   (let* ((magit-source-dir (file-name-directory filename))
+		  (generated-autoload-file (expand-file-name "magit-autoloads.el"
+							     magit-source-dir)))
+	     (update-directory-autoloads magit-source-dir))))
+
+    ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
+    (add-hook 'dired-mode-hook
+	      (lambda ()
+		(define-key dired-mode-map "r" 'magit-status))))
+
+  :config
+  (progn
+    (setenv "GIT_PAGER" "")
+
+    (use-package magit-review
+      :commands magit-review
+      :config (require 'json))
+
+    (unbind-key "M-h" magit-mode-map)
+    (unbind-key "M-s" magit-mode-map)
+
+    (add-hook 'magit-log-edit-mode-hook
+              #'(lambda ()
+		  (auto-fill-mode 1)
+                  (flyspell-mode 1)))
+
+    (add-hook 'magit-mode-hook
+	      #'(lambda ()
+		  (when (magit-get "svn-remote" "svn" "url")
+		    (magit-svn-mode 1))))
+
+    (require 'magit-topgit)
+    (require 'rebase-mode)
+
+    (defvar magit-git-monitor-process nil)
+    (make-variable-buffer-local 'magit-git-monitor-process)
+
+    (defun start-git-monitor ()
+      (interactive)
+      (unless magit-git-monitor-process
+        (setq magit-git-monitor-process
+              (start-process "git-monitor" (current-buffer) "git-monitor"
+                             "-d" (expand-file-name default-directory)))))
+
+    ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
+    ))
 
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
