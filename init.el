@@ -7,35 +7,10 @@
 
 (eval-when-compile (require 'cl))
 
-;;; Most of my configuration is kept in an "rdp" subdirectory of my
-;;; emacs-config git repo, add it to the load-path.
-(when user-init-file
-  (let* ((target (file-symlink-p user-init-file))
-	 (file (if target
-		   (expand-file-name target
-				     (file-name-directory user-init-file))
-		 user-init-file)))
-    (add-to-list 'load-path (concat (file-name-directory file) "rdp"))))
+(load (expand-file-name "load-path" user-emacs-directory))
 
 (require 'rdp-functions)
 (require 'os-x-config)
-
-;;; load-path
-(mapc 'add-to-load-path `("~/lib/lisp/el"
-			  "~/lib/lisp/el/apt-el"
-			  "~/lib/lisp/el/egit"
-			  "~/lib/lisp/el/el-autoyas"
-			  ,(if (eql 23 emacs-major-version)
-			       "~/lib/lisp/el/elpa-23")
-			  ,(if (eql 23 emacs-major-version)
-			       "~/lib/lisp/el/el-get-23/el-get"
-			     "~/lib/lisp/el/el-get/el-get")
-			  "~/lib/lisp/el/gitsum"
-			  ;; "~/lib/lisp/el/jdee/lisp"
-			  "~/lib/lisp/el/redshank"
-			  "~/lib/lisp/el/w3/lisp"
-			  ;; "~/lib/lisp/elib"
-			  ))
 
 ;;; Emacs source path
 (eval-after-load "find-func"
