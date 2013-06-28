@@ -889,5 +889,5 @@ This gets started by python mode."
   (keyfreq-autosave-mode 1))
 
 ;;; customizations
-(setq custom-file (expand-file-name "settings" user-emacs-directory))
+(setq custom-file (expand-file-name "settings.el" user-emacs-directory))
 (load custom-file)
