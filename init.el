@@ -891,3 +891,4 @@ This gets started by python mode."
 ;;; customizations
 (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
 (load custom-file)
+(put 'narrow-to-page 'disabled nil)
