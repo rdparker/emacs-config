@@ -36,6 +36,7 @@
   ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
+ '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
  '(ecb-options-version "2.40")
  '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
