@@ -224,6 +224,18 @@ expands it. Else calls `smart-indent'."
 (my-require 'rfringe)
 
 ;;; Development
+
+;; This will translate the escape codes tha programs like cmake use to
+;; colorize their output.  It came from
+;; http://stackoverflow.com/questions/3072648/\
+;; cucumbers-ansi-colors-messing-up-emacs-compilation-buffer.
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  (toggle-read-only)
+  (ansi-color-apply-on-region (point-min) (point-max))
+  (toggle-read-only))
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+
 (unless (boundp 'stack-trace-on-error)
   (setq stack-trace-on-error t))
 
