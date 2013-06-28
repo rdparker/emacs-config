@@ -863,6 +863,13 @@ This gets started by python mode."
   ;; Move by matching tags not just around a tag
   (setq nxml-sexp-element-flag t))
 
+;;; translation files
+(autoload 'po-mode "po-mode"
+  "Major mode for translators to edit PO files" t)
+(autoload 'po-find-file-coding-system "po-compat")
+(modify-coding-system-alist 'file "\\.po\\'\\|\\.po\\."
+			    'po-find-file-coding-system)
+
 ;;; yasnippet
 (when (my-require 'yasnippet)
   ;; Temporarily disable this it mucks with magit buffers
