@@ -24,6 +24,18 @@
 		   emacs-major-version
 		   emacs-minor-version))))
 
+;;; First-time setup
+;;
+;; If this is the first time this configuration file has been used on
+;; a system, perform some basic setup.
+
+;; Create the data directory instead of spilling things directly into
+;; .emacs.d
+(let ((data-directory (expand-file-name "data" user-emacs-directory)))
+  (unless (file-directory-p data-directory)
+    (mkdir data-directory)))
+
+;;; Legacy package configuration
 (require 'el-get-config)
 (require 'grep-config)
 
@@ -39,7 +51,6 @@
 	(setq default-tab-width 8))			; obsoleted in 23.2
 
 (require 'appearance-config)
-(require 'desktop-config)
 (require 'auto-config)			; insertion and completion
 (require 'cfengine-config)
 (require 'dired-config)
@@ -742,6 +753,56 @@ This gets started by python mode."
 
 ;;; Semantic
 ;;(require 'cedet-config)
+
+;;;_ , session
+
+(use-package session
+  :if (not noninteractive)
+  :load-path "site-lisp/session/lisp/"
+  :init
+  (progn
+    (session-initialize)
+
+    (defun remove-session-use-package-from-settings ()
+      (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
+        (save-excursion
+          (goto-char (point-min))
+          (when (re-search-forward "^ '(session-use-package " nil t)
+            (delete-region (line-beginning-position)
+                           (1+ (line-end-position)))))))
+
+    (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
+
+    ;; expanded folded secitons as required
+    (defun le::maybe-reveal ()
+      (when (and (or (memq major-mode  '(org-mode outline-mode))
+                     (and (boundp 'outline-minor-mode)
+                          outline-minor-mode))
+                 (outline-invisible-p))
+        (if (eq major-mode 'org-mode)
+            (org-reveal)
+          (show-subtree))))
+
+    (add-hook 'session-after-jump-to-last-change-hook
+              'le::maybe-reveal)
+
+    (defun save-information ()
+      (with-temp-message "Saving Emacs information..."
+        (recentf-cleanup)
+
+        (loop for func in kill-emacs-hook
+              unless (memq func '(exit-gnus-on-exit server-force-stop))
+              do (funcall func))
+
+        (unless (or noninteractive
+                    running-alternate-emacs
+                    (eq 'listen (process-status server-process)))
+          (server-start))))
+
+    (run-with-idle-timer 300 t 'save-information)
+
+    (if window-system
+        (add-hook 'after-init-hook 'session-initialize t))))
 
 ;;; Tar-mode
 ;;

@@ -30,10 +30,10 @@
 ;;; customizations
 (setq ansi-term-color-vector [unspecified "black" "red3" "green3" "yellow3" "#9bf" "magenta3" "cyan3" "white"])
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
  '(ecb-options-version "2.40")
@@ -51,12 +51,17 @@
  '(jiralib-url "http://us-dc1-jira1:8080")
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
+ '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
+ '(session-globals-include (quote ((kill-ring 10 nil) (session-file-alist 300 t) (file-name-history 200 nil) search-ring regexp-search-ring sr-history-registry)))
+ '(session-locals-include (quote (buffer-display-time session-locals-include truncate-lines case-fold-search case-replace fill-column overwrite-mode change-log-default-name line-number-mode column-number-mode size-indication-mode buffer-file-coding-system indent-tabs-mode tab-width indicate-buffer-boundaries indicate-empty-lines show-trailing-whitespace)))
+ '(session-registers (quote (t (0 . 127))))
+ '(session-save-file "~/.emacs.d/data/session")
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "unknown" :family "Onuava"))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
