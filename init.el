@@ -161,6 +161,71 @@ configured as a GNOME Startup Application."
 	(window-system "x"))
 	(save-buffers-kill-emacs)))
 
+;;; Desktop mode
+(use-package desktop
+  :init
+  (progn
+    (setq desktop-load-locked-desktop (or (daemonp) 'ask))
+    (desktop-save-mode 1)
+    (setq desktop-restore-eager 5
+	  desktop-buffers-not-to-save
+	  (concat "\\("
+		  "^tags\\|^TAGS\\|"
+		  "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
+		  "\\.tar\\|\\.zip$"
+		  "\\)$"))
+    (mapc (lambda (elt)
+	    (add-to-list 'desktop-modes-not-to-save elt))
+	  '(dired-mode Info-mode info-lookup-mode sr-mode))
+
+    ;; Save buffer-display-time so midnight works across desktop sessions.
+    (add-to-list 'desktop-locals-to-save 'buffer-display-time)
+
+    (defadvice desktop-read (around dont-wait-for-input
+				    (&optional dirname))
+      "Avoid `desktop-read' hanging when Emacs is started as a daemon.
+This includes not prompting when auto-save files or potentially
+unsafe local variables are encountered during startup."
+      (if (not (daemonp))
+	  ad-do-it
+	(let* ((debug-on-error t)
+	       (enable-local-variables :safe)
+	       (orig-sit-for (symbol-function 'sit-for)))
+	  (fset 'sit-for
+		(lambda (seconds &optional nodisp)
+		  nil))
+	  ad-do-it
+	  (fset 'sit-for orig-sit-for)))
+      (ad-unadvise 'desktop-read))
+
+    (defadvice desktop-append-buffer-args (after precreate-lazy-buffers
+						 (&rest args))
+      "Precreate lazy-loaded buffers.
+This allows them to appear in the buffer list before
+`desktop-idle-create-buffers' has created them."
+      (save-excursion
+	(let* ((file-name (nth 1 args))
+	       (buffer-name (nth 2 args))
+	       (mode (nth 3 args))
+	       (buffer (create-file-buffer file-name)))
+	  (message "Pre-creating buffer %s for %s in mode %s." buffer-name file-name mode)
+	  (set-buffer buffer)
+	  (rename-buffer (format "ron-%s" buffer-name) nil)
+	  (setq major-mode mode))))
+
+    (defadvice desktop-lazy-create-buffer (before kill-precreated-buffer
+						   ())
+      "Destroy any precreated dummy buffer.
+The buffer was precreated by the advice `precreate-lazy-buffers'
+on `desktop-append-buffer-args'."
+      (when desktop-buffer-args-list
+	(let ((buffer-name (nth 2 args)))
+	  (kill-buffer buffer-name))));
+
+    (ad-activate 'desktop-read)
+    (ad-activate 'desktop-append-buffer-args)
+    (ad-activate 'desktop-lazy-create-buffer)))
+
 ;;; Dynamic Expansion (Hippie)
 ;; Just stole all of this from a gist and am testing it.
 ;;
@@ -769,6 +834,7 @@ This gets started by python mode."
 ;;;_ , session
 
 (use-package session
+  :disabled t
   :if (not noninteractive)
   :load-path "site-lisp/session/lisp/"
   :init
