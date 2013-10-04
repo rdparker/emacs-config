@@ -114,6 +114,15 @@
 		(ibuffer-switch-to-saved-filter-groups "default")
 		(ibuffer-add-to-tmp-hide "^TAGS.*$")))
 
+;;; auto-complete
+(use-package auto-complete-config
+  :init
+  (progn
+    (add-to-list 'ac-dictionary-directories
+		 (expand-file-name "auto-complete/dict" user-site-lisp-directory))
+    (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
+    (ac-config-default)))
+
 ;;; bbdb
 (defun my-bbdb-insinuate-mail ()
   "Bind C-<tab> to `bbdb-complete-name' since X grabs M-<tab>."

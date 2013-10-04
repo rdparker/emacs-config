@@ -7,3 +7,6 @@
 [submodule "site-lisp/session"]
 	path = site-lisp/session
 	url = https://github.com/rdparker/session.git
+[submodule "site-lisp/auto-complete"]
+	path = site-lisp/auto-complete
+	url = https://github.com/auto-complete/auto-complete
