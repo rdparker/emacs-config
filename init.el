@@ -627,6 +627,7 @@ expands it. Else calls `smart-indent'."
 (put 'when-slots 'lisp-indent-function 1)
 
 (my-load (expand-file-name "~/quicklisp/slime-helper.el"))
+(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
