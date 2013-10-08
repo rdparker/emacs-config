@@ -46,7 +46,6 @@
     (mkdir data-directory)))
 
 ;;; Legacy package configuration
-(require 'el-get-config)
 (require 'grep-config)
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
