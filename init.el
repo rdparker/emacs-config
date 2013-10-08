@@ -51,7 +51,6 @@
 	(setq default-tab-width 8))			; obsoleted in 23.2
 
 (require 'appearance-config)
-(require 'auto-config)			; insertion and completion
 (require 'cfengine-config)
 (require 'dired-config)
 (require 'multiple-cursors-config)
@@ -121,7 +120,36 @@
     (add-to-list 'ac-dictionary-directories
 		 (expand-file-name "auto-complete/dict" user-site-lisp-directory))
     (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
-    (ac-config-default)))
+
+    (defun my-ac-cc-mode-setup ()
+      (setq ac-sources
+	    (append '(ac-source-yasnippet) ac-sources))
+
+    (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
+
+    (ac-config-default)
+
+    (setq ac-modes (append '(lisp-mode slime-repl-mode) ac-modes))
+
+    (add-hook 'lisp-mode-hook (lambda ()
+				(add-to-list 'ac-sources 'ac-source-slime)))
+
+    ;; Teaching auto-complete about slime.  Mostly taken from
+    ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
+    ;; with docs added.
+    (defun jsn-slime-source ()
+      "An auto-completion source that for slime buffers."
+      (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
+	     (beg (move-marker (make-marker) (slime-symbol-start-pos)))
+	     (prefix (buffer-substring-no-properties beg end))
+	     (completion-result (slime-contextual-completions beg end))
+	     (completion-set (first completion-result)))
+	completion-set))
+    (defvar ac-source-slime '((candidates . jsn-slime-source))))))
+
+;;; autoinsert
+(use-package autoinsert
+  :init (add-hook 'find-file-hook 'auto-insert))
 
 ;;; bbdb
 (defun my-bbdb-insinuate-mail ()
