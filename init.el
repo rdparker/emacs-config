@@ -6,11 +6,21 @@
 ;;; parameters see ~/lib/el/README.org for a possible workaround.
 
 ;;;_. Initialization
+
+(setq message-log-max 16384)
+
+(defconst emacs-start-time (current-time))
+
+(unless noninteractive
+  (message "Loading %s..." load-file-name))
+
 (eval-when-compile (require 'cl))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
 (require 'use-package)
+(eval-when-compile
+  (setq use-package-verbose (null byte-compile-current-file)))
 
 (require 'rdp-functions)
 (require 'os-x-config)
@@ -995,3 +1005,18 @@ This gets started by python mode."
 (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
 (load custom-file)
 (put 'narrow-to-page 'disabled nil)
+
+;;;_. Post initialization
+
+(when window-system
+  (let ((elapsed (float-time (time-subtract (current-time)
+                                            emacs-start-time))))
+    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+  (add-hook 'after-init-hook
+            `(lambda ()
+               (let ((elapsed (float-time (time-subtract (current-time)
+                                                         emacs-start-time))))
+                 (message "Loading %s...done (%.3fs) [after-init]"
+                          ,load-file-name elapsed)))
+            t))
