@@ -16,3 +16,6 @@
 [submodule "override/org-mode"]
 	path = override/org-mode
 	url = git://orgmode.org/org-mode.git
+[submodule "site-lisp/paredit"]
+	path = site-lisp/paredit
+	url = http://mumble.net/~campbell/git/paredit.git/
