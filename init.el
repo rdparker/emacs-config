@@ -943,7 +943,7 @@ This gets started by python mode."
 
     (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
 
-    ;; expanded folded secitons as required
+    ;; expanded folded sections as required
     (defun le::maybe-reveal ()
       (when (and (or (memq major-mode  '(org-mode outline-mode))
                      (and (boundp 'outline-minor-mode)
