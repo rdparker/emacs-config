@@ -853,6 +853,13 @@ This gets started by python mode."
 ;; 	       (compilation-fake-loc orig-start f))))))))
 
 ;;; Org-mode
+(unless (require 'org-loaddefs nil t)
+  (shell-command (concat "cd " (expand-file-name "override/org-mode/"
+						 user-emacs-directory) ";"
+			 "make")
+		 (generate-new-buffer "*Org-Compile-Log*"))
+  (use-package org-loaddefs))
+
 (setq org-todo-keywords
 	  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
 

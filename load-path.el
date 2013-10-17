@@ -69,6 +69,9 @@ DIR defaults to `user-emacs-directory`."
        (list
         user-emacs-directory
 
+	"override/org-mode/contrib/lisp/"
+	"override/org-mode/lisp/"
+
         ;; Packages located elsewhere on the system...
         "/usr/share/git-core/emacs/"
         )))
