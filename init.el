@@ -132,7 +132,7 @@
 
     (defun my-ac-cc-mode-setup ()
       (setq ac-sources
-	    (append '(ac-source-yasnippet) ac-sources))
+	    (append '(ac-source-yasnippet) ac-sources)))
 
     (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
 
@@ -154,7 +154,7 @@
 	     (completion-result (slime-contextual-completions beg end))
 	     (completion-set (first completion-result)))
 	completion-set))
-    (defvar ac-source-slime '((candidates . jsn-slime-source))))))
+    (defvar ac-source-slime '((candidates . jsn-slime-source)))))
 
 ;;; autoinsert
 (use-package autoinsert
