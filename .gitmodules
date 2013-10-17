@@ -10,6 +10,9 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/auto-complete/auto-complete
+[submodule "site-lisp/emmet-mode"]
+	path = site-lisp/emmet-mode
+	url = https://github.com/smihica/emmet-mode.git
 [submodule "override/org-mode"]
 	path = override/org-mode
 	url = git://orgmode.org/org-mode.git

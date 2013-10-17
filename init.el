@@ -362,6 +362,24 @@ expands it. Else calls `smart-indent'."
   (interactive)
   (compile "make -kw dist"))
 
+;;; emmet-mode
+;;
+;; This is an extension of zencoding-mode
+(use-package emmet-mode
+  :commands emmet-mode
+  :init
+  (progn
+    (add-hook 'nxml-mode-hook 'emmet-mode)
+    (add-hook 'html-mode-hook 'emmet-mode)
+    (add-hook 'html-mode-hook
+              #'(lambda ()
+                (bind-key "<return>" 'newline-and-indent html-mode-map))))
+
+  :config
+  (progn
+    (defvar emmet-mode-keymap (make-sparse-keymap))
+    (bind-key "C-c C-c" 'emmet-expand-line emmet-mode-keymap)))
+
 ;;; git
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
