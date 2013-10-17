@@ -155,13 +155,10 @@
 	    (append '(ac-source-yasnippet) ac-sources)))
 
     (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
-
-    (ac-config-default)
-
-    (setq ac-modes (append '(emacs-lisp-mode lisp-mode slime-repl-mode) ac-modes))
-
     (add-hook 'lisp-mode-hook (lambda ()
 				(add-to-list 'ac-sources 'ac-source-slime)))
+
+    (ac-config-default)
 
     ;; Teaching auto-complete about slime.  Mostly taken from
     ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
@@ -174,7 +171,9 @@
 	     (completion-result (slime-contextual-completions beg end))
 	     (completion-set (first completion-result)))
 	completion-set))
-    (defvar ac-source-slime '((candidates . jsn-slime-source)))))
+    (defvar ac-source-slime '((candidates . jsn-slime-source)))
+
+    (global-auto-complete-mode t)))
 
 ;;; autoinsert
 (use-package autoinsert
