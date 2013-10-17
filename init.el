@@ -130,6 +130,8 @@
 		 (expand-file-name "auto-complete/dict" user-site-lisp-directory))
     (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
 
+    (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
+
     (defun my-ac-cc-mode-setup ()
       (setq ac-sources
 	    (append '(ac-source-yasnippet) ac-sources)))
