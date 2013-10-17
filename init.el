@@ -777,6 +777,27 @@ and the basename of the executable.")
 ;;; Navigation
 (global-set-key [C-tab] 'other-window)
 
+;;; nxml-mode
+
+(use-package nxml-mode
+  :commands nxml-mode
+  :init
+  (defalias 'xml-mode 'nxml-mode)
+  :config
+  (progn
+    (defun my-nxml-mode-hook ()
+      (bind-key "<return>" 'newline-and-indent nxml-mode-map))
+
+    (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
+
+    (defun tidy-xml-buffer ()
+      (interactive)
+      (save-excursion
+        (call-process-region (point-min) (point-max) "tidy" t t nil
+                             "-xml" "-i" "-wrap" "0" "-omit" "-q")))
+
+    (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
+
 ;;; Python
 
 (defadvice run-python
