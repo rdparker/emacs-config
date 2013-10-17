@@ -138,7 +138,7 @@
 
     (ac-config-default)
 
-    (setq ac-modes (append '(lisp-mode slime-repl-mode) ac-modes))
+    (setq ac-modes (append '(emacs-lisp-mode lisp-mode slime-repl-mode) ac-modes))
 
     (add-hook 'lisp-mode-hook (lambda ()
 				(add-to-list 'ac-sources 'ac-source-slime)))
