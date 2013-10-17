@@ -126,8 +126,26 @@
 (use-package auto-complete-config
   :init
   (progn
-    (add-to-list 'ac-dictionary-directories
-		 (expand-file-name "auto-complete/dict" user-site-lisp-directory))
+    ;; Make sure auto-complete can find the correct JavaScript
+    ;; dictionary in spite of mode name aliasing in Emacs 23.
+    (let* ((standard-ac-dict-dir
+	    (expand-file-name "auto-complete/dict" user-site-lisp-directory))
+	   (javascript-dict
+	    (expand-file-name "javascript-mode" standard-ac-dict-dir))
+	   (custom-ac-dict-dir
+	    (expand-file-name "auto-complete/dict" user-data-directory))
+	   (js-dict
+	    (expand-file-name "js-mode" custom-ac-dict-dir)))
+      (unless (file-directory-p custom-ac-dict-dir)
+	(mkdir custom-ac-dict-dir t))
+      (unless (file-symlink-p js-dict)
+	(make-symbolic-link javascript-dict js-dict))
+
+      ;; Setup the dictionary directories
+      (add-to-list 'ac-dictionary-directories standard-ac-dict-dir)
+      (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
+
+    ;; Keep the ~/.emacs directory clean
     (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
 
     (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
