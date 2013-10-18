@@ -1048,10 +1048,31 @@ This gets started by python mode."
 			    'po-find-file-coding-system)
 
 ;;; yasnippet
-(when (my-require 'yasnippet)
-  ;; Temporarily disable this it mucks with magit buffers
-  ;; (yas/global-mode 1)
-  (global-set-key (kbd "C-M-y") 'yas/expand))
+(use-package yasnippet
+  ;; :if (not noninteractive)
+  :diminish yas-minor-mode
+  :commands (yas-minor-mode yas-expand)
+  :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
+  :init
+  (add-hooks '(prog-mode-hook
+	       org-mode-hook
+	       ruby-mode-hook
+	       message-mode-hook
+	       gud-mode-hook
+	       erc-mode-hook)
+	     #'(lambda () (yas-minor-mode 1)))
+  :config
+  (progn
+    (yas-load-directory (expand-file-name "snippets/" user-emacs-directory))
+
+    (bind-key "<tab>" 'yas-next-field-or-maybe-expand yas-keymap)
+
+    (bind-key "C-c y TAB" 'yas-expand)
+    (bind-key "C-c y n" 'yas-new-snippet)
+    (bind-key "C-c y f" 'yas-find-snippets)
+    (bind-key "C-c y r" 'yas-reload-all)
+    (bind-key "C-c y v" 'yas-visit-snippet-file)))
+
 (my-require 'yasnippet-bundle-autoloads)
 (autoload 'el-autoyas-enable "el-autoyas")
 (add-hook 'emacs-lisp-mode-hook
