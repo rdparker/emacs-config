@@ -1073,13 +1073,15 @@ This gets started by python mode."
   :commands (yas-minor-mode yas-expand)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :init
-  (add-hooks '(prog-mode-hook
-	       org-mode-hook
-	       ruby-mode-hook
-	       message-mode-hook
-	       gud-mode-hook
-	       erc-mode-hook)
-	     #'(lambda () (yas-minor-mode 1)))
+  (progn
+    (add-hooks '(prog-mode-hook
+		 org-mode-hook
+		 ruby-mode-hook
+		 message-mode-hook
+		 gud-mode-hook
+		 erc-mode-hook)
+	       #'(lambda () (yas-minor-mode 1)))
+    (add-to-list 'ac-sources 'ac-source-yasnippet))
   :config
   (progn
     (yas-load-directory (expand-file-name "snippets/" user-emacs-directory))
