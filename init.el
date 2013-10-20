@@ -275,21 +275,39 @@ This allows them to appear in the buffer list before
 	       (buffer (create-file-buffer file-name)))
 	  (message "Pre-creating buffer %s for %s in mode %s." buffer-name file-name mode)
 	  (set-buffer buffer)
-	  (rename-buffer (format "ron-%s" buffer-name) nil)
 	  (setq major-mode mode))))
 
-    (defadvice desktop-lazy-create-buffer (before kill-precreated-buffer
-						   ())
+    (defadvice desktop-create-buffer (before kill-precreated-buffer
+					     (desktop-file-version
+					      desktop-buffer-file-name
+					      desktop-buffer-name
+					      desktop-buffer-major-mode
+					      desktop-buffer-minor-modes
+					      desktop-buffer-point
+					      desktop-buffer-mark
+					      desktop-buffer-read-only
+					      desktop-buffer-misc
+					      &optional
+					      desktop-buffer-locals))
       "Destroy any precreated dummy buffer.
 The buffer was precreated by the advice `precreate-lazy-buffers'
 on `desktop-append-buffer-args'."
-      (when desktop-buffer-args-list
-	(let ((buffer-name (nth 2 args)))
-	  (kill-buffer buffer-name))));
+      (let ((buf (get-buffer desktop-buffer-name)))
+	(when buf
+	  (kill-buffer buf))))
+
+    ;; TODO: Add before advice to switch-to-buffer, so that a buffer
+    ;; is actually loaded when the user switches to a precreated lazy
+    ;; buffer that has not been processed yet.
+    (defadvice switch-to-buffer (before handle-pending-lazy-buffer
+					(buffer-or-name
+					 &optional norecord))
+      nil)
 
     (ad-activate 'desktop-read)
     (ad-activate 'desktop-append-buffer-args)
-    (ad-activate 'desktop-lazy-create-buffer)))
+    (ad-activate 'desktop-create-buffer)
+    (ad-activate 'switch-to-buffer)))
 
 ;;; Dynamic Expansion (Hippie)
 ;; Just stole all of this from a gist and am testing it.
