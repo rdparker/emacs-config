@@ -25,3 +25,6 @@
 [submodule "snippets/davidmiller"]
 	path = snippets/davidmiller
 	url = https://github.com/davidmiller/yasnips.git
+[submodule "site-lisp/jshint-mode"]
+	path = site-lisp/jshint-mode
+	url = https://github.com/daleharvey/jshint-mode.git
