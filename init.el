@@ -413,6 +413,12 @@ expands it. Else calls `smart-indent'."
     (defvar emmet-mode-keymap (make-sparse-keymap))
     (bind-key "C-c C-c" 'emmet-expand-line emmet-mode-keymap)))
 
+;;; flymake
+(use-package flymake
+  :commands flymake-mode
+  :init
+  (use-package flymake-cursor))
+
 ;;; git
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
@@ -614,14 +620,14 @@ expands it. Else calls `smart-indent'."
 			    ;; Scan the file for nested code blocks
 			    (imenu-add-menubar-index)
 			    (hs-minor-mode 1))))
-(defun flymake-jshint-init ()
-  "My custom flymake-jshint-init that runs jshint and closure"
-  (if (eq (jshint-mode-init) 'started)
-      (let* ((temp-file (flymake-init-create-temp-buffer-copy 'flymake-create-temp-inplace))
-             (local-file (file-relative-name temp-file
-                                             (file-name-directory buffer-file-name)))
-             (jshint-url (format "http://%s:%d/check" jshint-mode-host jshint-mode-port)))
-	(list "~/bin/flymake-js.sh" (list local-file jshint-mode-mode jshint-url)))))
+;; (defun flymake-jshint-init ()
+;;   "My custom flymake-jshint-init that runs jshint and closure"
+;;   (if (eq (jshint-mode-init) 'started)
+;;       (let* ((temp-file (flymake-init-create-temp-buffer-copy 'flymake-create-temp-inplace))
+;;              (local-file (file-relative-name temp-file
+;;                                              (file-name-directory buffer-file-name)))
+;;              (jshint-url (format "http://%s:%d/check" jshint-mode-host jshint-mode-port)))
+;; 	(list "~/bin/flymake-js.sh" (list local-file jshint-mode-mode jshint-url)))))
 
 (when (my-require 'js-comint)
   ;; Use node as our repl
