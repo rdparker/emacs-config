@@ -148,17 +148,13 @@
     ;; Keep the ~/.emacs directory clean
     (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
 
-    (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
-
-    (defun my-ac-cc-mode-setup ()
-      (setq ac-sources
-	    (append '(ac-source-yasnippet) ac-sources)))
-
-    (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
     (add-hook 'lisp-mode-hook (lambda ()
 				(add-to-list 'ac-sources 'ac-source-slime)))
 
     (ac-config-default)
+
+    ;; This must go after ac-config-default or it will be overridden.
+    (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
 
     ;; Teaching auto-complete about slime.  Mostly taken from
     ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
