@@ -22,3 +22,6 @@
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/capitaomorte/yasnippet.git
+[submodule "snippets/davidmiller"]
+	path = snippets/davidmiller
+	url = https://github.com/davidmiller/yasnips.git

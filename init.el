@@ -1084,7 +1084,10 @@ This gets started by python mode."
     (add-to-list 'ac-sources 'ac-source-yasnippet))
   :config
   (progn
-    (yas-load-directory (expand-file-name "snippets/" user-emacs-directory))
+    (add-to-list 'yas-snippet-dirs
+		 (expand-file-name "snippets/davidmiller" user-emacs-directory)
+		 :append)
+    (yas-reload-all)
 
     (bind-key "<tab>" 'yas-next-field-or-maybe-expand yas-keymap)
 
