@@ -630,6 +630,11 @@ expands it. Else calls `smart-indent'."
 ;;              (jshint-url (format "http://%s:%d/check" jshint-mode-host jshint-mode-port)))
 ;; 	(list "~/bin/flymake-js.sh" (list local-file jshint-mode-mode jshint-url)))))
 
+(when (my-require 'js2-mode)
+  (add-hook 'js-mode-hook (lambda ()
+			    "Run js2 as a background linter"
+			    (js2-minor-mode 1))))
+
 (when (my-require 'js-comint)
   ;; Use node as our repl
   (setq inferior-js-program-command jshint-mode-node-program)
