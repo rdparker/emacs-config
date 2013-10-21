@@ -611,9 +611,10 @@ expands it. Else calls `smart-indent'."
     (unless (executable-find "npm")
       (setq exec-path path)
       (message "Cannot find `npm', flymaking JavaScript will be disabled."))))
-(unless (executable-find "node")
-  (when (executable-find "nodejs")
-    (setq jshint-mode-node-program "nodejs")))
+(setq jshint-mode-node-program (if (executable-find "node")
+				   "node"
+				 (when (executable-find "nodejs")
+				   "nodejs")))
 (when (my-require 'flymake-jshint)
    (add-hook 'js-mode-hook (lambda ()
  			    (flymake-mode 1)
@@ -631,7 +632,7 @@ expands it. Else calls `smart-indent'."
 
 (when (my-require 'js-comint)
   ;; Use node as our repl
-  (setq inferior-js-program-command "node")
+  (setq inferior-js-program-command jshint-mode-node-program)
   (setq inferior-js-mode-hook
 	(lambda ()
 	  ;; We like nice colors
@@ -641,7 +642,7 @@ expands it. Else calls `smart-indent'."
 		       (lambda (output)
 			 (replace-regexp-in-string
 			  ".*1G\.\.\..*5G" "..."
-			  (replace-regexp-in-string ".*1G.*3G" "&gt;" output)))))))
+			  (replace-regexp-in-string ".*1G.*3G" "> " output)))))))
 
 (my-require 'js-beautify)
 
