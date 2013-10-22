@@ -28,3 +28,9 @@
 [submodule "site-lisp/jshint-mode"]
 	path = site-lisp/jshint-mode
 	url = https://github.com/daleharvey/jshint-mode.git
+[submodule "site-lisp/skewer-mode"]
+	path = site-lisp/skewer-mode
+	url = https://github.com/skeeto/skewer-mode.git
+[submodule "site-lisp/simple-httpd"]
+	path = site-lisp/simple-httpd
+	url = https://github.com/skeeto/emacs-http-server.git

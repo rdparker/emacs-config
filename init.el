@@ -191,10 +191,8 @@
     (unless (executable-find "w3m")
       (setq exec-path path))))
 
-(autoload 'w3m "w3m"
-  "Visit World Wide Web pages using the external w3m command." t)
-(autoload 'w3m-browse-url "w3m" "Ask emacs-w3m to browse URL." t)
-(setq browse-url-browser-function 'w3m-browse-url)
+(use-package w3m
+  :commands (w3m w3m-browse-url))
 (condition-case ()
 	(require 'w3-auto "w3-auto")
 	(error nil))
@@ -1023,6 +1021,25 @@ This gets started by python mode."
 
     (if window-system
         (add-hook 'after-init-hook 'session-initialize t))))
+
+;;; skewer-mode
+;;
+;; JavaScript, CSS, HTML REPL
+(use-package skewer-mode
+  :command 'skewer-mode
+  :config
+  (progn
+    (add-hook 'js-mode-hook 'skewer-mode)))
+(use-package skewer-css
+  :command 'skewer-css-mode
+  :config
+  (progn
+    (add-hook 'css-mode-hook 'skewer-css-mode)))
+(use-package skewer-html
+  :command 'skewer-html-mode
+  :config
+  (progn
+    (add-hook 'html-mode-hook 'skewer-html-mode)))
 
 ;;; Tar-mode
 ;;
