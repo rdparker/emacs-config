@@ -50,6 +50,8 @@
  '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
+ '(org-babel-load-languages (quote ((emacs-lisp . t) (dot . t) (plantuml . t))))
+ '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((cc-basic-offset . 4) (default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
