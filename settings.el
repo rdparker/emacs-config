@@ -51,6 +51,7 @@
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
  '(org-babel-load-languages (quote ((emacs-lisp . t) (dot . t) (plantuml . t))))
+ '(org-export-backends (quote (ascii html icalendar latex odt)))
  '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((cc-basic-offset . 4) (default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
