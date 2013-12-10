@@ -54,7 +54,7 @@
  '(org-export-backends (quote (ascii html icalendar latex odt)))
  '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
  '(rpm-spec-build-command "rpmbuild")
- '(safe-local-variable-values (quote ((cc-basic-offset . 4) (default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
+ '(safe-local-variable-values (quote ((lexical-binding . t) (cc-basic-offset . 4) (default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-globals-include (quote ((kill-ring 10 nil) (session-file-alist 300 t) (file-name-history 200 nil) search-ring regexp-search-ring sr-history-registry)))
  '(session-locals-include (quote (buffer-display-time session-locals-include truncate-lines case-fold-search case-replace fill-column overwrite-mode change-log-default-name line-number-mode column-number-mode size-indication-mode buffer-file-coding-system indent-tabs-mode tab-width indicate-buffer-boundaries indicate-empty-lines show-trailing-whitespace)))

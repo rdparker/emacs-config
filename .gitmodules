@@ -34,3 +34,6 @@
 [submodule "site-lisp/simple-httpd"]
 	path = site-lisp/simple-httpd
 	url = https://github.com/skeeto/emacs-http-server.git
+[submodule "site-lisp/evernote-mode"]
+	path = site-lisp/evernote-mode
+	url = https://github.com/pymander/evernote-mode.git
