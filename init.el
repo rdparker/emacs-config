@@ -1040,6 +1040,13 @@ This gets started by python mode."
   :config
   (progn
     (add-hook 'html-mode-hook 'skewer-html-mode)))
+(use-package skewer-repl
+  :command '(skewer-repl skewer-repl--response-hook)
+  :config
+  (progn
+    (add-hook 'skewer-response-hook #'skewer-repl--response-hook)
+    (add-hook 'skewer-repl-mode-hook #'skewer-repl-mode-compilation-shell-hook)
+    (define-key skewer-mode-map (kbd "C-c C-z") #'skewer-repl)))
 
 ;;; Tar-mode
 ;;
