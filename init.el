@@ -766,7 +766,9 @@ and the basename of the executable.")
 ;; eldoc
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
+(use-package c-eldoc
+  :commands 'c-turn-on-eldoc-mode
+  :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
 
 ;; CLHS info file
 ;;
