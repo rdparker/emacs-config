@@ -259,17 +259,21 @@ unsafe local variables are encountered during startup."
 
     (defadvice desktop-append-buffer-args (after precreate-lazy-buffers
 						 (&rest args))
-      "Precreate lazy-loaded buffers.
-This allows them to appear in the buffer list before
-`desktop-idle-create-buffers' has created them."
+      "Create placeholder buffers for later lazy loading.
+This allows them to appear in the buffer list before they have
+been loaded by `desktop-lazy-create-buffers'."
       (save-excursion
-	(let* ((file-name (nth 1 args))
-	       (buffer-name (nth 2 args))
-	       (mode (nth 3 args))
-	       (buffer (create-file-buffer file-name)))
-	  (message "Pre-creating buffer %s for %s in mode %s." buffer-name file-name mode)
-	  (set-buffer buffer)
-	  (setq major-mode mode))))
+	(let* ((desktop-buffer-file-name (nth 1 args))
+	       (desktop-buffer-name (nth 2 args))
+	       (desktop-buffer-major-mode (nth 3 args)))
+	  (when desktop-lazy-verbose
+	    (message "Precreating lazy desktop buffer %s for %s in mode %s."
+		     desktop-buffer-name desktop-buffer-file-name
+		     desktop-buffer-major-mode))
+	  (set-buffer (create-file-buffer desktop-buffer-file-name))
+	  (unless (string= (buffer-name) desktop-buffer-name)
+	    (rename-buffer desktop-buffer-name t))
+	  (setq major-mode desktop-buffer-major-mode))))
 
     (defadvice desktop-create-buffer (before kill-precreated-buffer
 					     (desktop-file-version
@@ -283,20 +287,47 @@ This allows them to appear in the buffer list before
 					      desktop-buffer-misc
 					      &optional
 					      desktop-buffer-locals))
-      "Destroy any precreated dummy buffer.
-The buffer was precreated by the advice `precreate-lazy-buffers'
-on `desktop-append-buffer-args'."
+      "Kill placeholder buffers before lazy loading them.
+They are created by the advice on `desktop-append-buffer-args',
+so that all desktop files will appear in the buffer list before
+they are loaded."
       (let ((buf (get-buffer desktop-buffer-name)))
-	(when buf
+	(when (and buf desktop-lazy-verbose)
+	  (message "Destroying precreated buffer %s for %s in mode %s."
+		   desktop-buffer-name
+		   desktop-buffer-file-name
+		   desktop-buffer-major-mode)
 	  (kill-buffer buf))))
 
-    ;; TODO: Add before advice to switch-to-buffer, so that a buffer
-    ;; is actually loaded when the user switches to a precreated lazy
-    ;; buffer that has not been processed yet.
     (defadvice switch-to-buffer (before handle-pending-lazy-buffer
 					(buffer-or-name
 					 &optional norecord))
-      nil)
+      "Kill placeholder buffers before loading and switching to them.
+They are created by the advice on `desktop-append-buffer-args',
+so that all desktop files will appear in the buffer list before
+they are loaded.
+
+So, if the buffer is still named in `desktop-buffer-args-list',
+temporarily make it the only entry in the list and call
+`desktop-lazy-create-buffer' to load it, then restore the list to
+its original contents minus this buffer.
+
+The placeholder buffer will actually be killed by the advice on
+`desktop-create-buffer', when `desktop-lazy-create-buffer' calls
+it."
+      (let* ((buffer-name (if (bufferp buffer-or-name)
+			      (buffer-name buffer-or-name)
+			    buffer-or-name))
+	     (args (find-if (lambda (elt)
+			      (string= (nth 2 elt) buffer-name))
+			    desktop-buffer-args-list)))
+	(when args
+	  (let ((original-desktop-buffer-args-list desktop-buffer-args-list)
+		(desktop-buffer-args-list (list args)))
+	    (desktop-lazy-create-buffer))
+
+	  (setq desktop-buffer-args-list
+		(remove args desktop-buffer-args-list)))))
 
     (ad-activate 'desktop-read)
     (ad-activate 'desktop-append-buffer-args)
