@@ -98,6 +98,10 @@
 			(name . "^\\.bbdb$")
 			(name . "^\\.newsrc-dribble")))
 		   ("xml" (mode . nxml-mode))
+		   ("web" (or
+			   (mode . html-mode)
+			   (mode . nxhtml-mode)
+			   (mode . js-mode)))
 		   ("emacs" (or
 			 (name . "^\\*scratch\\*$")
 			 (name . "^\\*Messages\\*$")
