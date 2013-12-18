@@ -70,7 +70,8 @@
 (setq auto-mode-alist (cons '("\\.cnf" . conf-mode) auto-mode-alist))
 
 ;;; Minibuffer
-(iswitchb-mode 1)
+(ido-mode 1)
+(setq ido-use-virtual-buffers t)
 (setq enable-recursive-minibuffers t)
 
 ;; ibuffer
