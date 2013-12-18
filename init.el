@@ -120,6 +120,7 @@
 			 (mode . makefile-gmake-mode)
 			 (mode . autoconf-mode)))
 		   ("cfengine" (or
+				(mode . cfengine-mode)
 				(mode . cf2engine-mode)
 				(mode . cf3engine-mode)))))))
 (add-hook 'ibuffer-mode-hook
