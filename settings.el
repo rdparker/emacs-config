@@ -50,6 +50,8 @@
  '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
+ '(mac-command-modifier (quote super))
+ '(mac-option-modifier (quote meta))
  '(org-babel-load-languages (quote ((emacs-lisp . t) (dot . t) (plantuml . t))))
  '(org-export-backends (quote (ascii html icalendar latex odt)))
  '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
