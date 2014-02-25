@@ -53,7 +53,7 @@ DIR defaults to `user-emacs-directory`."
 	  (add-to-list 'load-path full-path)))))
 
 ;; Add top-level lisp directories, in case they were not setup by the
-;; environment.
+;; environment, but avoid including user-emacs-directory.
 (dolist (dir (nreverse
               (list user-override-directory
                     user-lisp-directory
@@ -61,13 +61,15 @@ DIR defaults to `user-emacs-directory`."
                     user-site-lisp-directory)))
   (when (file-directory-p dir)
     (dolist (entry (nreverse (directory-files-and-attributes dir)))
-      (if (cadr entry)
-	  (add-to-load-path (car entry) dir)))))
+      (let ((directory-p (cadr entry))
+	    (name (car entry)))
+	(unless (or (null directory-p)
+		    (string= ".." name))
+	  (add-to-load-path (car entry) dir))))))
 
 (mapc #'add-to-load-path
       (nreverse
        (list
-        user-emacs-directory
 
 	"override/org-mode/contrib/lisp/"
 	"override/org-mode/lisp/"
