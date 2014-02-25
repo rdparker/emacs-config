@@ -622,7 +622,7 @@ expands it. Else calls `smart-indent'."
                   ac-source-abbrev
                   ac-source-words-in-buffer
                   my/ac-source-haskell)
-                ac-sources))
+                (if (boundp 'ac-sources) ac-sources nil)))
   (dolist (x '(haskell literate-haskell))
     (add-hook
      (intern (concat (symbol-name x)
@@ -1156,7 +1156,8 @@ This gets started by python mode."
 		 gud-mode-hook
 		 erc-mode-hook)
 	       #'(lambda () (yas-minor-mode 1)))
-    (add-to-list 'ac-sources 'ac-source-yasnippet))
+    (when (boundp 'ac-sources)
+      (add-to-list 'ac-sources 'ac-source-yasnippet)))
   :config
   (progn
     (add-to-list 'yas-snippet-dirs
