@@ -1197,7 +1197,9 @@ This gets started by python mode."
                       (insert-file-contents
                        (expand-file-name "settings.el" user-emacs-directory))
                       (goto-char (point-min))
-                      (read (current-buffer))))
+		      (let ((custom-settings (read (current-buffer))))
+			(eval-region (point) (point-max))
+			custom-settings)))
           (suffix (downcase (match-string 2 invocation-directory))))
 
       (setq running-alternate-emacs t

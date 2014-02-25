@@ -28,12 +28,11 @@
 ;;; Code:
 
 ;;; customizations
-(setq ansi-term-color-vector [unspecified "black" "red3" "green3" "yellow3" "#9bf" "magenta3" "cyan3" "white"])
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
  '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
@@ -100,6 +99,7 @@ by emacsclient."
 (add-hook 'after-make-frame-functions 'reload-custom-set-faces)
 (put 'narrow-to-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(setq ansi-term-color-vector [unspecified "black" "red3" "green3" "yellow3" "#9bf" "magenta3" "cyan3" "white"])
 
 ;; The Tex Gyre Cursor font is very clean at small point sizes, but
 ;; seems to work best on light backgrounds.  The strokes are too
