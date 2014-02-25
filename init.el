@@ -1225,6 +1225,37 @@ This gets started by python mode."
     (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
     (load custom-file)))
 
+(unless noninteractive
+  (if running-alternate-emacs
+      (progn
+        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 722))
+        (defvar emacs-min-left 5)
+        (defvar emacs-min-height 25)
+        (defvar emacs-min-width 80))
+
+    (defvar emacs-min-top 22)
+    (defvar emacs-min-left (- (x-display-pixel-width) 918))
+    (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 55 64))
+    (defvar emacs-min-width 100)))
+
+(defun emacs-min ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'fullscreen nil)
+  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  (set-frame-parameter (selected-frame) 'height emacs-min-height)
+  (set-frame-parameter (selected-frame) 'width emacs-min-width)
+
+  (when running-alternate-emacs
+    (set-background-color "grey85")
+    (set-foreground-color "black")
+    (set-face-background 'fringe "gray80")))
+
+(if window-system
+    (add-hook 'after-init-hook 'emacs-min))
+
 (put 'narrow-to-page 'disabled nil)
 
 ;;;_. Post initialization
