@@ -34,10 +34,10 @@ to avoid cluttering that directory since I maintain it with git.")
   "Directory where emacs lisp files and packages I've written are kept.")
 (defconst user-lib-directory
   (expand-file-name "lib/" user-emacs-directory)
-  "Directory where third-party elisp files without a git repo are stored.")
+  "Directory where third-party generally non-interactive libraries are stored.")
 (defconst user-site-lisp-directory
   (expand-file-name "site-lisp/" user-emacs-directory)
-  "Directory where third-party git submodules are maintained.")
+  "Directory where third-party packages are maintained.")
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory)
   "Directory for overriding elisp packages included as part of emacs.
