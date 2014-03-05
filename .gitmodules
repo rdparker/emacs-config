@@ -40,3 +40,6 @@
 [submodule "site-lisp/c-eldoc"]
 	path = site-lisp/c-eldoc
 	url = https://github.com/nflath/c-eldoc.git
+[submodule "site-lisp/p4"]
+	path = site-lisp/p4
+	url = https://github.com/gareth-rees/p4.el.git

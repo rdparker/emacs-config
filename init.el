@@ -1109,7 +1109,9 @@ This gets started by python mode."
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 ;;; vc
-;;
+(eval-after-load "vc"
+  '(add-to-list 'vc-handled-backends 'P4))
+
 ;; I had horrid performance problems with my system trying to use vc
 ;; over TRAMP.  Also, ISTR that sometimes it would attempt to use
 ;; locally available commands for the remote files, may be wrong about
