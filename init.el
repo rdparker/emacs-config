@@ -1225,7 +1225,8 @@ This gets started by python mode."
     (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
     (load custom-file)))
 
-(unless noninteractive
+(unless (or noninteractive
+	    (null window-system))
   (if running-alternate-emacs
       (progn
         (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 722))
