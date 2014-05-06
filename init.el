@@ -1139,7 +1139,7 @@ This gets started by python mode."
 
 ;;; vc
 (eval-after-load "vc"
-  '(add-to-list 'vc-handled-backends 'P4))
+  '(add-to-list 'vc-handled-backends 'P4 'append))
 
 ;; I had horrid performance problems with my system trying to use vc
 ;; over TRAMP.  Also, ISTR that sometimes it would attempt to use
