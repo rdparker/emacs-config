@@ -44,13 +44,81 @@ to avoid cluttering that directory since I maintain it with git.")
 If I need to customize a package that is part of emacs, this is
 where I will store them.")
 
+(defun byte-compile-target-directory (directory)
+  "Convert an Emacs Lisp source directory name into a compiled directory name.
+The compiled directory name will be in a subdirectory of
+`user-data-directory' based upon `emacs-version' so that
+different versions of Emacs may share source and still have their
+own compiled versions without interfering with each other.
+
+The subdirectory takes DIRECTORY's path into account so that two
+subdirectories with the same basename name (test for example)
+will not collide.  If DIRECTORY is in `user-emacs-directory',
+then `user-emacs-directory' is removed from the beginning of
+DIRECTORY.  Then what remains is appended to the
+emacs-version-specific directory.
+
+For example, if `user-emacs-directory' is \"~/.emacs.d\" and
+`user-data-directory' is \"~/.emacs.d/data\" and `emacs-version'
+is 99.7, then calling the function with:
+
+    \"~/.emacs.d/package\"
+
+will return
+
+    \"~/.emacs.d/data/erc-99.7/package\"."
+
+  ;; Make sure DIRECTORY is not relative
+  (setq directory (expand-file-name directory))
+
+  (let* ((prefix (expand-file-name user-emacs-directory))
+	 (length (length prefix))
+	 (versioned-directory (file-name-as-directory
+			       (concat
+				user-data-directory
+				`,(concat "elc-" emacs-version))))
+	 (relative-path (if (and (>= (length directory) length)
+				 (string= prefix
+					  (substring directory 0 length)))
+			    (substring directory length)
+			  (substring directory 1))))
+    (concat versioned-directory relative-path)))
+
+(defun my-byte-compile-dest-file (filename)
+  "Convert an Emacs Lisp source file name to compiled file name.
+The returned file name will be in an emacs-version-specific
+subdirectory of `user-emacs-directory'.  This is to allow
+different versions of Emacs to share Lisp source directories
+while having separately byte-compiled files.
+
+The FILENAME is passed to `byte-compile-dest-file' so that
+version numbers and other things are handle as expected.  The
+subdirectory is computed by `byte-compile-target-directory' and
+will be created by this function."
+
+  ;; Make sure filename is not relative
+  (setq filename (expand-file-name filename))
+
+  (let* ((byte-compile-dest-file-function) ; Don't recurse back here.
+	 (elc (byte-compile-dest-file filename))
+	 (target-directory
+	  (byte-compile-target-directory (file-name-directory filename))))
+
+    (make-directory target-directory t)
+    (concat target-directory (file-name-nondirectory elc))))
+
+(setq byte-compile-dest-file-function 'my-byte-compile-dest-file)
+
 (defun add-to-load-path (path &optional dir)
   "If PATH exists add it to `load-path'.
-DIR defaults to `user-emacs-directory`."
+DIR defaults to `user-emacs-directory`.  The corresponding
+compilation directory is also added to the path.  It is computed
+by `byte-compile-target-directory'."
   (when path
     (let ((full-path (expand-file-name path (or dir user-emacs-directory))))
-      (if (file-exists-p full-path)
-	  (add-to-list 'load-path full-path)))))
+      (when (file-exists-p full-path)
+	  (add-to-list 'load-path full-path)
+	  (add-to-list 'load-path (byte-compile-target-directory full-path))))))
 
 ;; Add top-level lisp directories, in case they were not setup by the
 ;; environment, but avoid including user-emacs-directory.
