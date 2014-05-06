@@ -1143,6 +1143,7 @@ This gets started by python mode."
 
 ;;; vc
 (use-package vc
+  :bind ("C-x v P" . vc-pull)
   :config
   (let ((p4-bin (or (executable-find "p4")
 		    (executable-find "/Applications/p4vc"))))
