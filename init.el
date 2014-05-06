@@ -67,7 +67,8 @@
 ;;; Configuration files
 ;;
 ;; MySQL configuration files are named *.cnf.
-(setq auto-mode-alist (cons '("\\.cnf" . conf-mode) auto-mode-alist))
+(use-package conf-mode
+  :mode ("\\.cnf" . conf-mode))
 
 ;;; Minibuffer
 (ido-mode 1)
@@ -842,19 +843,17 @@ and the basename of the executable.")
 (load (expand-file-name "~/quicklisp/clhs-use-local.el") t)
 
 ;;; Markdown
-(autoload 'markdown-mode "markdown-mode"
-  "Major mode for editing Markdown files" t)
-(setq auto-mode-alist
-	  (cons '("\\.markdown" . markdown-mode)
-		(cons '("\\.md" . markdown-mode)
-		  (cons '("\\.mdwn" . markdown-mode) auto-mode-alist))))
-(when (and (not (executable-find "markdown"))
-	   (executable-find "markdown_py"))
-  (setq markdown-command "markdown_py"))
-(add-hook 'markdown-mode-hook
+(use-package markdown-mode
+  :mode (("\\.markdown" . markdown-mode)
+	 ("\\.md" . markdown-mode)
+	 ("\\.mdwn" . markdown-mode))
+  :init (add-hook 'markdown-mode-hook
 	  (lambda ()
 	    (flyspell-mode 1)
 	    (auto-fill-mode 1)))
+  :config (when (and (not (executable-find "markdown"))
+		     (executable-find "markdown_py"))
+	    (setq markdown-command "markdown_py")))
 
 ;;; Maxima
 (add-to-list 'load-path "/usr/local/share/maxima/5.25.1/emacs/")
@@ -1024,9 +1023,8 @@ This gets started by python mode."
 (setq revert-without-query '("\.xml$"))
 
 ;;; RPM spec files
-(autoload 'rpm-spec-mode "rpm-spec-mode.el" "RPM spec mode." t)
-(setq auto-mode-alist (append '(("\\.spec" . rpm-spec-mode))
-				  auto-mode-alist))
+(use-package rpm-spec-mode
+  :mode (("\\.spec" . rpm-spec-mode)))
 
 ;;; Skeletons -- text templates
 (define-skeleton author
