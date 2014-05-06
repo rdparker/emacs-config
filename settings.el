@@ -72,6 +72,7 @@
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(flymake-errline ((t (:underline "Firebrick4"))))
  '(flymake-warnline ((t (:underline "DarkBlue"))))
+ '(magit-log-head-label-tags ((t (:background "LemonChiffon1" :foreground "goldenrod3" :box 1))))
  '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "DejaVu Serif"))))
  '(mumamo-background-chunk-major ((t (:background "#00213f"))))
  '(mumamo-background-chunk-submode1 ((t (:background "#003c1d"))))
