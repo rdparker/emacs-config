@@ -62,11 +62,12 @@
  '(session-save-file "~/.emacs.d/data/session")
  '(warning-suppress-types (quote ((flymake)))))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 90 :width normal :foundry "bitstream" :family "Source Code Pro"))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "Source Code Pro"))))
+ '(bold ((t (:weight normal))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(flymake-errline ((t (:underline "Firebrick4"))))
