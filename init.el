@@ -639,7 +639,7 @@ expands it. Else calls `smart-indent'."
 
 ;;; hide-ifdef
 (use-package hideif
-  :commands 'hide-ifdef-mode
+  :commands hide-ifdef-mode
   :init (add-hook 'c-mode-hook
 		  '(lambda ()
 		     (hide-ifdef-mode 1))))
@@ -812,7 +812,7 @@ and the basename of the executable.")
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (use-package c-eldoc
-  :commands 'c-turn-on-eldoc-mode
+  :commands c-turn-on-eldoc-mode
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
 
 ;; CLHS info file
@@ -1094,22 +1094,22 @@ This gets started by python mode."
 ;;
 ;; JavaScript, CSS, HTML REPL
 (use-package skewer-mode
-  :command 'skewer-mode
+  :commands skewer-mode
   :config
   (progn
     (add-hook 'js-mode-hook 'skewer-mode)))
 (use-package skewer-css
-  :command 'skewer-css-mode
+  :commands skewer-css-mode
   :config
   (progn
     (add-hook 'css-mode-hook 'skewer-css-mode)))
 (use-package skewer-html
-  :command 'skewer-html-mode
+  :commands skewer-html-mode
   :config
   (progn
     (add-hook 'html-mode-hook 'skewer-html-mode)))
 (use-package skewer-repl
-  :command '(skewer-repl skewer-repl--response-hook)
+  :commands (skewer-repl skewer-repl--response-hook)
   :config
   (progn
     (add-hook 'skewer-response-hook #'skewer-repl--response-hook)
