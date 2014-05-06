@@ -71,8 +71,6 @@
   :mode ("\\.cnf" . conf-mode))
 
 ;;; Minibuffer
-(ido-mode 1)
-(setq ido-use-virtual-buffers t)
 (setq enable-recursive-minibuffers t)
 
 ;; ibuffer
@@ -648,6 +646,14 @@ expands it. Else calls `smart-indent'."
 		  '(lambda ()
 		     (hide-ifdef-mode 1))))
 
+;;; ido
+(use-package ido
+  :init (ido-mode 1)
+  :config
+  (setq ido-use-virtual-buffers t
+	ido-save-directory-list-file (expand-file-name ".ido.last"
+						       user-data-directory)))
+
 ;;; Java
 (my-require 'jde-autoload)
 
@@ -1022,6 +1028,12 @@ This gets started by python mode."
 	     quilt-remove
 	     quilt-edit-series
 	     quilt-mode)) 
+
+;;; recentf
+(use-package recentf
+  :config
+  (setq recentf-save-file
+	(expand-file-name ".recentf" user-data-directory)))
 
 ;;; revert
 (setq revert-without-query '("\.xml$"))
