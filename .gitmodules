@@ -43,3 +43,6 @@
 [submodule "site-lisp/p4"]
 	path = site-lisp/p4
 	url = https://github.com/gareth-rees/p4.el.git
+[submodule "site-lisp/quilt"]
+	path = site-lisp/quilt
+	url = https://github.com/jaalto/emacs-epackage--quilt.git

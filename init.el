@@ -989,6 +989,30 @@ This gets started by python mode."
 (setq org-todo-keywords
 	  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
 
+;;; Quilt
+(use-package quilt
+  :commands (quilt-top
+	     quilt-find-file
+	     quilt-files
+	     quilt-diff
+	     quilt-push
+	     quilt-pop
+	     quilt-push-all
+	     quilt-pop-all
+	     quilt-goto
+	     quilt-applied
+	     quilt-new
+	     quilt-diff
+	     quilt-import
+	     quilt-add
+	     quilt-edit-patch
+	     quilt-patches
+	     quilt-unapplied
+	     quilt-refresh
+	     quilt-remove
+	     quilt-edit-series
+	     quilt-mode)) 
+
 ;;; revert
 (setq revert-without-query '("\.xml$"))
 
