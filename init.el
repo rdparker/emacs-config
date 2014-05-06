@@ -636,6 +636,13 @@ expands it. Else calls `smart-indent'."
      (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
      (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
 
+;;; hide-ifdef
+(use-package hideif
+  :commands 'hide-ifdef-mode
+  :init (add-hook 'c-mode-hook
+		  '(lambda ()
+		     (hide-ifdef-mode 1))))
+
 ;;; Java
 (my-require 'jde-autoload)
 
