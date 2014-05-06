@@ -1027,7 +1027,8 @@ This gets started by python mode."
 	     quilt-refresh
 	     quilt-remove
 	     quilt-edit-series
-	     quilt-mode)) 
+	     quilt-mode))
+
 
 ;;; recentf
 (use-package recentf
