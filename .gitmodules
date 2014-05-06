@@ -46,3 +46,6 @@
 [submodule "site-lisp/quilt"]
 	path = site-lisp/quilt
 	url = https://github.com/jaalto/emacs-epackage--quilt.git
+[submodule "site-lisp/applescript-mode"]
+	path = site-lisp/applescript-mode
+	url = git@github.com:rdparker/applescript-mode.git

@@ -129,6 +129,10 @@
 		(ibuffer-switch-to-saved-filter-groups "default")
 		(ibuffer-add-to-tmp-hide "^TAGS.*$")))
 
+;;; , applescript
+(use-package applescript-mode
+  :mode ("\\.scpt\\'" . applescript-mode))
+
 ;;; auto-complete
 (use-package auto-complete-config
   :init
