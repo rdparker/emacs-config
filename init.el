@@ -1142,8 +1142,13 @@ This gets started by python mode."
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 ;;; vc
-(eval-after-load "vc"
-  '(add-to-list 'vc-handled-backends 'P4 'append))
+(use-package vc
+  :config
+  (let ((p4-bin (or (executable-find "p4")
+		    (executable-find "/Applications/p4vc"))))
+    (when p4-bin
+      (setq p4-lowlevel-p4-program p4-bin)
+      (add-to-list 'vc-handled-backends 'P4 'append))))
 
 ;; I had horrid performance problems with my system trying to use vc
 ;; over TRAMP.  Also, ISTR that sometimes it would attempt to use
