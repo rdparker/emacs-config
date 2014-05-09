@@ -60,7 +60,8 @@
  '(session-locals-include (quote (buffer-display-time session-locals-include truncate-lines case-fold-search case-replace fill-column overwrite-mode change-log-default-name line-number-mode column-number-mode size-indication-mode buffer-file-coding-system indent-tabs-mode tab-width indicate-buffer-boundaries indicate-empty-lines show-trailing-whitespace)))
  '(session-registers (quote (t (0 . 127))))
  '(session-save-file "~/.emacs.d/data/session")
- '(warning-suppress-types (quote ((flymake)))))
+ '(warning-suppress-types (quote ((flymake))))
+ '(word-wrap t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
