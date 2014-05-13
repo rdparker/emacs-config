@@ -1155,7 +1155,7 @@ This gets started by python mode."
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 ;;; vc
-(use-package vc
+(use-package vc-hooks 			; the always-resident portion of vc
   :bind ("C-x v P" . vc-pull)
   :config
   (let ((p4-bin (or (executable-find "p4")
