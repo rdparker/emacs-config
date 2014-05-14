@@ -1303,7 +1303,23 @@ This gets started by python mode."
         (defvar emacs-min-width 80))
 
     (defvar emacs-min-top 22)
-    (defvar emacs-min-left (- (x-display-pixel-width) 918))
+    (defvar emacs-min-left
+      ;; XQuartz on Mac OS X Mavericks has a problem.  It reports a
+      ;; single screen even when there is more than one monitor (which
+      ;; may be Xinerama), but if a window is positioned to show up on
+      ;; the second monitor it is instead displayed off screen.  This
+      ;; is somehow tied in with the seperate Spaces feature of
+      ;; Mavericks.  So in this case place instead of trying to place
+      ;; the window near the right margin, just place it in a little
+      ;; from the left.  On all other systems place it near the right
+      ;; of the monitor.
+      (if (and (eq window-system 'x)
+	       (eq system-type 'darwin)
+	       (> (/ (x-display-pixel-width)
+		     (x-display-pixel-height))
+		  2))
+	  100
+	(- (x-display-pixel-width) 918)))
     (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 55 64))
     (defvar emacs-min-width 100)))
 
