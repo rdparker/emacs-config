@@ -15,10 +15,10 @@
 	url = https://github.com/smihica/emmet-mode.git
 [submodule "override/org-mode"]
 	path = override/org-mode
-	url = git://orgmode.org/org-mode.git
+	url = https://github.com/rdparker/org-mode.git
 [submodule "site-lisp/paredit"]
 	path = site-lisp/paredit
-	url = http://mumble.net/~campbell/git/paredit.git/
+	url = https://github.com/rdparker/paredit.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/capitaomorte/yasnippet.git
@@ -48,7 +48,7 @@
 	url = https://github.com/jaalto/emacs-epackage--quilt.git
 [submodule "site-lisp/applescript-mode"]
 	path = site-lisp/applescript-mode
-	url = git@github.com:rdparker/applescript-mode.git
+	url = https://github.com/rdparker/applescript-mode.git
 [submodule "site-lisp/markdown"]
 	path = site-lisp/markdown
-	url = git://jblevins.org/git/markdown-mode.git
+	url = https://github.com/rdparker/markdown-mode.git
