@@ -1013,6 +1013,7 @@ This gets started by python mode."
 ;;; Quilt
 (use-package quilt
   :commands (quilt-top
+	     quilt-find-dir
 	     quilt-find-file
 	     quilt-files
 	     quilt-diff
@@ -1032,7 +1033,9 @@ This gets started by python mode."
 	     quilt-refresh
 	     quilt-remove
 	     quilt-edit-series
-	     quilt-mode))
+	     quilt-mode)
+  :config (add-hooks '(prog-mode-hook makefile-mode-hook)
+		     'quilt-hook))
 
 
 ;;; recentf
