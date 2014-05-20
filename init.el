@@ -1362,3 +1362,10 @@ This gets started by python mode."
                  (message "Loading %s...done (%.3fs) [after-init]"
                           ,load-file-name elapsed)))
             t))
+
+;; Because I use different keyboards sometimes the Command/Windows key
+;; is where I expect Meta to be, and sometimes Option/Alt is there.
+;; So, map both to Meta.
+(when (eq system-type 'darwin)
+  (setq x-meta-keysym 'meta)
+  (setq x-alt-keysym 'meta))
