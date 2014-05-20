@@ -81,6 +81,38 @@
  '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
  '(whitespace-line ((t (:background "gray20")))))
 
+
+(defun fix-face-size (&optional face size)
+  "Adjust the FACE's font size to SIZE.
+
+If they are not not specified FACE will be the default font and
+SIZE will be 12.
+
+A font's size should be consistent across platforms and
+implementations.  My default font is intended to be 12 point.
+But this has to be specified in `customize-face' using height,
+which is expressed in tenths of a point and appears to be
+resolution dependent.
+
+The customized setting works fine on most systems including
+native Mac OS.  Unfortunately under X11 on Mac OS it is *much*
+larger than expected, being roughly 16 pt.
+
+This function will adjust the height so that the faces font size
+is consistent."
+  (interactive)
+
+  (unless face
+    (setq face 'default))
+  (unless size
+    (setq size 12))
+  (let* ((font (face-attribute face :font))
+	 (face-size (aref (font-info font) 2)))
+    (when (not (= face-size size))
+      (let ((height (face-attribute face :height)))
+	(set-face-attribute face nil :height (/ (* height size)
+						face-size))))))
+
 (defun reload-custom-set-faces (&optional frame)
   "Reloads the `custom-set-faces' block in the `user-init-file'.
 
@@ -99,7 +131,11 @@ by emacsclient."
 		 (not (looking-at "^(custom-set-faces$"))))
 	(forward-sexp)
 	(eval-last-sexp nil)))
-(add-hook 'after-make-frame-functions 'reload-custom-set-faces)
+
+(add-hook 'after-init-hook
+	  '(lambda (&optional frame)
+	     (run-with-idle-timer 0.2 nil 'fix-face-size)))
+
 (put 'narrow-to-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (setq ansi-term-color-vector [unspecified "black" "red3" "green3" "yellow3" "#9bf" "magenta3" "cyan3" "white"])
