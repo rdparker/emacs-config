@@ -995,15 +995,20 @@ This gets started by python mode."
 ;; 	       (compilation-fake-loc orig-start f))))))))
 
 ;;; Org-mode
-(unless (require 'org-loaddefs nil t)
-  (shell-command (concat "cd " (expand-file-name "override/org-mode/"
-						 user-emacs-directory) ";"
-			 "make")
-		 (generate-new-buffer "*Org-Compile-Log*"))
-  (use-package org-loaddefs))
-
-(setq org-todo-keywords
-	  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+(use-package org
+  :commands org-agenda-list
+  :bind (("M-C"   . jump-to-org-agenda)
+	 ("M-m"   . org-smart-capture)
+	 ("M-M"   . org-inline-note)
+	 ("C-c a" . org-agenda)
+	 ("C-c S" . org-store-link)
+	 ("C-c l" . org-insert-link))
+  :config
+  (setq org-default-notes-file (expand-file-name "Notes.org"
+						 "~/Documents/Org/"))
+  (setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
+  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+  :init (require 'org-agenda))
 
 ;;; Quilt
 (use-package quilt
