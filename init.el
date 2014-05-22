@@ -1184,11 +1184,25 @@ This gets started by python mode."
 	ad-do-it))
 
 ;;; whitespace
-(setq whitespace-style '(empty face indentation space-before-tab
-			 newline lines-tail trailing))
-(global-whitespace-mode 0)
-(setq-default indicate-empty-lines t
-		  show-trailing-whitespace t)
+(use-package whitespace
+  :init
+  (setq whitespace-style '(empty face indentation space-before-tab
+				 newline lines-tail trailing))
+  :config
+  ;; These are not part of the whitespace package, they are implemented
+  ;; natively in the C source.
+  (setq-default indicate-empty-lines t
+		show-trailing-whitespace t))
+
+(defun show-trailing-whitespace (&optional show)
+  "Set `show-trailing-whitespace' to be SHOW.
+SHOW defaults to nil, off."
+  (interactive)
+  (setq show-trailing-whitespace show))
+
+;; Turn off trailing whitespace for certain modes
+(add-hooks '(Info-mode-hook
+	     shell-mode-hook) 'show-trailing-whitespace)
 
 ;;; window management
 (defun transpose-windows (arg)
