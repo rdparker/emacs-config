@@ -1051,16 +1051,6 @@ This gets started by python mode."
 (use-package rpm-spec-mode
   :mode (("\\.spec" . rpm-spec-mode)))
 
-;;; Skeletons -- text templates
-(define-skeleton author
-  "Insert author attribution at cursor."
-  "Company: "
-  comment-start
-  "Author: " `(user-full-name) " <"
-  `(or user-mail-address
-	   str) ">"
-  comment-end \n)
-
 ;;; Semantic
 ;;(require 'cedet-config)
 
@@ -1114,6 +1104,16 @@ This gets started by python mode."
 
     (if window-system
         (add-hook 'after-init-hook 'session-initialize t))))
+
+;;; Skeletons -- text templates
+(define-skeleton author
+  "Insert author attribution at cursor."
+  "Company: "
+  comment-start
+  "Author: " `(user-full-name) " <"
+  `(or user-mail-address
+	   str) ">"
+  comment-end \n)
 
 ;;; skewer-mode
 ;;
