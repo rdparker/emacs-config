@@ -97,7 +97,7 @@ This may hang if circular symlinks are encountered."
 	  nil)))
 
 (defun toggle-trailing-whitespace ()
-  "Toggle the state of `show-trailing-whitespace` in the current buffer."
+  "Toggle the state of `show-trailing-whitespace' in the current buffer."
   (interactive)
   (setq show-trailing-whitespace (not show-trailing-whitespace)))
 
