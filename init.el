@@ -647,12 +647,24 @@ expands it. Else calls `smart-indent'."
 		     (hide-ifdef-mode 1))))
 
 ;;; ido
+;;
+;; TODO: Test this suggestion:
+;;
+;; <forcer> Also, (setq ido-auto-merge-work-directories-length -1) to
+;; 	 preserve sanity
 (use-package ido
-  :init (ido-mode 1)
+  :init
+  (progn
+    (use-package flx-ido
+      :commands flx-ido-mode)
+
+    (ido-mode 1)
+    (flx-ido-mode 1))
   :config
-  (setq ido-use-virtual-buffers t
-	ido-save-directory-list-file (expand-file-name ".ido.last"
-						       user-data-directory)))
+  (progn
+    (setq ido-use-virtual-buffers t
+	  ido-save-directory-list-file (expand-file-name ".ido.last"
+							 user-data-directory))))
 
 ;;; Java
 (my-require 'jde-autoload)

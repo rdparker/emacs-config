@@ -52,3 +52,6 @@
 [submodule "site-lisp/markdown"]
 	path = site-lisp/markdown
 	url = https://github.com/rdparker/markdown-mode.git
+[submodule "site-lisp/flx"]
+	path = site-lisp/flx
+	url = https://github.com/lewang/flx.git
