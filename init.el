@@ -664,7 +664,28 @@ expands it. Else calls `smart-indent'."
   (progn
     (setq ido-use-virtual-buffers t
 	  ido-save-directory-list-file (expand-file-name ".ido.last"
-							 user-data-directory))))
+							 user-data-directory))
+
+    (defun ido-switch-buffer-tiny-frame (buffer)
+      "Display BUFFER in a separate tiny frame.
+
+This originally came from John Wiegley's dot-emacs configuration,
+cf. https://github.com/jwiegley/dot-emacs."
+      (interactive (list (ido-read-buffer "Buffer: " nil t)))
+      (with-selected-frame
+          (make-frame '((width                . 80)
+                        (height               . 22)
+                        (left-fringe          . 0)
+                        (right-fringe         . 0)
+                        (vertical-scroll-bars . nil)
+                        (unsplittable         . t)
+                        (has-modeline-p       . nil)
+                        ;;(background-color     . "grey80")
+                        (minibuffer           . nil)))
+        (switch-to-buffer buffer)
+        (set (make-local-variable 'mode-line-format) nil)))
+
+    (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)))
 
 ;;; Java
 (my-require 'jde-autoload)
