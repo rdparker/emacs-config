@@ -1218,6 +1218,9 @@ SHOW defaults to nil, off."
        (setq arg (if (plusp arg) (1- arg) (1+ arg))))))
 (global-set-key (kbd "C-x 4 t")	'transpose-windows)
 
+;;; winner
+(winner-mode 1)
+
 ;;; nxml
 (eval-after-load "nxml-mode"
 
