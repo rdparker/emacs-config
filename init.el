@@ -934,6 +934,17 @@ and the basename of the executable.")
 
     (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
 
+;;; Projectile
+(use-package projectile
+  :init
+  (projectile-global-mode)
+  :config
+  (progn
+    (setq projectile-known-projects-file
+	  (expand-file-name "projectile-bookmarks.eld" user-data-directory))
+    (setq projectile-cache-file
+	  (expand-file-name "projectile.cache" user-data-directory))))
+
 ;;; Python
 
 (defadvice run-python

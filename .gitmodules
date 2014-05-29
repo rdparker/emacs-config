@@ -52,6 +52,21 @@
 [submodule "site-lisp/markdown"]
 	path = site-lisp/markdown
 	url = https://github.com/rdparker/markdown-mode.git
+[submodule "site-lisp/projectile"]
+	path = site-lisp/projectile
+	url = https://github.com/bbatsov/projectile.git
 [submodule "site-lisp/flx"]
 	path = site-lisp/flx
 	url = https://github.com/lewang/flx.git
+[submodule "site-lisp/s-el"]
+	path = site-lisp/s-el
+	url = https://github.com/magnars/s.el.git
+[submodule "site-lisp/dash"]
+	path = site-lisp/dash
+	url = https://github.com/magnars/dash.el
+[submodule "site-lisp/pkg-info"]
+	path = site-lisp/pkg-info
+	url = https://github.com/lunaryorn/pkg-info.el.git
+[submodule "site-lisp/epl"]
+	path = site-lisp/epl
+	url = https://github.com/cask/epl.git

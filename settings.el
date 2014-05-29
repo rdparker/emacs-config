@@ -53,6 +53,7 @@
  '(org-babel-load-languages (quote ((emacs-lisp . t) (dot . t) (plantuml . t))))
  '(org-export-backends (quote (ascii html icalendar latex odt)))
  '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
+ '(projectile-mode-line-lighter "P")
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values (quote ((lexical-binding . t) (cc-basic-offset . 4) (default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
