@@ -935,6 +935,10 @@ and the basename of the executable.")
     (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
 
 ;;; Projectile
+;;
+;; TODO: Finish reading projectile's README and augment this
+;; configuration.
+;;
 (use-package projectile
   :init
   (projectile-global-mode)
