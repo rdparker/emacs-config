@@ -147,8 +147,14 @@
 	    (expand-file-name "js-mode" custom-ac-dict-dir)))
       (unless (file-directory-p custom-ac-dict-dir)
 	(mkdir custom-ac-dict-dir t))
-      (unless (file-symlink-p js-dict)
-	(make-symbolic-link javascript-dict js-dict))
+      (unless (file-exists-p js-dict)
+	;; Windows may not support links, try a symbolic link, then a
+	;; hard link, and finally just make a copy.
+	(condition-case nil
+	    (make-symbolic-link javascript-dict js-dict)
+	  (error (condition-case nil
+		     (add-name-to-file javascript-dict js-dict)
+		   (error (copy-file javascript-dict js-dict))))))
 
       ;; Setup the dictionary directories
       (add-to-list 'ac-dictionary-directories standard-ac-dict-dir)
