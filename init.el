@@ -1262,10 +1262,24 @@ SHOW defaults to nil, off."
 ;;; window management
 ;;
 (use-package windmove
-  :bind (("S-<left>"	. windmove-left)
-	 ("S-<right>"	. windmove-right)
-	 ("S-<up>"	. windmove-up)
-	 ("S-<down>"	. windmove-down)))
+  :bind (("M-<left>"	. windmove-left)
+	 ("M-<right>"	. windmove-right)
+	 ("M-<up>"	. windmove-up)
+	 ("M-<down>"	. windmove-down)))
+
+(use-package winner
+  ;; Use custom bindings to avoid interferring with the standard
+  ;; word-left, word-right, and paredit bindings.
+  :bind (("M-S-<left>"  . winner-undo)
+	 ("M-S-<right>" . winner-redo))
+  :init
+  (progn
+    (setq winner-dont-bind-my-keys t)
+    (winner-mode 1)))
+
+(use-package window-numbering
+  :config
+  (window-numbering-mode))
 
 (defun transpose-windows (arg)
    "Transpose the buffers shown in two windows."
@@ -1279,9 +1293,6 @@ SHOW defaults to nil, off."
          (select-window (funcall selector)))
        (setq arg (if (plusp arg) (1- arg) (1+ arg))))))
 (global-set-key (kbd "C-x 4 t")	'transpose-windows)
-
-;;; winner
-(winner-mode 1)
 
 ;;; nxml
 (eval-after-load "nxml-mode"
