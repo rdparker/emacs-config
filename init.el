@@ -1,3 +1,5 @@
+;;; init.el --- Emacs initialization -*- coding: utf-8 -*-
+;;;
 ;;; NOTES:
 ;;;
 ;;; Possible errors loading this file:
@@ -811,8 +813,42 @@ and the basename of the executable.")
   (enable-paredit-mode)
   (show-paren-mode 1))
 
-;; dim parens
-(my-require 'parenface)
+;; lisp fonts and characters
+(defvar lisp-modes  '(emacs-lisp-mode
+                      inferior-emacs-lisp-mode
+                      ielm-mode
+                      lisp-mode
+                      inferior-lisp-mode
+                      lisp-interaction-mode
+                      slime-repl-mode
+		      scheme-mode
+		      closure-mode
+		      nrepl-mode)
+  "The lisp modes that I want to customize.")
+
+(use-package lisp-mode
+  :init
+  (progn
+    (defface esk-paren-face
+      '((((class color) (background dark))
+         (:foreground "grey50"))
+        (((class color) (background light))
+         (:foreground "grey55")))
+      "Face used to dim parentheses."
+      :group 'starter-kit-faces)
+
+    (mapc (lambda (major-mode)
+	    (font-lock-add-keywords
+	     major-mode
+	     '(
+	       ;; Replace lambda with an actual λ character.
+	       ("(\\(lambda\\)\\>"
+		(0 (ignore
+		    (compose-region (match-beginning 1)
+				    (match-end 1) ?λ))))
+	       ;; Dim parenthesis, brackets, and braces.
+	       ("[]()[{}]" . 'esk-paren-face))))
+	  lisp-modes)))
 
 ;;; TODO Figure out why this block breaks daemonization
 ;;
