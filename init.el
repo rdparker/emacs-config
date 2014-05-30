@@ -940,6 +940,7 @@ and the basename of the executable.")
   (projectile-global-mode)
   :config
   (progn
+    (setq projectile-mode-line-lighter "P")
     (setq projectile-known-projects-file
 	  (expand-file-name "projectile-bookmarks.eld" user-data-directory))
     (setq projectile-cache-file
