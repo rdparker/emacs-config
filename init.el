@@ -1254,6 +1254,13 @@ SHOW defaults to nil, off."
 	     shell-mode-hook) 'show-trailing-whitespace)
 
 ;;; window management
+;;
+(use-package windmove
+  :bind (("S-<left>"	. windmove-left)
+	 ("S-<right>"	. windmove-right)
+	 ("S-<up>"	. windmove-up)
+	 ("S-<down>"	. windmove-down)))
+
 (defun transpose-windows (arg)
    "Transpose the buffers shown in two windows."
    (interactive "p")
