@@ -1293,6 +1293,7 @@ SHOW defaults to nil, off."
 
 ;; Turn off trailing whitespace for certain modes
 (add-hooks '(Info-mode-hook
+	     log-view-mode-hook
 	     shell-mode-hook) 'show-trailing-whitespace)
 
 ;;; window management
