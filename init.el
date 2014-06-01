@@ -750,17 +750,24 @@ cf. https://github.com/jwiegley/dot-emacs."
   :commands lispstick-system-p
   :init
   (when (lispstick-system-p)
-   (run-with-idle-timer .1 nil 'lispstick-initialize)))
+    (run-with-idle-timer .1 nil 'lispstick-initialize)))
 
-(use-package slime
-  :commands slime
-  :config
-  (progn
-    (use-package hyperspec
-      :init
-      (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
-	(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)))
-    (load (expand-file-name "~/quicklisp/slime-helper.el"))))
+`(use-package slime
+   :commands slime
+   ;; Prefer the quicklisp installed version of slime, if present.
+   ;; Otherwise, otherise defer to load-path, which in my case may be
+   ;; updated by `lispstick-initialize'.
+   :load-path
+   ,(progn
+      (load (expand-file-name "~/quicklisp/slime-helper.el") t)
+      (if (fboundp 'quicklisp-slime-helper-slime-directory)
+	  (quicklisp-slime-helper-slime-directory)))
+   :config
+   (progn
+     (use-package hyperspec
+       :init
+       (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
+	 (load (expand-file-name "~/quicklisp/clhs-use-local.el") t)))))
 
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
