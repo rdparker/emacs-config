@@ -73,3 +73,6 @@
 [submodule "site-lisp/web"]
 	path = site-lisp/web
 	url = https://github.com/nicferrier/emacs-web.git
+[submodule "site-lisp/window-numbering"]
+	path = site-lisp/window-numbering
+	url = https://github.com/nschum/window-numbering.el.git
