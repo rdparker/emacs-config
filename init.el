@@ -747,7 +747,10 @@ cf. https://github.com/jwiegley/dot-emacs."
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 (use-package lispstick
-  :commands lispstick-initialize)
+  :commands lispstick-system-p
+  :init
+  (when (lispstick-system-p)
+   (run-with-idle-timer .1 nil 'lispstick-initialize)))
 
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
