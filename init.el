@@ -752,11 +752,18 @@ cf. https://github.com/jwiegley/dot-emacs."
   (when (lispstick-system-p)
    (run-with-idle-timer .1 nil 'lispstick-initialize)))
 
+(use-package slime
+  :commands slime
+  :config
+  (progn
+    (use-package hyperspec
+      :init
+      (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
+	(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)))
+    (load (expand-file-name "~/quicklisp/slime-helper.el"))))
+
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
-
-(my-load (expand-file-name "~/quicklisp/slime-helper.el"))
-(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
@@ -928,9 +935,6 @@ and the basename of the executable.")
 (let ((dpansdir (expand-file-name "~/lib/lisp/cl/dpans2texi")))
   (when (file-directory-p dpansdir)
     (add-to-list 'Info-additional-directory-list dpansdir)))
-
-;; CLHS from quicklisp
-(load (expand-file-name "~/quicklisp/clhs-use-local.el") t)
 
 ;;; Markdown
 (use-package markdown-mode
