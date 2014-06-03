@@ -558,7 +558,6 @@ See also `toggle-frame-maximized'."
 		    (magit-svn-mode 1))))
 
     (require 'magit-topgit)
-    (require 'rebase-mode)
 
     (defvar magit-git-monitor-process nil)
     (make-variable-buffer-local 'magit-git-monitor-process)
