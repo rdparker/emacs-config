@@ -459,6 +459,20 @@ expands it. Else calls `smart-indent'."
     (defvar emmet-mode-keymap (make-sparse-keymap))
     (bind-key "C-c C-c" 'emmet-expand-line emmet-mode-keymap)))
 
+;;; fill
+;; Emacs 24.4's option to not wrap after a single character word.
+(unless (boundp 'fill-single-word-nobreak-p)
+  (defun fill-single-char-nobreak-p ()
+    "Return non-nil if a one-letter word is before point.
+This function is suitable for adding to the hook `fill-nobreak-predicate',
+to prevent the breaking of a line just after a one-letter word,
+which is an error according to some typographical conventions."
+    (save-excursion
+      (skip-chars-backward " \t")
+      (backward-char 2)
+      (looking-at "[[:space:]][[:alpha:]]"))))
+(add-to-list 'fill-nobreak-predicate 'fill-single-word-nobreak-p)
+
 ;;; flymake
 (use-package flymake
   :commands flymake-mode
@@ -1333,7 +1347,8 @@ SHOW defaults to nil, off."
   (setq show-trailing-whitespace show))
 
 ;; Turn off trailing whitespace for certain modes
-(add-hooks '(Info-mode-hook
+(add-hooks '(calendar-mode
+	     Info-mode-hook
 	     log-view-mode-hook
 	     shell-mode-hook) 'show-trailing-whitespace)
 
