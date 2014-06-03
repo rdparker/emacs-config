@@ -800,13 +800,11 @@ cf. https://github.com/jwiegley/dot-emacs."
    ,(progn
       (load (expand-file-name "~/quicklisp/slime-helper.el") t)
       (if (fboundp 'quicklisp-slime-helper-slime-directory)
-	  (quicklisp-slime-helper-slime-directory)))
-   :config
-   (progn
-     (use-package hyperspec
-       :init
-       (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
-	 (load (expand-file-name "~/quicklisp/clhs-use-local.el") t)))))
+   	  (quicklisp-slime-helper-slime-directory))))
+
+;; If there is one, Use the local CLHS.
+(let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
+  (load (expand-file-name "~/quicklisp/clhs-use-local.el") t))
 
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
