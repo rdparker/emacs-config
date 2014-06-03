@@ -465,6 +465,32 @@ expands it. Else calls `smart-indent'."
   :init
   (use-package flymake-cursor))
 
+;;; frame
+(use-package frame
+  :bind ("C-M-S-f" . toggle-frame-fullscreen)
+  :init
+  ;; Add Emacs 24.4's fullscreen toggle to earlier versions.
+  (unless (boundp 'toggle-frame-fullscreen)
+    (defun toggle-frame-fullscreen ()
+      "Toggle fullscreen mode of the selected frame.
+Enable fullscreen mode of the selected frame or disable if it is
+already fullscreen.  Ignore window manager screen decorations.
+When turning on fullscreen mode, remember the previous value of the
+maximization state in the temporary frame parameter `maximized'.
+Restore the maximization state when turning off fullscreen mode.
+See also `toggle-frame-maximized'."
+      (interactive)
+      (modify-frame-parameters
+       nil
+       `((maximized
+	  . ,(unless (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
+	       (frame-parameter nil 'fullscreen)))
+	 (fullscreen
+	  . ,(if (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
+		 (if (eq (frame-parameter nil 'maximized) 'maximized)
+		     'maximized)
+	       'fullscreen)))))))
+
 ;;; git
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
