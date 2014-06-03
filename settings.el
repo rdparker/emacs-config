@@ -72,6 +72,7 @@
  '(bold ((t (:weight normal))))
  '(cursor ((t (:background "white" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
+ '(erc-notice-face ((t (:foreground "SlateBlue" :weight normal :height 0.5))))
  '(flymake-errline ((t (:underline "Firebrick4"))))
  '(flymake-warnline ((t (:underline "DarkBlue"))))
  '(magit-log-head-label-tags ((t (:background "LemonChiffon1" :foreground "goldenrod3" :box 1))))
