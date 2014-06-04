@@ -85,8 +85,8 @@
 (setq ibuffer-saved-filter-groups
 	  (quote (("default"
 		   ("dired" (mode . dired-mode))
-		   ("erc" (mode . circe-mode))
-		   ("erc" (mode . erc-mode))
+		   ("erc" (or (mode . circe-mode)
+			      (mode . erc-mode)))
 		   ("planner" (or
 			   (name . "^\\*Calendar\\*$")
 			   (name . "^diary$")
