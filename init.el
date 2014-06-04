@@ -1298,6 +1298,18 @@ This gets started by python mode."
 	  nil
 	ad-do-it))
 
+;;; which-func
+(use-package which-func
+  :config
+  (progn
+    (defun enable-which-function-mode ()
+      "Enable `which-function-mode'.
+This enables the obsolete `which-func-mode' in older Emacs."
+      (if (boundp which-func-mode)
+	  (which-function-mode 1)
+	(which-func-mode 1)))
+    (add-hook 'prog-mode-hook 'enable-which-function-mode)))
+
 ;;; whitespace
 (use-package whitespace
   :init
