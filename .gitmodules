@@ -82,3 +82,6 @@
 [submodule "site-lisp/git-modes"]
 	path = site-lisp/git-modes
 	url = https://github.com/magit/git-modes.git
+[submodule "site-lisp/smart-tab"]
+	path = site-lisp/smart-tab
+	url = https://github.com/haxney/smart-tab.git
