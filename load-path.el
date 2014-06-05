@@ -20,9 +20,13 @@
 
 ;;; Commentary:
 
-;;
+;; Sets up my `load-path' and byte compilation target directories.
 
-;;; load-path.el
+;; NOTE: Because this took so long on a Window's laptop, I tried
+;;       writing a version that cached load-path to a file, but it was
+;;       5-6 times slower than this.
+
+;;; Code:
 
 (defconst user-data-directory
   (expand-file-name "data/" user-emacs-directory)
@@ -31,7 +35,7 @@ For many things this isue used in lieu of `user-emacs-directory`
 to avoid cluttering that directory since I maintain it with git.")
 (defconst user-lisp-directory
   (expand-file-name "lisp/" user-emacs-directory)
-  "Directory where emacs lisp files and packages I've written are kept.")
+  "Directory where Emacs Lisp files and packages I've written are kept.")
 (defconst user-lib-directory
   (expand-file-name "lib/" user-emacs-directory)
   "Directory where third-party generally non-interactive libraries are stored.")
@@ -40,16 +44,16 @@ to avoid cluttering that directory since I maintain it with git.")
   "Directory where third-party packages are maintained.")
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory)
-  "Directory for overriding elisp packages included as part of emacs.
-If I need to customize a package that is part of emacs, this is
+  "Directory for overriding elisp packages included as part of Emacs.
+If I need to customize a package that is part of Emacs, this is
 where I will store them.")
 
 (defun byte-compile-target-directory (directory)
   "Convert an Emacs Lisp source directory name into a compiled directory name.
 The compiled directory name will be in a subdirectory of
-`user-data-directory' based upon `emacs-version' so that
-different versions of Emacs may share source and still have their
-own compiled versions without interfering with each other.
+`user-data-directory' based upon the variable `emacs-version' so
+that different versions of Emacs may share source and still have
+their own compiled versions without interfering with each other.
 
 The subdirectory takes DIRECTORY's path into account so that two
 subdirectories with the same basename name (test for example)
@@ -59,8 +63,8 @@ DIRECTORY.  Then what remains is appended to the
 emacs-version-specific directory.
 
 For example, if `user-emacs-directory' is \"~/.emacs.d\" and
-`user-data-directory' is \"~/.emacs.d/data\" and `emacs-version'
-is 99.7, then calling the function with:
+`user-data-directory' is \"~/.emacs.d/data\" and the variable
+`emacs-version' is 99.7, then calling the function with:
 
     \"~/.emacs.d/package\"
 
@@ -91,10 +95,10 @@ subdirectory of `user-emacs-directory'.  This is to allow
 different versions of Emacs to share Lisp source directories
 while having separately byte-compiled files.
 
-The FILENAME is passed to `byte-compile-dest-file' so that
-version numbers and other things are handle as expected.  The
-subdirectory is computed by `byte-compile-target-directory' and
-will be created by this function."
+The FILENAME is passed to the function `byte-compile-dest-file'
+so that version numbers and other things are handle as expected.
+The subdirectory is computed by `byte-compile-target-directory'
+and will be created by this function."
 
   ;; Make sure filename is not relative
   (setq filename (expand-file-name filename))
