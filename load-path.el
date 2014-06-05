@@ -1,6 +1,6 @@
 ;;; load-path.el --- Configure my load-path
 
-;; Copyright (C) 2013  Ron Parker
+;; Copyright (C) 2013, 2014  Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: local
@@ -20,13 +20,18 @@
 
 ;;; Commentary:
 
-;; Sets up my `load-path' and byte compilation target directories.
+;; This was a failed experiment.
 
-;; NOTE: Because this took so long on a Window's laptop, I tried
-;;       writing a version that cached load-path to a file, but it was
-;;       5-6 times slower than this.
+;; Because load-path.el took so long on a Window's laptop, I tried
+;; writing a version that cached load-path to a file, but it was 5-6
+;; times slower.  This is that version.
 
-;;; Code:
+;;
+
+;;; load-path.el
+
+(eval-when-compile (require 'cl))
+(require 'debug)
 
 (defconst user-data-directory
   (expand-file-name "data/" user-emacs-directory)
@@ -35,7 +40,7 @@ For many things this isue used in lieu of `user-emacs-directory`
 to avoid cluttering that directory since I maintain it with git.")
 (defconst user-lisp-directory
   (expand-file-name "lisp/" user-emacs-directory)
-  "Directory where Emacs Lisp files and packages I've written are kept.")
+  "Directory where emacs lisp files and packages I've written are kept.")
 (defconst user-lib-directory
   (expand-file-name "lib/" user-emacs-directory)
   "Directory where third-party generally non-interactive libraries are stored.")
@@ -44,16 +49,42 @@ to avoid cluttering that directory since I maintain it with git.")
   "Directory where third-party packages are maintained.")
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory)
-  "Directory for overriding elisp packages included as part of Emacs.
-If I need to customize a package that is part of Emacs, this is
+  "Directory for overriding elisp packages included as part of emacs.
+If I need to customize a package that is part of emacs, this is
 where I will store them.")
+
+(defconst load-path-cache-directories
+  (list user-override-directory
+	user-lisp-directory
+	user-lib-directory
+	user-site-lisp-directory)
+  "A list of top-level diretories to search for Emacs lisp files.")
+
+(defconst load-path-cache-file
+  (expand-file-name "load-path.cache" user-data-directory)
+  "File that contains the cache of `load-path'.
+The modification time of this file is compared against the
+directories in `load-path-cache-directories' if any of the
+directories is newer, the cache is invalidated and rebuilt.")
+
+(defun add-to-load-path (path &optional dir)
+  "If PATH exists add it to `load-path'.
+DIR defaults to `user-emacs-directory'.  The corresponding
+compilation directory is also added to the path.  It is computed
+by `byte-compile-target-directory'."
+  (when path
+    (let ((full-path (expand-file-name path (or dir user-emacs-directory))))
+      (when (file-exists-p full-path)
+	(add-to-list 'load-path full-path)
+	(add-to-list 'load-path
+		     (byte-compile-target-directory full-path))))))
 
 (defun byte-compile-target-directory (directory)
   "Convert an Emacs Lisp source directory name into a compiled directory name.
 The compiled directory name will be in a subdirectory of
-`user-data-directory' based upon the variable `emacs-version' so
-that different versions of Emacs may share source and still have
-their own compiled versions without interfering with each other.
+`user-data-directory' based upon `emacs-version' so that
+different versions of Emacs may share source and still have their
+own compiled versions without interfering with each other.
 
 The subdirectory takes DIRECTORY's path into account so that two
 subdirectories with the same basename name (test for example)
@@ -63,8 +94,8 @@ DIRECTORY.  Then what remains is appended to the
 emacs-version-specific directory.
 
 For example, if `user-emacs-directory' is \"~/.emacs.d\" and
-`user-data-directory' is \"~/.emacs.d/data\" and the variable
-`emacs-version' is 99.7, then calling the function with:
+`user-data-directory' is \"~/.emacs.d/data\" and `emacs-version'
+is 99.7, then calling the function with:
 
     \"~/.emacs.d/package\"
 
@@ -88,6 +119,67 @@ will return
 			  (substring directory 1))))
     (concat versioned-directory relative-path)))
 
+;;; If `load-path-cache-file' is newer than every extant directory in
+;;; `load-path-cache-directories', load the cache.  Otherwise build
+;;; `load-path' and write a new cache.
+(if (every #'(lambda (dir)
+	       (or (not (file-exists-p dir))
+		   (file-newer-than-file-p load-path-cache-file dir)))
+	   load-path-cache-directories)
+    (when (file-exists-p load-path-cache-file)
+      (load load-path-cache-file))
+
+  ;;; Flesh out `load-path' and build the cache
+  ;;
+  ;; Add top-level lisp directories, in case they were not setup by the
+  ;; environment, but avoid including user-emacs-directory.
+  (dolist (dir (nreverse
+		(list user-override-directory
+		      user-lisp-directory
+		      user-lib-directory
+		      user-site-lisp-directory)))
+    (when (file-directory-p dir)
+      (dolist (entry (nreverse (directory-files-and-attributes dir)))
+	(let ((directory-p (cadr entry))
+	      (name (car entry)))
+	  (unless (or (null directory-p)
+		      (string= ".." name))
+	    (add-to-load-path (car entry) dir))))))
+
+  (mapc #'add-to-load-path
+	(nreverse
+	 (list
+
+	  "override/org-mode/contrib/lisp/"
+	  "override/org-mode/lisp/"
+
+	  ;; Packages located elsewhere on the system...
+	  "/usr/share/git-core/emacs/"
+	  )))
+
+  ;; Make sure everything in load-path has the form of a directory
+  ;; name, not a file name.
+  (let ((cl-p load-path))
+    (while cl-p
+      (setcar cl-p (file-name-as-directory
+		    (expand-file-name (car cl-p))))
+      (setq cl-p (cdr cl-p))))
+
+  ;; Write the cache file.
+  (with-temp-buffer
+    (emacs-lisp-mode)
+    (insert
+     ";;;; load-path cache\n"
+     ";;;\n"
+     ";;;  This file is automatically created by load-path.el.\n"
+     "(setq load-path\n"
+     "      '(")
+    (dolist (elt load-path)
+      (insert "\n\"" elt "\""))
+    (insert "))")			; close the setq
+    (indent-region (point-min) (point-max) nil)
+    (write-region (point-min) (point-max) load-path-cache-file)))
+
 (defun my-byte-compile-dest-file (filename)
   "Convert an Emacs Lisp source file name to compiled file name.
 The returned file name will be in an emacs-version-specific
@@ -95,10 +187,10 @@ subdirectory of `user-emacs-directory'.  This is to allow
 different versions of Emacs to share Lisp source directories
 while having separately byte-compiled files.
 
-The FILENAME is passed to the function `byte-compile-dest-file'
-so that version numbers and other things are handle as expected.
-The subdirectory is computed by `byte-compile-target-directory'
-and will be created by this function."
+The FILENAME is passed to `byte-compile-dest-file' so that
+version numbers and other things are handle as expected.  The
+subdirectory is computed by `byte-compile-target-directory' and
+will be created by this function."
 
   ;; Make sure filename is not relative
   (setq filename (expand-file-name filename))
@@ -112,51 +204,6 @@ and will be created by this function."
     (concat target-directory (file-name-nondirectory elc))))
 
 (setq byte-compile-dest-file-function 'my-byte-compile-dest-file)
-
-(defun add-to-load-path (path &optional dir)
-  "If PATH exists add it to `load-path'.
-DIR defaults to `user-emacs-directory`.  The corresponding
-compilation directory is also added to the path.  It is computed
-by `byte-compile-target-directory'."
-  (when path
-    (let ((full-path (expand-file-name path (or dir user-emacs-directory))))
-      (when (file-exists-p full-path)
-	  (add-to-list 'load-path full-path)
-	  (add-to-list 'load-path (byte-compile-target-directory full-path))))))
-
-;; Add top-level lisp directories, in case they were not setup by the
-;; environment, but avoid including user-emacs-directory.
-(dolist (dir (nreverse
-              (list user-override-directory
-                    user-lisp-directory
-                    user-lib-directory
-                    user-site-lisp-directory)))
-  (when (file-directory-p dir)
-    (dolist (entry (nreverse (directory-files-and-attributes dir)))
-      (let ((directory-p (cadr entry))
-	    (name (car entry)))
-	(unless (or (null directory-p)
-		    (string= ".." name))
-	  (add-to-load-path (car entry) dir))))))
-
-(mapc #'add-to-load-path
-      (nreverse
-       (list
-
-	"override/org-mode/contrib/lisp/"
-	"override/org-mode/lisp/"
-
-        ;; Packages located elsewhere on the system...
-        "/usr/share/git-core/emacs/"
-        )))
-
-;; Make sure everything in load-path has the form of a directory name,
-;; not a file name.
-(let ((cl-p load-path))
-  (while cl-p
-    (setcar cl-p (file-name-as-directory
-                  (expand-file-name (car cl-p))))
-    (setq cl-p (cdr cl-p))))
 
 (provide 'load-path)
 ;;; load-path.el ends here
