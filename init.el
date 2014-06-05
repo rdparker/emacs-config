@@ -1230,6 +1230,34 @@ This gets started by python mode."
         (add-hook 'after-init-hook 'session-initialize t))))
 
 ;;; Skeletons -- text templates
+
+;; Setup skeleton pair bindings like (), `', "", etc. so that the
+;; matching pairs are automatically inserted.
+(use-package skeleton
+  :init
+  (progn
+    (setq skeleton-pair t)		; enable skeleton pairs
+
+    ;; This almost works.  It will insert the pair and skip over the
+    ;; closing quote, but only if nothing has been inserted
+    ;; in between.
+    ;;
+    ;; (setq skeleton-pair-alist '((?\" _ ?\") (?\")))
+
+    (defun skeleton-pair-add-bindings ()
+      "Bind the skeleton-pair keys.
+Each alist element in `skeleton-pair-alist' and `skeleton-pair-default-alist' is rebound to
+`skeleton-pair-insert-maybe'."
+      (interactive)
+      (dolist (alist (list skeleton-pair-alist skeleton-pair-default-alist))
+	(mapc '(lambda (elt)
+		 (local-set-key (format "%c" (car elt))
+				'skeleton-pair-insert-maybe))
+	      alist)))
+
+    (add-hooks '(text-mode-hook prog-mode-hook)
+	       'skeleton-pair-add-bindings)))
+
 (define-skeleton author
   "Insert author attribution at cursor."
   "Company: "
