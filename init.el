@@ -89,8 +89,8 @@
 (setq ibuffer-saved-filter-groups
 	  (quote (("default"
 		   ("dired" (mode . dired-mode))
-		   ("erc" (mode . circe-mode))
-		   ("erc" (mode . erc-mode))
+		   ("erc" (or (mode . circe-mode)
+			      (mode . erc-mode)))
 		   ("planner" (or
 			   (name . "^\\*Calendar\\*$")
 			   (name . "^diary$")
@@ -383,6 +383,7 @@ it."
 ;; TODO: Possibly replace smart-tab with genehack's fork from github,
 ;; https://github.com/genehack/smart-tab/blob/master/smart-tab.el.
 (use-package smart-tab
+  :diminish smart-tab-mode
   :init (global-smart-tab-mode 1))
 
 ;; Replace yasnippets's TAB
@@ -458,6 +459,15 @@ which is an error according to some typographical conventions."
   :init
   (use-package flymake-cursor))
 
+;;; flyspell
+(use-package flyspell
+  :commands (flyspell-mode flyspell-prog-mode)
+  :diminish (flyspell-mode flyspell-prog-mode)
+  :init
+  (progn
+    (add-hook 'text-mode-hook 'flyspell-mode)
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)))
+
 ;;; frame
 (use-package frame
   :bind ("C-M-S-f" . toggle-frame-fullscreen)
@@ -506,6 +516,7 @@ See also `toggle-frame-maximized'."
 ;;;_ , magit
 
 (use-package magit
+  :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :init
@@ -966,7 +977,6 @@ and the basename of the executable.")
 	 ("\\.mdwn" . markdown-mode))
   :init (add-hook 'markdown-mode-hook
 	  (lambda ()
-	    (flyspell-mode 1)
 	    (auto-fill-mode 1)))
   :config (when (and (not (executable-find "markdown"))
 		     (executable-find "markdown_py"))
@@ -1014,8 +1024,11 @@ and the basename of the executable.")
 ;; configuration.
 ;;
 (use-package projectile
+  :commands (projectile-on
+	     projectile-global-mode
+	     projectile-mode)
   :init
-  (projectile-global-mode)
+  (add-hook 'prog-mode-hook 'projectile-on)
   :config
   (progn
     (setq projectile-mode-line-lighter "P")
@@ -1229,6 +1242,34 @@ This gets started by python mode."
         (add-hook 'after-init-hook 'session-initialize t))))
 
 ;;; Skeletons -- text templates
+
+;; Setup skeleton pair bindings like (), `', "", etc. so that the
+;; matching pairs are automatically inserted.
+(use-package skeleton
+  :init
+  (progn
+    (setq skeleton-pair t)		; enable skeleton pairs
+
+    ;; This almost works.  It will insert the pair and skip over the
+    ;; closing quote, but only if nothing has been inserted
+    ;; in between.
+    ;;
+    ;; (setq skeleton-pair-alist '((?\" _ ?\") (?\")))
+
+    (defun skeleton-pair-add-bindings ()
+      "Bind the skeleton-pair keys.
+Each alist element in `skeleton-pair-alist' and `skeleton-pair-default-alist' is rebound to
+`skeleton-pair-insert-maybe'."
+      (interactive)
+      (dolist (alist (list skeleton-pair-alist skeleton-pair-default-alist))
+	(mapc '(lambda (elt)
+		 (local-set-key (format "%c" (car elt))
+				'skeleton-pair-insert-maybe))
+	      alist)))
+
+    (add-hooks '(text-mode-hook prog-mode-hook)
+	       'skeleton-pair-add-bindings)))
+
 (define-skeleton author
   "Insert author attribution at cursor."
   "Company: "
@@ -1320,26 +1361,15 @@ This enables the obsolete `which-func-mode' in older Emacs."
 
 ;;; whitespace
 (use-package whitespace
+  :diminish whitespace-mode
   :init
-  (setq whitespace-style '(empty face indentation space-before-tab
-				 newline lines-tail trailing))
-  :config
-  ;; These are not part of the whitespace package, they are implemented
-  ;; natively in the C source.
-  (setq-default indicate-empty-lines t
-		show-trailing-whitespace t))
-
-(defun show-trailing-whitespace (&optional show)
-  "Set `show-trailing-whitespace' to be SHOW.
-SHOW defaults to nil, off."
-  (interactive)
-  (setq show-trailing-whitespace show))
-
-;; Turn off trailing whitespace for certain modes
-(add-hooks '(calendar-mode
-	     Info-mode-hook
-	     log-view-mode-hook
-	     shell-mode-hook) 'show-trailing-whitespace)
+  (progn
+    (setq whitespace-style '(empty face indentation space-before-tab
+				   newline lines-tail trailing))
+    (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-mode)
+    ;; This is not part of the whitespace package, they are implemented
+    ;; natively in the C source.
+    (setq-default indicate-empty-lines t)))
 
 ;;; window management
 ;;
@@ -1391,7 +1421,7 @@ SHOW defaults to nil, off."
 
 ;;; yasnippet
 (use-package yasnippet
-  ;; :if (not noninteractive)
+  :if (not noninteractive)		; no reason to load in batch mode
   :diminish yas-minor-mode
   :commands (yas-minor-mode yas-expand)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
@@ -1408,10 +1438,9 @@ SHOW defaults to nil, off."
       (add-to-list 'ac-sources 'ac-source-yasnippet)))
   :config
   (progn
-    (add-to-list 'yas-snippet-dirs
-		 (expand-file-name "snippets/davidmiller" user-emacs-directory)
-		 :append)
-    (yas-reload-all)
+    (let ((dir (expand-file-name "snippets/davidmiller" user-emacs-directory)))
+      (add-to-list 'yas-snippet-dirs dir :append)
+      (yas-load-directory dir t))
 
     (bind-key "<tab>" 'yas-next-field-or-maybe-expand yas-keymap)
 
