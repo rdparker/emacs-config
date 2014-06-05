@@ -1010,8 +1010,11 @@ and the basename of the executable.")
 ;; configuration.
 ;;
 (use-package projectile
+  :commands (projectile-on
+	     projectile-global-mode
+	     projectile-mode)
   :init
-  (projectile-global-mode)
+  (add-hook 'prog-mode-hook 'projectile-on)
   :config
   (progn
     (setq projectile-mode-line-lighter "P")
