@@ -1417,7 +1417,7 @@ This enables the obsolete `which-func-mode' in older Emacs."
 
 ;;; yasnippet
 (use-package yasnippet
-  ;; :if (not noninteractive)
+  :if (not noninteractive)		; no reason to load in batch mode
   :diminish yas-minor-mode
   :commands (yas-minor-mode yas-expand)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
@@ -1434,10 +1434,9 @@ This enables the obsolete `which-func-mode' in older Emacs."
       (add-to-list 'ac-sources 'ac-source-yasnippet)))
   :config
   (progn
-    (add-to-list 'yas-snippet-dirs
-		 (expand-file-name "snippets/davidmiller" user-emacs-directory)
-		 :append)
-    (yas-reload-all)
+    (let ((dir (expand-file-name "snippets/davidmiller" user-emacs-directory)))
+      (add-to-list 'yas-snippet-dirs dir :append)
+      (yas-load-directory dir t))
 
     (bind-key "<tab>" 'yas-next-field-or-maybe-expand yas-keymap)
 
