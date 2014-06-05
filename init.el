@@ -17,6 +17,10 @@
 
 (defconst emacs-start-time (current-time))
 
+(defmacro comment (&rest body)
+  "Comment out everything within BODY."
+  (progn))
+
 (unless noninteractive
   (message "Loading %s..." load-file-name))
 
