@@ -379,6 +379,7 @@ it."
 ;; TODO: Possibly replace smart-tab with genehack's fork from github,
 ;; https://github.com/genehack/smart-tab/blob/master/smart-tab.el.
 (use-package smart-tab
+  :diminish smart-tab-mode
   :init (global-smart-tab-mode 1))
 
 ;; Replace yasnippets's TAB
