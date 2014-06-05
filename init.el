@@ -503,6 +503,7 @@ See also `toggle-frame-maximized'."
 ;;;_ , magit
 
 (use-package magit
+  :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :init
