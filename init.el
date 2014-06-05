@@ -455,6 +455,15 @@ which is an error according to some typographical conventions."
   :init
   (use-package flymake-cursor))
 
+;;; flyspell
+(use-package flyspell
+  :commands (flyspell-mode flyspell-prog-mode)
+  :diminish (flyspell-mode flyspell-prog-mode)
+  :init
+  (progn
+    (add-hook 'text-mode-hook 'flyspell-mode)
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)))
+
 ;;; frame
 (use-package frame
   :bind ("C-M-S-f" . toggle-frame-fullscreen)
@@ -964,7 +973,6 @@ and the basename of the executable.")
 	 ("\\.mdwn" . markdown-mode))
   :init (add-hook 'markdown-mode-hook
 	  (lambda ()
-	    (flyspell-mode 1)
 	    (auto-fill-mode 1)))
   :config (when (and (not (executable-find "markdown"))
 		     (executable-find "markdown_py"))
