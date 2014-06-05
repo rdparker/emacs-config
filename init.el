@@ -1521,22 +1521,23 @@ SHOW defaults to nil, off."
 
 ;;;_. Post initialization
 
-(when window-system
-  (let ((elapsed (float-time (time-subtract (current-time)
-                                            emacs-start-time))))
-    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
-
-  (add-hook 'after-init-hook
-            `(lambda ()
-               (let ((elapsed (float-time (time-subtract (current-time)
-                                                         emacs-start-time))))
-                 (message "Loading %s...done (%.3fs) [after-init]"
-                          ,load-file-name elapsed)))
-            t))
-
 ;; Because I use different keyboards sometimes the Command/Windows key
 ;; is where I expect Meta to be, and sometimes Option/Alt is there.
 ;; So, map both to Meta.
 (when (eq system-type 'darwin)
   (setq x-meta-keysym 'meta)
   (setq x-alt-keysym 'meta))
+
+(when window-system
+  (let ((elapsed (float-time (time-subtract (current-time)
+					    emacs-start-time))))
+    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+  (add-hook 'after-init-hook
+	    `(lambda ()
+	       (let ((elapsed (float-time (time-subtract (current-time)
+							 emacs-start-time))))
+		 (message "Loading %s...done (%.3fs) [after-init]"
+			  ,load-file-name elapsed))
+	       (switch-to-buffer "*Messages*"))
+	    t))
