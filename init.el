@@ -1321,26 +1321,15 @@ This enables the obsolete `which-func-mode' in older Emacs."
 
 ;;; whitespace
 (use-package whitespace
+  :diminish whitespace-mode
   :init
-  (setq whitespace-style '(empty face indentation space-before-tab
-				 newline lines-tail trailing))
-  :config
-  ;; These are not part of the whitespace package, they are implemented
-  ;; natively in the C source.
-  (setq-default indicate-empty-lines t
-		show-trailing-whitespace t))
-
-(defun show-trailing-whitespace (&optional show)
-  "Set `show-trailing-whitespace' to be SHOW.
-SHOW defaults to nil, off."
-  (interactive)
-  (setq show-trailing-whitespace show))
-
-;; Turn off trailing whitespace for certain modes
-(add-hooks '(calendar-mode
-	     Info-mode-hook
-	     log-view-mode-hook
-	     shell-mode-hook) 'show-trailing-whitespace)
+  (progn
+    (setq whitespace-style '(empty face indentation space-before-tab
+				   newline lines-tail trailing))
+    (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-mode)
+    ;; This is not part of the whitespace package, they are implemented
+    ;; natively in the C source.
+    (setq-default indicate-empty-lines t)))
 
 ;;; window management
 ;;
