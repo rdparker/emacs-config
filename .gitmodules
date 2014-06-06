@@ -88,3 +88,6 @@
 [submodule "site-lisp/el-autoyas"]
 	path = site-lisp/el-autoyas
 	url = https://github.com/mlf176f2/el-autoyas.el.git
+[submodule "site-lisp/popup"]
+	path = site-lisp/popup
+	url = git://github.com/auto-complete/popup-el.git
