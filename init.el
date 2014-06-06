@@ -198,7 +198,9 @@
 
 ;;; autoinsert
 (use-package autoinsert
-  :init (add-hook 'find-file-hook 'auto-insert))
+  :init (add-hook 'find-file-hook 'auto-insert)
+  :config (setq auto-insert-directory
+		(expand-file-name "insert/" user-emacs-directory)))
 
 ;;; bbdb
 (defun my-bbdb-insinuate-mail ()
