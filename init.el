@@ -1440,6 +1440,11 @@ This enables the obsolete `which-func-mode' in older Emacs."
       (add-to-list 'ac-sources 'ac-source-yasnippet)))
   :config
   (progn
+    (use-package el-autoyas
+      :commands el-autoyas-enable
+      :init
+      (add-hook 'emacs-lisp-mode-hook 'el-autoyas-enable))
+
     (let ((dir (expand-file-name "snippets/davidmiller" user-emacs-directory)))
       (add-to-list 'yas-snippet-dirs dir :append)
       (yas-load-directory dir t))
@@ -1453,12 +1458,6 @@ This enables the obsolete `which-func-mode' in older Emacs."
     (bind-key "C-c y v" 'yas-visit-snippet-file)))
 
 (my-require 'yasnippet-bundle-autoloads)
-(autoload 'el-autoyas-enable "el-autoyas")
-(add-hook 'emacs-lisp-mode-hook
-	  (lambda ()
-	    (when (or (fboundp 'el-autoyas)
-		      (my-require 'el-autoyas))
-	      (el-autoyas-enable))))
 
 ;;; keyfreq -- track emacs command usage frequency
 (when (my-require 'keyfreq)
