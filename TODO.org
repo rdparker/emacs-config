@@ -1,0 +1,12 @@
+* TODO Setup auto-insertion templates
+The `autoinsert' package may be effective for this.
+** TODO File head line insertion
+** TODO Copyright insertion
+** TODO Shared license
+I think I'd like to have a shared license than can:
+
+1. Vary by location.
+2. Be inserted into different types of files.
+3. Automatically word wrap.
+** TODO Mode specific inclusion of related headers
+** TODO File tail insertion
