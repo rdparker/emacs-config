@@ -382,8 +382,6 @@ it."
 (define-key read-expression-map [(tab)] 'hippie-expand)
 (define-key read-expression-map [(shift tab)] 'unexpand)
 
-;; TODO: Possibly replace smart-tab with genehack's fork from github,
-;; https://github.com/genehack/smart-tab/blob/master/smart-tab.el.
 (use-package smart-tab
   :diminish smart-tab-mode
   :init (global-smart-tab-mode 1))
