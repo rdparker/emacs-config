@@ -84,7 +84,7 @@
 	url = https://github.com/magit/git-modes.git
 [submodule "site-lisp/smart-tab"]
 	path = site-lisp/smart-tab
-	url = https://github.com/haxney/smart-tab.git
+	url = https://github.com/sroccaserra/smart-tab.git
 [submodule "site-lisp/el-autoyas"]
 	path = site-lisp/el-autoyas
 	url = https://github.com/mlf176f2/el-autoyas.el.git
