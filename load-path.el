@@ -124,13 +124,8 @@ by `byte-compile-target-directory'."
 	  (add-to-list 'load-path full-path)
 	  (add-to-list 'load-path (byte-compile-target-directory full-path))))))
 
-;; Add top-level lisp directories, in case they were not setup by the
-;; environment, but avoid including user-emacs-directory.
-(dolist (dir (nreverse
-              (list user-override-directory
-                    user-lisp-directory
-                    user-lib-directory
-                    user-site-lisp-directory)))
+(defun add-to-load-path-recursively (dir)
+  "Recursively add all subdirectories to `load-path'."
   (when (file-directory-p dir)
     (dolist (entry (nreverse (directory-files-and-attributes dir)))
       (let ((directory-p (cadr entry))
@@ -138,6 +133,15 @@ by `byte-compile-target-directory'."
 	(unless (or (null directory-p)
 		    (string= ".." name))
 	  (add-to-load-path (car entry) dir))))))
+
+;; Add top-level lisp directories, in case they were not setup by the
+;; environment, but avoid including user-emacs-directory.
+(dolist (dir (nreverse
+              (list user-override-directory
+                    user-lisp-directory
+                    user-lib-directory
+                    user-site-lisp-directory)))
+  (add-to-load-path-recursively dir))
 
 (mapc #'add-to-load-path
       (nreverse
