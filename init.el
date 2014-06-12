@@ -1175,6 +1175,19 @@ This gets started by python mode."
   :config (add-hooks '(prog-mode-hook makefile-mode-hook)
 		     'quilt-hook))
 
+;;; package
+(use-package package
+  :init
+  (add-to-load-path-recursively package-user-dir)
+  :config
+  (require 'package))
+
+;;; rainbow-mode -- Colorize string that represent colors.
+(use-package rainbow-mode
+  :commands rainbow-mode
+  :config
+  (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
+	     'rainbow-mode))
 
 ;;; recentf
 (use-package recentf
