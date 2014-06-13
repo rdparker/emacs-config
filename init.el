@@ -55,6 +55,39 @@
   (unless (file-directory-p data-directory)
     (mkdir data-directory)))
 
+;;; ELPA, MELPA, Marmalade, etc. configuration
+;;
+;; Some packages are only conveniently available from a package
+;; repository.  But, not all of my systems have access to them.  So,
+;; the basic directory configuration is setup here and various
+;; packages are conditionally loaded using the `use-repo-package'.
+(setq package-user-dir
+      (expand-file-name (concat "elpa-" emacs-version)
+			user-emacs-directory))
+(add-to-load-path-recursively package-user-dir)
+
+(defmacro use-repo-package (name &rest args)
+  "Conditionally `use-package' a library.
+If the package repository has been initialized on this machine,
+ensure that package NAME is used, possibly pulling it from a
+repository.  Otherwise, the package will not be loaded to prevent
+possible init-time errors."
+  (when (file-directory-p package-user-dir)
+    (require 'package)
+    (unless package--initialized (package-initialize))
+    (unless package-archive-contents (package-refresh-contents))
+
+    `(use-package ,name
+       :ensure t
+       ,@args)))
+
+(put 'use-repo-package 'lisp-indent-function 'defun)
+
+(font-lock-add-keywords 'emacs-lisp-mode
+  '(("(\\(use-repo-package?\\)\\_>[ \t']*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
+     (1 font-lock-keyword-face)
+     (2 font-lock-constant-face nil t))))
+
 ;;; Legacy package configuration
 (require 'grep-config)
 
@@ -1173,15 +1206,8 @@ This gets started by python mode."
   :config (add-hooks '(prog-mode-hook makefile-mode-hook)
 		     'quilt-hook))
 
-;;; package
-(use-package package
-  :init
-  (add-to-load-path-recursively package-user-dir)
-  :config
-  (require 'package))
-
 ;;; rainbow-mode -- Colorize string that represent colors.
-(use-package rainbow-mode
+(use-repo-package rainbow-mode
   :commands rainbow-mode
   :config
   (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
