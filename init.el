@@ -611,6 +611,12 @@ See also `toggle-frame-maximized'."
     ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
     ))
 
+;;; grep
+(use-package grep
+  :config
+  ;; Ignore quilt tracking directories
+  (add-to-list 'grep-find-ignored-directories ".pc"))
+
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
 (when (require 'gtags nil t)
