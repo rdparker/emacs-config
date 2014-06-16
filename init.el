@@ -724,6 +724,20 @@ See also `toggle-frame-maximized'."
 		  '(lambda ()
 		     (hide-ifdef-mode 1))))
 
+;;; highlight-symbol
+(use-package highlight-symbol
+  :diminish t
+  :commands highlight-symbol-mode
+  :bind (("<f5>"     . highlight-symbol-next-in-defun)
+	 ("<S-f5>"   . highlight-symbol-prev-in-defun)
+	 ("<C-f5>"   . highlight-symbol-at-point)
+	 ("<M-f5>"   . highlight-symbol-next)
+	 ("<M-S-f5>" . highlight-symbol-prev)
+	 ("<C-M-f5>" . highlight-symbol-query-replace)
+	 ("<C-S-f5>" . highlight-symbol-occur)
+	 ("<C-M-S-f5>" . highlight-symbol-remove-all))
+  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
+
 ;;; ido
 ;;
 ;; TODO: Test this suggestion:

@@ -47,6 +47,7 @@
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
  '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Liberation Mono" "DejaVu Sans Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
+ '(highlight-symbol-idle-delay 1.0)
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
  '(mac-option-modifier (quote meta))
