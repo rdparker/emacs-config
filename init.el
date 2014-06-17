@@ -1432,6 +1432,12 @@ This enables the obsolete `which-func-mode' in older Emacs."
     ;; natively in the C source.
     (setq-default indicate-empty-lines t)))
 
+;; Automatically cleanup whitespace in files that were initially clean.
+(use-package whitespace-cleanup-mode
+  :diminish whitespace-cleanup-mode
+  :init
+  (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-cleanup-mode))
+
 ;;; window management
 ;;
 (use-package windmove
