@@ -97,3 +97,6 @@
 [submodule "site-lisp/whitespace-cleanup-mode"]
 	path = site-lisp/whitespace-cleanup-mode
 	url = https://github.com/purcell/whitespace-cleanup-mode.git
+[submodule "site-lisp/ws-butler"]
+	path = site-lisp/ws-butler
+	url = https://github.com/lewang/ws-butler.git

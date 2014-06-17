@@ -1438,6 +1438,15 @@ This enables the obsolete `which-func-mode' in older Emacs."
   :init
   (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-cleanup-mode))
 
+;; Automatically cleanup whitespace on lines you edit without moving point
+(use-package ws-butler
+  :diminish ws-butler-mode
+  :init
+  (progn
+    (add-hooks '(prog-mode-hook text-mode-hook) 'ws-butler-mode)
+    (use-package hilit-chg
+      :diminish highlight-changes-mode)))
+
 ;;; window management
 ;;
 (use-package windmove
