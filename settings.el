@@ -56,7 +56,6 @@
  '(highlight-symbol-idle-delay 1.0)
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
- '(mac-option-modifier (quote meta))
  '(org-babel-load-languages (quote ((emacs-lisp . t) (dot . t) (plantuml . t))))
  '(org-export-backends (quote (ascii html icalendar latex odt)))
  '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
