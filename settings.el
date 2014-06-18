@@ -34,19 +34,23 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auto-insert-query t)
- '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
+ '(clean-buffer-list-kill-never-buffer-names
+   (quote
+    ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
  '(custom-enabled-themes (quote (softer-dark)))
  '(custom-safe-themes
    (quote
     ("7571c495358a348780c848ed7b858053d7f588af5c4543c70d9832c4c370e703" default)))
  '(ecb-options-version "2.40")
- '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))))
+ '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))) t)
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
  '(erc-log-mode t)
  '(erc-log-write-after-insert t)
  '(erc-log-write-after-send t)
  '(erc-max-buffer-size 1000000)
- '(erc-modules (quote (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
+ '(erc-modules
+   (quote
+    (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
  '(highlight-symbol-idle-delay 1.0)
@@ -58,10 +62,29 @@
  '(org-plantuml-jar-path "~/bin/plantuml.7983.jar")
  '(projectile-mode-line-lighter "P")
  '(rpm-spec-build-command "rpmbuild")
- '(safe-local-variable-values (quote ((lexical-binding . t) (cc-basic-offset . 4) (default-justification . left) (c-indentation-style . a123) (Syntax . Common-Lisp) (Package . CL-USER) (Syntax . COMMON-LISP) (Base . 10) (Syntax . ANSI-Common-Lisp) (Package . SDRAW) (package . asdf))))
+ '(safe-local-variable-values
+   (quote
+    ((lexical-binding . t)
+     (cc-basic-offset . 4)
+     (default-justification . left)
+     (c-indentation-style . a123)
+     (Syntax . Common-Lisp)
+     (Package . CL-USER)
+     (Syntax . COMMON-LISP)
+     (Base . 10)
+     (Syntax . ANSI-Common-Lisp)
+     (Package . SDRAW)
+     (package . asdf))))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
- '(session-globals-include (quote ((kill-ring 10 nil) (session-file-alist 300 t) (file-name-history 200 nil) search-ring regexp-search-ring sr-history-registry)))
- '(session-locals-include (quote (buffer-display-time session-locals-include truncate-lines case-fold-search case-replace fill-column overwrite-mode change-log-default-name line-number-mode column-number-mode size-indication-mode buffer-file-coding-system indent-tabs-mode tab-width indicate-buffer-boundaries indicate-empty-lines show-trailing-whitespace)))
+ '(session-globals-include
+   (quote
+    ((kill-ring 10 nil)
+     (session-file-alist 300 t)
+     (file-name-history 200 nil)
+     search-ring regexp-search-ring sr-history-registry)))
+ '(session-locals-include
+   (quote
+    (buffer-display-time session-locals-include truncate-lines case-fold-search case-replace fill-column overwrite-mode change-log-default-name line-number-mode column-number-mode size-indication-mode buffer-file-coding-system indent-tabs-mode tab-width indicate-buffer-boundaries indicate-empty-lines show-trailing-whitespace)))
  '(session-registers (quote (t (0 . 127))))
  '(session-save-file "~/.emacs.d/data/session")
  '(warning-suppress-types (quote ((flymake))))
