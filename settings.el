@@ -33,9 +33,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
  '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
+ '(custom-enabled-themes (quote (softer-dark)))
+ '(custom-safe-themes
+   (quote
+    ("7571c495358a348780c848ed7b858053d7f588af5c4543c70d9832c4c370e703" default)))
  '(ecb-options-version "2.40")
  '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
@@ -46,7 +49,6 @@
  '(erc-modules (quote (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
- '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Liberation Mono" "DejaVu Sans Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed"))))
  '(highlight-symbol-idle-delay 1.0)
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
@@ -69,21 +71,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "Source Code Pro"))))
- '(bold ((t (:weight normal))))
- '(cursor ((t (:background "white" :foreground "white"))))
- '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
- '(erc-notice-face ((t (:foreground "SlateBlue" :weight normal :height 0.5))))
- '(flymake-errline ((t (:underline "Firebrick4"))))
- '(flymake-warnline ((t (:underline "DarkBlue"))))
- '(magit-log-head-label-tags ((t (:background "LemonChiffon1" :foreground "goldenrod3" :box 1))))
- '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "DejaVu Serif"))))
- '(mumamo-background-chunk-major ((t (:background "#00213f"))))
- '(mumamo-background-chunk-submode1 ((t (:background "#003c1d"))))
- '(whitespace-empty ((t (:background "#444400" :foreground "firebrick"))))
- '(whitespace-indentation ((t (:background "#444400" :foreground "firebrick"))))
- '(whitespace-line ((t (:background "gray20")))))
-
+ )
 
 (defun fix-face-size (&optional face size)
   "Adjust the FACE's font size to SIZE.
