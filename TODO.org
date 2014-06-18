@@ -10,3 +10,4 @@ I think I'd like to have a shared license than can:
 3. Automatically word wrap.
 ** TODO Mode specific inclusion of related headers
 ** TODO File tail insertion
+* TODO Evaluate smartparens vs paredit
