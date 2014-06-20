@@ -609,6 +609,12 @@ See also `toggle-frame-maximized'."
     ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
     ))
 
+;;; grep
+(use-package grep
+  :config
+  ;; Ignore quilt tracking directories
+  (add-to-list 'grep-find-ignored-directories ".pc"))
+
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
 (when (require 'gtags nil t)
@@ -711,10 +717,25 @@ See also `toggle-frame-maximized'."
 
 ;;; hide-ifdef
 (use-package hideif
+  :diminish hide-ifdef-mode
   :commands hide-ifdef-mode
   :init (add-hook 'c-mode-hook
 		  '(lambda ()
 		     (hide-ifdef-mode 1))))
+
+;;; highlight-symbol
+(use-package highlight-symbol
+  :diminish t
+  :commands highlight-symbol-mode
+  :bind (("<f5>"     . highlight-symbol-next-in-defun)
+	 ("<S-f5>"   . highlight-symbol-prev-in-defun)
+	 ("<C-f5>"   . highlight-symbol-at-point)
+	 ("<M-f5>"   . highlight-symbol-next)
+	 ("<M-S-f5>" . highlight-symbol-prev)
+	 ("<C-M-f5>" . highlight-symbol-query-replace)
+	 ("<C-S-f5>" . highlight-symbol-occur)
+	 ("<C-M-S-f5>" . highlight-symbol-remove-all))
+  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
 
 ;;; ido
 ;;
@@ -1409,6 +1430,21 @@ This enables the obsolete `which-func-mode' in older Emacs."
     ;; This is not part of the whitespace package, they are implemented
     ;; natively in the C source.
     (setq-default indicate-empty-lines t)))
+
+;; Automatically cleanup whitespace in files that were initially clean.
+(use-package whitespace-cleanup-mode
+  :diminish whitespace-cleanup-mode
+  :init
+  (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-cleanup-mode))
+
+;; Automatically cleanup whitespace on lines you edit without moving point
+(use-package ws-butler
+  :diminish ws-butler-mode
+  :init
+  (progn
+    (add-hooks '(prog-mode-hook text-mode-hook) 'ws-butler-mode)
+    (use-package hilit-chg
+      :diminish highlight-changes-mode)))
 
 ;;; window management
 ;;

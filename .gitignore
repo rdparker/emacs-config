@@ -6,3 +6,5 @@ data
 non-public
 server
 *.bak
+elpa*/archives
+elpa*/rainbow-mode*/*autoloads.*

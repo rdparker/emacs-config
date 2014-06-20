@@ -28,9 +28,14 @@
 (autoload 'dired-jump "dired-x")
 (autoload 'dired-jump-other-window "dired-x")
 (eval-after-load "dired-x"
-  '(setq dired-omit-files (concat dired-omit-files
-				  "\\|^\\.zfs$\\|\\.\\$EXTEND$"
-				  "\\|_flymake\\.")))
+  '(progn
+     (setq dired-omit-files (concat dired-omit-files
+				    "\\|^\\.zfs$\\|\\.\\$EXTEND$"
+				    "\\|_flymake\\."))
+     (mapc (lambda (ext)
+	     (add-to-list 'dired-omit-extensions ext))
+	   ;; Generated files from the Linux kernel
+	   '(".ko" ".ko.cmd" ".o.d" ".o.cmd" ".mod.c"))))
 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
