@@ -719,6 +719,7 @@ See also `toggle-frame-maximized'."
 
 ;;; hide-ifdef
 (use-package hideif
+  :diminish hide-ifdef-mode
   :commands hide-ifdef-mode
   :init (add-hook 'c-mode-hook
 		  '(lambda ()
