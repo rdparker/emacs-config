@@ -1634,7 +1634,8 @@ This enables the obsolete `which-func-mode' in older Emacs."
 ;; So, map both to Meta.
 (when (eq system-type 'darwin)
   (setq x-meta-keysym 'meta)
-  (setq x-alt-keysym 'meta))
+  (setq x-alt-keysym 'meta)
+  (setq ns-command-modifier 'meta))
 
 (when window-system
   (let ((elapsed (float-time (time-subtract (current-time)
