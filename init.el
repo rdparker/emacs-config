@@ -1438,14 +1438,39 @@ This enables the obsolete `which-func-mode' in older Emacs."
   :init
   (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-cleanup-mode))
 
-;; Automatically cleanup whitespace on lines you edit without moving point
-(use-package ws-butler
-  :diminish ws-butler-mode
-  :init
-  (progn
-    (add-hooks '(prog-mode-hook text-mode-hook) 'ws-butler-mode)
-    (use-package hilit-chg
-      :diminish highlight-changes-mode)))
+;; Automatically cleanup whitespace on lines you edit without moving
+;; point
+(defun use-ws-butler (&optional frame)
+  "Load ws-butler via `use-package' when possible.
+
+Because `ws-butler-mode' requires `highlight-changes-mode' it can
+only be used when a color or greyscale display is active.  If
+emacs is started in daemon-mode, it does not have an appropriate
+type of display.  So, this is added to a couple hooks.  The
+first, `after-make-frame-functions' will retry loading when a new
+frame is created.  The second, `server-visit-hook' will retry when
+emacsclient visits a file in a tty session.
+
+The hooks are removed once ws-butler has been successfully loaded."
+  (if (or (display-color-p)
+	  (condition-case dummy (x-display-grayscale-p) ((error nil))))
+
+      (use-package ws-butler
+	:diminish ws-butler-mode
+	;; This mode require highlight-changes-mode, which in turn only
+	;; works on color or grayscale displays.  Be careful not to choke on
+	;; Emacsen that do not support X.
+	:init
+	(progn
+	  (add-hooks '(prog-mode-hook text-mode-hook) 'ws-butler-mode))
+	:config
+	(progn
+	  (remove-hook 'after-make-frame-functions 'use-ws-butler)
+	  (remove-hook 'server-visit-hook 'use-ws-butler)))
+
+    (add-hook 'after-make-frame-functions 'use-ws-butler)
+    (add-hook 'server-visit-hook 'use-ws-butler)))
+(use-ws-butler)
 
 ;;; window management
 ;;
