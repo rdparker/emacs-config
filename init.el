@@ -281,88 +281,93 @@ configured as a GNOME Startup Application."
 	(save-buffers-kill-emacs)))
 
 ;;; Desktop mode
-(use-package desktop
-  :init
-  (progn
-    (setq desktop-load-locked-desktop (or (daemonp) 'ask))
-    (desktop-save-mode 1)
-    (setq desktop-restore-eager 5
-	  desktop-buffers-not-to-save
-	  (concat "\\("
-		  "^tags\\|^TAGS\\|"
-		  "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
-		  "\\.tar\\|\\.zip$"
-		  "\\)$"))
-    (mapc (lambda (elt)
-	    (add-to-list 'desktop-modes-not-to-save elt))
-	  '(dired-mode Info-mode info-lookup-mode sr-mode))
+(defun use-desktop (&optional frame)
+  (run-with-idle-timer
+   .1 nil
+   (lambda ()
+     (use-package desktop
+       :init
+       (progn
+	 (setq desktop-load-locked-desktop 'ask)
+	 (desktop-save-mode 1)
+	 (setq desktop-restore-eager 5
+	       desktop-buffers-not-to-save
+	       (concat "\\("
+		       "^tags\\|^TAGS\\|"
+		       "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
+		       "\\.tar\\|\\.zip$"
+		       "\\)$"))
+	 (mapc (lambda (elt)
+		 (add-to-list 'desktop-modes-not-to-save elt))
+	       '(dired-mode Info-mode info-lookup-mode sr-mode))
 
-    ;; Save buffer-display-time so midnight works across desktop sessions.
-    (add-to-list 'desktop-locals-to-save 'buffer-display-time)
+	 ;; Save buffer-display-time so midnight works across desktop sessions.
+	 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
-    (defadvice desktop-read (around dont-wait-for-input
-				    (&optional dirname))
-      "Avoid `desktop-read' hanging when Emacs is started as a daemon.
+	 (defadvice desktop-read (around dont-wait-for-input
+					 (&optional dirname))
+	   "Avoid `desktop-read' hanging when Emacs is started as a daemon.
 This includes not prompting when auto-save files or potentially
 unsafe local variables are encountered during startup."
-      (if (not (daemonp))
-	  ad-do-it
-	(let* ((debug-on-error t)
-	       (enable-local-variables :safe)
-	       (orig-sit-for (symbol-function 'sit-for)))
-	  (fset 'sit-for
-		(lambda (seconds &optional nodisp)
-		  nil))
-	  ad-do-it
-	  (fset 'sit-for orig-sit-for)))
-      (ad-unadvise 'desktop-read))
+	   (if (not (daemonp))
+	       ad-do-it
+	     (let* ((debug-on-error window-system)
+		    (enable-local-variables :safe)
+		    (orig-sit-for (symbol-function 'sit-for)))
+	       (fset 'sit-for
+		     (lambda (seconds &optional nodisp)
+		       t))
+	       ad-do-it
+	       (fset 'sit-for orig-sit-for)))
+	   (ad-unadvise 'desktop-read))
 
-    (defadvice desktop-append-buffer-args (after precreate-lazy-buffers
-						 (&rest args))
-      "Create placeholder buffers for later lazy loading.
+	 (defadvice desktop-append-buffer-args (after precreate-lazy-buffers
+						      (&rest args))
+	   "Create placeholder buffers for later lazy loading.
 This allows them to appear in the buffer list before they have
 been loaded by `desktop-lazy-create-buffers'."
-      (save-excursion
-	(let* ((desktop-buffer-file-name (nth 1 args))
-	       (desktop-buffer-name (nth 2 args))
-	       (desktop-buffer-major-mode (nth 3 args)))
-	  (when desktop-lazy-verbose
-	    (message "Precreating lazy desktop buffer %s for %s in mode %s."
-		     desktop-buffer-name desktop-buffer-file-name
-		     desktop-buffer-major-mode))
-	  (set-buffer (create-file-buffer desktop-buffer-file-name))
-	  (unless (string= (buffer-name) desktop-buffer-name)
-	    (rename-buffer desktop-buffer-name t))
-	  (setq major-mode desktop-buffer-major-mode))))
+	   (save-excursion
+	     (let* ((desktop-buffer-file-name (nth 1 args))
+		    (desktop-buffer-name (nth 2 args))
+		    (desktop-buffer-major-mode (nth 3 args)))
+	       (when desktop-lazy-verbose
+		 (message
+		  "Precreating lazy desktop buffer %s for %s in mode %s."
+			  desktop-buffer-name desktop-buffer-file-name
+			  desktop-buffer-major-mode))
+	       (set-buffer (create-file-buffer desktop-buffer-file-name))
+	       (unless (string= (buffer-name) desktop-buffer-name)
+		 (rename-buffer desktop-buffer-name t))
+	       (setq major-mode desktop-buffer-major-mode))))
 
-    (defadvice desktop-create-buffer (before kill-precreated-buffer
-					     (desktop-file-version
-					      desktop-buffer-file-name
-					      desktop-buffer-name
-					      desktop-buffer-major-mode
-					      desktop-buffer-minor-modes
-					      desktop-buffer-point
-					      desktop-buffer-mark
-					      desktop-buffer-read-only
-					      desktop-buffer-misc
-					      &optional
-					      desktop-buffer-locals))
-      "Kill placeholder buffers before lazy loading them.
+	 (defadvice desktop-create-buffer (before kill-precreated-buffer
+						  (desktop-file-version
+						   desktop-buffer-file-name
+						   desktop-buffer-name
+						   desktop-buffer-major-mode
+						   desktop-buffer-minor-modes
+						   desktop-buffer-point
+						   desktop-buffer-mark
+						   desktop-buffer-read-only
+						   desktop-buffer-misc
+						   &optional
+						   desktop-buffer-locals))
+	   "Kill placeholder buffers before lazy loading them.
 They are created by the advice on `desktop-append-buffer-args',
 so that all desktop files will appear in the buffer list before
 they are loaded."
-      (let ((buf (get-buffer desktop-buffer-name)))
-	(when (and buf desktop-lazy-verbose)
-	  (message "Destroying precreated buffer %s for %s in mode %s."
-		   desktop-buffer-name
-		   desktop-buffer-file-name
-		   desktop-buffer-major-mode)
-	  (kill-buffer buf))))
+	   (let ((buf (get-buffer desktop-buffer-name)))
+	     (when (and buf desktop-lazy-verbose)
+	       (message "Destroying precreated buffer %s for %s in mode %s."
+			desktop-buffer-name
+			desktop-buffer-file-name
+			desktop-buffer-major-mode)
+	       (kill-buffer buf))))
 
-    (defadvice switch-to-buffer (before handle-pending-lazy-buffer
-					(buffer-or-name
-					 &optional norecord))
-      "Kill placeholder buffers before loading and switching to them.
+	 (defadvice switch-to-buffer (before handle-pending-lazy-buffer
+					     (buffer-or-name
+					      &optional norecord))
+	   "Kill placeholder buffers before loading and switching to them.
 They are created by the advice on `desktop-append-buffer-args',
 so that all desktop files will appear in the buffer list before
 they are loaded.
@@ -375,24 +380,41 @@ its original contents minus this buffer.
 The placeholder buffer will actually be killed by the advice on
 `desktop-create-buffer', when `desktop-lazy-create-buffer' calls
 it."
-      (let* ((buffer-name (if (bufferp buffer-or-name)
-			      (buffer-name buffer-or-name)
-			    buffer-or-name))
-	     (args (find-if (lambda (elt)
-			      (string= (nth 2 elt) buffer-name))
-			    desktop-buffer-args-list)))
-	(when args
-	  (let ((original-desktop-buffer-args-list desktop-buffer-args-list)
-		(desktop-buffer-args-list (list args)))
-	    (desktop-lazy-create-buffer))
+	   (let* ((buffer-name (if (bufferp buffer-or-name)
+				   (buffer-name buffer-or-name)
+				 buffer-or-name))
+		  (args (find-if (lambda (elt)
+				   (string= (nth 2 elt) buffer-name))
+				 desktop-buffer-args-list)))
+	     (when args
+	       (let ((original-desktop-buffer-args-list
+		      desktop-buffer-args-list)
+		     (desktop-buffer-args-list (list args)))
+		 (desktop-lazy-create-buffer))
 
-	  (setq desktop-buffer-args-list
-		(remove args desktop-buffer-args-list)))))
+	       (setq desktop-buffer-args-list
+		     (remove args desktop-buffer-args-list)))))
 
-    (ad-activate 'desktop-read)
-    (ad-activate 'desktop-append-buffer-args)
-    (ad-activate 'desktop-create-buffer)
-    (ad-activate 'switch-to-buffer)))
+	 (ad-activate 'desktop-read)
+	 (ad-activate 'desktop-append-buffer-args)
+	 (ad-activate 'desktop-create-buffer)
+	 (ad-activate 'switch-to-buffer))
+       :config
+       (progn
+	 (remove-hook 'after-make-frame-functions 'use-desktop)
+	 (remove-hook 'server-visit-hook 'use-desktop)
+	 ;; The following is taken from desktop itself
+	 (let ((key "--no-desktop"))
+	   (when (member key command-line-args)
+	     (setq command-line-args (delete key command-line-args))
+	     (setq desktop-save-mode nil)))
+	 (when desktop-save-mode
+	   (desktop-read)))))))
+(if (not (daemonp))
+    (use-desktop)
+  (add-hook 'after-make-frame-functions 'use-desktop)
+  (add-hook 'server-visit-hook 'use-desktop))
+
 
 ;;; Dynamic Expansion (Hippie)
 ;; Just stole all of this from a gist and am testing it.
