@@ -748,7 +748,7 @@ See also `toggle-frame-maximized'."
 
 ;;; highlight-symbol
 (use-package highlight-symbol
-  :diminish t
+  :diminish highlight-symbol-mode
   :commands highlight-symbol-mode
   :bind (("<f5>"     . highlight-symbol-next-in-defun)
 	 ("<S-f5>"   . highlight-symbol-prev-in-defun)
