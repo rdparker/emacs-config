@@ -424,7 +424,8 @@ it."
           (lambda () (define-key yas/minor-mode-map
                        (kbd "TAB") 'smart-tab))) ; was yas/expand
 
-(my-require 'rfringe)
+(when (fboundp 'define-fringe-bitmap)
+  (my-require 'rfringe))
 
 ;;; Development
 
