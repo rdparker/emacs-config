@@ -101,5 +101,28 @@ This may hang if circular symlinks are encountered."
   (interactive)
   (setq show-trailing-whitespace (not show-trailing-whitespace)))
 
+(defun mode-and-parents (mode)
+  "Return a list of MODE and all modes it is derived from."
+  (let ((modes))
+    (while mode
+      (add-to-list 'modes mode)
+      (setq mode (get mode 'derived-mode-parent)))
+    modes))
+
+(defun minor-modes (buffer)
+  "Return a list of all minor modes that are active in BUFFER."
+  (with-current-buffer buffer
+    (loop for (a . b) in minor-mode-alist if (symbol-value a) collect a)))
+
+(defun buffer-modes (buffer)
+  "Return a list of all active modes in BUFFER."
+  (append (with-current-buffer buffer (mode-and-parents major-mode))
+	  (minor-modes buffer)))
+
+(defun buffer-has-mode-p (buffer mode)
+  "Does BUFFER have MODE active?"
+  (or (memq mode (with-current-buffer buffer (mode-and-parents major-mode)))
+      (memq mode (minor-modes buffer))))
+
 (provide 'rdp-functions)
 ;;; rdp-functions.el ends here

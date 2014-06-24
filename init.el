@@ -1488,7 +1488,14 @@ The hooks are removed once ws-butler has been successfully loaded."
 	:config
 	(progn
 	  (remove-hook 'after-make-frame-functions 'use-ws-butler)
-	  (remove-hook 'server-visit-hook 'use-ws-butler)))
+	  (remove-hook 'server-visit-hook 'use-ws-butler)
+
+	  ;; Turn ws-butler on in existing buffers that are derived
+	  ;; from prog-mode or text-mode.
+	  (dolist (buffer (buffer-list))
+	    (when (or (buffer-has-mode-p buffer 'prog-mode)
+		    (buffer-has-mode-p buffer 'text-mode))
+	      (ws-butler-mode 1)))))
 
     (add-hook 'after-make-frame-functions 'use-ws-butler)
     (add-hook 'server-visit-hook 'use-ws-butler)))
