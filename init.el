@@ -26,12 +26,27 @@
 
 (eval-when-compile (require 'cl))
 
+;; The `user-emacs-directory' variable, did not exist before Emacs 23.
+;; Make sure it's defined.
+(unless (boundp 'user-emacs-directory)
+  (defconst user-emacs-directory
+    (if user-init-file
+	(file-name-directory user-init-file)
+      (if (eq system-type 'ms-dos)
+	  ;; MS-DOS cannot have initial dot.
+	  "~/_emacs.d/"
+	"~/.emacs.d/"))
+    "Directory beneath which additional per-user Emacs-specific files are placed.
+Various programs in Emacs store information in this directory.
+Note that this should end with a directory separator."))
+
 (load (expand-file-name "load-path" user-emacs-directory))
 
 (require 'use-package)
 (eval-when-compile
   (setq use-package-verbose (null byte-compile-current-file)))
 
+(require 'backport)
 (require 'rdp-functions)
 (require 'os-x-config)
 
@@ -89,7 +104,6 @@ possible init-time errors."
      (2 font-lock-constant-face nil t))))
 
 ;;; Legacy package configuration
-(require 'grep-config)
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
 ;;; tired of 'yes' to save a file.
@@ -176,6 +190,7 @@ possible init-time errors."
 
 ;;; auto-complete
 (use-package auto-complete-config
+  :if (>= emacs-major-version 24)
   :init
   (progn
     ;; Make sure auto-complete can find the correct JavaScript
@@ -635,8 +650,13 @@ See also `toggle-frame-maximized'."
 ;;; grep
 (use-package grep
   :config
-  ;; Ignore quilt tracking directories
-  (add-to-list 'grep-find-ignored-directories ".pc"))
+  (progn
+    ;; Ignore quilt tracking directories
+    (add-to-list 'grep-find-ignored-directories ".pc")
+    ; Ignore flymake temporary files, if ignoring files is supported.
+    (when (boundp 'grep-find-ignored-files)
+      (add-to-list 'grep-find-ignored-files "*_flymake")
+      (add-to-list 'grep-find-ignored-files "*_flymake.*"))))
 
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
@@ -768,14 +788,15 @@ See also `toggle-frame-maximized'."
 ;; 	 preserve sanity
 (use-package ido
   :init
-  (progn
-    (use-package flx-ido
-      :commands flx-ido-mode)
+  (ido-mode 1)
 
-    (ido-mode 1)
-    (flx-ido-mode 1))
   :config
   (progn
+    (use-package flx-ido
+      :if (featurep 'cl-lib)
+      :commands flx-ido-mode)
+    (when (featurep 'cl-lib)
+      (flx-ido-mode 1))
     (setq ido-use-virtual-buffers t
 	  ido-save-directory-list-file (expand-file-name ".ido.last"
 							 user-data-directory))
