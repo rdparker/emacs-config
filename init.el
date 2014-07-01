@@ -188,6 +188,26 @@ possible init-time errors."
 (use-package applescript-mode
   :mode ("\\.scpt\\'" . applescript-mode))
 
+;;; anything -- because anything's better than nothing
+;;		or in this case not having helm on older Emacsen.
+;;
+;;  See `helm' below for newer Emacsen.
+(use-package anything-config
+  :if (or (< emacs-major-version 24)
+	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :commands anything
+  :bind (("M-x"   . anything-M-x)
+	 ("C-h a" . anything-c-apropos)
+	 ("M-s a" . anything-do-grep)
+	 ("M-s b" . anything-do-occur)
+	 ("M-s o" . anything-do-occur)
+	 ("M-s F" . anything-for-files))
+  :init
+  ;; Instead of hacking anything to work with Emacs < 23, just create
+  ;; the missing map, and ignore it.
+  (when (< emacs-major-version 23)
+    (defvar minibuffer-local-shell-command-map (make-sparse-keymap))))
+
 ;;; auto-complete
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
@@ -757,6 +777,31 @@ See also `toggle-frame-maximized'."
      (push '("\\.l?hs\\'" flymake-haskell-init) flymake-allowed-file-name-masks)
      (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
      (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
+
+;;; helm
+;;
+;; See `anything' above for older Emacsen.
+(use-package helm-config
+  :if (or (> emacs-major-version 24)
+	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :bind (("M-x"   . helm-M-x)
+	 ("C-h a" . helm-apropos)
+	 ("M-s a" . helm-do-grep)
+	 ("M-s b" . helm-occur)
+	 ("M-s F" . helm-for-files))
+  :init
+  (progn
+    (use-package helm-descbinds
+      :bind ("C-h b" . helm-descbinds)
+      :commands helm-descbinds
+      :init
+      (fset 'describe-bindings 'helm-descbinds))
+
+    (use-package helm-swoop
+      :bind ("M-s o" . helm-swoop)))
+
+  :config
+  (helm-match-plugin-mode t))
 
 ;;; hide-ifdef
 (use-package hideif
