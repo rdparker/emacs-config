@@ -1507,7 +1507,7 @@ The hooks are removed once ws-butler has been successfully loaded."
 	  (condition-case dummy (x-display-grayscale-p) ((error nil))))
 
       (use-package ws-butler
-	:diminish ws-butler-mode
+	:diminish (ws-butler-mode highlight-changes-mode)
 	;; This mode require highlight-changes-mode, which in turn only
 	;; works on color or grayscale displays.  Be careful not to choke on
 	;; Emacsen that do not support X.
