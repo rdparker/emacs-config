@@ -44,6 +44,7 @@
  '(ecb-options-version "2.40")
  '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))) t)
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
+ '(erc-hide-list (quote ("JOIN" "PART" "QUIT")))
  '(erc-log-mode t)
  '(erc-log-write-after-insert t)
  '(erc-log-write-after-send t)
