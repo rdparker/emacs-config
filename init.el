@@ -1405,7 +1405,7 @@ This gets started by python mode."
 (use-package skeleton
   :init
   (progn
-    (setq skeleton-pair t)		; enable skeleton pairs
+    ;; (setq skeleton-pair t)		; enable skeleton pairs
 
     ;; This almost works.  It will insert the pair and skip over the
     ;; closing quote, but only if nothing has been inserted
@@ -1415,7 +1415,8 @@ This gets started by python mode."
 
     (defun skeleton-pair-add-bindings ()
       "Bind the skeleton-pair keys.
-Each alist element in `skeleton-pair-alist' and `skeleton-pair-default-alist' is rebound to
+Each alist element in `skeleton-pair-alist' and
+`skeleton-pair-default-alist' is rebound to
 `skeleton-pair-insert-maybe'."
       (interactive)
       (dolist (alist (list skeleton-pair-alist skeleton-pair-default-alist))
