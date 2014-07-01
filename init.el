@@ -822,6 +822,14 @@ cf. https://github.com/jwiegley/dot-emacs."
 
     (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)))
 
+;;; Info
+`(use-package info
+  ;; Add some nice fontifying and a few other fe
+   :config
+   ,(if (> emacs-major-version 22)
+	(require 'info+)
+      (require 'info+20)))
+
 ;;; Java
 (my-require 'jde-autoload)
 
