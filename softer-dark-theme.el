@@ -15,7 +15,7 @@ traffic use less space and keeps the focus on the discussion.")
  'softer-dark
  '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "Source Code Pro"))))
  '(bold ((t (:weight normal))))
- '(cursor ((t (:background "white" :foreground "white"))))
+ '(cursor ((t (:background "DarkOliveGreen3" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(erc-fool-face ((t (:foreground "DimGray" :height 0.7071))))
  '(flymake-errline ((t (:underline "Firebrick4"))))
