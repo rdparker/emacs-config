@@ -42,7 +42,6 @@
    (quote
     ("7571c495358a348780c848ed7b858053d7f588af5c4543c70d9832c4c370e703" "943aef2f68ed6d755bdd75750fc7e5d5e2331261a743d3197db7cf3149043f3e" default)))
  '(ecb-options-version "2.40")
- '(erc-autojoin-channels-alist (quote (("freenode.net" "#emacs-circe" "#emacs" "#lisp"))) t)
  '(erc-fool-highlight-type (quote all))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
  '(erc-hide-list (quote ("JOIN" "PART" "QUIT")))
