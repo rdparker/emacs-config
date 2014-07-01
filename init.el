@@ -1621,6 +1621,11 @@ The hooks are removed once ws-butler has been successfully loaded."
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 
+;;; completion
+;;
+;; Ignore the generated Linux kernel module address files.
+(add-to-list 'completion-ignored-extensions ".mod.c")
+
 ;;; customizations
 (defvar running-alternate-emacs nil)
 
