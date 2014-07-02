@@ -576,6 +576,7 @@ See also `toggle-frame-maximized'."
   :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
+  :commands (magit-init magit-git-command)
   :init
   (progn
     (defun magit-status-with-prefix ()
