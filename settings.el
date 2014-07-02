@@ -41,6 +41,7 @@
  '(custom-safe-themes
    (quote
     ("093f221ddd646715d4bbb8f9e946e20016bab23e8fd3e80f89b8f5916f29677c" "751b6929f419d5e25bb4554d7c88f85742b11484de508bb082e17b518c2b273d" "3b70c8ccc50a59f4935aebd38bdbd2614d23a354112b4b06af9f4b50fc5c0aea" "23c260bc473bb577e1f9344e499868995602c6c7235e094f4443922abef85b22" "7571c495358a348780c848ed7b858053d7f588af5c4543c70d9832c4c370e703" "943aef2f68ed6d755bdd75750fc7e5d5e2331261a743d3197db7cf3149043f3e" default)))
+ '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-network))
