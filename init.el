@@ -26,12 +26,27 @@
 
 (eval-when-compile (require 'cl))
 
+;; The `user-emacs-directory' variable, did not exist before Emacs 23.
+;; Make sure it's defined.
+(unless (boundp 'user-emacs-directory)
+  (defconst user-emacs-directory
+    (if user-init-file
+	(file-name-directory user-init-file)
+      (if (eq system-type 'ms-dos)
+	  ;; MS-DOS cannot have initial dot.
+	  "~/_emacs.d/"
+	"~/.emacs.d/"))
+    "Directory beneath which additional per-user Emacs-specific files are placed.
+Various programs in Emacs store information in this directory.
+Note that this should end with a directory separator."))
+
 (load (expand-file-name "load-path" user-emacs-directory))
 
 (require 'use-package)
 (eval-when-compile
   (setq use-package-verbose (null byte-compile-current-file)))
 
+(require 'backport)
 (require 'rdp-functions)
 (require 'os-x-config)
 
@@ -89,7 +104,6 @@ possible init-time errors."
      (2 font-lock-constant-face nil t))))
 
 ;;; Legacy package configuration
-(require 'grep-config)
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
 ;;; tired of 'yes' to save a file.
@@ -175,8 +189,29 @@ possible init-time errors."
 (use-package applescript-mode
   :mode ("\\.scpt\\'" . applescript-mode))
 
+;;; anything -- because anything's better than nothing
+;;		or in this case not having helm on older Emacsen.
+;;
+;;  See `helm' below for newer Emacsen.
+(use-package anything-config
+  :if (or (< emacs-major-version 24)
+	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :commands anything
+  :bind (("M-x"   . anything-M-x)
+	 ("C-h a" . anything-c-apropos)
+	 ("M-s a" . anything-do-grep)
+	 ("M-s b" . anything-do-occur)
+	 ("M-s o" . anything-do-occur)
+	 ("M-s F" . anything-for-files))
+  :init
+  ;; Instead of hacking anything to work with Emacs < 23, just create
+  ;; the missing map, and ignore it.
+  (when (< emacs-major-version 23)
+    (defvar minibuffer-local-shell-command-map (make-sparse-keymap))))
+
 ;;; auto-complete
 (use-package auto-complete-config
+  :if (>= emacs-major-version 24)
   :init
   (progn
     ;; Make sure auto-complete can find the correct JavaScript
@@ -637,8 +672,13 @@ See also `toggle-frame-maximized'."
 ;;; grep
 (use-package grep
   :config
-  ;; Ignore quilt tracking directories
-  (add-to-list 'grep-find-ignored-directories ".pc"))
+  (progn
+    ;; Ignore quilt tracking directories
+    (add-to-list 'grep-find-ignored-directories ".pc")
+    ; Ignore flymake temporary files, if ignoring files is supported.
+    (when (boundp 'grep-find-ignored-files)
+      (add-to-list 'grep-find-ignored-files "*_flymake")
+      (add-to-list 'grep-find-ignored-files "*_flymake.*"))))
 
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
@@ -740,6 +780,107 @@ See also `toggle-frame-maximized'."
      (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
      (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
 
+;;; helm
+;;
+;; See `anything' above for older Emacsen.
+(use-package helm-config
+  :if (or (> emacs-major-version 24)
+	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :bind (("M-x"   . helm-M-x)
+	 ("C-h a" . helm-apropos)
+	 ("M-s a" . helm-do-grep)
+	 ("M-s b" . helm-occur)
+	 ("M-s F" . helm-for-files))
+  :init
+  (progn
+    (use-package helm-descbinds
+      :bind ("C-h b" . helm-descbinds)
+      :commands helm-descbinds
+      :init
+      (fset 'describe-bindings 'helm-descbinds))
+
+    (use-package helm-swoop
+      :bind ("M-s o" . helm-swoop)))
+
+  :config
+  (helm-match-plugin-mode t))
+
+
+;;; Help extensions
+;;
+;; It would be nice to delay load these, but I was having trouble
+;; getting `help-for-help' to access the modified version.  So for now
+;; just require this stuff.
+(use-package help+20
+  :if (< emacs-major-version 22)
+  :init (require 'help+20))
+
+(use-package help+
+  :if (> emacs-major-version 21)
+  :init
+  (progn
+    (require 'help+)
+    (require 'help-fns+)
+    (use-package help-mode
+      :config
+      (require 'help-mode+))
+    (require 'descr-text+)))
+
+;; (use-package help+
+;;    :if (>= emacs-major-version 22)
+;;    :bind
+;;    (
+;;     ;; ("f1"			  . help-on-click/key)
+;;     ("C-h u"		  . manual-entry)
+;;     ("C-h C-a"		  . apropos)
+;;     ("C-h C-l"		  . locate-library)
+;;     ("C-h RET"		  . help-on-click/key)
+;;     ("C-h M-a"		  . apropos-documentation)
+;;     ("C-h M-o"		  . pop-to-help-toggle)
+;;     ("C-h C-M-a"		  . tags-apropos)
+;;     ([down-mouse-1]		  . mouse-help-on-click)
+;;     ([mode-line down-mouse-1] . mouse-help-on-mode-line-click)
+;;     ("C-h B"		  . describe-buffer)
+;;     ("C-h c"		  . describe-command) ; was `describe-key-briefly'
+;;     ("C-h o"		  . describe-option)
+;;     ("C-h C-c"		  . describe-key-briefly) ; `C-h c'
+;;     ("C-h C-o"		  . describe-option-of-type)
+;;     ("C-h M-c"		  . describe-copying)     ; `C-h C-c'
+;;     ("C-h M-f"		  . describe-file)
+;;     ("C-h M-k"		  . describe-keymap)
+;;     ("C-h M-l"		  . find-function-on-key))
+;;    :commands help-for-help-internal
+;;    :config
+;;    (progn
+;;      (require 'help-fns+)))
+
+;; (use-package help+20
+;;   :if (< emacs-major-version 22)
+;;    :init
+;;    (when (< emacs-major-version 22)
+;;      (define-key help-map "c" 'describe-command)
+;;      (define-key help-map "o" 'describe-option)
+;;      (define-key help-map "u" 'manual-entry) ; in `man.el'
+;;      (define-key help-map "\C-a" 'apropos)
+;;      (define-key help-map "\C-c" 'describe-key-briefly)
+;;      (define-key help-map "\C-l" 'locate-library)
+;;      (define-key help-map [?\C-m] 'help-on-click/key) ; RET
+;;      (define-key help-map [?\C-n] 'view-emacs-lisp-news)
+;;      (define-key help-map "\C-o" 'describe-option-of-type)
+;;      (define-key help-map "\C-s" 'save-*Help*-buffer)
+;;      (define-key help-map "\M-a" 'apropos-documentation)
+;;      (define-key help-map "\M-c" 'describe-copying)
+;;      (define-key help-map "\M-f" 'describe-file)
+;;      (define-key help-map "\M-k" 'describe-keymap)
+;;      (define-key help-map "\M-o" 'pop-to-help-toggle)
+;;      (define-key help-map "\M-\C-a" 'tags-apropos)
+;;      (define-key help-map [down-mouse-1] 'mouse-help-on-click)
+;;      (define-key help-map [mode-line down-mouse-1]
+;;        'mouse-help-on-mode-line-click)
+
+;;      ;; `help-mode' too needs a quit key.
+;;      (define-key help-mode-map "q" 'View-quit)))
+
 ;;; hide-ifdef
 (use-package hideif
   :diminish hide-ifdef-mode
@@ -770,14 +911,15 @@ See also `toggle-frame-maximized'."
 ;; 	 preserve sanity
 (use-package ido
   :init
-  (progn
-    (use-package flx-ido
-      :commands flx-ido-mode)
+  (ido-mode 1)
 
-    (ido-mode 1)
-    (flx-ido-mode 1))
   :config
   (progn
+    (use-package flx-ido
+      :if (featurep 'cl-lib)
+      :commands flx-ido-mode)
+    (when (featurep 'cl-lib)
+      (flx-ido-mode 1))
     (setq ido-use-virtual-buffers t
 	  ido-save-directory-list-file (expand-file-name ".ido.last"
 							 user-data-directory))
@@ -802,6 +944,14 @@ cf. https://github.com/jwiegley/dot-emacs."
         (set (make-local-variable 'mode-line-format) nil)))
 
     (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)))
+
+;;; Info
+`(use-package info
+  ;; Add some nice fontifying and a few other fe
+   :config
+   ,(if (> emacs-major-version 22)
+	(require 'info+)
+      (require 'info+20)))
 
 ;;; Java
 (my-require 'jde-autoload)
@@ -1333,7 +1483,7 @@ This gets started by python mode."
 (use-package skeleton
   :init
   (progn
-    (setq skeleton-pair t)		; enable skeleton pairs
+    ;; (setq skeleton-pair t)		; enable skeleton pairs
 
     ;; This almost works.  It will insert the pair and skip over the
     ;; closing quote, but only if nothing has been inserted
@@ -1343,7 +1493,8 @@ This gets started by python mode."
 
     (defun skeleton-pair-add-bindings ()
       "Bind the skeleton-pair keys.
-Each alist element in `skeleton-pair-alist' and `skeleton-pair-default-alist' is rebound to
+Each alist element in `skeleton-pair-alist' and
+`skeleton-pair-default-alist' is rebound to
 `skeleton-pair-insert-maybe'."
       (interactive)
       (dolist (alist (list skeleton-pair-alist skeleton-pair-default-alist))
@@ -1480,7 +1631,7 @@ The hooks are removed once ws-butler has been successfully loaded."
 	  (condition-case dummy (x-display-grayscale-p) ((error nil))))
 
       (use-package ws-butler
-	:diminish ws-butler-mode
+	:diminish (ws-butler-mode highlight-changes-mode)
 	;; This mode require highlight-changes-mode, which in turn only
 	;; works on color or grayscale displays.  Be careful not to choke on
 	;; Emacsen that do not support X.
@@ -1593,6 +1744,11 @@ The hooks are removed once ws-butler has been successfully loaded."
 (when (my-require 'keyfreq)
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
+
+;;; completion
+;;
+;; Ignore the generated Linux kernel module address files.
+(add-to-list 'completion-ignored-extensions ".mod.c")
 
 ;;; customizations
 (defvar running-alternate-emacs nil)
