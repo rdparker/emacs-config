@@ -123,7 +123,8 @@ possible init-time errors."
 	  (quote (("default"
 		   ("dired" (mode . dired-mode))
 		   ("erc" (or (mode . circe-mode)
-			      (mode . erc-mode)))
+			      (mode . erc-mode)
+			      (mode . erc-list-menu-mode)))
 		   ("planner" (or
 			   (name . "^\\*Calendar\\*$")
 			   (name . "^diary$")
