@@ -803,6 +803,82 @@ See also `toggle-frame-maximized'."
   :config
   (helm-match-plugin-mode t))
 
+
+;;; Help extensions
+;;
+;; It would be nice to delay load these, but I was having trouble
+;; getting `help-for-help' to access the modified version.  So for now
+;; just require this stuff.
+(use-package help+20
+  :if (< emacs-major-version 22)
+  :init (require 'help+20))
+
+(use-package help+
+  :if (> emacs-major-version 21)
+  :init
+  (progn
+    (require 'help+)
+    (require 'help-fns+)
+    (use-package help-mode
+      :config
+      (require 'help-mode+))
+    (require 'descr-text+)))
+
+;; (use-package help+
+;;    :if (>= emacs-major-version 22)
+;;    :bind
+;;    (
+;;     ;; ("f1"			  . help-on-click/key)
+;;     ("C-h u"		  . manual-entry)
+;;     ("C-h C-a"		  . apropos)
+;;     ("C-h C-l"		  . locate-library)
+;;     ("C-h RET"		  . help-on-click/key)
+;;     ("C-h M-a"		  . apropos-documentation)
+;;     ("C-h M-o"		  . pop-to-help-toggle)
+;;     ("C-h C-M-a"		  . tags-apropos)
+;;     ([down-mouse-1]		  . mouse-help-on-click)
+;;     ([mode-line down-mouse-1] . mouse-help-on-mode-line-click)
+;;     ("C-h B"		  . describe-buffer)
+;;     ("C-h c"		  . describe-command) ; was `describe-key-briefly'
+;;     ("C-h o"		  . describe-option)
+;;     ("C-h C-c"		  . describe-key-briefly) ; `C-h c'
+;;     ("C-h C-o"		  . describe-option-of-type)
+;;     ("C-h M-c"		  . describe-copying)     ; `C-h C-c'
+;;     ("C-h M-f"		  . describe-file)
+;;     ("C-h M-k"		  . describe-keymap)
+;;     ("C-h M-l"		  . find-function-on-key))
+;;    :commands help-for-help-internal
+;;    :config
+;;    (progn
+;;      (require 'help-fns+)))
+
+;; (use-package help+20
+;;   :if (< emacs-major-version 22)
+;;    :init
+;;    (when (< emacs-major-version 22)
+;;      (define-key help-map "c" 'describe-command)
+;;      (define-key help-map "o" 'describe-option)
+;;      (define-key help-map "u" 'manual-entry) ; in `man.el'
+;;      (define-key help-map "\C-a" 'apropos)
+;;      (define-key help-map "\C-c" 'describe-key-briefly)
+;;      (define-key help-map "\C-l" 'locate-library)
+;;      (define-key help-map [?\C-m] 'help-on-click/key) ; RET
+;;      (define-key help-map [?\C-n] 'view-emacs-lisp-news)
+;;      (define-key help-map "\C-o" 'describe-option-of-type)
+;;      (define-key help-map "\C-s" 'save-*Help*-buffer)
+;;      (define-key help-map "\M-a" 'apropos-documentation)
+;;      (define-key help-map "\M-c" 'describe-copying)
+;;      (define-key help-map "\M-f" 'describe-file)
+;;      (define-key help-map "\M-k" 'describe-keymap)
+;;      (define-key help-map "\M-o" 'pop-to-help-toggle)
+;;      (define-key help-map "\M-\C-a" 'tags-apropos)
+;;      (define-key help-map [down-mouse-1] 'mouse-help-on-click)
+;;      (define-key help-map [mode-line down-mouse-1]
+;;        'mouse-help-on-mode-line-click)
+
+;;      ;; `help-mode' too needs a quit key.
+;;      (define-key help-mode-map "q" 'View-quit)))
+
 ;;; hide-ifdef
 (use-package hideif
   :diminish hide-ifdef-mode
