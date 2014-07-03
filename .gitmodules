@@ -117,7 +117,7 @@
 	url = https://github.com/nicferrier/creole-mode.git
 [submodule "site-lisp/helm"]
 	path = site-lisp/helm
-	url = https://github.com/emacs-helm/helm.git
+	url = https://github.com/rdparker/helm.git
 [submodule "site-lisp/helm-swoop"]
 	path = site-lisp/helm-swoop
 	url = https://github.com/ShingoFukuyama/helm-swoop.git

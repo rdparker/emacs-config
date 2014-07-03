@@ -825,12 +825,8 @@ See also `toggle-frame-maximized'."
   (progn
     (use-package helm-descbinds
       :bind ("C-h b" . helm-descbinds)
-      :commands helm-descbinds
       :init
-      (fset 'describe-bindings 'helm-descbinds)
-      :config
-      (require 'helm-config))
-
+      (fset 'describe-bindings 'helm-descbinds))
     (use-package helm-swoop
       :bind ("M-s o" . helm-swoop)))
 
