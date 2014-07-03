@@ -1385,6 +1385,7 @@ This gets started by python mode."
 	 ("C-c a" . org-agenda)
 	 ("C-c S" . org-store-link)
 	 ("C-c l" . org-insert-link))
+  :mode (("\\.org" . org-mode))
   :config
   (setq org-default-notes-file (expand-file-name "Notes.org"
 						 "~/Documents/Org/"))
