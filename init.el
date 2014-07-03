@@ -50,6 +50,22 @@ Note that this should end with a directory separator."))
 (require 'rdp-functions)
 (require 'os-x-config)
 
+(defvar alternate-emacs
+  (when (string-match (concat "/Applications/\\(Misc/\\)?"
+			    "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
+		    invocation-directory)
+    (downcase (match-string 2 invocation-directory)))
+  "Is an alternate Emacs being run?
+
+If so, this is set to the suffix of the running Emacs.
+For example, if \"/Applications/EmacsErc.app\" is running, this
+variable will have the value \"erc\", which may be used to
+differentiate between files for various alternate Emacsen.
+
+This only applies to my Mac OS installations, where I may run a
+separate Emacs for ERC or other purposes. Those separate emacs
+are named \"Emacs[A-Za-z]*.app\".")
+
 ;;; Emacs source path
 (eval-after-load "find-func"
   '(when (not (and find-function-C-source-directory
@@ -1467,7 +1483,7 @@ This gets started by python mode."
               do (funcall func))
 
         (unless (or noninteractive
-                    running-alternate-emacs
+                    alternate-emacs
                     (eq 'listen (process-status server-process)))
           (server-start))))
 
@@ -1751,30 +1767,28 @@ The hooks are removed once ws-butler has been successfully loaded."
 (add-to-list 'completion-ignored-extensions ".mod.c")
 
 ;;; customizations
-(defvar running-alternate-emacs nil)
-
-(if (string-match (concat "/Applications/\\(Misc/\\)?"
-                          "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
-                  invocation-directory)
-
+(if alternate-emacs
+    ;; Tweak some of the paths, including settings, when an alternate
+    ;; Emacs is running.
     (let ((settings (with-temp-buffer
                       (insert-file-contents
                        (expand-file-name "settings.el" user-emacs-directory))
                       (goto-char (point-min))
 		      (let ((custom-settings (read (current-buffer))))
 			(eval-region (point) (point-max))
-			custom-settings)))
-          (suffix (downcase (match-string 2 invocation-directory))))
+			custom-settings))))
 
-      (setq running-alternate-emacs t
-            user-data-directory
-            (replace-regexp-in-string "/data/" (format "/data-%s/" suffix)
-                                      user-data-directory)
-	    desktop-base-file-name (format ".emacs%s.desktop" suffix)
-	    desktop-base-lock-name (format ".emacs%s.desktop.lock" suffix))
+      (setq user-data-directory
+            (replace-regexp-in-string "/data/"
+				      (format "/data-%s/" alternate-emacs)
+				      user-data-directory)
+	    desktop-base-file-name
+	    (format ".emacs%s.desktop" alternate-emacs)
+	    desktop-base-lock-name
+	    (format ".emacs%s.desktop.lock" alternate-emacs))
 
       (let* ((regexp "/\\.emacs\\.d/data/")
-             (replace (format "/.emacs.d/data-%s/" suffix)))
+	     (replace (format "/.emacs.d/data-%s/" alternate-emacs)))
         (dolist (setting settings)
           (let ((value (and (listp setting)
                             (nth 1 (nth 1 setting)))))
@@ -1785,13 +1799,14 @@ The hooks are removed once ws-butler has been successfully loaded."
 
         (eval settings)))
 
-  (progn
-    (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
-    (load custom-file)))
+  ;; When my standard Emacs  is run, load the `custom-file' in the
+  ;; normal manner.
+  (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
+  (load custom-file))
 
 (unless (or noninteractive
 	    (null window-system))
-  (if running-alternate-emacs
+  (if alternate-emacs
       (progn
         (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 722))
         (defvar emacs-min-left 5)
@@ -1829,10 +1844,7 @@ The hooks are removed once ws-butler has been successfully loaded."
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
-  (when running-alternate-emacs
-    (set-background-color "grey85")
-    (set-foreground-color "black")
-    (set-face-background 'fringe "gray80")))
+  (load-theme (if alternate-emacs 'leuven 'softer-dark)))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
