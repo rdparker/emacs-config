@@ -816,11 +816,11 @@ See also `toggle-frame-maximized'."
 (use-package helm-config
   :if (or (> emacs-major-version 24)
 	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
-  :bind (("M-x"   . helm-M-x)
-	 ("C-h a" . helm-apropos)
-	 ("M-s a" . helm-do-grep)
-	 ("M-s b" . helm-occur)
-	 ("M-s F" . helm-for-files))
+  :bind (("C-c M-x" . helm-M-x)
+	 ("C-h a"   . helm-apropos)
+	 ("M-s a"   . helm-do-grep)
+	 ("M-s b"   . helm-occur)
+	 ("M-s F"   . helm-for-files))
   :init
   (progn
     (use-package helm-descbinds
