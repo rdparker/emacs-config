@@ -1818,6 +1818,8 @@ The hooks are removed once ws-butler has been successfully loaded."
   (setq custom-file (expand-file-name "settings.el" user-emacs-directory))
   (load custom-file))
 
+(load-theme (if alternate-emacs 'leuven 'softer-dark))
+
 (unless (or noninteractive
 	    (null window-system))
   (if alternate-emacs
@@ -1856,9 +1858,7 @@ The hooks are removed once ws-butler has been successfully loaded."
   (set-frame-parameter (selected-frame) 'top emacs-min-top)
   (set-frame-parameter (selected-frame) 'left emacs-min-left)
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
-  (set-frame-parameter (selected-frame) 'width emacs-min-width)
-
-  (load-theme (if alternate-emacs 'leuven 'softer-dark)))
+  (set-frame-parameter (selected-frame) 'width emacs-min-width))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
