@@ -107,6 +107,7 @@ possible init-time errors."
     (require 'package)
     (unless package--initialized (package-initialize))
     (unless package-archive-contents (package-refresh-contents))
+    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
 
     `(use-package ,name
        :ensure t
