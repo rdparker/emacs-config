@@ -1875,16 +1875,14 @@ The hooks are removed once ws-butler has been successfully loaded."
   (setq x-alt-keysym 'meta)
   (setq ns-command-modifier 'meta))
 
-(when window-system
-  (let ((elapsed (float-time (time-subtract (current-time)
-					    emacs-start-time))))
-    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+(let ((elapsed (float-time (time-subtract (current-time)
+					  emacs-start-time))))
+  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
 
-  (add-hook 'after-init-hook
-	    `(lambda ()
-	       (let ((elapsed (float-time (time-subtract (current-time)
-							 emacs-start-time))))
-		 (message "Loading %s...done (%.3fs) [after-init]"
-			  ,load-file-name elapsed))
-	       (switch-to-buffer "*Messages*"))
-	    t))
+(add-hook 'after-init-hook
+	  `(lambda ()
+	     (let ((elapsed (float-time (time-subtract (current-time)
+						       emacs-start-time))))
+	       (message "Loading %s...done (%.3fs) [after-init]"
+			,load-file-name elapsed)))
+	  t)
