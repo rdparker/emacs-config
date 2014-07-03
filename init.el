@@ -1281,6 +1281,7 @@ and the basename of the executable.")
 ;; configuration.
 ;;
 (use-package projectile
+  :if (>= emacs-major-version 24)	; requires lexical-binding
   :commands (projectile-on
 	     projectile-global-mode
 	     projectile-mode)
