@@ -548,6 +548,19 @@ it."
     (defvar emmet-mode-keymap (make-sparse-keymap))
     (bind-key "C-c C-c" 'emmet-expand-line emmet-mode-keymap)))
 
+;;; find-func and find-func+
+(use-package find-func
+  :bind (("C-x F" . find-function)
+	 ("C-x 4 F" . find-function-other-window)
+	 ("C-x 5 F" . find-function-other-frame)
+	 ("C-x K" . find-function-on-key)
+	 ("C-x V" . find-variable)
+	 ("C-x 4 V" . find-variable-other-window)
+	 ("C-x 5 V" . find-variable-other-frame)
+	 ("C-x 4 l" . find-library-other-window))
+  :config
+  (require 'find-func+))
+
 ;;; fill
 ;; Emacs 24.4's option to not wrap after a single character word.
 (unless (boundp 'fill-single-word-nobreak-p)
