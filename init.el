@@ -214,12 +214,12 @@ possible init-time errors."
   :if (or (< emacs-major-version 24)
 	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
   :commands anything
-  :bind (("M-x"   . anything-M-x)
-	 ("C-h a" . anything-c-apropos)
-	 ("M-s a" . anything-do-grep)
-	 ("M-s b" . anything-do-occur)
-	 ("M-s o" . anything-do-occur)
-	 ("M-s F" . anything-for-files))
+  :bind (("C-c M-x" . anything-M-x)
+	 ("C-h a"   . anything-c-apropos)
+	 ("M-s a"   . anything-do-grep)
+	 ("M-s b"   . anything-do-occur)
+	 ("M-s o"   . anything-do-occur)
+	 ("M-s F"   . anything-for-files))
   :init
   ;; Instead of hacking anything to work with Emacs < 23, just create
   ;; the missing map, and ignore it.
