@@ -113,7 +113,6 @@ are named \"Emacs[A-Za-z]*.app\".")
 	(setq tab-width 8)
 	(setq default-tab-width 8))			; obsoleted in 23.2
 
-(require 'appearance-config)
 (require 'cfengine-config)
 (require 'dired-config)
 (require 'multiple-cursors-config)
@@ -577,29 +576,15 @@ which is an error according to some typographical conventions."
 
 ;;; frame
 (use-package frame
-  :bind ("C-M-S-f" . toggle-frame-fullscreen)
-  :init
-  ;; Add Emacs 24.4's fullscreen toggle to earlier versions.
-  (unless (boundp 'toggle-frame-fullscreen)
-    (defun toggle-frame-fullscreen ()
-      "Toggle fullscreen mode of the selected frame.
-Enable fullscreen mode of the selected frame or disable if it is
-already fullscreen.  Ignore window manager screen decorations.
-When turning on fullscreen mode, remember the previous value of the
-maximization state in the temporary frame parameter `maximized'.
-Restore the maximization state when turning off fullscreen mode.
-See also `toggle-frame-maximized'."
-      (interactive)
-      (modify-frame-parameters
-       nil
-       `((maximized
-	  . ,(unless (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
-	       (frame-parameter nil 'fullscreen)))
-	 (fullscreen
-	  . ,(if (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
-		 (if (eq (frame-parameter nil 'maximized) 'maximized)
-		     'maximized)
-	       'fullscreen)))))))
+  :if (or (> emacs-major-version 24)
+	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  :bind ("C-M-S-f" . toggle-frame-fullscreen))
+
+`(use-package fullscreen
+   :bind (("M-RET" . toggle-fullscreen)
+	  ,@(unless (or (> emacs-major-version 24)
+			(and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+	      '(("C-M-S-F" . toggle-frame-fullscreen)))))
 
 ;;; git
 (autoload 'git-blame-mode "git-blame"
