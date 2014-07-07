@@ -113,7 +113,6 @@ are named \"Emacs[A-Za-z]*.app\".")
 	(setq tab-width 8)
 	(setq default-tab-width 8))			; obsoleted in 23.2
 
-(require 'cfengine-config)
 (require 'dired-config)
 (require 'multiple-cursors-config)
 
@@ -1745,6 +1744,12 @@ The hooks are removed once ws-butler has been successfully loaded."
 (when (my-require 'keyfreq)
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
+
+;;; cfengine
+(use-package cfengine
+  :mode ("\\.cf\\'" . cfengine-mode)
+  :config
+  (add-hook 'cfengine3-mode-hook 'eldoc-mode))
 
 ;;; completion
 ;;

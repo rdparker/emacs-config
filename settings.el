@@ -34,6 +34,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auto-insert-query t)
+ '(cfengine-parameters-indent (quote (promise arrow 16)))
  '(clean-buffer-list-kill-never-buffer-names
    (quote
     ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
