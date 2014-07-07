@@ -642,7 +642,7 @@ See also `toggle-frame-maximized'."
 	 ,then
        ,else)))
 
-;;;_ , magit
+;;; magit
 
 (use-package magit
   :diminish magit-auto-revert-mode
@@ -1463,7 +1463,7 @@ This gets started by python mode."
 ;;; Semantic
 ;;(require 'cedet-config)
 
-;;;_ , session
+;;; session
 
 (use-package session
   :disabled t
@@ -1873,7 +1873,7 @@ The hooks are removed once ws-butler has been successfully loaded."
 
 (put 'narrow-to-page 'disabled nil)
 
-;;;_. Post initialization
+;;; Post initialization
 
 ;; Because I use different keyboards sometimes the Command/Windows key
 ;; is where I expect Meta to be, and sometimes Option/Alt is there.
