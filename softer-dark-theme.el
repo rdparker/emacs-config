@@ -6,10 +6,13 @@ hard-to-see colors (such as the default ANSI blue color), and
 reduces the size of ERC notices so all the log-on, log-off
 traffic use less space and keeps the focus on the discussion.")
 
+;; Tex Gyre Cursor was after Consolas in the
+;; `face-font-family-alternatives' list, but running a pre-24.4
+;; release on Debian insists on using Tex Schola Cursor(?) instead.
 (custom-theme-set-variables
  'softer-dark
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
- '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Liberation Mono" "DejaVu Sans Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Consolas" "Tex Gyre Cursor" "Menlo" "Courier") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed")))))
+ '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "DejaVu Sans Mono" "Liberation Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed")))))
 
 (custom-theme-set-faces
  'softer-dark
