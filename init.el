@@ -1,17 +1,10 @@
 ;;; init.el --- Emacs initialization -*- coding: utf-8 -*-
 ;;;
-;;; NOTES:
-;;;
-;;; Possible errors loading this file:
-;;;
-;;; If `called-interactively-p' is called with the wrong number of
-;;; parameters see ~/lib/el/README.org for a possible workaround.
-
 ;;; TODO: Review my use of :init vs :config in `use-package'
 ;;;       statements.  There are places I had them reversed and I may
 ;;;       be able to clean up some of this file by fixing those.
 
-;;;_. Initialization
+;;; Initialization
 
 (setq message-log-max 16384)
 
