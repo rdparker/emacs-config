@@ -48,7 +48,6 @@ Note that this should end with a directory separator."))
 
 (require 'backport)
 (require 'rdp-functions)
-(require 'os-x-config)
 
 (defvar alternate-emacs
   (when (string-match (concat "/Applications/\\(Misc/\\)?"
@@ -1869,11 +1868,12 @@ The hooks are removed once ws-butler has been successfully loaded."
 
 ;; Because I use different keyboards sometimes the Command/Windows key
 ;; is where I expect Meta to be, and sometimes Option/Alt is there.
-;; So, map both to Meta.
+;; So, map both to Meta for X Windows and Mac OS versions of Emacs.
 (when (eq system-type 'darwin)
-  (setq x-meta-keysym 'meta)
-  (setq x-alt-keysym 'meta)
-  (setq ns-command-modifier 'meta))
+  (setq x-meta-keysym 'meta
+	x-alt-keysym 'meta
+	mac-command-modifier 'meta
+	ns-command-modifier 'meta))
 
 (let ((elapsed (float-time (time-subtract (current-time)
 					  emacs-start-time))))
