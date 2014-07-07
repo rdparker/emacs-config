@@ -1182,13 +1182,6 @@ and the basename of the executable.")
 			   ,@(remove (cons ?\C-j 'paredit-newline)
 				 paredit-mode-map))))))
 
-  ;; Make eldoc aware of paredit's most common commands so that it
-  ;; refreshes the minibuffer after they are used.
-  (eval-after-load "eldoc" '(lambda ()
-				  (eldoc-add-command
-				   'paredit-backward-delete
-				   'paredit-close-round)))
-
   ;; Stop SLIME's REPL from grabbing DEL,
   ;; which is annoying when backspacing over a '('
   (defun override-slime-repl-bindings-with-paredit ()
@@ -1197,8 +1190,15 @@ and the basename of the executable.")
   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit))
 
 ;; eldoc
-(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(use-package eldoc
+  :diminish eldoc-mode
+  :init
+  (add-hooks '(lisp-interaction-mode-hook emacs-lisp-mode-hook) 'eldoc-mode)
+  :config
+  ;; Make eldoc aware of paredit's most common commands so that it
+  ;; refreshes the minibuffer after they are used.
+  (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
+
 (use-package c-eldoc
   :commands c-turn-on-eldoc-mode
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
