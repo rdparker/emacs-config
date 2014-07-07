@@ -468,6 +468,11 @@ it."
   (add-hook 'server-visit-hook 'use-desktop))
 
 
+;;; Diff
+(use-package diff-mode
+  ;; Netmap driver patches
+  :mode (("diff--.*--[0-9a-f]+--[0-9a-f]+" . diff-mode)))
+
 ;;; Dynamic Expansion (Hippie)
 ;; Just stole all of this from a gist and am testing it.
 ;;
