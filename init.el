@@ -87,12 +87,23 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;; ELPA, MELPA, Marmalade, etc. configuration
 ;;
 ;; Some packages are only conveniently available from a package
-;; repository.  But, not all of my systems have access to them.  So,
-;; the basic directory configuration is setup here and various
-;; packages are conditionally loaded using the `use-repo-package'.
+;; repository.  However, not all of my systems have access to the
+;; Internet.  So, `use-repo-package' conditionally loads them only if
+;; the `package-user-directory' exists.
+;;
+;; These package directories can be checked into this init file's git
+;; repo and they will then be available on systems that don't have
+;; Internet access, but using this init file will not break if they
+;; are not there.
+;;
+;; For some unknown reason this combination of setting up the package
+;; directory, the explicit `require' of package, and its conditional
+;; initialization and refresh in the `use-repo-package' macro is much
+;; faster than `use-package'ing package with :init and :config
+;; sections.  By much faster, I mean about 1/2 second on a Mid-2012
+;; Macbook pro.
 (setq package-user-dir
-      (expand-file-name (concat "elpa-" emacs-version)
-			user-emacs-directory))
+      (expand-file-name (concat "elpa-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
 
 (defmacro use-repo-package (name &rest args)
