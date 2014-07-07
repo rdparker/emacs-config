@@ -1438,7 +1438,8 @@ This gets started by python mode."
 ;;; rainbow-mode -- Colorize string that represent colors.
 (use-repo-package rainbow-mode
   :commands rainbow-mode
-  :config
+  :ensure t
+  :init
   (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
 	     'rainbow-mode))
 
