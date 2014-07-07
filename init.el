@@ -36,6 +36,7 @@ Note that this should end with a directory separator."))
 (load (expand-file-name "load-path" user-emacs-directory))
 
 (require 'use-package)
+(require 'use-repo-package)
 (eval-when-compile
   (setq use-package-verbose (null byte-compile-current-file)))
 
@@ -98,29 +99,6 @@ are named \"Emacs[A-Za-z]*.app\".")
 (setq package-user-dir
       (expand-file-name (concat "elpa-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
-
-(defmacro use-repo-package (name &rest args)
-  "Conditionally `use-package' a library.
-If the package repository has been initialized on this machine,
-ensure that package NAME is used, possibly pulling it from a
-repository.  Otherwise, the package will not be loaded to prevent
-possible init-time errors."
-  (when (file-directory-p package-user-dir)
-    (require 'package)
-    (unless package--initialized (package-initialize))
-    (unless package-archive-contents (package-refresh-contents))
-    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
-
-    `(use-package ,name
-       :ensure t
-       ,@args)))
-
-(put 'use-repo-package 'lisp-indent-function 'defun)
-
-(font-lock-add-keywords 'emacs-lisp-mode
-  '(("(\\(use-repo-package?\\)\\_>[ \t']*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
-     (1 font-lock-keyword-face)
-     (2 font-lock-constant-face nil t))))
 
 ;;; Legacy package configuration
 
