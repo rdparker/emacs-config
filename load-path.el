@@ -163,14 +163,11 @@ case they are added at the end."
 
 (mapc #'add-to-load-path
       (nreverse
-       (list
-
-	"override/org-mode/contrib/lisp/"
-	"override/org-mode/lisp/"
-
-        ;; Packages located elsewhere on the system...
-        "/usr/share/git-core/emacs/"
-        )))
+       `("override/org-mode/contrib/lisp/"
+	 "override/org-mode/lisp/"
+	 ,(if (file-directory-p "/opt/local/share/git/contrib/emacs/")
+	      "/opt/local/share/git/contrib/emacs/"
+	    "/usr/share/git-core/emacs/"))))
 
 ;; Make sure everything in load-path has the form of a directory name,
 ;; not a file name.

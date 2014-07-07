@@ -1,17 +1,10 @@
 ;;; init.el --- Emacs initialization -*- coding: utf-8 -*-
 ;;;
-;;; NOTES:
-;;;
-;;; Possible errors loading this file:
-;;;
-;;; If `called-interactively-p' is called with the wrong number of
-;;; parameters see ~/lib/el/README.org for a possible workaround.
-
 ;;; TODO: Review my use of :init vs :config in `use-package'
 ;;;       statements.  There are places I had them reversed and I may
 ;;;       be able to clean up some of this file by fixing those.
 
-;;;_. Initialization
+;;; Initialization
 
 (setq message-log-max 16384)
 
@@ -43,12 +36,12 @@ Note that this should end with a directory separator."))
 (load (expand-file-name "load-path" user-emacs-directory))
 
 (require 'use-package)
+(require 'use-repo-package)
 (eval-when-compile
   (setq use-package-verbose (null byte-compile-current-file)))
 
 (require 'backport)
 (require 'rdp-functions)
-(require 'os-x-config)
 
 (defvar alternate-emacs
   (when (string-match (concat "/Applications/\\(Misc/\\)?"
@@ -82,43 +75,30 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;; Create the data directory instead of spilling things directly into
 ;; .emacs.d
-(let ((data-directory (expand-file-name "data" user-emacs-directory)))
-  (unless (file-directory-p data-directory)
-    (mkdir data-directory)))
+(unless (file-directory-p user-data-directory)
+  (mkdir user-data-directory))
 
 ;;; ELPA, MELPA, Marmalade, etc. configuration
 ;;
 ;; Some packages are only conveniently available from a package
-;; repository.  But, not all of my systems have access to them.  So,
-;; the basic directory configuration is setup here and various
-;; packages are conditionally loaded using the `use-repo-package'.
+;; repository.  However, not all of my systems have access to the
+;; Internet.  So, `use-repo-package' conditionally loads them only if
+;; the `package-user-directory' exists.
+;;
+;; These package directories can be checked into this init file's git
+;; repo and they will then be available on systems that don't have
+;; Internet access, but using this init file will not break if they
+;; are not there.
+;;
+;; For some unknown reason this combination of setting up the package
+;; directory, the explicit `require' of package, and its conditional
+;; initialization and refresh in the `use-repo-package' macro is much
+;; faster than `use-package'ing package with :init and :config
+;; sections.  By much faster, I mean about 1/2 second on a Mid-2012
+;; Macbook pro.
 (setq package-user-dir
-      (expand-file-name (concat "elpa-" emacs-version)
-			user-emacs-directory))
+      (expand-file-name (concat "elpa-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
-
-(defmacro use-repo-package (name &rest args)
-  "Conditionally `use-package' a library.
-If the package repository has been initialized on this machine,
-ensure that package NAME is used, possibly pulling it from a
-repository.  Otherwise, the package will not be loaded to prevent
-possible init-time errors."
-  (when (file-directory-p package-user-dir)
-    (require 'package)
-    (unless package--initialized (package-initialize))
-    (unless package-archive-contents (package-refresh-contents))
-    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
-
-    `(use-package ,name
-       :ensure t
-       ,@args)))
-
-(put 'use-repo-package 'lisp-indent-function 'defun)
-
-(font-lock-add-keywords 'emacs-lisp-mode
-  '(("(\\(use-repo-package?\\)\\_>[ \t']*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
-     (1 font-lock-keyword-face)
-     (2 font-lock-constant-face nil t))))
 
 ;;; Legacy package configuration
 
@@ -133,8 +113,6 @@ possible init-time errors."
 	(setq tab-width 8)
 	(setq default-tab-width 8))			; obsoleted in 23.2
 
-(require 'appearance-config)
-(require 'cfengine-config)
 (require 'dired-config)
 (require 'multiple-cursors-config)
 
@@ -469,6 +447,11 @@ it."
   (add-hook 'server-visit-hook 'use-desktop))
 
 
+;;; Diff
+(use-package diff-mode
+  ;; Netmap driver patches
+  :mode (("diff--.*--[0-9a-f]+--[0-9a-f]+" . diff-mode)))
+
 ;;; Dynamic Expansion (Hippie)
 ;; Just stole all of this from a gist and am testing it.
 ;;
@@ -592,29 +575,15 @@ which is an error according to some typographical conventions."
 
 ;;; frame
 (use-package frame
-  :bind ("C-M-S-f" . toggle-frame-fullscreen)
-  :init
-  ;; Add Emacs 24.4's fullscreen toggle to earlier versions.
-  (unless (boundp 'toggle-frame-fullscreen)
-    (defun toggle-frame-fullscreen ()
-      "Toggle fullscreen mode of the selected frame.
-Enable fullscreen mode of the selected frame or disable if it is
-already fullscreen.  Ignore window manager screen decorations.
-When turning on fullscreen mode, remember the previous value of the
-maximization state in the temporary frame parameter `maximized'.
-Restore the maximization state when turning off fullscreen mode.
-See also `toggle-frame-maximized'."
-      (interactive)
-      (modify-frame-parameters
-       nil
-       `((maximized
-	  . ,(unless (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
-	       (frame-parameter nil 'fullscreen)))
-	 (fullscreen
-	  . ,(if (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
-		 (if (eq (frame-parameter nil 'maximized) 'maximized)
-		     'maximized)
-	       'fullscreen)))))))
+  :if (or (> emacs-major-version 24)
+	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  :bind ("C-M-S-f" . toggle-frame-fullscreen))
+
+`(use-package fullscreen
+   :bind (("M-RET" . toggle-fullscreen)
+	  ,@(unless (or (> emacs-major-version 24)
+			(and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+	      '(("C-M-S-F" . toggle-frame-fullscreen)))))
 
 ;;; git
 (autoload 'git-blame-mode "git-blame"
@@ -635,7 +604,7 @@ See also `toggle-frame-maximized'."
 	 ,then
        ,else)))
 
-;;;_ , magit
+;;; magit
 
 (use-package magit
   :diminish magit-auto-revert-mode
@@ -1182,13 +1151,6 @@ and the basename of the executable.")
 			   ,@(remove (cons ?\C-j 'paredit-newline)
 				 paredit-mode-map))))))
 
-  ;; Make eldoc aware of paredit's most common commands so that it
-  ;; refreshes the minibuffer after they are used.
-  (eval-after-load "eldoc" '(lambda ()
-				  (eldoc-add-command
-				   'paredit-backward-delete
-				   'paredit-close-round)))
-
   ;; Stop SLIME's REPL from grabbing DEL,
   ;; which is annoying when backspacing over a '('
   (defun override-slime-repl-bindings-with-paredit ()
@@ -1197,8 +1159,15 @@ and the basename of the executable.")
   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit))
 
 ;; eldoc
-(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(use-package eldoc
+  :diminish eldoc-mode
+  :init
+  (add-hooks '(lisp-interaction-mode-hook emacs-lisp-mode-hook) 'eldoc-mode)
+  :config
+  ;; Make eldoc aware of paredit's most common commands so that it
+  ;; refreshes the minibuffer after they are used.
+  (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
+
 (use-package c-eldoc
   :commands c-turn-on-eldoc-mode
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
@@ -1435,7 +1404,8 @@ This gets started by python mode."
 ;;; rainbow-mode -- Colorize string that represent colors.
 (use-repo-package rainbow-mode
   :commands rainbow-mode
-  :config
+  :ensure t
+  :init
   (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
 	     'rainbow-mode))
 
@@ -1455,7 +1425,7 @@ This gets started by python mode."
 ;;; Semantic
 ;;(require 'cedet-config)
 
-;;;_ , session
+;;; session
 
 (use-package session
   :disabled t
@@ -1775,6 +1745,12 @@ The hooks are removed once ws-butler has been successfully loaded."
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 
+;;; cfengine
+(use-package cfengine
+  :mode ("\\.cf\\'" . cfengine-mode)
+  :config
+  (add-hook 'cfengine3-mode-hook 'eldoc-mode))
+
 ;;; completion
 ;;
 ;; Ignore the generated Linux kernel module address files.
@@ -1865,15 +1841,16 @@ The hooks are removed once ws-butler has been successfully loaded."
 
 (put 'narrow-to-page 'disabled nil)
 
-;;;_. Post initialization
+;;; Post initialization
 
 ;; Because I use different keyboards sometimes the Command/Windows key
 ;; is where I expect Meta to be, and sometimes Option/Alt is there.
-;; So, map both to Meta.
+;; So, map both to Meta for X Windows and Mac OS versions of Emacs.
 (when (eq system-type 'darwin)
-  (setq x-meta-keysym 'meta)
-  (setq x-alt-keysym 'meta)
-  (setq ns-command-modifier 'meta))
+  (setq x-meta-keysym 'meta
+	x-alt-keysym 'meta
+	mac-command-modifier 'meta
+	ns-command-modifier 'meta))
 
 (let ((elapsed (float-time (time-subtract (current-time)
 					  emacs-start-time))))

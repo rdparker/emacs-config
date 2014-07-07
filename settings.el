@@ -34,9 +34,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auto-insert-query t)
+ '(cfengine-parameters-indent (quote (promise arrow 16)))
  '(clean-buffer-list-kill-never-buffer-names
    (quote
     ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
+ '(column-number-mode t)
  '(custom-safe-themes
    (quote
     ("e0cf229bc09d9a4ee39deb5cd7e95fa62c1d1995976cc2f1e2ceb5067a9c4e05" "3a727bdc09a7a141e58925258b6e873c65ccf393b2240c51553098ca93957723" "6a37be365d1d95fad2f4d185e51928c789ef7a4ccf17e7ca13ad63a8bf5b922f" "756597b162f1be60a12dbd52bab71d40d6a2845a3e3c2584c6573ee9c332a66e" "093f221ddd646715d4bbb8f9e946e20016bab23e8fd3e80f89b8f5916f29677c" "751b6929f419d5e25bb4554d7c88f85742b11484de508bb082e17b518c2b273d" "3b70c8ccc50a59f4935aebd38bdbd2614d23a354112b4b06af9f4b50fc5c0aea" "23c260bc473bb577e1f9344e499868995602c6c7235e094f4443922abef85b22" "7571c495358a348780c848ed7b858053d7f588af5c4543c70d9832c4c370e703" "943aef2f68ed6d755bdd75750fc7e5d5e2331261a743d3197db7cf3149043f3e" default)))
@@ -55,6 +57,8 @@
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
  '(highlight-symbol-idle-delay 1.0)
+ '(indicate-buffer-boundaries (quote ((t . right) (top . left))))
+ '(inhibit-startup-screen t)
  '(jiralib-host "us-dc1-jira1")
  '(jiralib-url "http://us-dc1-jira1:8080")
  '(org-babel-load-languages (quote ((emacs-lisp . t) (dot . t) (plantuml . t))))
