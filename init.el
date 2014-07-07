@@ -81,9 +81,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;; Create the data directory instead of spilling things directly into
 ;; .emacs.d
-(let ((data-directory (expand-file-name "data" user-emacs-directory)))
-  (unless (file-directory-p data-directory)
-    (mkdir data-directory)))
+(unless (file-directory-p user-data-directory)
+  (mkdir user-data-directory))
 
 ;;; ELPA, MELPA, Marmalade, etc. configuration
 ;;
