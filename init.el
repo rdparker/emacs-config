@@ -579,11 +579,12 @@ which is an error according to some typographical conventions."
 	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
   :bind ("C-M-S-f" . toggle-frame-fullscreen))
 
-`(use-package fullscreen
-   :bind (("M-RET" . toggle-fullscreen)
-	  ,@(unless (or (> emacs-major-version 24)
-			(and (= emacs-major-version 24) (>= emacs-minor-version 4)))
-	      '(("C-M-S-F" . toggle-frame-fullscreen)))))
+(use-package fullscreen
+  :bind ("M-RET" . toggle-fullscreen)
+  :init
+  (unless (or (> emacs-major-version 24)
+	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+    (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
 ;;; git
 (autoload 'git-blame-mode "git-blame"
@@ -999,6 +1000,10 @@ cf. https://github.com/jwiegley/dot-emacs."
 			  (replace-regexp-in-string ".*1G.*3G" "> " output)))))))
 
 (my-require 'js-beautify)
+
+;;; linum - line numbers in the margin
+(use-package linum
+  :commands (linum-mode global-linum-mode))
 
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 (use-package lispstick
