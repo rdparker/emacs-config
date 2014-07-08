@@ -579,11 +579,12 @@ which is an error according to some typographical conventions."
 	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
   :bind ("C-M-S-f" . toggle-frame-fullscreen))
 
-`(use-package fullscreen
-   :bind (("M-RET" . toggle-fullscreen)
-	  ,@(unless (or (> emacs-major-version 24)
-			(and (= emacs-major-version 24) (>= emacs-minor-version 4)))
-	      '(("C-M-S-F" . toggle-frame-fullscreen)))))
+(use-package fullscreen
+  :bind ("M-RET" . toggle-fullscreen)
+  :init
+  (unless (or (> emacs-major-version 24)
+	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+    (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
 ;;; git
 (autoload 'git-blame-mode "git-blame"
