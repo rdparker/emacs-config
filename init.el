@@ -1001,6 +1001,10 @@ cf. https://github.com/jwiegley/dot-emacs."
 
 (my-require 'js-beautify)
 
+;;; linum - line numbers in the margin
+(use-package linum
+  :commands (linum-mode global-linum-mode))
+
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 (use-package lispstick
   :commands lispstick-system-p
