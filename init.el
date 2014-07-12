@@ -322,6 +322,7 @@ configured as a GNOME Startup Application."
 	 (setq desktop-load-locked-desktop 'ask)
 	 (desktop-save-mode 1)
 	 (setq desktop-restore-eager 5
+	       desktop-restore-frames nil
 	       desktop-buffers-not-to-save
 	       (concat "\\("
 		       "^tags\\|^TAGS\\|"
