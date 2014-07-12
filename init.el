@@ -791,6 +791,7 @@ which is an error according to some typographical conventions."
 	 ("M-s a"   . helm-do-grep)
 	 ("M-s b"   . helm-occur)
 	 ("M-s F"   . helm-for-files))
+  :commands helm-imenu
   :init
   (progn
     (use-package helm-descbinds

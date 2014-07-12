@@ -47,6 +47,11 @@ to avoid cluttering that directory since I maintain it with git.")
   "Directory for overriding elisp packages included as part of Emacs.
 If I need to customize a package that is part of Emacs, this is
 where I will store them.")
+(defconst user-backport-directory
+  (expand-file-name "backport/" user-emacs-directory)
+  "Directory for packages that were backported from newer Emacsen.
+This should appear late in `load-path' to give priority to any
+version which ships with Emacs.b;bss")
 
 (defun byte-compile-target-directory (directory)
   "Convert an Emacs Lisp source directory name into a compiled directory name.
@@ -113,26 +118,38 @@ and will be created by this function."
 
 (setq byte-compile-dest-file-function 'my-byte-compile-dest-file)
 
-(defun add-to-load-path (path &optional dir)
-  "If PATH exists add it to `load-path'.
-DIR defaults to `user-emacs-directory`.  The corresponding
-compilation directory is also added to the path.  It is computed
-by `byte-compile-target-directory'."
-  (when path
-    (let ((full-path (expand-file-name path (or dir user-emacs-directory))))
-      (when (file-exists-p full-path)
-	  (add-to-list 'load-path full-path)
-	  (add-to-list 'load-path (byte-compile-target-directory full-path))))))
+(defun add-to-load-path (path &optional dir append)
+  "Add PATH within DIR to `load-path' if it isn't there yet.
 
-(defun add-to-load-path-recursively (dir)
-  "Recursively add all subdirectories to `load-path'."
+If DIR isn't specified it defaults to `user-emacs-directory'.
+If PATH is added, it is added at the beginning of the list,
+unless the optional argument APPEND is non-nil, in which case DIR
+is added at the end.
+
+The corresponding compilation directory is also added to the
+path.  It is computed by `byte-compile-target-directory'."
+  (unless dir
+    (setq dir user-emacs-directory))
+  (when path
+    (let ((full-path (expand-file-name path dir)))
+      (when (file-exists-p full-path)
+	(add-to-list 'load-path full-path append)
+	(add-to-list 'load-path
+		     (byte-compile-target-directory full-path) append)))))
+
+(defun add-to-load-path-recursively (dir &optional append)
+  "Recursively add all subdirectories of DIR to `load-path'.
+
+Any subdirectories that are added, are added at the beginning of
+`load-path' unless the optional argument APPEND is non-nil, in which
+case they are added at the end."
   (when (file-directory-p dir)
     (dolist (entry (nreverse (directory-files-and-attributes dir)))
       (let ((directory-p (cadr entry))
 	    (name (car entry)))
 	(unless (or (null directory-p)
 		    (string= ".." name))
-	  (add-to-load-path (car entry) dir))))))
+	  (add-to-load-path (car entry) dir append))))))
 
 ;; Add top-level lisp directories, in case they were not setup by the
 ;; environment, but avoid including user-emacs-directory.
@@ -142,6 +159,7 @@ by `byte-compile-target-directory'."
                     user-lib-directory
                     user-site-lisp-directory)))
   (add-to-load-path-recursively dir))
+(add-to-load-path-recursively user-backport-directory t)
 
 (mapc #'add-to-load-path
       (nreverse
