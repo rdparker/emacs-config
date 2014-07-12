@@ -9,12 +9,12 @@ traffic use less space and keeps the focus on the discussion.")
 (custom-theme-set-variables
  'softer-dark
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
- '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Liberation Mono" "DejaVu Sans Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed")))))
+ '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Liberation Mono" "DejaVu Sans Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Consolas" "Tex Gyre Cursor" "Menlo" "Courier") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed")))))
 
 (custom-theme-set-faces
  'softer-dark
- '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "Source Code Pro"))))
- '(bold ((t (:weight normal))))
+ '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "Consolas"))))
+ '(bold ((t (:weight bold))))
  '(cursor ((t (:background "DarkOliveGreen3" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
  '(erc-fool-face ((t (:foreground "DimGray" :height 0.7071))))
