@@ -44,6 +44,8 @@ package repositories."
     (unless package--initialized (package-initialize))
     (unless package-archive-contents (package-refresh-contents))
     (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
+    (add-to-list 'package-archives
+		 '("elpy" . "http://jorgenschaefer.github.io/packages/"))
 
     `(use-package ,name
        :ensure t

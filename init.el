@@ -532,6 +532,23 @@ it."
     (defvar emmet-mode-keymap (make-sparse-keymap))
     (bind-key "C-c C-c" 'emmet-expand-line emmet-mode-keymap)))
 
+;;; ELPY - Python configuration
+(use-package elpy
+  :if (>= emacs-major-version 24)
+  :commands elpy-mode
+  :init
+  (progn
+   (add-hook 'python-mode-hook 'elpy-mode))
+  :config
+  (remove-hook 'elpy-modules 'elpy-module-highlight-indentation)
+  (elpy-enable))
+
+;;; find-file-in-project
+(use-package find-file-in-project
+  :bind (("C-c C-f" . find-file-in-project))
+  :init
+  (defalias 'ffip 'find-file-in-project))
+
 ;;; find-func and find-func+
 (use-package find-func
   :bind (("C-x F" . find-function)
@@ -1273,42 +1290,42 @@ and the basename of the executable.")
 
 ;;; Python
 
-(defadvice run-python
-  (after run-python-disable-process-query () activate compile)
-  "Clear the process-query-on-exit flag for python processes.
+;; (defadvice run-python
+;;   (after run-python-disable-process-query () activate compile)
+;;   "Clear the process-query-on-exit flag for python processes.
 
-This gets started by python mode."
-  ;; set flag to allow exit without query on any
-  ;;active flymake processes
-  (let ((py-process (find-if (lambda (proc)
-				   (string= "*Python*"
-					(buffer-name (process-buffer proc))))
-				 (process-list))))
-	(set-process-query-on-exit-flag py-process nil)))
+;; This gets started by python mode."
+;;   ;; set flag to allow exit without query on any
+;;   ;;active flymake processes
+;;   (let ((py-process (find-if (lambda (proc)
+;; 				   (string= "*Python*"
+;; 					(buffer-name (process-buffer proc))))
+;; 				 (process-list))))
+;; 	(set-process-query-on-exit-flag py-process nil)))
 
-;;----pydoc lookup----
-;; taken from
-;; http://koichitamura.blogspot.com/2009/06/pydoc-look-up-command-emacs.html
-(defun hohe2-lookup-pydoc ()
-  (interactive)
-  (let ((curpoint (point)) (prepoint) (postpoint) (cmd))
-	(save-excursion
-	  (beginning-of-line)
-	  (setq prepoint (buffer-substring (point) curpoint)))
-	(save-excursion
-	  (end-of-line)
-	  (setq postpoint (buffer-substring (point) curpoint)))
-	(if (string-match "[_a-z][_\\.0-9a-z]*$" prepoint)
-	(setq cmd (substring prepoint (match-beginning 0) (match-end 0))))
-	(if (string-match "^[_0-9a-z]*" postpoint)
-	(setq cmd (concat cmd (substring postpoint (match-beginning 0) (match-end 0)))))
-	(if (string= cmd "") nil
-	  (let ((max-mini-window-height 0))
-	(shell-command (concat "pydoc " cmd))))))
+;; ;;----pydoc lookup----
+;; ;; taken from
+;; ;; http://koichitamura.blogspot.com/2009/06/pydoc-look-up-command-emacs.html
+;; (defun hohe2-lookup-pydoc ()
+;;   (interactive)
+;;   (let ((curpoint (point)) (prepoint) (postpoint) (cmd))
+;; 	(save-excursion
+;; 	  (beginning-of-line)
+;; 	  (setq prepoint (buffer-substring (point) curpoint)))
+;; 	(save-excursion
+;; 	  (end-of-line)
+;; 	  (setq postpoint (buffer-substring (point) curpoint)))
+;; 	(if (string-match "[_a-z][_\\.0-9a-z]*$" prepoint)
+;; 	(setq cmd (substring prepoint (match-beginning 0) (match-end 0))))
+;; 	(if (string-match "^[_0-9a-z]*" postpoint)
+;; 	(setq cmd (concat cmd (substring postpoint (match-beginning 0) (match-end 0)))))
+;; 	(if (string= cmd "") nil
+;; 	  (let ((max-mini-window-height 0))
+;; 	(shell-command (concat "pydoc " cmd))))))
 
-(add-hook 'python-mode-hook
-	  (lambda ()
-		(local-set-key (kbd "C-h f") 'hohe2-lookup-pydoc)))
+;; (add-hook 'python-mode-hook
+;; 	  (lambda ()
+;; 		(local-set-key (kbd "C-h f") 'hohe2-lookup-pydoc)))
 
 ;; (eval-after-load 'python
 ;;   '(lambda ()
