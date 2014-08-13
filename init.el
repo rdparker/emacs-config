@@ -687,6 +687,11 @@ which is an error according to some typographical conventions."
     ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
     ))
 
+;;; graphviz dot mode
+(use-package graphviz-dot-mode
+  :mode (("\\.dot\\'" . graphviz-dot-mode)
+	 ("\\.gv\\'" . graphviz-dot-mode)))
+
 ;;; grep
 (use-package grep
   :config

@@ -142,3 +142,6 @@
 [submodule "site-lisp/iedit"]
 	path = site-lisp/iedit
 	url = https://github.com/victorhge/iedit.git
+[submodule "site-lisp/graphviz"]
+	path = site-lisp/graphviz
+	url = https://github.com/ppareit/graphviz-dot-mode.git
