@@ -204,6 +204,14 @@ are named \"Emacs[A-Za-z]*.app\".")
   (when (< emacs-major-version 23)
     (defvar minibuffer-local-shell-command-map (make-sparse-keymap))))
 
+;;; Authentication
+(use-package auth-source
+  :config (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo" "~/.netrc")))
+(use-package netrc
+  :config (setq netrc-file "~/.authinfo.gpg"))
+(use-package nntp-authinfo-file
+  :config (setq nntp-authinfo-file "~/.authinfo.gpg"))
+
 ;;; auto-complete
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
@@ -513,6 +521,79 @@ it."
   "Run \"make dist\" in the current directory"
   (interactive)
   (compile "make -kw dist"))
+
+;;; email
+(use-package message
+  :config
+
+  (unless (featurep 'gnus-start)
+    (require 'gnus-start)
+    (gnus-read-init-file))
+
+  (defun select-from-address ()
+    "Interactively select a email from address.
+The choices are taken from `user-mail-address' and address
+entries in `gnus-posting-styles'.  Returns a list including the
+selected email address and the X-Message-SMTP-Method header value
+that appeared with the address in gnus-posting-styles, if any."
+    (let ((addresses))
+      (dolist (style gnus-posting-styles)
+	(let ((address (assoc 'address style))
+	      (method (cdr (assoc "X-Message-SMTP-Method" style))))
+	  (add-to-list 'addresses (cons (cadr address) method))))
+      (add-to-list 'addresses (list user-mail-address) nil
+		   (lambda (a b)
+		     (equal (car a) (car b))))
+      (assoc (funcall (cond
+		       ;; ((fboundp 'helm-comp-read) 'helm-comp-read)
+		       ((fboundp 'ido-completing-read) 'ido-completing-read)
+		       (t 'completing-read))
+		      "From: " addresses) addresses)))
+
+  (defun my-change-from ()
+    "Select and update the messages From header.
+
+This also updates the \"X-Message-SMTP-Method\" header."
+    (interactive)
+    (expand-abbrev)
+    (let* ((selection (select-from-address))
+	   (address (car selection))
+	   (method (cadr selection))
+	   (method-header "X-Message-SMTP-Method"))
+      (when address
+	(save-excursion
+	  ;; Replace or add a from header
+	  (message-goto-from)
+	  (move-beginning-of-line nil)
+	  (search-forward-regexp ": ")
+	  (let ((beg (point)))
+	    (move-end-of-line nil)
+	    (delete-region beg (point)))
+	  (insert (message-make-from nil address))
+
+	  (if method
+	      ;; Update or add the method header
+	      (progn
+		(or (mail-position-on-field method-header t)
+		    (progn (mail-position-on-field "subject")
+			   (insert "\n")
+			   (insert method-header)
+			   (insert ": ")))
+		(message-position-on-field method-header)
+		(move-beginning-of-line nil)
+		(search-forward-regexp ": ")
+		(let ((beg (point)))
+		  (move-end-of-line nil)
+		  (delete-region beg (point)))
+		(insert method))
+
+	    ;; If the selected address has no method header, remove
+	    ;; any existing one.
+	    (save-restriction
+	      (message-narrow-to-headers)
+	      (message-remove-header method-header)))))))
+
+  (bind-key "C-c C-f C-o" 'my-change-from message-mode-map))
 
 ;;; emmet-mode
 ;;

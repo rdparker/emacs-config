@@ -79,6 +79,7 @@
      (Syntax . ANSI-Common-Lisp)
      (Package . SDRAW)
      (package . asdf))))
+ '(send-mail-function (quote smtpmail-send-it))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-globals-include
    (quote
