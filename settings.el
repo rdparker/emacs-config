@@ -41,7 +41,7 @@
  '(column-number-mode t)
  '(custom-safe-themes
    (quote
-    ("99be37a9022877fa81b9ee93a176e7a1cb40326fa6862c7eaa9cd7d3294dd39d")))
+    ("99be37a9022877fa81b9ee93a176e7a1cb40326fa6862c7eaa9cd7d3294dd39d")))))
  '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))
