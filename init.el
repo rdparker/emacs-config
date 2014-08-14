@@ -903,7 +903,9 @@ which is an error according to some typographical conventions."
       :init
       (fset 'describe-bindings 'helm-descbinds))
     (use-package helm-swoop
-      :bind ("M-s o" . helm-swoop)))
+      :bind ("M-s o" . helm-swoop))
+    (unless (eq system-type 'windows-nt)
+      (bind-key "M-x" 'helm-M-x)))
 
   :config
   (helm-match-plugin-mode t))
