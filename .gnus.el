@@ -51,7 +51,7 @@
 		      (nnimap-stream ssl)))
 
 (add-to-list 'gnus-secondary-select-methods '(nntp "news.gmane.org"))
-(add-to-list 'gnus-secondary-select-methods '((nntp "news.gwene.org")))
+(add-to-list 'gnus-secondary-select-methods '(nntp "news.gwene.org"))
 
 ;;; Scoring
 (setq gnus-use-adaptive-scoring t
