@@ -526,6 +526,7 @@ it."
 (use-package message
   :config
 
+  (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
   (unless (featurep 'gnus-start)
     (require 'gnus-start)
     (gnus-read-init-file))
