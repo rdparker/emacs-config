@@ -1,10 +1,8 @@
 (deftheme softer-dark
   "Similar to Emacs dark defaults with fewer clashing colors.
 This theme slightly reduced the contrast of default text, makes
-whitespace highlighting less extreme, adjusts a few clashing or
-hard-to-see colors (such as the default ANSI blue color), and
-reduces the size of ERC notices so all the log-on, log-off
-traffic use less space and keeps the focus on the discussion.")
+whitespace highlighting less extreme, and adjusts a few clashing
+or hard-to-see colors (such as the default ANSI blue color).")
 
 ;; Tex Gyre Cursor was after Consolas in the
 ;; `face-font-family-alternatives' list, but running a pre-24.4
