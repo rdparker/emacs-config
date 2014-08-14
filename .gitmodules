@@ -45,7 +45,7 @@
 	url = https://github.com/gareth-rees/p4.el.git
 [submodule "site-lisp/quilt"]
 	path = site-lisp/quilt
-	url = https://github.com/jaalto/emacs-epackage--quilt.git
+	url = https://github.com/rdparker/emacs-epackage--quilt.git
 [submodule "site-lisp/applescript-mode"]
 	path = site-lisp/applescript-mode
 	url = https://github.com/rdparker/applescript-mode.git
