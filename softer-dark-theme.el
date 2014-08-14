@@ -12,11 +12,12 @@ traffic use less space and keeps the focus on the discussion.")
 (custom-theme-set-variables
  'softer-dark
  '(ansi-color-names-vector ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
- '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "DejaVu Sans Mono" "Liberation Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed")))))
+ '(face-font-family-alternatives (quote (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "Liberation Mono" "DejaVu Sans Mono" "Monospace" "courier" "fixed") ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed") ("DejaVu Sans Mono" ;; "Tex Gyre Cursor" "TeXGyreCursor"
+																													     "Consolas" "Menlo" "Courier") ("Monospace" "courier" "fixed") ("courier" "CMU Typewriter Text" "fixed") ("Sans Serif" "helv" "helvetica" "arial" "fixed") ("helv" "helvetica" "arial" "fixed")))))
 
 (custom-theme-set-faces
  'softer-dark
- '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "Consolas"))))
+ '(default ((t (:inherit nil :stipple nil :background "#201f1f" :foreground "#e0dedb" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight light :height 120 :width normal :foundry "nil" :family "DejaVu Sans Mono"))))
  '(bold ((t (:weight bold))))
  '(cursor ((t (:background "DarkOliveGreen3" :foreground "white"))))
  '(ecb-default-highlight-face ((((class color) (background dark)) (:background "cornflower blue"))))
