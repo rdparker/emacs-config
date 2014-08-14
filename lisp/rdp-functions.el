@@ -124,5 +124,16 @@ This may hang if circular symlinks are encountered."
   (or (memq mode (with-current-buffer buffer (mode-and-parents major-mode)))
       (memq mode (minor-modes buffer))))
 
+(defun goto-region-midpoint ()
+  "Go to the midpoint of the region.
+Mark will be left at the end of the region nearest `point-max'."
+  (interactive)
+  (let* ((point (point))
+	    (mark (mark))
+	    (beg (min point mark))
+	    (end (max point mark)))
+       (set-mark end)
+       (goto-char (round (/ (+ point mark) 2)))))
+
 (provide 'rdp-functions)
 ;;; rdp-functions.el ends here
