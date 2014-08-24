@@ -68,7 +68,9 @@
  '(rpm-spec-build-command "rpmbuild")
  '(safe-local-variable-values
    (quote
-    ((lexical-binding . t)
+    ((org-html-html5-fancy . t)
+     (org-html-doctype . "html5")
+     (lexical-binding . t)
      (cc-basic-offset . 4)
      (default-justification . left)
      (c-indentation-style . a123)
