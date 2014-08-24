@@ -596,6 +596,25 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
   (bind-key "C-c C-f C-o" 'my-change-from message-mode-map))
 
+;;; ecb -- Emacs Code Browser
+(use-package ecb
+  :commands ecb-activate
+  :init
+  (add-hooks '(prog-mode-hook html-mode-hook) 'ecb-activate)
+  :config
+  (progn
+    (setq ecb-tree-buffer-style 'ascii-guides
+      ecb-tip-of-the-day nil
+      ecb-layout-name "left15"
+      my-projects (list (expand-file-name "public_html/rabidwarren.com" user-emacs-directory)
+                        (expand-file-name "~/src/rabidwarren.com")
+                        user-emacs-directory)
+      ecb-source-path my-projects)
+    (setq ecb-layout-window-sizes
+	  '(("left15"
+	     (ecb-directories-buffer-name 0.10830324909747292 . 0.4864864864864865)
+	     (ecb-methods-buffer-name 0.10830324909747292 . 0.5))))))
+
 ;;; emmet-mode
 ;;
 ;; This is an extension of zencoding-mode
