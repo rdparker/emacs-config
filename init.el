@@ -1090,7 +1090,18 @@ cf. https://github.com/jwiegley/dot-emacs."
 (use-package flymake-jshint
   :commands flymake-jshint-init
   :init
-  (add-hook 'js-mode-hook 'flymake-mode-on)
+  (progn
+    (add-hook 'js-mode-hook 'flymake-mode-on)
+    (use-package flymake
+      :config
+      ;; Duplicates the initialization that happens near the end of
+      ;; flymake-jshint.
+      (add-to-list 'flymake-allowed-file-name-masks
+		   '(".+\\.js$"
+		     flymake-jshint-init
+		     flymake-simple-cleanup
+		     flymake-get-real-file-name))))
+
   :config
   ;; Installing NPM on Debian is not straight forward.  While Debian
   ;; has a nodejs package, it installs it as nodejs, but the NPM
