@@ -1633,26 +1633,27 @@ Each alist element in `skeleton-pair-alist' and
 ;; JavaScript, CSS, HTML REPL
 (use-package skewer-mode
   :commands skewer-mode
+  :init
+  (progn (add-hook 'js-mode-hook 'skewer-mode)
+	 (add-hook 'js2-mode-hook 'skewer-mode))
   :config
-  (progn
-    (add-hook 'js-mode-hook 'skewer-mode)))
+  (bind-key "C-c C-z" 'skewer-repl skewer-mode-map))
 (use-package skewer-css
   :commands skewer-css-mode
-  :config
+  :init
   (progn
     (add-hook 'css-mode-hook 'skewer-css-mode)))
 (use-package skewer-html
   :commands skewer-html-mode
-  :config
+  :init
   (progn
     (add-hook 'html-mode-hook 'skewer-html-mode)))
 (use-package skewer-repl
   :commands (skewer-repl skewer-repl--response-hook)
-  :config
+  :init
   (progn
     (add-hook 'skewer-response-hook #'skewer-repl--response-hook)
-    (add-hook 'skewer-repl-mode-hook #'skewer-repl-mode-compilation-shell-hook)
-    (define-key skewer-mode-map (kbd "C-c C-z") #'skewer-repl)))
+    (add-hook 'skewer-repl-mode-hook #'skewer-repl-mode-compilation-shell-hook)))
 
 ;;; Tar-mode
 ;;
