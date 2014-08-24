@@ -1092,6 +1092,18 @@ cf. https://github.com/jwiegley/dot-emacs."
   :init
   (add-hook 'js-mode-hook 'flymake-mode-on)
   :config
+  ;; Installing NPM on Debian is not straight forward.  While Debian
+  ;; has a nodejs package, it installs it as nodejs, but the NPM
+  ;; installation script expects to find it as node, so here is how to
+  ;; do it.  Most of this is from
+  ;; http://antler.co.za/2014/04/install-node-js-npm-on-debian-stable-wheezy-7/.
+  ;;
+  ;; # aptitude install nodejs
+  ;; # update-alternatives --install /usr/bin/node nodejs \
+  ;;                       /usr/bin/nodejs 100
+  ;; > wget https://www.npmjs.org/install.sh
+  ;; # npm_config_prefix=/usr/local bash install.sh
+
   (unless (executable-find "npm")
     (let ((path exec-path))
       (add-to-list 'exec-path "/opt/node-v0.8.4/bin")
@@ -1142,7 +1154,22 @@ cf. https://github.com/jwiegley/dot-emacs."
   (setq inferior-js-program-command (find-nodejs-name)
 	inferior-js-mode-hook 'my-js-mode-hook))
 
-(my-require 'js-beautify)
+;; web-beautify takes the place of js-beautify and adds support for
+;; HTML and CSS too.
+(use-package web-beautify
+  :commands (web-beautify-css web-beautify-html web-beautify-js)
+  :init
+  (progn
+    (use-package js
+      :config (bind-key "C-c b" 'web-beautify-js js-mode-map))
+    (use-package js2-mode
+      :config (bind-key "C-c b" 'web-beautify-js js2-mode-map))
+    (use-package json-mode
+      :config (bind-key "C-c b" 'web-beautify-js json-mode-map))
+    (use-package sgml-mode
+      :config (bind-key "C-c b" 'web-beautify-html html-mode-map))
+    (use-package css-mode
+      :config (bind-key "C-c b" 'web-beautify-css css-mode-map))))
 
 ;;; linum - line numbers in the margin
 (use-package linum
