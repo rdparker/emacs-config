@@ -1081,23 +1081,26 @@ cf. https://github.com/jwiegley/dot-emacs."
 ;;; Java
 (my-require 'jde-autoload)
 
-;;; Javascript
-(unless (executable-find "npm")
-  (let ((path exec-path))
-    (add-to-list 'exec-path "/opt/node-v0.8.4/bin")
-    (unless (executable-find "npm")
-      (setq exec-path path)
-      (message "Cannot find `npm', flymaking JavaScript will be disabled."))))
-(setq jshint-mode-node-program (if (executable-find "node")
-				   "node"
-				 (when (executable-find "nodejs")
-				   "nodejs")))
-(when (my-require 'flymake-jshint)
-   (add-hook 'js-mode-hook (lambda ()
- 			    (flymake-mode 1)
-			    ;; Scan the file for nested code blocks
-			    (imenu-add-menubar-index)
-			    (hs-minor-mode 1))))
+;;; JavaScript
+(defun find-nodejs-name ()
+  "Find the name of the nodejs executable."
+  (cond ((executable-find "node") "node")
+	((executable-find "nodejs") "nodejs")))
+
+(use-package flymake-jshint
+  :commands flymake-jshint-init
+  :init
+  (add-hook 'js-mode-hook 'flymake-mode-on)
+  :config
+  (unless (executable-find "npm")
+    (let ((path exec-path))
+      (add-to-list 'exec-path "/opt/node-v0.8.4/bin")
+      (unless (executable-find "npm")
+	(setq exec-path path)
+	(warn "Cannot find `npm', flymaking JavaScript will be disabled.")
+	(remove-hook 'js-mode-hook 'flymake-mode-on))))
+
+  (setq jshint-mode-node-program (find-nodejs-name)))
 ;; (defun flymake-jshint-init ()
 ;;   "My custom flymake-jshint-init that runs jshint and closure"
 ;;   (if (eq (jshint-mode-init) 'started)
@@ -1107,24 +1110,37 @@ cf. https://github.com/jwiegley/dot-emacs."
 ;;              (jshint-url (format "http://%s:%d/check" jshint-mode-host jshint-mode-port)))
 ;; 	(list "~/bin/flymake-js.sh" (list local-file jshint-mode-mode jshint-url)))))
 
-(when (my-require 'js2-mode)
+(defun turn-on-hideshow ()
+  "Unconditionally turn on `hs-minor-mode'."
+  (hs-minor-mode 1))
+
+(use-package js
+  :config
+  (add-hook 'js-mode-hook 'imenu-add-menubar-index)
+  (add-hook 'js-mode-hook 'turn-on-hideshow))
+
+(use-package js2-mode
+  :commands js2-minor-mode
+  :init
   (add-hook 'js-mode-hook (lambda ()
 			    "Run js2 as a background linter"
 			    (js2-minor-mode 1))))
 
-(when (my-require 'js-comint)
-  ;; Use node as our repl
-  (setq inferior-js-program-command jshint-mode-node-program)
-  (setq inferior-js-mode-hook
-	(lambda ()
-	  ;; We like nice colors
-	  (ansi-color-for-comint-mode-on)
-	  ;; Deal with some prompt nonsense
-	  (add-to-list 'comint-preoutput-filter-functions
-		       (lambda (output)
-			 (replace-regexp-in-string
-			  ".*1G\.\.\..*5G" "..."
-			  (replace-regexp-in-string ".*1G.*3G" "> " output)))))))
+(use-package js-comint
+  :commands run-js
+  :config
+  (defun my-js-mode-hook ()
+    ;; We like nice colors
+    (ansi-color-for-comint-mode-on)
+    ;; Deal with some prompt nonsense
+    (add-to-list 'comint-preoutput-filter-functions
+		 (lambda (output)
+		   (replace-regexp-in-string
+		    ".*1G\.\.\..*5G" "..."
+		    (replace-regexp-in-string ".*1G.*3G" "> "output)))))
+
+  (setq inferior-js-program-command (find-nodejs-name)
+	inferior-js-mode-hook 'my-js-mode-hook))
 
 (my-require 'js-beautify)
 
