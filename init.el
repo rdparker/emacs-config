@@ -598,6 +598,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
 ;;; ecb -- Emacs Code Browser
 (use-package ecb
+  :disabled t
   :commands ecb-activate
   :init
   (add-hooks '(prog-mode-hook html-mode-hook) 'ecb-activate)
