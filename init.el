@@ -1073,11 +1073,14 @@ cf. https://github.com/jwiegley/dot-emacs."
 
 ;;; Info
 `(use-package info
-  ;; Add some nice fontifying and a few other fe
+   ;; Add some nice fontifying and a few other features to Info mode.
    :config
-   ,(if (> emacs-major-version 22)
-	(require 'info+)
-      (require 'info+20)))
+   ;; But, do not resize the frame for info nodes.
+   ,(progn
+      (if (> emacs-major-version 22)
+	  (require 'info+)
+	(require 'info+20))
+      (setq Info-fit-frame-flag nil)))
 
 ;;; Java
 (my-require 'jde-autoload)
