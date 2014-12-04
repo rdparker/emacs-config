@@ -807,25 +807,53 @@ which is an error according to some typographical conventions."
 
 ;;; gtags
 (add-to-load-path "/usr/share/gtags")
-(when (require 'gtags nil t)
-  (autoload 'gtags-mode "gtags" "" t)
 
-  (add-hook 'c-mode-hook
+(use-package gtags
+  :commands gtags-mode
+  :diminish gtags-mode
+  :config
+  (progn
+
+    (defun my-gtags-find-or-pop (&optional arg)
+      "Call `gtags-find-tag', if ARG is not given; otherwise `gtags-pop-stack'.
+I find M-* to be an awkward key sequence.  This allows for using
+a argument to perform the pop instead.."
+      (interactive "P")
+      (if (null arg)
+          (call-interactively #'gtags-find-tag)
+        (call-interactively #'gtags-pop-stack)))
+
+    (bind-key "M-." 'my-gtags-find-or-pop)
+    (bind-key "M-*" 'gtags-pop-stack)
+
+    (bind-key "C-c t ." 'gtags-find-rtag)
+    (bind-key "C-c t f" 'gtags-find-file)
+    (bind-key "C-c t p" 'gtags-parse-file)
+    (bind-key "C-c t g" 'gtags-find-with-grep)
+    (bind-key "C-c t i" 'gtags-find-with-idutils)
+    (bind-key "C-c t s" 'gtags-find-symbol)
+    (bind-key "C-c t r" 'gtags-find-rtag)
+    (bind-key "C-c t v" 'gtags-visit-rootdir)
+
+    (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
+
+    (add-hook 'c-mode-hook
+	      '(lambda ()
+		 (gtags-mode 1)))
+
+    (add-hook 'after-save-hook 'gtags-update-hook)
+
+    (use-package helm-gtags
+      :bind ("M-T" . helm-gtags-select)
+      :config
+      (bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
+
+  :init
+  ;; Setting to make 'Gtags select mode' easy to see
+  (add-hook 'gtags-select-mode-hook
 	    '(lambda ()
-	       (gtags-mode 1)))
-  (add-hook 'after-save-hook 'gtags-update-hook))
-
-;; There are two hooks, gtags-mode-hook and gtags-select-mode-hook.
-(add-hook 'gtags-select-mode-hook
-  '(lambda ()
-     (define-key gtags-mode-map "\C-f" 'scroll-up)
-     (define-key gtags-mode-map "\C-b" 'scroll-down)))
-
-;; Setting to make 'Gtags select mode' easy to see
-(add-hook 'gtags-select-mode-hook
-  '(lambda ()
-     (setq hl-line-face 'underline)
-     (hl-line-mode 1)))
+	       (setq hl-line-face 'underline)
+	       (hl-line-mode 1))))
 
 ;; This is from http://emacswiki.org/emacs/GnuGlobal
 (defun gtags-update-single(filename)
