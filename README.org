@@ -1,4 +1,4 @@
-#+:TITLE: Ron Parker's Emacs Configuration
+#+TITLE: Ron Parker's Emacs Configuration
 
 This is the configuration I use on all of my machines, Linux, Mac and
 Windows.  I am deeply indebted to [[https://github.com/jwiegley][John Wiegley]] for many of his Emacs
