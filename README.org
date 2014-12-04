@@ -1,0 +1,72 @@
+#+:TITLE: Ron Parker's Emacs Configuration
+
+This is the configuration I use on all of my machines, Linux, Mac and
+Windows.  I am deeply indebted to [[https://github.com/jwiegley][John Wiegley]] for many of his Emacs
+innovations including [[https://github.com/jwiegley/use-package][use-package]].  This has allowed me to delay load
+most of my configuration.  On a good workstation it comes up in a few
+seconds.  On a slow, shared system or Windows it can take a minute
+or more.
+
+If you decide to play with this, do what I did when I started
+investigating [[https://github.com/jwiegley/dot-emacs][John's Emacs configuration]].  Move your Emacs init file
+and =~/.emacs.d= directory aside and then clone the repository into
+=~/.emacs.d=.  In my case, I actually pulled his config into a
+[[https://github.com/rdparker/emacs-config/tree/topic/try-johnw][topic/try-johnw]] branch within my repository.  I switched to that
+branch and then tweaked and played until I understood which bits I
+wanted.  If you grab his config, be warned that his =settings.el= file
+has some things that are very specific to his environment.  I have
+tried to keep my user-specific settings to a minimum.
+
+* Usage
+
+When I need to use Emacs on a new system I always
+
+: cd
+: git clone https://github.com/rdparker/emacs-config.git .emacs.d
+: cd .emacs.d
+: git submodule update --init
+
+This clones the Emacs configuration and pulls in a bunch of libraries
+and packages as git submodules.
+
+* Features
+
+  + Delay loads and configures most packages using John Wiegley's
+    =use-package=.
+
+  + Advises =desktop-mode= so that buffers show up in the list before
+    they have actually been loaded.  5 buffers will be loaded
+    immediately and the rest will be lazily loaded when the system
+    is idle.
+
+  + Supports a =~/.emacs.d/non-public/init.el= file for sensitive
+    configuration options.  It is omitted by =.gitignore= and will
+    never be committed to a repository.
+
+  + The =use-repo-package= macro permits using ELPA, MELPA and
+    Marmalade packages on systems that cannot access the Internet.
+
+    This is done by creating an Emacs-version-specific directory for
+    the package manager.  The version-specific files are then
+    committed to the git repository so that they are available across
+    all machines.
+
+    The version-specific directory may be created for a new version of
+    Emacs by doing =M-x package-initialize=.  Then, if you exit and
+    restart emacs the =use-repo-package= macro will pull in all of
+    these new packages.  Once that is done =git add= the new
+    =elpa-XX.Y.Z= directory and commit the changes to the repository.
+
+    It may seem odd to check these directories into git, but it makes
+    the files available for when I check them out on a system with a
+    newer version of Emacs and =scp= the entire =.emacs.d= directory
+    to machines with restricted access, which typically are running
+    older versions.
+
+* Mis-features
+
+  + Parts of this are still legacy and do not use use-package.
+
+  + Things are still slow starting up on Windows.
+
+  + A better offline ELPA solution would be nice.
