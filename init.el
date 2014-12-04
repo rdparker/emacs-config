@@ -834,6 +834,7 @@ a argument to perform the pop instead.."
     (bind-key "C-c t s" 'gtags-find-symbol)
     (bind-key "C-c t r" 'gtags-find-rtag)
     (bind-key "C-c t v" 'gtags-visit-rootdir)
+    (bind-key "C-c t P" 'gtags-pop-stack)
 
     (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
 
