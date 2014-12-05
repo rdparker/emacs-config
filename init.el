@@ -42,9 +42,18 @@ a argument to perform the pop instead.."
     (add-hook 'after-save-hook 'gtags-update-hook)
 
     (use-package helm-gtags
+      :if (or (> emacs-major-version 24)
+	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
       :bind ("M-T" . helm-gtags-select)
       :config
-      (bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
+      (bind-key "M-," 'helm-gtags-resume gtags-mode-map))
+
+    (use-package anything-gtags
+      :if (or (< emacs-major-version 24)
+	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+      :bind ("M-T" . anything-gtags-select)
+      :config
+      (bind-key "M-," 'anything-gtags-resume gtags-mode-map)))
 
   :init
   ;; Setting to make 'Gtags select mode' easy to see
