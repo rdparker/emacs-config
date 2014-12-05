@@ -1686,7 +1686,8 @@ and the basename of the executable.")
 
     (defun save-information ()
       (with-temp-message "Saving Emacs information..."
-        (recentf-cleanup)
+	(when (and (memq 'recentf features) recentf-mode (recentf-enabled-p))
+	  (recentf-cleanup))
 
         (loop for func in kill-emacs-hook
               unless (memq func '(exit-gnus-on-exit server-force-stop))
