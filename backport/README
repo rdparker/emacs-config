@@ -1,6 +1,0 @@
-These are backports of various packages to earlier Emacsen.
-
-This directory should appear late in `load-path' after all of Emac's
-standard lisp and site-lisp directories.  That way if a package comes
-with the running Emacs, it will be used instead of these packages,
-which should only be used when there is no version shipped with Emacs.

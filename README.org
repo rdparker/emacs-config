@@ -1,72 +1,63 @@
-#+TITLE: Ron Parker's Emacs Configuration
+#+TITLE: Ron Parker's GNU Global Emacs Configuration
 
-This is the configuration I use on all of my machines, Linux, Mac and
-Windows.  I am deeply indebted to [[https://github.com/jwiegley][John Wiegley]] for many of his Emacs
-innovations including [[https://github.com/jwiegley/use-package][use-package]].  This has allowed me to delay load
-most of my configuration.  On a good workstation it comes up in a few
-seconds.  On a slow, shared system or Windows it can take a minute
-or more.
+This is a pared down version of my Emacs configuration.  It only
+contains
 
-If you decide to play with this, do what I did when I started
-investigating [[https://github.com/jwiegley/dot-emacs][John's Emacs configuration]].  Move your Emacs init file
-and =~/.emacs.d= directory aside and then clone the repository into
-=~/.emacs.d=.  In my case, I actually pulled his config into a
-[[https://github.com/rdparker/emacs-config/tree/topic/try-johnw][topic/try-johnw]] branch within my repository.  I switched to that
-branch and then tweaked and played until I understood which bits I
-wanted.  If you grab his config, be warned that his =settings.el= file
-has some things that are very specific to his environment.  I have
-tried to keep my user-specific settings to a minimum.
+ + [[http://www.gnu.org/software/global/][GNU Global]] [[help:gtags-mode][gtags-mode]]
+ + [[help:helm-gtags-mode][helm-gtags-mode]]
 
-* Usage
+plus what I use to load and configure them
 
-When I need to use Emacs on a new system I always
+ + Special [[help:load-path][load-path]] configuration in [[file:load-path.el::(dolist%20(dir%20(nreverse][load-path.el]]
+ + John Wiegley's [[https://github.com/jwiegley/use-package][use-package]]
+ + [[https://github.com/emacs-helm/helm][Helm]] to support =helm-gtags-mode=
+
+* Installation
+
+To load this
 
 : cd
 : git clone https://github.com/rdparker/emacs-config.git .emacs.d
 : cd .emacs.d
+: git checkout topic/gtags-only
 : git submodule update --init
 
-This clones the Emacs configuration and pulls in a bunch of libraries
-and packages as git submodules.
+Then start Emacs.  That's all there is to it.
 
-* Features
+* Key Bindings
 
-  + Delay loads and configures most packages using John Wiegley's
-    =use-package=.
+  All the gtags functions listed below provide a standard Emacs
+  tags-like interface to GNU Global.
 
-  + Advises =desktop-mode= so that buffers show up in the list before
-    they have actually been loaded.  5 buffers will be loaded
-    immediately and the rest will be lazily loaded when the system
-    is idle.
+  |-----------+--------------------------+------------------------------------------------------------------|
+  | M-.       | [[help:gtags-find-tag][gtags-find-tag]]           | Input tag name and move to the definition.                       |
+  | M-*       | [[help:gtags-pop-stack][gtags-pop-stack]]          | Move to previous point on the stack.                             |
+  | C-c t .   | [[help:gtags-find-rtag][gtags-find-rtag]]          | Input tag name and move to the referenced point.                 |
+  | C-c t f   | [[help:gtags-find-file][gtags-find-file]]          | Input pattern and move to the top of the file.                   |
+  | C-c t p   | [[help:gtags-parse-file][gtags-parse-file]]         | Input file name and show the list of tags in it.                 |
+  | C-c t g   | [[help:gtags-find-with-grep][gtags-find-with-grep]]     | Input pattern, search with grep(1) and move to the locations.    |
+  | C-c t i   | [[help:gtags-find-with-idutils][gtags-find-with-idutils]]  | Input pattern, search with idutils(1) and move to the locations. |
+  | C-c t s   | [[help:gtags-find-symbol][gtags-find-symbol]]        | Input symbol and move to the locations.                          |
+  | C-c t r   | [[help:gtags-find-rtag][gtags-find-rtag]]          | Input tag name and move to the referenced point.                 |
+  | C-c t v   | [[help:gtags-visit-rootdir][gtags-visit-rootdir]]      | Tell tags commands the root directory of source tree.            |
+  | C-c t P   | [[help:gtags-pop-stack][gtags-pop-stack]]          | Move to previous point on the stack.                             |
+  | <mouse-2> | [[help:gtags-find-tag-from-here][gtags-find-tag-from-here]] | Get the expression as a tagname around here and move there.      |
 
-  + Supports a =~/.emacs.d/non-public/init.el= file for sensitive
-    configuration options.  It is omitted by =.gitignore= and will
-    never be committed to a repository.
+  Helm provides a more interactive interface.  It allows you to search
+  through and filter the list of all available options using fragments
+  of the identifier separated by spaces.  It's a great way to explore
+  what is available.
 
-  + The =use-repo-package= macro permits using ELPA, MELPA and
-    Marmalade packages on systems that cannot access the Internet.
+  | Key     | Function          | Description                                                   |
+  |---------+-------------------+---------------------------------------------------------------|
+  | M-T     | [[help:helm-gtags-select][helm-gtags-select]] | [[help:helm][Helm]] for GNU Global tags.                                     |
+  | M-,     | [[help:helm-gtags-resume))][helm-gtags-resume]] | Resurrect previously invoked [[help:helm-gtags][helm-gtags]] command.              |
+  | C-c M-x | [[help:helm-M-x][helm-M-x]]          | Helm for Emacs commands.                                      |
+  | C-h a   | [[help:helm-apropos][helm-apropos]]      | Helm for describing commands, functions, variables and faces. |
+  | M-s a   | [[help:helm-do-grep][helm-do-grep]]      | Helm for grep.                                                |
+  | M-s b   | [[help:helm-occur][helm-occur]]        | Helm for Occur.                                               |
+  | M-s F   | [[help:helm-for-files][helm-for-files]]    | Helm for opening files.                                       |
 
-    This is done by creating an Emacs-version-specific directory for
-    the package manager.  The version-specific files are then
-    committed to the git repository so that they are available across
-    all machines.
-
-    The version-specific directory may be created for a new version of
-    Emacs by doing =M-x package-initialize=.  Then, if you exit and
-    restart emacs the =use-repo-package= macro will pull in all of
-    these new packages.  Once that is done =git add= the new
-    =elpa-XX.Y.Z= directory and commit the changes to the repository.
-
-    It may seem odd to check these directories into git, but it makes
-    the files available for when I check them out on a system with a
-    newer version of Emacs and =scp= the entire =.emacs.d= directory
-    to machines with restricted access, which typically are running
-    older versions.
-
-* Mis-features
-
-  + Parts of this are still legacy and do not use use-package.
-
-  + Things are still slow starting up on Windows.
-
-  + A better offline ELPA solution would be nice.
+  When =helm-gtags-select= is first invoked in a very large project,
+  it can take several seconds to load, but subsequent usages are very
+  responsive.
