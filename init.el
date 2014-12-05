@@ -8,6 +8,37 @@
 (use-package gtags
   :commands gtags-mode
   :diminish gtags-mode
+  :bind (("M-*" . gtags-pop-stack)
+	 ("C-c t ." . gtags-find-rtag)
+	 ("C-c t f" . gtags-find-file)
+	 ("C-c t p" . gtags-parse-file)
+	 ("C-c t g" . gtags-find-with-grep)
+	 ("C-c t i" . gtags-find-with-idutils)
+	 ("C-c t s" . gtags-find-symbol)
+	 ("C-c t r" . gtags-find-rtag)
+	 ("C-c t v" . gtags-visit-rootdir)
+	 ("C-c t P" . gtags-pop-stack))
+  :init
+  (progn
+    (use-package helm-gtags
+      :if (or (> emacs-major-version 24)
+	      (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+      :bind ("M-T" . helm-gtags-select)
+      :config
+      (bind-key "M-," 'helm-gtags-resume gtags-mode-map))
+
+    (use-package anything-gtags
+      :if (or (< emacs-major-version 24)
+	      (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+      :bind ("M-T" . anything-gtags-select)
+      :config
+      (bind-key "M-," 'anything-gtags-resume gtags-mode-map))
+
+    ;; Setting to make 'Gtags select mode' easy to see
+    (add-hook 'gtags-select-mode-hook
+	      '(lambda ()
+		 (setq hl-line-face 'underline)
+		 (hl-line-mode 1))))
   :config
   (progn
 
@@ -21,46 +52,13 @@ a argument to perform the pop instead.."
         (call-interactively #'gtags-pop-stack)))
 
     (bind-key "M-." 'my-gtags-find-or-pop)
-    (bind-key "M-*" 'gtags-pop-stack)
-
-    (bind-key "C-c t ." 'gtags-find-rtag)
-    (bind-key "C-c t f" 'gtags-find-file)
-    (bind-key "C-c t p" 'gtags-parse-file)
-    (bind-key "C-c t g" 'gtags-find-with-grep)
-    (bind-key "C-c t i" 'gtags-find-with-idutils)
-    (bind-key "C-c t s" 'gtags-find-symbol)
-    (bind-key "C-c t r" 'gtags-find-rtag)
-    (bind-key "C-c t v" 'gtags-visit-rootdir)
-    (bind-key "C-c t P" 'gtags-pop-stack)
-
     (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
 
     (add-hook 'c-mode-hook
 	      '(lambda ()
 		 (gtags-mode 1)))
 
-    (add-hook 'after-save-hook 'gtags-update-hook)
-
-    (use-package helm-gtags
-      :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
-      :bind ("M-T" . helm-gtags-select)
-      :config
-      (bind-key "M-," 'helm-gtags-resume gtags-mode-map))
-
-    (use-package anything-gtags
-      :if (or (< emacs-major-version 24)
-	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
-      :bind ("M-T" . anything-gtags-select)
-      :config
-      (bind-key "M-," 'anything-gtags-resume gtags-mode-map)))
-
-  :init
-  ;; Setting to make 'Gtags select mode' easy to see
-  (add-hook 'gtags-select-mode-hook
-	    '(lambda ()
-	       (setq hl-line-face 'underline)
-	       (hl-line-mode 1))))
+    (add-hook 'after-save-hook 'gtags-update-hook)))
 
 ;; This is from http://emacswiki.org/emacs/GnuGlobal
 (defun gtags-update-single(filename)
