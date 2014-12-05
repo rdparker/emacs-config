@@ -5,12 +5,19 @@ contains
 
  + [[http://www.gnu.org/software/global/][GNU Global]] [[help:gtags-mode][gtags-mode]]
  + [[help:helm-gtags-mode][helm-gtags-mode]]
+ + [[help:anything-gtags-mode][anything-gtags-mode]]
 
 plus what I use to load and configure them
 
  + Special [[help:load-path][load-path]] configuration in [[file:load-path.el::(dolist%20(dir%20(nreverse][load-path.el]]
  + John Wiegley's [[https://github.com/jwiegley/use-package][use-package]]
- + [[https://github.com/emacs-helm/helm][Helm]] to support =helm-gtags-mode=
+ + [[https://github.com/emacs-helm/helm][Helm] to support =helm-gtags-mode=
+ + [[http://www.emacswiki.org/cgi-bin/wiki/Anything][Anything]] to support =anything-gtags-mode=
+
+Helm is the replacement for Anything, but it only works on Emacs
+24.3+.  So this configuration conditionally loads one or another.
+Helm learns a few new tricks and runs a little faster, but either
+works for accessing gtags.
 
 * Installation
 
@@ -58,6 +65,8 @@ Then start Emacs.  That's all there is to it.
   | M-s b   | [[help:helm-occur][helm-occur]]        | Helm for Occur.                                               |
   | M-s F   | [[help:helm-for-files][helm-for-files]]    | Helm for opening files.                                       |
 
-  When =helm-gtags-select= is first invoked in a very large project,
+  On Emacs versions prior to 24.3 all of the above helm functions are
+  replaced by their anything counterparts.  Either way when the
+  =*-gtags-select= function is first invoked in a very large project,
   it can take several seconds to load, but subsequent usages are very
   responsive.
