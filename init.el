@@ -720,6 +720,17 @@ which is an error according to some typographical conventions."
 	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
     (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
+;;; gdb
+(use-package gdb-ui
+  :if (<= emacs-minor-version 23)
+  :config
+  (setq gdb-many-windows nil))
+
+(use-package gdb-mi
+  :if (>= emacs-minor-version 24)
+  :config
+  (setq gdb-many-windows nil))
+
 ;;; git
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
