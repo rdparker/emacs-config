@@ -58,6 +58,16 @@
     (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
+ '(face-font-family-alternatives
+   (quote
+    (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "DejaVu Sans Mono" "Liberation Mono" "Monospace" "courier" "fixed")
+     ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed")
+     ("DejaVu Sans Mono" "Source Code Pro" "Consolas" "Menlo" "Courier")
+     ("Source Code Pro" "DejaVu Sans Mono" "Consolas" "Menlo" "Courier")
+     ("Monospace" "courier" "fixed")
+     ("courier" "CMU Typewriter Text" "fixed")
+     ("Sans Serif" "helv" "helvetica" "arial" "fixed")
+     ("helv" "helvetica" "arial" "fixed"))))
  '(highlight-symbol-idle-delay 1.0)
  '(indicate-buffer-boundaries (quote ((t . right) (top . left))))
  '(inhibit-startup-screen t)
@@ -125,16 +135,17 @@ This function will adjust the height so that the faces font size
 is consistent."
   (interactive)
 
-  (unless face
-    (setq face 'default))
-  (unless size
-    (setq size 12))
-  (let* ((font (face-attribute face :font))
-	 (face-size (aref (font-info font) 2)))
-    (when (not (= face-size size))
-      (let ((height (face-attribute face :height)))
-	(set-face-attribute face nil :height (/ (* height size)
-						face-size))))))
+  (when window-system
+   (unless face
+     (setq face 'default))
+   (unless size
+     (setq size 12))
+   (let* ((font (face-attribute face :font))
+	  (face-size (aref (font-info font) 2)))
+     (when (not (= face-size size))
+       (let ((height (face-attribute face :height)))
+	 (set-face-attribute face nil :height (/ (* height size)
+						 face-size)))))))
 
 (defun reload-custom-set-faces (&optional frame)
   "Reloads the `custom-set-faces' block in the `user-init-file'.
