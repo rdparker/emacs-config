@@ -532,6 +532,10 @@ it."
   (interactive)
   (compile "make -kw dist"))
 
+;;; elide-head -- elide most of standard license header text
+(use-package elide-head
+  :init (add-hook 'find-file-hook 'elide-head))
+
 ;;; email
 (use-package message
   :config
