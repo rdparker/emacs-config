@@ -2088,8 +2088,10 @@ The hooks are removed once ws-butler has been successfully loaded."
   (set-frame-parameter (selected-frame) 'fullscreen nil)
   (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'top emacs-min-top)
-  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  ;; This does not play well with my screen layout at work.
+  ;;
+  ;; (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  ;; (set-frame-parameter (selected-frame) 'left emacs-min-left)
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width))
 
