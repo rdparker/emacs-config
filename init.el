@@ -460,11 +460,13 @@ it."
 	     (setq desktop-save-mode nil)))
 	 (when desktop-save-mode
 	   (desktop-read)))))))
-(if (not (daemonp))
-    (use-desktop)
-  (add-hook 'after-make-frame-functions 'use-desktop)
-  (add-hook 'server-visit-hook 'use-desktop))
-
+(defmacro run-on-first-frame (function)
+  "Run the given function when the first frame is created."
+  `(if (not (daemonp))
+       (,function)
+     (add-hook 'after-make-frame-functions (quote ,function))
+     (add-hook 'server-visit-hook (quote ,function))))
+(run-on-first-frame use-desktop)
 
 ;;; Diff
 (use-package diff-mode
@@ -1498,6 +1500,17 @@ and the basename of the executable.")
                              "-xml" "-i" "-wrap" "0" "-omit" "-q")))
 
     (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
+
+;;; Powerline
+(defun use-powerline ()
+  "Start powerline after a short timer."
+  (run-with-idle-timer
+   .1 nil
+   (lambda ()
+     (require 'powerline)
+     (require 'softer-dark-theme)
+     (powerline-softer-dark-theme))))
+(run-on-first-frame use-powerline)
 
 ;;; Projectile
 ;;

@@ -33,6 +33,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
  '(cfengine-parameters-indent (quote (promise arrow 16)))
  '(clean-buffer-list-kill-never-buffer-names
@@ -41,7 +43,7 @@
  '(column-number-mode t)
  '(custom-safe-themes
    (quote
-    ("99be37a9022877fa81b9ee93a176e7a1cb40326fa6862c7eaa9cd7d3294dd39d")))
+    ("b8dfe7b03d801eb11a7221746d6f6a5f615c542d1af02c5fad87a15da5bd44c6")))
  '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))
