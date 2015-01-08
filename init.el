@@ -1679,6 +1679,7 @@ and the basename of the executable.")
 
 ;;; recentf
 (use-package recentf
+  :disabled t
   :config
   (setq recentf-save-file
 	(expand-file-name ".recentf" user-data-directory)))
