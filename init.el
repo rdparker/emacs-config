@@ -321,13 +321,23 @@ configured as a GNOME Startup Application."
 
 ;;; Desktop mode
 (defun use-desktop (&optional frame)
+  "Turn on `desktop-save-mode' when idle.
+Loading a desktop file may require some user interaction.
+Attempts to work around this so that desktop saving may be turned
+on when Emacs is started as a daemon have been fragile at best.
+So, instead of attempting to work around it, this function may be
+called once a user interface has been started."
   (run-with-idle-timer
    .1 nil
    (lambda ()
      (use-package desktop
        :init
        (progn
-	 (setq desktop-load-locked-desktop 'ask)
+	 (setq desktop-load-locked-desktop 'ask
+	       ;; Shared home directories need a per-host desktop files.
+	       desktop-base-file-name (concat ".emacs.desktop." (system-name))
+	       desktop-base-lock-name (concat desktop-base-file-name ".lock")
+	       desktop-dirname user-data-directory)
 	 (desktop-save-mode 1)
 	 (setq desktop-restore-eager 5
 	       desktop-restore-frames nil
