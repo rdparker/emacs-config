@@ -1508,7 +1508,7 @@ and the basename of the executable.")
    .1 nil
    (lambda ()
      (require 'powerline)
-     (require 'softer-dark-theme)
+     (load (expand-file-name "softer-dark-theme" user-emacs-directory))
      (powerline-softer-dark-theme))))
 (run-on-first-frame use-powerline)
 
