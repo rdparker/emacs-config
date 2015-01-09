@@ -321,13 +321,23 @@ configured as a GNOME Startup Application."
 
 ;;; Desktop mode
 (defun use-desktop (&optional frame)
+  "Turn on `desktop-save-mode' when idle.
+Loading a desktop file may require some user interaction.
+Attempts to work around this so that desktop saving may be turned
+on when Emacs is started as a daemon have been fragile at best.
+So, instead of attempting to work around it, this function may be
+called once a user interface has been started."
   (run-with-idle-timer
    .1 nil
    (lambda ()
      (use-package desktop
        :init
        (progn
-	 (setq desktop-load-locked-desktop 'ask)
+	 (setq desktop-load-locked-desktop 'ask
+	       ;; Shared home directories need a per-host desktop files.
+	       desktop-base-file-name (concat ".emacs.desktop." (system-name))
+	       desktop-base-lock-name (concat desktop-base-file-name ".lock")
+	       desktop-dirname user-data-directory)
 	 (desktop-save-mode 1)
 	 (setq desktop-restore-eager 5
 	       desktop-restore-frames nil
@@ -450,11 +460,13 @@ it."
 	     (setq desktop-save-mode nil)))
 	 (when desktop-save-mode
 	   (desktop-read)))))))
-(if (not (daemonp))
-    (use-desktop)
-  (add-hook 'after-make-frame-functions 'use-desktop)
-  (add-hook 'server-visit-hook 'use-desktop))
-
+(defmacro run-on-first-frame (function)
+  "Run the given function when the first frame is created."
+  `(if (not (daemonp))
+       (,function)
+     (add-hook 'after-make-frame-functions (quote ,function))
+     (add-hook 'server-visit-hook (quote ,function))))
+(run-on-first-frame use-desktop)
 
 ;;; Diff
 (use-package diff-mode
@@ -521,6 +533,10 @@ it."
   "Run \"make dist\" in the current directory"
   (interactive)
   (compile "make -kw dist"))
+
+;;; elide-head -- elide most of standard license header text
+(use-package elide-head
+  :init (add-hook 'find-file-hook 'elide-head))
 
 ;;; email
 (use-package message
@@ -705,6 +721,17 @@ which is an error according to some typographical conventions."
   (unless (or (> emacs-major-version 24)
 	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
     (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
+
+;;; gdb
+(use-package gdb-ui
+  :if (<= emacs-minor-version 23)
+  :config
+  (setq gdb-many-windows nil))
+
+(use-package gdb-mi
+  :if (>= emacs-minor-version 24)
+  :config
+  (setq gdb-many-windows nil))
 
 ;;; git
 (autoload 'git-blame-mode "git-blame"
@@ -1474,6 +1501,17 @@ and the basename of the executable.")
 
     (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
 
+;;; Powerline
+(defun use-powerline ()
+  "Start powerline after a short timer."
+  (run-with-idle-timer
+   .1 nil
+   (lambda ()
+     (require 'powerline)
+     (require 'softer-dark-theme)
+     (powerline-softer-dark-theme))))
+(run-on-first-frame use-powerline)
+
 ;;; Projectile
 ;;
 ;; TODO: Finish reading projectile's README and augment this
@@ -1641,6 +1679,7 @@ and the basename of the executable.")
 
 ;;; recentf
 (use-package recentf
+  :disabled t
   :config
   (setq recentf-save-file
 	(expand-file-name ".recentf" user-data-directory)))
@@ -2063,8 +2102,10 @@ The hooks are removed once ws-butler has been successfully loaded."
   (set-frame-parameter (selected-frame) 'fullscreen nil)
   (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'top emacs-min-top)
-  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  ;; This does not play well with my screen layout at work.
+  ;;
+  ;; (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  ;; (set-frame-parameter (selected-frame) 'left emacs-min-left)
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width))
 

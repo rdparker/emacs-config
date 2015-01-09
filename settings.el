@@ -33,6 +33,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
  '(cfengine-parameters-indent (quote (promise arrow 16)))
  '(clean-buffer-list-kill-never-buffer-names
@@ -41,7 +43,7 @@
  '(column-number-mode t)
  '(custom-safe-themes
    (quote
-    ("99be37a9022877fa81b9ee93a176e7a1cb40326fa6862c7eaa9cd7d3294dd39d")))
+    ("b8dfe7b03d801eb11a7221746d6f6a5f615c542d1af02c5fad87a15da5bd44c6")))
  '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))
@@ -56,6 +58,16 @@
     (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
+ '(face-font-family-alternatives
+   (quote
+    (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "DejaVu Sans Mono" "Liberation Mono" "Monospace" "courier" "fixed")
+     ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed")
+     ("DejaVu Sans Mono" "Source Code Pro" "Consolas" "Menlo" "Courier")
+     ("Source Code Pro" "DejaVu Sans Mono" "Consolas" "Menlo" "Courier")
+     ("Monospace" "courier" "fixed")
+     ("courier" "CMU Typewriter Text" "fixed")
+     ("Sans Serif" "helv" "helvetica" "arial" "fixed")
+     ("helv" "helvetica" "arial" "fixed"))))
  '(highlight-symbol-idle-delay 1.0)
  '(indicate-buffer-boundaries (quote ((t . right) (top . left))))
  '(inhibit-startup-screen t)
@@ -123,16 +135,17 @@ This function will adjust the height so that the faces font size
 is consistent."
   (interactive)
 
-  (unless face
-    (setq face 'default))
-  (unless size
-    (setq size 12))
-  (let* ((font (face-attribute face :font))
-	 (face-size (aref (font-info font) 2)))
-    (when (not (= face-size size))
-      (let ((height (face-attribute face :height)))
-	(set-face-attribute face nil :height (/ (* height size)
-						face-size))))))
+  (when window-system
+   (unless face
+     (setq face 'default))
+   (unless size
+     (setq size 12))
+   (let* ((font (face-attribute face :font))
+	  (face-size (aref (font-info font) 2)))
+     (when (not (= face-size size))
+       (let ((height (face-attribute face :height)))
+	 (set-face-attribute face nil :height (/ (* height size)
+						 face-size)))))))
 
 (defun reload-custom-set-faces (&optional frame)
   "Reloads the `custom-set-faces' block in the `user-init-file'.
