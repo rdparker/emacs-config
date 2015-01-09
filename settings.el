@@ -43,7 +43,7 @@
  '(column-number-mode t)
  '(custom-safe-themes
    (quote
-    ("b8dfe7b03d801eb11a7221746d6f6a5f615c542d1af02c5fad87a15da5bd44c6")))
+    ("2c6420e6c971e446731e7d0ab01b9ea65b94c9ebe44300520c440de91bfe22eb")))
  '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))

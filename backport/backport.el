@@ -32,5 +32,9 @@
 If the daemon was given a name argument, return that name."
     nil))
 
+(when (< emacs-major-version 24)
+  (defun get-scroll-bar-mode ()
+    scroll-bar-mode))
+
 (provide 'backport)
 ;;; backport.el ends here
