@@ -1828,6 +1828,10 @@ Each alist element in `skeleton-pair-alist' and
 		nil nil "\3757zXZ "])
   (jka-compr-update))
 
+;; tool-bar
+(use-package tool-bar
+  :config (tool-bar-mode -1))
+
 ;;; uniquify
 (require 'uniquify)
 ;; Use file<partial-dir> instead of file<#>
