@@ -1502,7 +1502,7 @@ and the basename of the executable.")
     (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
 
 ;;; Powerline
-(defun use-powerline ()
+(defun use-powerline (&optional frame)
   "Start powerline after a short timer."
   (run-with-idle-timer
    .1 nil
