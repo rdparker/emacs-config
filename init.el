@@ -1510,6 +1510,17 @@ and the basename of the executable.")
      (require 'powerline)
      (load (expand-file-name "softer-dark-theme" user-emacs-directory))
      (powerline-softer-dark-theme))))
+
+(defun disable-nobreak-char-display ()
+  "Turn off `nobreak-char-display' within the current buffer.
+This is used as a `shell-mode-hook' to avoid using underlines for
+the nobreak spaces in the powerline shell prompt."
+  (set (make-local-variable 'nobreak-char-display) nil))
+
+(use-package shell
+  :init
+  (add-hook 'shell-mode-hook 'disable-nobreak-char-display))
+
 (run-on-first-frame use-powerline)
 
 ;;; Projectile
