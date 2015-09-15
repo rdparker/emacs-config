@@ -284,11 +284,22 @@ are named \"Emacs[A-Za-z]*.app\".")
   (add-hook 'mail-setup-hook 'my-bbdb-insinuate-mail))
 
 ;;; Browser
-(unless (executable-find "w3m")
-  (let ((path exec-path))
-    (add-to-list 'exec-path "/opt/local/bin")
-    (unless (executable-find "w3m")
-      (setq exec-path path))))
+(defun set-path-for-executable (executable possible-paths)
+  "If EXECUTABLE is not in `exec-path' search POSSIBLE-PATHS for it.
+POSSIBLE-PATHS may be either a single path or list of paths.
+If EXECUTABLE is found in POSSIBLE-PATHS, add the corresponding path
+to `exec-path'."
+  (unless (executable-find executable)
+    (let ((path exec-path))
+      (dolist (elt (if (listp possible-paths)
+		       possible-paths
+		     (list possible-paths)))
+	(add-to-list 'exec-path (expand-file-name elt))
+	(when (executable-find executable)
+	  (cl-return-from nil exec-path))
+	(setq exec-path path)))))
+
+(set-path-for-executable "w3m" "/opt/local/bin")
 
 (use-package w3m
   :commands (w3m w3m-browse-url))
@@ -734,6 +745,8 @@ which is an error according to some typographical conventions."
   (setq gdb-many-windows nil))
 
 ;;; git
+(set-path-for-executable "git" '("C:\\Program Files)\\Git\\bin"
+				 "C:\\Program Files (x86)\\Git\\bin"))
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
 (require 'git nil t)
@@ -1186,13 +1199,10 @@ cf. https://github.com/jwiegley/dot-emacs."
   ;; > wget https://www.npmjs.org/install.sh
   ;; # npm_config_prefix=/usr/local bash install.sh
 
+  (set-path-for-executable "npm" "/opt/node-v0.8.4/bin")
   (unless (executable-find "npm")
-    (let ((path exec-path))
-      (add-to-list 'exec-path "/opt/node-v0.8.4/bin")
-      (unless (executable-find "npm")
-	(setq exec-path path)
-	(warn "Cannot find `npm', flymaking JavaScript will be disabled.")
-	(remove-hook 'js-mode-hook 'flymake-mode-on))))
+    (warn "Cannot find `npm', flymaking JavaScript will be disabled.")
+    (remove-hook 'js-mode-hook 'flymake-mode-on))
 
   (setq jshint-mode-node-program (find-nodejs-name)))
 ;; (defun flymake-jshint-init ()
