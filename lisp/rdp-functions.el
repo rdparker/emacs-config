@@ -82,6 +82,10 @@ This may hang if circular symlinks are encountered."
 	    file))
       file)))
 
+(defun directory-parent (dir)
+  "Gets the parent directory of DIR."
+  (file-name-directory (directory-file-name dir)))
+
 (defun my-require (feature)
   "This `require's a package if it can be found, otherwise it gives a message."
   (let ((found (or (member feature features)

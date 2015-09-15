@@ -1310,11 +1310,34 @@ cf. https://github.com/jwiegley/dot-emacs."
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
+(defvar sbcl-directories
+  (when (eq system-type 'windows-nt)
+    (let ((dirs (remove-if #'null
+			   `(,(getenv "ProgramFiles")
+			     ,(getenv "ProgramW6432"))))
+	  (sbcl-subdir "Steel Bank Common Lisp"))
+      (mapcar #'file-name-as-directory
+	      (mapcan (lambda (dir)
+			;; Find the versioned SBCL subdirectory
+			(directory-directories dir t "[0-9].*"))
+		      (remove-if-not #'file-directory-p
+				     (mapcar (lambda (dir)
+					       (expand-file-name sbcl-subdir dir))
+					     dirs))))))
+  "A list of directories where SBCL is installed.")
+
+(defvar ccl-directory
+  (let ((ccl-dir
+	(expand-file-name
+	 "ccl" (directory-parent (directory-parent invocation-directory)))))
+   (when (file-directory-p ccl-dir)
+     (file-name-as-directory ccl-dir)))
+  "The directory containing Clozure CL.")
+
 (defvar rdp-lisp-implementations
   '((("lisp"))				; cmucl
     (("ecl"))
-    (("ccl"))
-    (("ccl64"))
+    (("ccl")) (("ccl64")) (("wx86cl")) (("wx86cl64")) ; Clozure CLs
     ;; (("clisp" "--quiet" "-K" "full") :coding-system utf-8-unix)
     (("clisp" "--quiet") :coding-system utf-8-unix)
     (("sbcl")))
@@ -1329,17 +1352,24 @@ and the basename of the executable.")
 ;; with a negative argument, thusly, M-- M-x slime.
 (unless (boundp 'slime-lisp-implementations)
   (setq slime-lisp-implementations '()))
-(dolist (lisp rdp-lisp-implementations)
-  (dolist (path '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"
-		  "/opt/cmucl/bin/"))
-    (let* ((name (caar lisp))
-	   (args (cdar lisp))
-	   (keywords (cdr lisp))
-	   (file (concat path name)))
-      (when (file-exists-p file)
-	(add-to-list 'slime-lisp-implementations `(,(intern name)
-						   ,(cons file args)
-						   ,@keywords))))))
+(let ((directories '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"
+		     "/opt/cmucl/bin/")))
+  (when sbcl-directories
+    (setq directories (append directories sbcl-directories)))
+  (when ccl-directory
+    (setq directories (append directories (list ccl-directory))))
+  (dolist (lisp rdp-lisp-implementations)
+    (dolist (path directories)
+      (let* ((name (caar lisp))
+	     (args (cdar lisp))
+	     (keywords (cdr lisp))
+	     (file (concat path name)))
+	(when (eq system-type 'windows-nt)
+	  (setq file (concat file ".exe")))
+	(when (file-exists-p file)
+	  (add-to-list 'slime-lisp-implementations `(,(intern name)
+						     ,(cons file args)
+						     ,@keywords)))))))
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
