@@ -1274,6 +1274,22 @@ cf. https://github.com/jwiegley/dot-emacs."
   (when (lispstick-system-p)
     (run-with-idle-timer .1 nil 'lispstick-initialize)))
 
+;; The quicklisp directory, or nil if it does not exist.  A desirable
+;; side-effect of `expand-file-name' is that the Windows version of
+;; Emacs will automatically translate to the correct type of slash and
+;; the correct case of the drive letter, if any.  At least this was
+;; true when tested with:
+;;
+;;     GNU Emacs 24.5.1 (i686-pc-mingw32) of 2015-04-11 on LEG570
+(defvar quicklisp-directory
+  (let ((dir (file-name-as-directory
+	      (expand-file-name "quicklisp"
+				(if (eq system-type 'windows-nt)
+				    (getenv "USERPROFILE")
+				  "~")))))
+    (when (file-directory-p dir) dir))
+  "The directory where quicklisp files are stored.")
+
 `(use-package slime
    :commands slime
    ;; Prefer the quicklisp installed version of slime, if present.
@@ -1281,13 +1297,13 @@ cf. https://github.com/jwiegley/dot-emacs."
    ;; updated by `lispstick-initialize'.
    :load-path
    ,(progn
-      (load (expand-file-name "~/quicklisp/slime-helper.el") t)
+      (load (expand-file-name "slime-helper.el" quicklisp-directory) t)
       (if (fboundp 'quicklisp-slime-helper-slime-directory)
    	  (quicklisp-slime-helper-slime-directory))))
 
 ;; If there is one, Use the local CLHS.
 (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
-  (load (expand-file-name "~/quicklisp/clhs-use-local.el") t))
+  (load (expand-file-name "clhs-use-local.el" quicklisp-directory) t))
 
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
