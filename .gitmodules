@@ -157,3 +157,6 @@
 [submodule "site-lisp/powerline"]
 	path = site-lisp/powerline
 	url = https://github.com/milkypostman/powerline.git
+[submodule "site-lisp/magit-topgit"]
+	path = site-lisp/magit-topgit
+	url = https://github.com/magit/magit-topgit.git
