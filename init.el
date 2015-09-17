@@ -515,7 +515,7 @@ it."
                        (kbd "TAB") 'smart-tab))) ; was yas/expand
 
 (when (fboundp 'define-fringe-bitmap)
-  (my-require 'rfringe))
+  (require 'rfringe nil t))
 
 ;;; Development
 
@@ -1163,7 +1163,7 @@ cf. https://github.com/jwiegley/dot-emacs."
       (setq Info-fit-frame-flag nil)))
 
 ;;; Java
-(my-require 'jde-autoload)
+(require 'jde-autoload nil t)
 
 ;;; JavaScript
 (defun find-nodejs-name ()
@@ -1379,7 +1379,7 @@ and the basename of the executable.")
 		 "non-public/init"))
 	t))
 
-(when (my-require 'slime-autoloads)
+(when (require 'slime-autoloads nil t)
   (slime-setup '(slime-fancy
 		 slime-tramp
 		 slime-asdf)))
@@ -1389,7 +1389,7 @@ and the basename of the executable.")
   '(redshank-setup '(lisp-mode-hook
 			 slime-repl-mode-hook) t))
 
-(my-require 'redshank-loader)
+(require 'redshank-loader nil t)
 
 ;; paredit & show-paren
 (defun enable-paren-modes ()
@@ -1886,7 +1886,7 @@ Each alist element in `skeleton-pair-alist' and
 ;; eval-after-load does not work here when a .txz is passed to emacs
 ;; on the command line.  The buffer has been fully loaded by the time
 ;; this is called.
-(when (my-require 'jka-compr)
+(when (require 'jka-compr nil t)
   (add-to-list 'jka-compr-mode-alist-additions '("\\.txz\\'" . tar-mode))
   (add-to-list 'jka-compr-compression-info-list
 	       ["\\.txz\\'"
@@ -2080,10 +2080,10 @@ The hooks are removed once ws-butler has been successfully loaded."
     (bind-key "C-c y r" 'yas-reload-all)
     (bind-key "C-c y v" 'yas-visit-snippet-file)))
 
-(my-require 'yasnippet-bundle-autoloads)
+(require 'yasnippet-bundle-autoloads nil t)
 
 ;;; keyfreq -- track emacs command usage frequency
-(when (my-require 'keyfreq)
+(when (require 'keyfreq nil t)
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 

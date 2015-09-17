@@ -86,15 +86,6 @@ This may hang if circular symlinks are encountered."
   "Gets the parent directory of DIR."
   (file-name-directory (directory-file-name dir)))
 
-(defun my-require (feature)
-  "This `require's a package if it can be found, otherwise it gives a message."
-  (let ((found (or (member feature features)
-		   (require feature nil t))))
-	(if found
-	found
-	  (message "REQUIRE: %s not found.\n" (symbol-name feature))
-	  nil)))
-
 (defun my-load (file)
   "This `load's a file if it exists, otherwise it gives a message."
   (let ((found (load file t)))
