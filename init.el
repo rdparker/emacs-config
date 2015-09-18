@@ -107,11 +107,9 @@ are named \"Emacs[A-Za-z]*.app\".")
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;; Revert undesirable settings from Lisp Cabinet
-(if (or (> emacs-major-version 23)
-		(and (eq emacs-major-version 23)
-			 (>= emacs-minor-version 2)))
-	(setq tab-width 8)
-	(setq default-tab-width 8))			; obsoleted in 23.2
+(if (version< emacs-version "23.2")
+    (setq default-tab-width 8)		; obsoleted in 23.2
+  (setq tab-width 8))
 
 (require 'dired-config)
 (require 'multiple-cursors-config)
@@ -189,8 +187,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;
 ;;  See `helm' below for newer Emacsen.
 (use-package anything-config
-  :if (or (< emacs-major-version 24)
-	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :if (version< emacs-version "24.3")
   :commands anything
   :bind (("C-c M-x" . anything-M-x)
 	 ("C-h a"   . anything-c-apropos)
@@ -201,7 +198,7 @@ are named \"Emacs[A-Za-z]*.app\".")
   :init
   ;; Instead of hacking anything to work with Emacs < 23, just create
   ;; the missing map, and ignore it.
-  (when (< emacs-major-version 23)
+  (when (version< emacs-major-version "23")
     (defvar minibuffer-local-shell-command-map (make-sparse-keymap))))
 
 ;;; Authentication
@@ -214,7 +211,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; auto-complete
 (use-package auto-complete-config
-  :if (>= emacs-major-version 24)
+  :if (version<= "24" emacs-version)
   :init
   (progn
     ;; Make sure auto-complete can find the correct JavaScript
@@ -663,7 +660,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
 ;;; ELPY - Python configuration
 (use-package elpy
-  :if (>= emacs-major-version 24)
+  :if (version<= "24" emacs-version)
   :commands elpy-mode
   :init
   (progn
@@ -722,24 +719,26 @@ which is an error according to some typographical conventions."
 
 ;;; frame
 (use-package frame
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  :if (version<= "24.4" emacs-version)
   :bind ("C-M-S-f" . toggle-frame-fullscreen))
 
 (use-package fullscreen
   :bind ("M-RET" . toggle-fullscreen)
   :init
-  (unless (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  (unless (version<= "24.4" emacs-version)
     (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
 ;;; gdb
 (use-package gdb-ui
+  ;; FIX: I am pretty sure this version check here is wrong.
+  ;;      It should likely be the major version.  Check it at work.
   :if (<= emacs-minor-version 23)
   :config
   (setq gdb-many-windows nil))
 
 (use-package gdb-mi
+  ;; FIX: I am pretty sure this version check here is wrong.
+  ;;      It should likely be the major version.  Check it at work.
   :if (>= emacs-minor-version 24)
   :config
   (setq gdb-many-windows nil))
@@ -865,8 +864,7 @@ which is an error according to some typographical conventions."
   :init
   (progn
     (use-package helm-gtags
-      :if (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+      :if (version<= "24.3" emacs-version)
       :bind ("M-T" . helm-gtags-select)
       :config
       (progn
@@ -874,8 +872,7 @@ which is an error according to some typographical conventions."
 	(bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
     (use-package anything-gtags
-      :if (or (< emacs-major-version 24)
-	      (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+      :if (version< emacs-version "24.3")
       :bind ("M-T" . anything-gtags-select)
       :config
       (progn
@@ -990,8 +987,7 @@ a argument to perform the pop instead.."
 ;;
 ;; See `anything' above for older Emacsen.
 (use-package helm-config
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :if (version<= "24.3" emacs-version)
   :bind (("C-c M-x" . helm-M-x)
 	 ("C-h a"   . helm-apropos)
 	 ("M-s a"   . helm-do-grep)
@@ -1019,11 +1015,11 @@ a argument to perform the pop instead.."
 ;; getting `help-for-help' to access the modified version.  So for now
 ;; just require this stuff.
 (use-package help+20
-  :if (< emacs-major-version 22)
+  :if (= emacs-major-version 20)
   :init (require 'help+20))
 
 (use-package help+
-  :if (> emacs-major-version 21)
+  :if (version<= "22" emacs-version)
   :init
   (progn
     (require 'help+)
