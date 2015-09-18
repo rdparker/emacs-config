@@ -1,6 +1,6 @@
 ;;; rdp-functions.el --- functions that extend emacs
 
-;; Copyright (C) 2013  Ron Parker
+;; Copyright (C) 2013, 2015  Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: extensions
@@ -38,7 +38,9 @@ If NOSORT is non-nil, the list is not sorted--its order is unpredictable.
     (setq directory (file-name-as-directory directory))
     (remove-if (function (lambda (filename)
 			   (not (file-directory-p
-				 (concat directory filename)))))
+				 (if full
+				     filename
+				  (concat directory filename))))))
 	       (directory-files directory full match nosort))))
 
 (defun add-hooks (hooks function &optional append local)
@@ -80,14 +82,9 @@ This may hang if circular symlinks are encountered."
 	    file))
       file)))
 
-(defun my-require (feature)
-  "This `require's a package if it can be found, otherwise it gives a message."
-  (let ((found (or (member feature features)
-		   (require feature nil t))))
-	(if found
-	found
-	  (message "REQUIRE: %s not found.\n" (symbol-name feature))
-	  nil)))
+(defun directory-parent (dir)
+  "Gets the parent directory of DIR."
+  (file-name-directory (directory-file-name dir)))
 
 (defun my-load (file)
   "This `load's a file if it exists, otherwise it gives a message."

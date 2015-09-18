@@ -3,6 +3,9 @@
 ;;; TODO: Review my use of :init vs :config in `use-package'
 ;;;       statements.  There are places I had them reversed and I may
 ;;;       be able to clean up some of this file by fixing those.
+;;;
+;;; TODO: Look for opportunities to replace `add-to-list' with `push'
+;;;       or `cl-pushnew', per `add-to-list''s documentation.
 
 ;;; Initialization
 
@@ -107,11 +110,9 @@ are named \"Emacs[A-Za-z]*.app\".")
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;; Revert undesirable settings from Lisp Cabinet
-(if (or (> emacs-major-version 23)
-		(and (eq emacs-major-version 23)
-			 (>= emacs-minor-version 2)))
-	(setq tab-width 8)
-	(setq default-tab-width 8))			; obsoleted in 23.2
+(if (version< emacs-version "23.2")
+    (setq default-tab-width 8)		; obsoleted in 23.2
+  (setq tab-width 8))
 
 (require 'dired-config)
 (require 'multiple-cursors-config)
@@ -189,8 +190,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;
 ;;  See `helm' below for newer Emacsen.
 (use-package anything-config
-  :if (or (< emacs-major-version 24)
-	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :if (version< emacs-version "24.3")
   :commands anything
   :bind (("C-c M-x" . anything-M-x)
 	 ("C-h a"   . anything-c-apropos)
@@ -201,7 +201,7 @@ are named \"Emacs[A-Za-z]*.app\".")
   :init
   ;; Instead of hacking anything to work with Emacs < 23, just create
   ;; the missing map, and ignore it.
-  (when (< emacs-major-version 23)
+  (when (version< emacs-major-version "23")
     (defvar minibuffer-local-shell-command-map (make-sparse-keymap))))
 
 ;;; Authentication
@@ -214,7 +214,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; auto-complete
 (use-package auto-complete-config
-  :if (>= emacs-major-version 24)
+  :if (version<= "24" emacs-version)
   :init
   (progn
     ;; Make sure auto-complete can find the correct JavaScript
@@ -284,11 +284,22 @@ are named \"Emacs[A-Za-z]*.app\".")
   (add-hook 'mail-setup-hook 'my-bbdb-insinuate-mail))
 
 ;;; Browser
-(unless (executable-find "w3m")
-  (let ((path exec-path))
-    (add-to-list 'exec-path "/opt/local/bin")
-    (unless (executable-find "w3m")
-      (setq exec-path path))))
+(defun set-path-for-executable (executable possible-paths)
+  "If EXECUTABLE is not in `exec-path' search POSSIBLE-PATHS for it.
+POSSIBLE-PATHS may be either a single path or list of paths.
+If EXECUTABLE is found in POSSIBLE-PATHS, add the corresponding path
+to `exec-path'."
+  (unless (executable-find executable)
+    (let ((path exec-path))
+      (dolist (elt (if (listp possible-paths)
+		       possible-paths
+		     (list possible-paths)))
+	(add-to-list 'exec-path (expand-file-name elt))
+	(when (executable-find executable)
+	  (cl-return-from nil exec-path))
+	(setq exec-path path)))))
+
+(set-path-for-executable "w3m" "/opt/local/bin")
 
 (use-package w3m
   :commands (w3m w3m-browse-url))
@@ -504,7 +515,7 @@ it."
                        (kbd "TAB") 'smart-tab))) ; was yas/expand
 
 (when (fboundp 'define-fringe-bitmap)
-  (my-require 'rfringe))
+  (require 'rfringe nil t))
 
 ;;; Development
 
@@ -652,7 +663,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
 ;;; ELPY - Python configuration
 (use-package elpy
-  :if (>= emacs-major-version 24)
+  :if (version<= "24" emacs-version)
   :commands elpy-mode
   :init
   (progn
@@ -711,29 +722,33 @@ which is an error according to some typographical conventions."
 
 ;;; frame
 (use-package frame
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  :if (version<= "24.4" emacs-version)
   :bind ("C-M-S-f" . toggle-frame-fullscreen))
 
 (use-package fullscreen
   :bind ("M-RET" . toggle-fullscreen)
   :init
-  (unless (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  (unless (version<= "24.4" emacs-version)
     (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
 ;;; gdb
 (use-package gdb-ui
+  ;; FIX: I am pretty sure this version check here is wrong.
+  ;;      It should likely be the major version.  Check it at work.
   :if (<= emacs-minor-version 23)
   :config
   (setq gdb-many-windows nil))
 
 (use-package gdb-mi
+  ;; FIX: I am pretty sure this version check here is wrong.
+  ;;      It should likely be the major version.  Check it at work.
   :if (>= emacs-minor-version 24)
   :config
   (setq gdb-many-windows nil))
 
 ;;; git
+(set-path-for-executable "git" '("C:\\Program Files)\\Git\\bin"
+				 "C:\\Program Files (x86)\\Git\\bin"))
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
 (require 'git nil t)
@@ -755,6 +770,7 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (use-package magit
+  :load-path "site-lisp/magit/lisp/"
   :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
@@ -851,8 +867,7 @@ which is an error according to some typographical conventions."
   :init
   (progn
     (use-package helm-gtags
-      :if (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+      :if (version<= "24.3" emacs-version)
       :bind ("M-T" . helm-gtags-select)
       :config
       (progn
@@ -860,8 +875,7 @@ which is an error according to some typographical conventions."
 	(bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
     (use-package anything-gtags
-      :if (or (< emacs-major-version 24)
-	      (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+      :if (version< emacs-version "24.3")
       :bind ("M-T" . anything-gtags-select)
       :config
       (progn
@@ -976,8 +990,7 @@ a argument to perform the pop instead.."
 ;;
 ;; See `anything' above for older Emacsen.
 (use-package helm-config
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :if (version<= "24.3" emacs-version)
   :bind (("C-c M-x" . helm-M-x)
 	 ("C-h a"   . helm-apropos)
 	 ("M-s a"   . helm-do-grep)
@@ -1005,11 +1018,11 @@ a argument to perform the pop instead.."
 ;; getting `help-for-help' to access the modified version.  So for now
 ;; just require this stuff.
 (use-package help+20
-  :if (< emacs-major-version 22)
+  :if (= emacs-major-version 20)
   :init (require 'help+20))
 
 (use-package help+
-  :if (> emacs-major-version 21)
+  :if (version<= "22" emacs-version)
   :init
   (progn
     (require 'help+)
@@ -1150,7 +1163,7 @@ cf. https://github.com/jwiegley/dot-emacs."
       (setq Info-fit-frame-flag nil)))
 
 ;;; Java
-(my-require 'jde-autoload)
+(require 'jde-autoload nil t)
 
 ;;; JavaScript
 (defun find-nodejs-name ()
@@ -1186,13 +1199,10 @@ cf. https://github.com/jwiegley/dot-emacs."
   ;; > wget https://www.npmjs.org/install.sh
   ;; # npm_config_prefix=/usr/local bash install.sh
 
+  (set-path-for-executable "npm" "/opt/node-v0.8.4/bin")
   (unless (executable-find "npm")
-    (let ((path exec-path))
-      (add-to-list 'exec-path "/opt/node-v0.8.4/bin")
-      (unless (executable-find "npm")
-	(setq exec-path path)
-	(warn "Cannot find `npm', flymaking JavaScript will be disabled.")
-	(remove-hook 'js-mode-hook 'flymake-mode-on))))
+    (warn "Cannot find `npm', flymaking JavaScript will be disabled.")
+    (remove-hook 'js-mode-hook 'flymake-mode-on))
 
   (setq jshint-mode-node-program (find-nodejs-name)))
 ;; (defun flymake-jshint-init ()
@@ -1264,6 +1274,22 @@ cf. https://github.com/jwiegley/dot-emacs."
   (when (lispstick-system-p)
     (run-with-idle-timer .1 nil 'lispstick-initialize)))
 
+;; The quicklisp directory, or nil if it does not exist.  A desirable
+;; side-effect of `expand-file-name' is that the Windows version of
+;; Emacs will automatically translate to the correct type of slash and
+;; the correct case of the drive letter, if any.  At least this was
+;; true when tested with:
+;;
+;;     GNU Emacs 24.5.1 (i686-pc-mingw32) of 2015-04-11 on LEG570
+(defvar quicklisp-directory
+  (let ((dir (file-name-as-directory
+	      (expand-file-name "quicklisp"
+				(if (eq system-type 'windows-nt)
+				    (getenv "USERPROFILE")
+				  "~")))))
+    (when (file-directory-p dir) dir))
+  "The directory where quicklisp files are stored.")
+
 `(use-package slime
    :commands slime
    ;; Prefer the quicklisp installed version of slime, if present.
@@ -1271,24 +1297,47 @@ cf. https://github.com/jwiegley/dot-emacs."
    ;; updated by `lispstick-initialize'.
    :load-path
    ,(progn
-      (load (expand-file-name "~/quicklisp/slime-helper.el") t)
+      (load (expand-file-name "slime-helper.el" quicklisp-directory) t)
       (if (fboundp 'quicklisp-slime-helper-slime-directory)
    	  (quicklisp-slime-helper-slime-directory))))
 
 ;; If there is one, Use the local CLHS.
 (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
-  (load (expand-file-name "~/quicklisp/clhs-use-local.el") t))
+  (load (expand-file-name "clhs-use-local.el" quicklisp-directory) t))
 
 ;; Control indentation of my Common Lisp macros
 (put 'when-slots 'lisp-indent-function 1)
 
 (global-set-key (kbd "<f9>") 'slime-selector)
 
+(defvar sbcl-directories
+  (when (eq system-type 'windows-nt)
+    (let ((dirs (remove-if #'null
+			   `(,(getenv "ProgramFiles")
+			     ,(getenv "ProgramW6432"))))
+	  (sbcl-subdir "Steel Bank Common Lisp"))
+      (mapcar #'file-name-as-directory
+	      (mapcan (lambda (dir)
+			;; Find the versioned SBCL subdirectory
+			(directory-directories dir t "[0-9].*"))
+		      (remove-if-not #'file-directory-p
+				     (mapcar (lambda (dir)
+					       (expand-file-name sbcl-subdir dir))
+					     dirs))))))
+  "A list of directories where SBCL is installed.")
+
+(defvar ccl-directory
+  (let ((ccl-dir
+	(expand-file-name
+	 "ccl" (directory-parent (directory-parent invocation-directory)))))
+   (when (file-directory-p ccl-dir)
+     (file-name-as-directory ccl-dir)))
+  "The directory containing Clozure CL.")
+
 (defvar rdp-lisp-implementations
   '((("lisp"))				; cmucl
     (("ecl"))
-    (("ccl"))
-    (("ccl64"))
+    (("ccl")) (("ccl64")) (("wx86cl")) (("wx86cl64")) ; Clozure CLs
     ;; (("clisp" "--quiet" "-K" "full") :coding-system utf-8-unix)
     (("clisp" "--quiet") :coding-system utf-8-unix)
     (("sbcl")))
@@ -1303,17 +1352,24 @@ and the basename of the executable.")
 ;; with a negative argument, thusly, M-- M-x slime.
 (unless (boundp 'slime-lisp-implementations)
   (setq slime-lisp-implementations '()))
-(dolist (lisp rdp-lisp-implementations)
-  (dolist (path '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"
-		  "/opt/cmucl/bin/"))
-    (let* ((name (caar lisp))
-	   (args (cdar lisp))
-	   (keywords (cdr lisp))
-	   (file (concat path name)))
-      (when (file-exists-p file)
-	(add-to-list 'slime-lisp-implementations `(,(intern name)
-						   ,(cons file args)
-						   ,@keywords))))))
+(let ((directories '("~/bin/" "/opt/local/bin/" "/usr/bin/" "/bin/"
+		     "/opt/cmucl/bin/")))
+  (when sbcl-directories
+    (setq directories (append directories sbcl-directories)))
+  (when ccl-directory
+    (setq directories (append directories (list ccl-directory))))
+  (dolist (lisp rdp-lisp-implementations)
+    (dolist (path directories)
+      (let* ((name (caar lisp))
+	     (args (cdar lisp))
+	     (keywords (cdr lisp))
+	     (file (concat path name)))
+	(when (eq system-type 'windows-nt)
+	  (setq file (concat file ".exe")))
+	(when (file-exists-p file)
+	  (add-to-list 'slime-lisp-implementations `(,(intern name)
+						     ,(cons file args)
+						     ,@keywords)))))))
 
 ;; If there is an non-public/init.el(c) file in the same directory as
 ;; the user's init file, load it.  If not, don't generate an error.
@@ -1323,7 +1379,7 @@ and the basename of the executable.")
 		 "non-public/init"))
 	t))
 
-(when (my-require 'slime-autoloads)
+(when (require 'slime-autoloads nil t)
   (slime-setup '(slime-fancy
 		 slime-tramp
 		 slime-asdf)))
@@ -1333,7 +1389,7 @@ and the basename of the executable.")
   '(redshank-setup '(lisp-mode-hook
 			 slime-repl-mode-hook) t))
 
-(my-require 'redshank-loader)
+(require 'redshank-loader nil t)
 
 ;; paredit & show-paren
 (defun enable-paren-modes ()
@@ -1683,7 +1739,7 @@ the nobreak spaces in the powerline shell prompt."
 ;;; rainbow-mode -- Colorize string that represent colors.
 (use-repo-package rainbow-mode
   :commands rainbow-mode
-  :ensure t
+  :load-path "elpa/gnu/packages/rainbow-mode/"
   :init
   (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
 	     'rainbow-mode))
@@ -1830,7 +1886,7 @@ Each alist element in `skeleton-pair-alist' and
 ;; eval-after-load does not work here when a .txz is passed to emacs
 ;; on the command line.  The buffer has been fully loaded by the time
 ;; this is called.
-(when (my-require 'jka-compr)
+(when (require 'jka-compr nil t)
   (add-to-list 'jka-compr-mode-alist-additions '("\\.txz\\'" . tar-mode))
   (add-to-list 'jka-compr-compression-info-list
 	       ["\\.txz\\'"
@@ -2024,10 +2080,10 @@ The hooks are removed once ws-butler has been successfully loaded."
     (bind-key "C-c y r" 'yas-reload-all)
     (bind-key "C-c y v" 'yas-visit-snippet-file)))
 
-(my-require 'yasnippet-bundle-autoloads)
+(require 'yasnippet-bundle-autoloads nil t)
 
 ;;; keyfreq -- track emacs command usage frequency
-(when (my-require 'keyfreq)
+(when (require 'keyfreq nil t)
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 

@@ -1,6 +1,6 @@
 ;;; cygwin-config.el --- configure emacs on Windows for cygwin
 
-;; Copyright (C) 2013  Ron Parker
+;; Copyright (C) 2013, 2015  Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: 
@@ -20,6 +20,11 @@
 
 ;;; Commentary:
 
+;; Currently this is not being loaded.  I manually load it to
+;; compile somethings.
+
+;; TODO: Make this something that can be transient for a shell or compilation.
+
 ;;; Code:
 
 ;;; Cygwin integration
@@ -30,38 +35,37 @@
 ;; MinGW in that case).  Assumes that C:\cygwin\bin is not already in
 ;; your Windows Path (it generally should not be).
 ;;
-(unless (or (not (fboundp 'string-prefix-p))
-		(find-if (lambda (path)
-			   (string-prefix-p "C:/lisp/bin/emacs" path))
-			 load-path))
 
-  (let* ((cygwin-root "c:/cygwin")
-	 (cygwin-bin (concat cygwin-root "/bin")))
-	(when (and (eq 'windows-nt system-type)
-		   (file-readable-p cygwin-root))
+(let* ((cygwin-root (expand-file-name "c:/cygwin"))
+       (cygwin-bin (expand-file-name "bin" cygwin-root)))
+  (when (and (fboundp 'string-prefix-p)
+	     (eq 'windows-nt system-type)
+	     (file-readable-p cygwin-root)
+	     (not (some #'(lambda (path)
+			    (string-prefix-p (expand-file-name
+					      "C:/lisp/bin/emacs") path t))
+			load-path)))
 
-	  (setq exec-path (cons cygwin-bin exec-path))
-	  (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
+    (unless (member cygwin-bin exec-path)
+      (push cygwin-bin exec-path)
+      (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH"))))
 
-	  ;; By default use the Windows HOME.
-	  ;; Otherwise, uncomment below to set a HOME
-	  ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
+    ;; By default use the Windows HOME.
+    ;; Otherwise, uncomment below to set a HOME
+    ;;      (setenv "HOME" (concat cygwin-root "/home/eric"))
 
-	  ;; NT-emacs assumes a Windows shell. Change to baash.
-	  (setq shell-file-name "bash")
-	  (setenv "SHELL" shell-file-name)
-	  (setq explicit-shell-file-name shell-file-name)
+    ;; NT-emacs assumes a Windows shell. Change to bash.
+    (setq shell-file-name "bash")
+    (setenv "SHELL" shell-file-name)
+    (setq explicit-shell-file-name shell-file-name)
 
-	  ;; This removes unsightly ^M characters that would otherwise
-	  ;; appear in the output of java applications.
-	  (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
+    ;; This removes unsightly ^M characters that would otherwise
+    ;; appear in the output of java applications.
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
 
-	  (add-to-list 'load-path
-		   (concat (expand-file-name "~") "/.emacs.d"))
-
-	  (if (my-require 'cygwin-mount)
-	  (cygwin-mount-activate)
-	(warn "On Windows cygwin-mount.el is recommended")))))
+    (if (require 'cygwin-mount nil t)
+	(cygwin-mount-activate)
+      (warn "On Windows cygwin-mount.el is recommended"))))
 
 (provide 'cygwin-config)
 ;;; cygwin-config.el ends here

@@ -1,6 +1,6 @@
 ;;; use-repo-package.el --- Extensions t use-package    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014 Ron Parker
+;; Copyright (C) 2014, 2015 Ron Parker
 
 ;; Author: ronparke <rdparker@gmail.com>
 ;; Keywords: local
@@ -43,9 +43,11 @@ package repositories."
     (require 'package)
     (unless package--initialized (package-initialize))
     (unless package-archive-contents (package-refresh-contents))
-    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
-    (add-to-list 'package-archives
-		 '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+    (mapc #'(lambda (archive)
+	      (add-to-list 'package-archives archive))
+	  '(("org" . "http://orgmode.org/elpa")
+	    ("elpy" . "http://jorgenschaefer.github.io/packages/")
+	    ("melpa-stable" . "http://stable.melpa.org/packages/")))
 
     `(use-package ,name
        :ensure t

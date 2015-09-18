@@ -1,6 +1,6 @@
 ;;; dired-config.el --- Configure dired, dired-x, etc.
 
-;; Copyright (C) 2013  Ron Parker
+;; Copyright (C) 2013, 2015  Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: files
@@ -42,7 +42,7 @@
 (add-hook 'dired-load-hook
 	  (lambda ()
 	    (load "dired-x")
-	    (my-require 'dired-sort-menu+)))
+	    (require 'dired-sort-menu+ nil t)))
 (add-hook 'dired-mode-hook
 	  (lambda ()
 	    (load "dired-x")
