@@ -768,6 +768,7 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (use-package magit
+  :load-path "site-lisp/magit/lisp/"
   :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
