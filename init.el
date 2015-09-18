@@ -1740,7 +1740,7 @@ the nobreak spaces in the powerline shell prompt."
 ;;; rainbow-mode -- Colorize string that represent colors.
 (use-repo-package rainbow-mode
   :commands rainbow-mode
-  :ensure t
+  :load-path "elpa/gnu/packages/rainbow-mode/"
   :init
   (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
 	     'rainbow-mode))

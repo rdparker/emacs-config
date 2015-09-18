@@ -160,3 +160,6 @@
 [submodule "site-lisp/emacs-async"]
 	path = site-lisp/emacs-async
 	url = https://github.com/jwiegley/emacs-async
+[submodule "elpa/gnu"]
+	path = elpa/gnu
+	url = http://git.savannah.gnu.org/r/emacs/elpa.git
