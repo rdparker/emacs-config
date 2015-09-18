@@ -3,6 +3,9 @@
 ;;; TODO: Review my use of :init vs :config in `use-package'
 ;;;       statements.  There are places I had them reversed and I may
 ;;;       be able to clean up some of this file by fixing those.
+;;;
+;;; TODO: Look for opportunities to replace `add-to-list' with `push'
+;;;       or `cl-pushnew', per `add-to-list''s documentation.
 
 ;;; Initialization
 
