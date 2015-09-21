@@ -294,7 +294,12 @@ to `exec-path'."
       (dolist (elt (if (listp possible-paths)
 		       possible-paths
 		     (list possible-paths)))
-	(add-to-list 'exec-path (expand-file-name elt))
+	(setq elt (expand-file-name elt))
+	(add-to-list 'exec-path elt)
+	(setenv "PATH" (format "%s%c%s"
+			       elt
+			       (if (eq system-type 'windows-nt) ?\; ?:)
+			       (getenv "PATH")))
 	(when (executable-find executable)
 	  (cl-return-from nil exec-path))
 	(setq exec-path path)))))
