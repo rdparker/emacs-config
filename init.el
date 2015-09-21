@@ -214,6 +214,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; auto-complete
 (use-package auto-complete-config
+  :disabled t
   :if (version<= "24.4" emacs-version)
   :init
   ;; Make sure auto-complete can find the correct JavaScript
