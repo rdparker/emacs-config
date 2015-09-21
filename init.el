@@ -713,12 +713,24 @@ which is an error according to some typographical conventions."
 
 ;;; flyspell
 (use-package flyspell
-  :commands (flyspell-mode flyspell-prog-mode)
-  :diminish (flyspell-mode flyspell-prog-mode)
+  :bind (("C-c i b" . flyspell-buffer)
+         ("C-c i f" . flyspell-mode))
   :init
-  (progn
-    (add-hook 'text-mode-hook 'flyspell-mode)
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)))
+  (use-package ispell
+    :bind (("C-c i c" . ispell-comments-and-strings)
+           ("C-c i d" . ispell-change-dictionary)
+           ("C-c i k" . ispell-kill-ispell)
+           ("C-c i m" . ispell-message)
+           ("C-c i r" . ispell-region)))
+
+  (add-hook 'text-mode-hook #'flyspell-mode)
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+
+  :config
+  (set-path-for-executable "aspell" '("C:\\Program Files)\\Aspell\\bin"
+				      "C:\\Program Files (x86)\\Aspell\\bin"))
+  (setq ispell-program-name "aspell")
+  (unbind-key "C-." flyspell-mode-map))
 
 ;;; frame
 (use-package frame
