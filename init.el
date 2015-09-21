@@ -214,59 +214,58 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; auto-complete
 (use-package auto-complete-config
-  :if (version<= "24" emacs-version)
+  :if (version<= "24.4" emacs-version)
   :init
-  (progn
-    ;; Make sure auto-complete can find the correct JavaScript
-    ;; dictionary in spite of mode name aliasing in Emacs 23.
-    (let* ((standard-ac-dict-dir
-	    (expand-file-name "auto-complete/dict" user-site-lisp-directory))
-	   (javascript-dict
-	    (expand-file-name "javascript-mode" standard-ac-dict-dir))
-	   (custom-ac-dict-dir
-	    (expand-file-name "auto-complete/dict" user-data-directory))
-	   (js-dict
-	    (expand-file-name "js-mode" custom-ac-dict-dir)))
-      (unless (file-directory-p custom-ac-dict-dir)
-	(mkdir custom-ac-dict-dir t))
-      (unless (file-exists-p js-dict)
-	;; Windows may not support links, try a symbolic link, then a
-	;; hard link, and finally just make a copy.
-	(condition-case nil
-	    (make-symbolic-link javascript-dict js-dict)
-	  (error (condition-case nil
-		     (add-name-to-file javascript-dict js-dict)
-		   (error (copy-file javascript-dict js-dict))))))
+  ;; Make sure auto-complete can find the correct JavaScript
+  ;; dictionary in spite of mode name aliasing in Emacs 23.
+  (let* ((standard-ac-dict-dir
+	  (expand-file-name "auto-complete/dict" user-site-lisp-directory))
+	 (javascript-dict
+	  (expand-file-name "javascript-mode" standard-ac-dict-dir))
+	 (custom-ac-dict-dir
+	  (expand-file-name "auto-complete/dict" user-data-directory))
+	 (js-dict
+	  (expand-file-name "js-mode" custom-ac-dict-dir)))
+    (unless (file-directory-p custom-ac-dict-dir)
+      (mkdir custom-ac-dict-dir t))
+    (unless (file-exists-p js-dict)
+      ;; Windows may not support links, try a symbolic link, then a
+      ;; hard link, and finally just make a copy.
+      (condition-case nil
+	  (make-symbolic-link javascript-dict js-dict)
+	(error (condition-case nil
+		   (add-name-to-file javascript-dict js-dict)
+		 (error (copy-file javascript-dict js-dict))))))
 
-      ;; Setup the dictionary directories
-      (add-to-list 'ac-dictionary-directories standard-ac-dict-dir)
-      (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
+    ;; Setup the dictionary directories
+    (add-to-list 'ac-dictionary-directories standard-ac-dict-dir)
+    (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
 
-    ;; Keep the ~/.emacs directory clean
-    (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
+  ;; Keep the ~/.emacs directory clean
+  (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
 
-    (add-hook 'lisp-mode-hook (lambda ()
-				(add-to-list 'ac-sources 'ac-source-slime)))
+  (add-hook 'lisp-mode-hook (lambda ()
+			      (add-to-list 'ac-sources 'ac-source-slime)))
 
-    (ac-config-default)
+  (ac-config-default)
 
-    ;; This must go after ac-config-default or it will be overridden.
-    (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
+  ;; This must go after ac-config-default or it will be overridden.
+  (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
 
-    ;; Teaching auto-complete about slime.  Mostly taken from
-    ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
-    ;; with docs added.
-    (defun jsn-slime-source ()
-      "An auto-completion source that for slime buffers."
-      (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
-	     (beg (move-marker (make-marker) (slime-symbol-start-pos)))
-	     (prefix (buffer-substring-no-properties beg end))
-	     (completion-result (slime-contextual-completions beg end))
-	     (completion-set (first completion-result)))
-	completion-set))
-    (defvar ac-source-slime '((candidates . jsn-slime-source)))
+  ;; Teaching auto-complete about slime.  Mostly taken from
+  ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
+  ;; with docs added.
+  (defun jsn-slime-source ()
+    "An auto-completion source that for slime buffers."
+    (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
+	   (beg (move-marker (make-marker) (slime-symbol-start-pos)))
+	   (prefix (buffer-substring-no-properties beg end))
+	   (completion-result (slime-contextual-completions beg end))
+	   (completion-set (first completion-result)))
+      completion-set))
+  (defvar ac-source-slime '((candidates . jsn-slime-source)))
 
-    (global-auto-complete-mode t)))
+  (global-auto-complete-mode t))
 
 ;;; autoinsert
 (use-package autoinsert
@@ -506,6 +505,7 @@ it."
 (define-key read-expression-map [(shift tab)] 'unexpand)
 
 (use-package smart-tab
+  :commands global-smart-tab-mode
   :diminish smart-tab-mode
   :init (global-smart-tab-mode 1))
 
@@ -770,10 +770,13 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (use-package magit
-  :load-path "site-lisp/magit/lisp/"
+  :load-path (lambda ()
+	       (if (version<= "24.3" emacs-version)
+		   "site-lisp/magit-24.3/"
+		 "site-lisp/magit/lisp/"))
   :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
-         ("C-x G" . magit-status-with-prefix))
+	 ("C-x G" . magit-status-with-prefix))
   :commands (magit-init magit-git-command)
   :init
   (progn
@@ -808,9 +811,9 @@ which is an error according to some typographical conventions."
     (unbind-key "M-s" magit-mode-map)
 
     (add-hook 'magit-log-edit-mode-hook
-              #'(lambda ()
+	      #'(lambda ()
 		  (auto-fill-mode 1)
-                  (flyspell-mode 1)))
+		  (flyspell-mode 1)))
 
     (add-hook 'magit-mode-hook
 	      #'(lambda ()
@@ -825,9 +828,9 @@ which is an error according to some typographical conventions."
     (defun start-git-monitor ()
       (interactive)
       (unless magit-git-monitor-process
-        (setq magit-git-monitor-process
-              (start-process "git-monitor" (current-buffer) "git-monitor"
-                             "-d" (expand-file-name default-directory)))))
+	(setq magit-git-monitor-process
+	      (start-process "git-monitor" (current-buffer) "git-monitor"
+			     "-d" (expand-file-name default-directory)))))
 
     ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
     ))
