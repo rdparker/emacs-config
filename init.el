@@ -789,10 +789,9 @@ which is an error according to some typographical conventions."
 
 (use-package magit
   :load-path (lambda ()
-	       (if (version<= "24.3" emacs-version)
+	       (if (version<= emacs-version "24.3")
 		   "site-lisp/magit-24.3/"
 		 "site-lisp/magit/lisp/"))
-  :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
 	 ("C-x G" . magit-status-with-prefix))
   :commands (magit-init magit-git-command)
@@ -819,6 +818,9 @@ which is an error according to some typographical conventions."
 
   :config
   (progn
+    (when (fboundp 'magit-auto-revert-mode)
+      (diminish magit-auto-revert-mode))
+
     (setenv "GIT_PAGER" "")
 
     (use-package magit-review
