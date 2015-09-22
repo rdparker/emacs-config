@@ -828,7 +828,7 @@ which is an error according to some typographical conventions."
   :config
   (progn
     (when (fboundp 'magit-auto-revert-mode)
-      (diminish magit-auto-revert-mode))
+      (diminish 'magit-auto-revert-mode))
 
     (setenv "GIT_PAGER" "")
 
