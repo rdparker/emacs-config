@@ -804,7 +804,10 @@ which is an error according to some typographical conventions."
 	       ;; declared minimum versions of the packages.
 	       ;; Here I've named my submodules based upon the newest
 	       ;; version they are needed for.
-	       (cond ((version<  emacs-version "24") '("versioned/magit-23.4/"
+	       (cond ((version<  emacs-version "23.2") '("versioned/magit-23.1/"
+							 "versioned/git-commit-mode/"
+							 "versioned/git-modes/"))
+		     ((version<  emacs-version "24") '("versioned/magit-23.4/"
 						       "versioned/git-commit-mode/"
 						       "versioned/git-modes/"))
 		     ((version<= emacs-version "24.3") "versioned/magit-24.3/")
