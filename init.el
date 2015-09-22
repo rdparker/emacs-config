@@ -38,7 +38,12 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
-(require 'use-package)
+;;; Use-compile is no longer needed at runtime.
+(eval-when-compile
+  (require 'use-package))
+(require 'diminish)
+(require 'bind-key)
+
 (require 'use-repo-package)
 (eval-when-compile
   (setq use-package-verbose (null byte-compile-current-file)))
