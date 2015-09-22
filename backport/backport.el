@@ -1,6 +1,6 @@
 ;;; backport.el --- backport simple features to earlier Emacs
 
-;; Copyright (C) 2014 Ron Parker
+;; Copyright (C) 2014, 2015 Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: lisp
