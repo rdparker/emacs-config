@@ -181,3 +181,6 @@
 [submodule "versioned/git-modes"]
 	path = versioned/git-modes
 	url = https://github.com/magit/git-modes.git
+[submodule "versioned/emacs-23.1"]
+	path = versioned/magit-23.1
+	url = https://github.com/magit/magit.git
