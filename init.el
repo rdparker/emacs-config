@@ -206,7 +206,7 @@ are named \"Emacs[A-Za-z]*.app\".")
   :init
   ;; Instead of hacking anything to work with Emacs < 23, just create
   ;; the missing map, and ignore it.
-  (when (version< emacs-major-version "23")
+  (when (< emacs-major-version 23)
     (defvar minibuffer-local-shell-command-map (make-sparse-keymap))))
 
 ;;; Authentication
