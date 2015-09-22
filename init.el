@@ -555,6 +555,10 @@ it."
 (use-package elide-head
   :init (add-hook 'find-file-hook 'elide-head))
 
+;;; elm language
+(use-package elm-mode
+  :mode ("\\.elm\\'" . elm-mode))
+
 ;;; email
 (use-package message
   :config
@@ -1285,6 +1289,11 @@ cf. https://github.com/jwiegley/dot-emacs."
       :config (bind-key "C-c b" 'web-beautify-html html-mode-map))
     (use-package css-mode
       :config (bind-key "C-c b" 'web-beautify-css css-mode-map))))
+
+;;; let-alist - Let-bind dotted symbols into an alist.
+(use-package let-alist
+  :commands let-alist
+  :load-path "elpa/gnu/packages/let-alist/")
 
 ;;; linum - line numbers in the margin
 (use-package linum
