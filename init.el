@@ -1339,16 +1339,22 @@ cf. https://github.com/jwiegley/dot-emacs."
     (when (file-directory-p dir) dir))
   "The directory where quicklisp files are stored.")
 
-`(use-package slime
-   :commands slime
-   ;; Prefer the quicklisp installed version of slime, if present.
-   ;; Otherwise, otherise defer to load-path, which in my case may be
-   ;; updated by `lispstick-initialize'.
-   :load-path
-   ,(progn
-      (load (expand-file-name "slime-helper.el" quicklisp-directory) t)
-      (if (fboundp 'quicklisp-slime-helper-slime-directory)
-   	  (quicklisp-slime-helper-slime-directory))))
+;; This does not use `use-package' :if because Emacs 23.2.1 chokes
+;; possibly because of some anamoly in its macro handling combined
+;; with the fact that slime requires lexical-binding support, which
+;; was introduced in Emacs 24.1.
+(when (version< "24" emacs-version)
+  (use-package slime
+    :commands slime
+    ;; Prefer the quicklisp installed version of slime, if present.
+    ;; Otherwise, otherise defer to load-path, which in my case may be
+    ;; updated by `lispstick-initialize'.
+
+    :load-path (lambda ()
+		 (load (expand-file-name "slime-helper.el" quicklisp-directory) t)
+		 (if (fboundp 'quicklisp-slime-helper-slime-directory)
+		     (quicklisp-slime-helper-slime-directory)
+		   load-path))))
 
 ;; If there is one, Use the local CLHS.
 (let ((quicklisp-clhs-inhibit-symlink-p (eq system-type 'windows-nt)))
