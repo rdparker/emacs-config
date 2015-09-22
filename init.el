@@ -798,9 +798,17 @@ which is an error according to some typographical conventions."
 
 (use-package magit
   :load-path (lambda ()
-	       (if (version<= emacs-version "24.3")
-		   "site-lisp/magit-24.3/"
-		 "site-lisp/magit/lisp/"))
+	       ;; Magit package versions are strange.  For example
+	       ;; version 1.4.2 is not a child of 1.4.1 and supports
+	       ;; older versions than what 1.4.1 claims to.  Also the
+	       ;; declared minimum versions of the packages.
+	       ;; Here I've named my submodules based upon the newest
+	       ;; version they are needed for.
+	       (cond ((version<  emacs-version "24") '("versioned/magit-23.4/"
+						       "versioned/git-commit-mode/"
+						       "versioned/git-modes/"))
+		     ((version<= emacs-version "24.3") "versioned/magit-24.3/")
+		     (t "versioned/magit/lisp/")))
   :bind (("C-x g" . magit-status)
 	 ("C-x G" . magit-status-with-prefix))
   :commands (magit-init magit-git-command)
@@ -826,43 +834,47 @@ which is an error according to some typographical conventions."
 		(define-key dired-mode-map "r" 'magit-status))))
 
   :config
-  (progn
-    (when (fboundp 'magit-auto-revert-mode)
-      (diminish 'magit-auto-revert-mode))
+  (when (fboundp 'magit-auto-revert-mode)
+    (diminish 'magit-auto-revert-mode))
 
-    (setenv "GIT_PAGER" "")
+  ;; Suppress the `magit-auto-revert-mode' message.
+  (setq magit-last-seen-setup-instructions "1.4.0")
 
-    (use-package magit-review
-      :commands magit-review
-      :config (require 'json))
+  (setenv "GIT_PAGER" "")
 
-    (unbind-key "M-h" magit-mode-map)
-    (unbind-key "M-s" magit-mode-map)
+  (use-package magit-review
+    :commands magit-review
+    :config (require 'json))
 
-    (add-hook 'magit-log-edit-mode-hook
-	      #'(lambda ()
-		  (auto-fill-mode 1)
-		  (flyspell-mode 1)))
+  (unbind-key "M-h" magit-mode-map)
+  (unbind-key "M-s" magit-mode-map)
 
-    (add-hook 'magit-mode-hook
-	      #'(lambda ()
-		  (when (magit-get "svn-remote" "svn" "url")
-		    (magit-svn-mode 1))))
+  (add-hook 'magit-log-edit-mode-hook
+	    #'(lambda ()
+		(auto-fill-mode 1)
+		(flyspell-mode 1)))
 
-    (require 'magit-topgit)
+  (add-hook 'magit-mode-hook
+	    #'(lambda ()
+		(when (magit-get "svn-remote" "svn" "url")
+		  (magit-svn-mode 1))))
 
-    (defvar magit-git-monitor-process nil)
-    (make-variable-buffer-local 'magit-git-monitor-process)
+  (use-package magit-topgit
+    :if (fboundp 'magit-define-popup)
+    :init (require 'magit-topgit))
 
-    (defun start-git-monitor ()
-      (interactive)
-      (unless magit-git-monitor-process
-	(setq magit-git-monitor-process
-	      (start-process "git-monitor" (current-buffer) "git-monitor"
-			     "-d" (expand-file-name default-directory)))))
+  (defvar magit-git-monitor-process nil)
+  (make-variable-buffer-local 'magit-git-monitor-process)
 
-    ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
-    ))
+  (defun start-git-monitor ()
+    (interactive)
+    (unless magit-git-monitor-process
+      (setq magit-git-monitor-process
+	    (start-process "git-monitor" (current-buffer) "git-monitor"
+			   "-d" (expand-file-name default-directory)))))
+
+  ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
+  )
 
 ;;; graphviz dot mode
 (use-package graphviz-dot-mode
