@@ -44,5 +44,12 @@ If the daemon was given a name argument, return that name."
   "Return an expression equivalent to `(progn ,@EXPS)."
   (if (cdr exps) `(progn ,@exps) (car exps))))
 
+;; The function `condition-case-unless-debug' was introduced in Emacs
+;; 24.1, it existed as `condition-case-no-debug' from Emacs 23.1 on,
+;; but per version 24's NEWS was not advertised.
+(when (and (not (fboundp 'condition-case-unless-debug))
+	   (fboundp 'condition-case-no-debug))
+  (defalias 'condition-case-unless-debug 'condition-case-no-debug))
+
 (provide 'backport)
 ;;; backport.el ends here
