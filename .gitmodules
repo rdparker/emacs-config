@@ -1,8 +1,8 @@
 [submodule "site-lisp/use-package"]
 	path = site-lisp/use-package
 	url = https://github.com/jwiegley/use-package.git
-[submodule "site-lisp/magit"]
-	path = site-lisp/magit
+[submodule "versioned/magit"]
+	path = versioned/magit
 	url = https://github.com/magit/magit.git
 [submodule "site-lisp/session"]
 	path = site-lisp/session
@@ -163,12 +163,21 @@
 [submodule "elpa/gnu"]
 	path = elpa/gnu
 	url = http://git.savannah.gnu.org/r/emacs/elpa.git
-[submodule "site-lisp/magit-24.3"]
-	path = site-lisp/magit-24.3
-	url = https://github.com/magit/magit
+[submodule "versioned/magit-24.3"]
+	path = versioned/magit-24.3
+	url = https://github.com/magit/magit.git
 [submodule "site-lisp/elm-mode"]
 	path = site-lisp/elm-mode
 	url = https://github.com/jcollard/elm-mode.git
 [submodule "site-lisp/f-el"]
 	path = site-lisp/f-el
 	url = https://github.com/rejeep/f.el.git
+[submodule "versioned/magit-23.4"]
+	path = versioned/magit-23.4
+	url = https://github.com/magit/magit.git
+[submodule "versioned/git-commit-mode"]
+	path = versioned/git-commit-mode
+	url = https://github.com/jwiegley/git-commit-mode.git
+[submodule "versioned/git-modes"]
+	path = versioned/git-modes
+	url = https://github.com/magit/git-modes.git
