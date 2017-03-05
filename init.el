@@ -801,7 +801,7 @@ which is an error according to some typographical conventions."
 		  (when (magit-get "svn-remote" "svn" "url")
 		    (magit-svn-mode 1))))
 
-    (require 'magit-topgit)
+    (require 'magit-topgit nil t)
 
     (defvar magit-git-monitor-process nil)
     (make-variable-buffer-local 'magit-git-monitor-process)
