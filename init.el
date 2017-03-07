@@ -1836,6 +1836,10 @@ Each alist element in `skeleton-pair-alist' and
     (add-hook 'skewer-response-hook #'skewer-repl--response-hook)
     (add-hook 'skewer-repl-mode-hook #'skewer-repl-mode-compilation-shell-hook)))
 
+;;; If there are more than two windows, number them when switching between them.
+(use-package switch-window
+  :bind (("C-x o" . switch-window)))
+
 ;;; Tar-mode
 ;;
 ;; Teach jka-compr about .txz files
