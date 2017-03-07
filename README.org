@@ -24,10 +24,11 @@ When I need to use Emacs on a new system I always
 : cd
 : git clone https://github.com/rdparker/emacs-config.git .emacs.d
 : cd .emacs.d
-: git submodule update --init
+: make
 
-This clones the Emacs configuration and pulls in a bunch of libraries
-and packages as git submodules.
+This clones the Emacs configuration, pulls in some libraries and
+packages as submodules and sets up remotes for others that are stored
+in this repository as subtrees.
 
 * Features
 
@@ -65,8 +66,39 @@ and packages as git submodules.
 
 * Mis-features
 
-  + Parts of this are still legacy and do not use use-package.
+  + Parts of this are still legacy and do not use use-package or are
+    retained as git submodules.
 
   + Things are still slow starting up on Windows.
 
   + A better offline ELPA solution would be nice.
+* Subtrees and Subodules
+
+This emacs configuration uses both git subtrees and submodules. Except
+for submodules from my own repositories, they should all be considered
+legacy. I will be replacing all of them over time.
+
+** Why?
+
+Using submodules has become problematic, I've run into the all too
+common issue of having to deal with disappearing git remotes and
+revisions due to authors deleting them in one fashion or another. So,
+bye bye submodules. Hello subtrees.
+
+Committing back upstream with a subtree is a little more complicated,
+but I don't do it very often and at least any revisions in this
+configuration will always be available since subtrees are stored
+directly within this repo.
+
+Because I normally squash subtrees to keep the size of this repo down,
+the original author's history is not directly available, but this has
+rarely been an issue. You really don't want me to pull in the full
+history of [[http://orgmode.org][Org-mode]].
+
+Subtrees use extra git remotes and since these are normally local to
+the machine where they are created, I am maintaining a list of them in
+the =Makefile=. This makes it easier to know where they came from and
+to do upstream commits from any machine where this configuration is
+used. Sure, adding them to the =Makefile= is manual, but it beats
+losing track of that information or losing part of my configuration
+because something has disappeared.
