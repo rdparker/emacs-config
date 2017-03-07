@@ -1995,6 +1995,11 @@ The hooks are removed once ws-butler has been successfully loaded."
 (modify-coding-system-alist 'file "\\.po\\'\\|\\.po\\."
 			    'po-find-file-coding-system)
 
+;;; yaml
+(use-package yaml-mode
+  :load-path "site-lisp/yaml-mode"
+  :mode ("\\.ya?ml\\'" . yaml-mode))
+
 ;;; yasnippet
 (use-package yasnippet
   :if (not noninteractive)		; no reason to load in batch mode
