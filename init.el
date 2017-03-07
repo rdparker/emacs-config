@@ -332,6 +332,9 @@ configured as a GNOME Startup Application."
 	(window-system "x"))
 	(save-buffers-kill-emacs)))
 
+(use-package dash
+  :config (dash-enable-font-lock))
+
 ;;; Desktop mode
 (defun use-desktop (&optional frame)
   "Turn on `desktop-save-mode' when idle.
