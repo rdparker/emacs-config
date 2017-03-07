@@ -718,7 +718,7 @@ which is an error according to some typographical conventions."
 ;;; flyspell
 (use-package flyspell
   :commands (flyspell-mode flyspell-prog-mode)
-  :diminish (flyspell-mode flyspell-prog-mode)
+  :diminish (flyspell-mode)
   :init
   (progn
     (add-hook 'text-mode-hook 'flyspell-mode)
