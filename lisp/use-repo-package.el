@@ -39,7 +39,8 @@ ensure that package NAME is used, possibly pulling it from a
 repository.  Otherwise, the package will not be loaded to prevent
 possible init-time errors due to unreachable
 package repositories."
-  (let ((predicate (use-package-plist-get args :if)))
+  (let* ((normalized-args (use-package-normalize-plist name args))
+	 (predicate (plist-get normalized-args :if)))
     `(when ,(or predicate t)
        (when (file-directory-p package-user-dir)
 	 (require 'package)

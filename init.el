@@ -228,58 +228,58 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;; auto-complete
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
-  :init
-  (progn
-    ;; Make sure auto-complete can find the correct JavaScript
-    ;; dictionary in spite of mode name aliasing in Emacs 23.
-    (let* ((standard-ac-dict-dir
-	    (expand-file-name "auto-complete/dict" user-site-lisp-directory))
-	   (javascript-dict
-	    (expand-file-name "javascript-mode" standard-ac-dict-dir))
-	   (custom-ac-dict-dir
-	    (expand-file-name "auto-complete/dict" user-data-directory))
-	   (js-dict
-	    (expand-file-name "js-mode" custom-ac-dict-dir)))
-      (unless (file-directory-p custom-ac-dict-dir)
-	(mkdir custom-ac-dict-dir t))
-      (unless (file-exists-p js-dict)
-	;; Windows may not support links, try a symbolic link, then a
-	;; hard link, and finally just make a copy.
-	(condition-case nil
-	    (make-symbolic-link javascript-dict js-dict)
-	  (error (condition-case nil
-		     (add-name-to-file javascript-dict js-dict)
-		   (error (copy-file javascript-dict js-dict))))))
+  :config
+  ;; Make sure auto-complete can find the correct JavaScript
+  ;; dictionary in spite of mode name aliasing in Emacs 23.
+  (let* ((standard-ac-dict-dir
+	  (expand-file-name "auto-complete/dict" user-site-lisp-directory))
+	 (javascript-dict
+	  (expand-file-name "javascript-mode" standard-ac-dict-dir))
+	 (custom-ac-dict-dir
+	  (expand-file-name "auto-complete/dict" user-data-directory))
+	 (js-dict
+	  (expand-file-name "js-mode" custom-ac-dict-dir)))
+    (unless (file-directory-p custom-ac-dict-dir)
+      (mkdir custom-ac-dict-dir t))
+    (unless (file-exists-p js-dict)
+      ;; Windows may not support links, try a symbolic link, then a
+      ;; hard link, and finally just make a copy.
+      (condition-case nil
+	  (make-symbolic-link javascript-dict js-dict)
+	(error (condition-case nil
+		   (add-name-to-file javascript-dict js-dict)
+		 (error (copy-file javascript-dict js-dict))))))
 
-      ;; Setup the dictionary directories
-      (add-to-list 'ac-dictionary-directories standard-ac-dict-dir)
-      (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
+    ;; Setup the dictionary directories
+    (add-to-list 'ac-dictionary-directories standard-ac-dict-dir)
+    (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
 
-    ;; Keep the ~/.emacs directory clean
-    (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
+  ;; Keep the ~/.emacs.d directory clean
+  (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
 
-    (add-hook 'lisp-mode-hook (lambda ()
-				(add-to-list 'ac-sources 'ac-source-slime)))
+  (add-hook 'lisp-mode-hook (lambda ()
+			      (add-to-list 'ac-sources 'ac-source-slime)))
 
-    (ac-config-default)
+  (ac-config-default)
 
-    ;; This must go after ac-config-default or it will be overridden.
-    (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
+  ;; This must go after ac-config-default or it will be overridden.
+  (setq-default ac-sources (add-to-list 'ac-sources 'ac-source-dictionary))
 
-    ;; Teaching auto-complete about slime.  Mostly taken from
-    ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
-    ;; with docs added.
-    (defun jsn-slime-source ()
-      "An auto-completion source that for slime buffers."
-      (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
-	     (beg (move-marker (make-marker) (slime-symbol-start-pos)))
-	     (prefix (buffer-substring-no-properties beg end))
-	     (completion-result (slime-contextual-completions beg end))
-	     (completion-set (first completion-result)))
-	completion-set))
-    (defvar ac-source-slime '((candidates . jsn-slime-source)))
+  ;; Teaching auto-complete about slime.  Mostly taken from
+  ;; http://jasonaeschliman.blogspot.com/2011/11/ac-source-slime.html
+  ;; with docs added and minor tweaks.
+  (defun jsn-slime-source ()
+    "An auto-completion source for slime buffers."
+    (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
+	   (beg (move-marker (make-marker) (slime-symbol-start-pos)))
+	   (prefix (buffer-substring-no-properties beg end))
+	   (completion-result (slime-contextual-completions beg end))
+	   (completion-set (first completion-result)))
+      completion-set))
+  (ac-define-source slime
+    '((candidates . jsn-slime-source)))
 
-    (global-auto-complete-mode t)))
+  (global-auto-complete-mode t))
 
 ;;; autoinsert
 (use-package autoinsert
@@ -509,7 +509,9 @@ it."
 
 (use-package smart-tab
   :diminish smart-tab-mode
-  :init (global-smart-tab-mode 1))
+  :init
+  (require 'smart-tab)
+  (global-smart-tab-mode 1))
 
 ;; Replace yasnippets's TAB
 (add-hook 'yas/minor-mode-hook
