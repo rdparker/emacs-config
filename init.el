@@ -1706,6 +1706,7 @@ the nobreak spaces in the powerline shell prompt."
 ;;; rainbow-mode -- Colorize string that represent colors.
 (use-repo-package rainbow-mode
   :commands rainbow-mode
+  :diminish rainbow-mode
   :ensure t
   :init
   (add-hooks '(css-mode-hook emacs-lisp-mode-hook html-mode-hook)
