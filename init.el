@@ -770,7 +770,6 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (use-package magit
-  :diminish magit-auto-revert-mode
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :commands (magit-init magit-git-command)
@@ -803,40 +802,39 @@ which is an error according to some typographical conventions."
 	      (define-key dired-mode-map "r" 'magit-status)))
 
   :config
-  (progn
-    (setenv "GIT_PAGER" "")
+  (setenv "GIT_PAGER" "")
 
-    (use-package magit-review
-      :commands magit-review
-      :config (require 'json))
+  (use-package magit-review
+    :commands magit-review
+    :config (require 'json))
 
-    (unbind-key "M-h" magit-mode-map)
-    (unbind-key "M-s" magit-mode-map)
+  (unbind-key "M-h" magit-mode-map)
+  (unbind-key "M-s" magit-mode-map)
 
-    (add-hook 'magit-log-edit-mode-hook
-              #'(lambda ()
-		  (auto-fill-mode 1)
-                  (flyspell-mode 1)))
+  (add-hook 'magit-log-edit-mode-hook
+	    #'(lambda ()
+		(auto-fill-mode 1)
+		(flyspell-mode 1)))
 
-    (add-hook 'magit-mode-hook
-	      #'(lambda ()
-		  (when (magit-get "svn-remote" "svn" "url")
-		    (magit-svn-mode 1))))
+  (add-hook 'magit-mode-hook
+	    #'(lambda ()
+		(when (magit-get "svn-remote" "svn" "url")
+		  (magit-svn-mode 1))))
 
-    (require 'magit-topgit nil t)
+  (require 'magit-topgit nil t)
 
-    (defvar magit-git-monitor-process nil)
-    (make-variable-buffer-local 'magit-git-monitor-process)
+  (defvar magit-git-monitor-process nil)
+  (make-variable-buffer-local 'magit-git-monitor-process)
 
-    (defun start-git-monitor ()
-      (interactive)
-      (unless magit-git-monitor-process
-        (setq magit-git-monitor-process
-              (start-process "git-monitor" (current-buffer) "git-monitor"
-                             "-d" (expand-file-name default-directory)))))
+  (defun start-git-monitor ()
+    (interactive)
+    (unless magit-git-monitor-process
+      (setq magit-git-monitor-process
+	    (start-process "git-monitor" (current-buffer) "git-monitor"
+			   "-d" (expand-file-name default-directory)))))
 
-    ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
-    ))
+  ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
+  )
 
 ;;; graphviz dot mode
 (use-package graphviz-dot-mode
