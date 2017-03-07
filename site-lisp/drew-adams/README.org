@@ -1,0 +1,10 @@
+#+TITLE: Drew Adams' Emacs Configuration and Libraries
+
+I don't use all of these in my own Emacs configuration, but
+occasionally I find it fun to play around with his configuration and
+look at it for ideas, so there is an =update.sh= BASH script that can
+be used to update this directory from his files on [[https://www.emacswiki.org][EmacsWiki]]. The
+script is fairly well commented to explain what it does.
+
+Emacs can be started with his init file via by running the following:
+=emacs -q -l ~/.emacs.d/site-lisp/drew-adams/emacs-init.el=.
