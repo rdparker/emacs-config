@@ -774,26 +774,33 @@ which is an error according to some typographical conventions."
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :commands (magit-init magit-git-command)
+  :load-path "site-lisp/magit/lisp"
   :init
-  (progn
-    (defun magit-status-with-prefix ()
-      "Ask the user which repository to open in a Magit status buffer."
-      (interactive)
-      (let ((current-prefix-arg '(4)))
-	(call-interactively 'magit-status)))
+  (use-package with-editor
+    ;; Magit needs this mode
+    :demand t
+    :commands (with-editor-async-shell-command
+	       with-editor-shell-command)
+    :load-path "site-lisp/with-editor")
 
-    ;; Magit does not ship autoloads.  Generate them if necessary.
-    (unless (require 'magit-autoloads nil t)
-      (if* filename (locate-library "magit")
-	   (let* ((magit-source-dir (file-name-directory filename))
-		  (generated-autoload-file (expand-file-name "magit-autoloads.el"
-							     magit-source-dir)))
-	     (update-directory-autoloads magit-source-dir))))
+  (defun magit-status-with-prefix ()
+    "Ask the user which repository to open in a Magit status buffer."
+    (interactive)
+    (let ((current-prefix-arg '(4)))
+      (call-interactively 'magit-status)))
 
-    ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
-    (add-hook 'dired-mode-hook
-	      (lambda ()
-		(define-key dired-mode-map "r" 'magit-status))))
+  ;; Magit does not ship autoloads.  Generate them if necessary.
+  (unless (require 'magit-autoloads nil t)
+    (if* filename (locate-library "magit")
+	 (let* ((magit-source-dir (file-name-directory filename))
+		(generated-autoload-file (expand-file-name "magit-autoloads.el"
+							   magit-source-dir)))
+	   (update-directory-autoloads magit-source-dir))))
+
+  ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
+  (add-hook 'dired-mode-hook
+	    (lambda ()
+	      (define-key dired-mode-map "r" 'magit-status)))
 
   :config
   (progn
