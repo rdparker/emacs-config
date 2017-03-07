@@ -4,22 +4,23 @@
 ;; Description: Extensions to `help.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1999-2014, Drew Adams, all rights reserved.
+;; Copyright (C) 1999-2017, Drew Adams, all rights reserved.
 ;; Created: Tue Mar 16 14:18:11 1999
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun May  4 13:36:52 2014 (-0700)
+;; Last-Updated: Thu Feb 23 07:30:56 2017 (-0800)
 ;;           By: dradams
-;;     Update #: 2180
-;; URL: http://www.emacswiki.org/help+.el
+;;     Update #: 2189
+;; URL: https://www.emacswiki.org/emacs/download/help%2b.el
 ;; Doc URL: http://emacswiki.org/HelpPlus
 ;; Keywords: help
-;; Compatibility: GNU Emacs: 22.x, 23.x, 24.x
+;; Compatibility: GNU Emacs: 22.x, 23.x, 24.x, 25.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `avoid', `fit-frame', `frame-fns', `info', `info+20',
-;;   `misc-fns', `naked', `strings', `thingatpt', `thingatpt+'.
+;;   `avoid', `backquote', `fit-frame', `frame-fns', `help-fns',
+;;   `help-macro', `help-macro+', `info', `info+', `misc-fns',
+;;   `naked', `strings', `thingatpt', `thingatpt+'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -76,6 +77,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2015/07/02 dadams
+;;     help-on-click/key: Removed part of doc string that said that C-g is not in manual index.
 ;; 2014/05/04 dadams
 ;;     Emacs 20-22: soft-require info+20.el (new) instead of info+.el.
 ;; 2014/04/22 dadams
@@ -519,17 +522,13 @@ manual (via `Info-goto-emacs-key-command-node').  If no entry is found
 in the index of the Emacs manual, then the manual is searched from the
 beginning for literal occurrences of KEY.
 
-For example, the KEY `C-g' is not in the index (for some reason), so
-the manual is searched.  (Once an occurrence is found, you can
-repeatedly type `s' in *Info* to search for additional occurrences.)
-
 If you click on a name in a buffer, then `apropos-documentation' and
 `apropos' are used to find information on the name.  These functions
 are not used when you do something besides click on a name.
 
 If you click elsewhere in a buffer other than the minibuffer, then
 `describe-mode' is used to describe the buffer's current mode(s)."
-  (interactive "kClick mouse on something or type a key sequence.")
+  (interactive "kClick mouse on something or type a key sequence")
   (let ((temp-buffer-show-function  'switch-to-buffer-other-window)
         (font-lock-verbose          nil)
         (global-font-lock-mode      nil))

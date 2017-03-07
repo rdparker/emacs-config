@@ -4,16 +4,16 @@
 ;; Description: Miscellaneous string functions.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2014, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
 ;; Created: Tue Mar  5 17:09:08 1996
 ;; Version: 0
 ;; Package-Requires: ()
-;;; Last-Updated: Thu Dec 26 09:51:24 2013 (-0800)
+;;; Last-Updated: Fri Feb 10 19:24:17 2017 (-0800)
 ;;           By: dradams
-;;     Update #: 551
+;;     Update #: 565
 ;; URL: http://www.emacswiki.org/strings.el
 ;; Keywords: internal, strings, text
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -65,6 +65,13 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/02/10 dadams
+;;     display-lines-containing: Quote minibuffer-history.
+;;     frame-alist: Use code for get-frame-name, not the function (in frame-fns.el).
+;;     Thx to Rubikitch.
+;; 2105/08/05 dadams
+;;     read-any-variable:
+;;       Ensure SYMB is not just the symbol nil for default value to completing-read.
 ;; 2012/09/07 dadams
 ;;     read-buffer: Use nil for INHERIT-INPUT-METHOD arg to completing-read.
 ;; 2012/08/21 dadams
@@ -282,7 +289,7 @@ Interactively:
    (list (get-buffer-create "*Lines Containing*")
          (read-from-minibuffer "Lines containing: "
                                (current-line-string) nil nil
-                               (cons minibuffer-history 1))
+                               (cons 'minibuffer-history 1))
          current-prefix-arg))
   (setq buffer (get-buffer-create buffer)) ; Convert possible string to buffer.
   (let ((bufstring (buffer-string)))
@@ -584,16 +591,18 @@ Prompt with string PROMPT.  By default, return DEFAULT-VALUE if
 non-nil.  If DEFAULT-VALUE is nil and the nearest symbol to the cursor
 is a variable, then return that by default.
 A user variable is one for which `user-variable-p' returns non-nil."
-  (let ((symb (cond ((fboundp 'symbol-nearest-point) (symbol-nearest-point))
-                    ((fboundp 'symbol-at-point) (symbol-at-point))
-                    (t nil)))
-        (enable-recursive-minibuffers t))
-    (when (and default-value (symbolp default-value))
-      (setq default-value (symbol-name default-value)))
+  (let ((symb                          (cond ((fboundp 'symbol-nearest-point)
+                                              (symbol-nearest-point))
+                                             ((fboundp 'symbol-at-point)
+                                              (symbol-at-point))
+                                             (t nil)))
+        (enable-recursive-minibuffers  t))
+    (when (and default-value  (symbolp default-value))
+      (setq default-value  (symbol-name default-value)))
     (intern (completing-read prompt obarray 'user-variable-p t
                              nil 'minibuffer-history
-                             (or default-value (and (user-variable-p symb)
-                                                    (symbol-name symb)))
+                             (or default-value
+                                 (and (user-variable-p symb)  (symbol-name symb)))
                              t))))
 
 (defun read-any-variable (prompt &optional default-value)
@@ -604,16 +613,17 @@ name of any variable.
 Prompts with arg string PROMPT.  By default, return DEFAULT-VALUE if
 non-nil.  If DEFAULT-VALUE is nil and the nearest symbol to the cursor
 is a variable, then return that by default."
-  (let ((symb (cond ((fboundp 'symbol-nearest-point) (symbol-nearest-point))
-                    ((fboundp 'symbol-at-point) (symbol-at-point))
-                    (t nil)))
-        (enable-recursive-minibuffers t))
-    (when (and default-value (symbolp default-value))
-      (setq default-value (symbol-name default-value)))
-    (intern (completing-read prompt obarray 'boundp t
-                             nil 'minibuffer-history
-                             (or default-value (and (boundp symb)
-                                                    (symbol-name symb)))
+  (let ((symb                          (cond ((fboundp 'symbol-nearest-point)
+                                              (symbol-nearest-point))
+                                             ((fboundp 'symbol-at-point)
+                                              (symbol-at-point))
+                                             (t nil)))
+        (enable-recursive-minibuffers  t))
+    (when (and default-value  (symbolp default-value))
+      (setq default-value  (symbol-name default-value)))
+    (intern (completing-read prompt obarray 'boundp t nil 'minibuffer-history
+                             (or default-value
+                                 (and symb  (boundp symb)  (symbol-name symb)))
                              t))))
 
 ;;; See also `make-frame-names-alist', defined in `frame.el'.
@@ -621,7 +631,7 @@ is a variable, then return that by default."
   "Alist of (FR-NAME . FR) items.  FR-NAME names FR in `frame-list'.
 FR-NAME is a string.  The alist is sorted by ASCII code in reverse
 alphabetical order, and with case ignored."
-  (sort (mapcar (function (lambda (fr) (cons (get-frame-name fr) fr)))
+  (sort (mapcar (function (lambda (fr) (cons (frame-parameter fr 'name) fr)))
                 (frame-list))
         (function
          (lambda (f1f1n f2f2n)

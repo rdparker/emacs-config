@@ -4,23 +4,23 @@
 ;; Description: Extensions to `help.el' for Emacs 20.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1999-2014, Drew Adams, all rights reserved.
+;; Copyright (C) 1999-2017, Drew Adams, all rights reserved.
 ;; Created: Tue Mar 16 14:18:11 1999
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun May  4 10:27:08 2014 (-0700)
+;; Last-Updated: Thu Feb 23 07:32:34 2017 (-0800)
 ;;           By: dradams
-;;     Update #: 2208
-;; URL: http://www.emacswiki.org/help+20.el
+;;     Update #: 2218
+;; URL: https://www.emacswiki.org/emacs/download/help%2b20.el
 ;; Doc URL: http://emacswiki.org/HelpPlus
 ;; Keywords: help
 ;; Compatibility: GNU Emacs 20.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `avoid', `fit-frame', `frame-fns', `info', `info+', `misc-fns',
-;;   `naked', `strings', `thingatpt', `thingatpt+', `wid-edit',
-;;   `wid-edit+', `widget'.
+;;   `avoid', `fit-frame', `frame-fns', `info', `info+20',
+;;   `misc-fns', `naked', `strings', `thingatpt', `thingatpt+',
+;;   `wid-edit', `wid-edit+', `widget'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -52,10 +52,10 @@
 ;;  ***** NOTE: The following functions defined in `help.el' have
 ;;              been REDEFINED HERE:
 ;;
-;;  `describe-function', `describe-key', `describe-mode',
-;;  `describe-project', `describe-variable', `help-mode',
-;;  `help-with-tutorial', `locate-library', `view-emacs-FAQ',
-;;  `view-emacs-news', `where-is'.
+;;  `describe-function', `describe-function-1', `describe-key',
+;;  `describe-mode', `describe-project', `describe-variable',
+;;  `help-mode', `help-with-tutorial', `locate-library',
+;;  `view-emacs-FAQ', `view-emacs-news', `where-is'.
 ;;
 ;;
 ;;  ***** NOTE: The doc string for `help-for-help' has been
@@ -92,6 +92,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/01/15 dadams
+;;     Added redefinition of describe-function-1.  Handle Emacs bug from its own advice.
 ;; 2014/05/04 dadams
 ;;     Soft-require info+20.el (new) instead of info+.el.
 ;; 2012/09/24 dadams
@@ -615,6 +617,104 @@ Return the description that was displayed, as a string."
       (set-buffer standard-output)
       ;; Return the text we displayed.
       (buffer-string))))
+
+
+;; REPLACES ORIGINAL in `help.el':
+;;
+;; Ignore symbols that produce errors.  Example: In Emacs 20, `any', which is defalias'd
+;; to `icicle-anything', raises this error: "Symbol's function definition is void: any".
+;; This is caused by the `after' advice `ad-advised-docstring' that is defined by Emacs
+;; itself for function `documentation'.  It is not a problem for Emacs 22+.
+;;
+;;;###autoload
+(defun describe-function-1 (function parens interactive-p)
+  (let* ((def (if (symbolp function)
+		  (symbol-function function)
+		function))
+	 file-name string need-close
+	 (beg (if (commandp def) "an interactive " "a ")))
+    (setq string
+	  (cond ((or (stringp def)
+		     (vectorp def))
+		 "a keyboard macro")
+		((subrp def)
+		 (concat beg "built-in function"))
+		((byte-code-function-p def)
+		 (concat beg "compiled Lisp function"))
+		((symbolp def)
+		 (while (symbolp (symbol-function def))
+		   (setq def (symbol-function def)))
+		 (format "an alias for `%s'" def))
+		((eq (car-safe def) 'lambda)
+		 (concat beg "Lisp function"))
+		((eq (car-safe def) 'macro)
+		 "a Lisp macro")
+		((eq (car-safe def) 'mocklisp)
+		 "a mocklisp function")
+		((eq (car-safe def) 'autoload)
+		 (setq file-name (nth 1 def))
+		 (format "%s autoloaded %s"
+			 (if (commandp def) "an interactive" "an")
+			 (if (eq (nth 4 def) 'keymap) "keymap"
+			   (if (nth 4 def) "Lisp macro" "Lisp function"))
+			 ))
+		(t "")))
+    (when (and parens (not (equal string "")))
+      (setq need-close t)
+      (princ "("))
+    (princ string)
+    (with-current-buffer "*Help*"
+      (save-excursion
+	(save-match-data
+	  (if (re-search-backward "alias for `\\([^`']+\\)'" nil t)
+	      (help-xref-button 1 #'describe-function def)))))
+    (or file-name
+	(setq file-name (symbol-file function)))
+    (if file-name
+	(progn
+	  (princ " in `")
+	  ;; We used to add .el to the file name,
+	  ;; but that's completely wrong when the user used load-file.
+	  (princ file-name)
+	  (princ "'")
+	  ;; Make a hyperlink to the library.
+	  (with-current-buffer "*Help*"
+	    (save-excursion
+	      (re-search-backward "`\\([^`']+\\)'" nil t)
+	      (help-xref-button 1 #'(lambda (arg)
+				      (let ((location
+					     (find-function-noselect arg)))
+					(pop-to-buffer (car location))
+					(goto-char (cdr location))))
+				function)))))
+    (if need-close (princ ")"))
+    (princ ".")
+    (terpri)
+    ;; Handle symbols aliased to other symbols.
+    (setq def (indirect-function def))
+    ;; If definition is a macro, find the function inside it.
+    (if (eq (car-safe def) 'macro)
+	(setq def (cdr def)))
+    (let ((arglist (cond ((byte-code-function-p def)
+			  (car (append def nil)))
+			 ((eq (car-safe def) 'lambda)
+			  (nth 1 def))
+			 (t t))))
+      (if (listp arglist)
+	  (progn
+	    (princ (cons (if (symbolp function) function "anonymous")
+			 (mapcar (lambda (arg)
+				   (if (memq arg '(&optional &rest))
+				       arg
+				     (intern (upcase (symbol-name arg)))))
+				 arglist)))
+	    (terpri))))
+    (let ((doc (condition-case nil (documentation function) (error nil))))
+      (if doc
+	  (progn (terpri)
+		 (princ doc)
+		 (help-setup-xref (list #'describe-function function) interactive-p))
+	(princ "not documented")))))
 
 ;;;###autoload
 (defun describe-command (function)

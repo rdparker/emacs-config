@@ -4,20 +4,22 @@
 ;; Description: Extensions to `descr-text.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2011-2014, Drew Adams, all rights reserved.
+;; Copyright (C) 2011-2017, Drew Adams, all rights reserved.
 ;; Created: Thu Nov 24 11:57:04 2011 (-0800)
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Thu Apr 24 19:51:28 2014 (-0700)
+;; Last-Updated: Tue Feb 21 16:16:22 2017 (-0800)
 ;;           By: dradams
-;;     Update #: 280
-;; URL: http://www.emacswiki.org/descr-text+.el
+;;     Update #: 315
+;; URL: https://www.emacswiki.org/emacs/download/descr-text%2b.el
 ;; Keywords: help, characters, description
-;; Compatibility: GNU Emacs: 22.x, 23.x, 24.x
+;; Compatibility: GNU Emacs: 22.x, 23.x, 24.x, 25.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `button', `descr-text', `help-mode'.
+;;   `button', `cl', `cl-lib', `descr-text', `gv', `help-fns',
+;;   `help-fns+', `help-mode', `info', `macroexp', `naked',
+;;   `wid-edit', `wid-edit+'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -28,6 +30,11 @@
 ;;    Note: As of Emacs 24.4, byte-compiling this file in one Emacs
 ;;    version and using the compiled file in another Emacs version
 ;;    does not work.
+;;
+;;
+;;  Button types defined here:
+;;
+;;    `help-keymap'.
 ;;
 ;;
 ;;  ***** NOTE: The following functions defined in `descr-text.el'
@@ -46,6 +53,12 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2015/05/08 dadams
+;;     Added button-type help-keymap.
+;;     Soft-require help-fns+.el.
+;;     describe-text-sexp, describe-property-list: Handle keymap variables.
+;; 2015/04/07 dadams
+;;     describe-text-properties, describe-char: Use called-interactively only if > Emacs 23.1.
 ;; 2014/04/24 dadams
 ;;     describe-text-sexp: Updated for Emacs 24.4: Use with-help-window if defined.  See bug #17109.
 ;; 2013/05/11 dadams
@@ -94,6 +107,8 @@
 (eval-when-compile
   (when (< emacs-major-version 23) (require 'mule))) ; charset-description (macro)
 
+(require 'help-fns+ nil t) ;; (no error if not found): describe-keymap
+
 
 ;; Quiet the byte-compiler.
 (defvar help-window)
@@ -103,15 +118,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
+(when (fboundp 'describe-keymap)
+  (define-button-type 'help-keymap
+      :supertype 'help-xref
+      'help-function 'describe-keymap
+      'help-echo (purecopy "mouse-2, RET: describe this keymap")))
 
 
 
 ;; REPLACE ORIGINAL in `descr-text.el':
 ;;
-;; 1. Added optional arg WIDTH.
-;;
-;; 2. Use WIDTH arg or 70 (which is the default value of `fill-column'), not `window-width',
+;; 1. Handle keymap variables.
+;; 2. Added optional arg WIDTH.
+;; 3. Use WIDTH arg or 70 (which is the default value of `fill-column'), not `window-width',
 ;;    since the current window is unrelated to the not-yet-displayed `*Help*' window.
 ;;
 (defun describe-text-sexp (sexp &optional width)
@@ -122,30 +141,30 @@ If nil, a width of 70 is used, which is the default value of
   (let ((pp  (condition-case signal
                  (pp-to-string sexp)
                (error (prin1-to-string signal)))))
-    (setq width  (or width 70))
-    (when (if (fboundp 'string-match-p)
-              (string-match-p "\n\\'" pp)
-            (string-match "\n\\'" pp))
+    (setq width  (or width  70))
+    (when (if (fboundp 'string-match-p) (string-match-p "\n\\'" pp) (string-match "\n\\'" pp))
       (setq pp  (substring pp 0 (1- (length pp)))))
-    (if (and (not (if (fboundp 'string-match-p)
-                      (string-match-p "\n" pp)
-                    (string-match "\n" pp)))
+    (if (and (not (if (fboundp 'string-match-p) (string-match-p "\n" pp) (string-match "\n" pp)))
     	     (<= (length pp) (- width (current-column))))
 	(insert pp)
       (insert-text-button
-       "[Show]" 'action (if (fboundp 'with-help-window)
+       "[Show]" 'action (if (and (fboundp 'describe-keymap)  (symbolp sexp)  (boundp sexp)
+                                 (keymapp (symbol-value sexp)))
+                            `(lambda (&rest ignore) (describe-keymap ',sexp))
+                          (if (fboundp 'with-help-window)
+                              `(lambda (&rest ignore)
+                                 (with-help-window "*Pp Eval Output*" (princ ',pp)))
                             `(lambda (&rest ignore)
-                               (with-help-window "*Pp Eval Output*" (princ ',pp)))
-                          `(lambda (&rest ignore)
-                             (with-output-to-temp-buffer "*Pp Eval Output*" (princ ',pp))))
+                               (with-output-to-temp-buffer "*Pp Eval Output*" (princ ',pp)))))
        'help-echo "mouse-2, RET: pretty print value in another buffer"))))
 
 
 ;; REPLACE ORIGINAL in `descr-text.el':
 ;;
-;; 1. Added optional arg MAX-WIDTH, the max width known so far (defaults to 0).
-;; 2. Pass max width needed so far to `describe-text-sexp'.
-;; 3. Return max width used.
+;; 1. Handle keymap variables.
+;; 2. Added optional arg MAX-WIDTH, the max width known so far (defaults to 0).
+;; 3. Pass max width needed so far to `describe-text-sexp'.
+;; 4. Return max width used.
 ;;
 (defun describe-property-list (properties &optional max-width)
   "Insert a description of PROPERTIES in the current buffer.
@@ -166,17 +185,16 @@ Optional arg MAX-WIDTH is the max width needed so far (defaults to 0)."
 	  (value  (nth 1 elt)))
       (insert (propertize (format "  %-20s " key) 'face 'help-argument-name))
       (cond ((eq key 'category)
-	     (insert-text-button
-	      (symbol-name value)
-	      'action `(lambda (&rest ignore) (describe-text-category ',value))
-	      'follow-link t
-	      'help-echo "mouse-2, RET: describe this category")
+	     (insert-text-button (symbol-name value)
+                                 'action `(lambda (&rest ignore) (describe-text-category ',value))
+                                 'follow-link t
+                                 'help-echo "mouse-2, RET: describe this category")
              (setq max-width  (max max-width (current-column))))
             ((memq key '(face font-lock-face mouse-face))
-	     (insert-text-button
-	      (format "%S" value)
-	      'type 'help-face 'help-args (list value))
+	     (insert-text-button (format "%S" value) 'type 'help-face 'help-args (list value))
              (setq max-width  (max max-width (current-column))))
+            ((memq key '(keymap local-map))
+             (insert-text-button (format "%S" value) 'type 'help-keymap 'help-args (list value)))
             ((widgetp value)
 	     (describe-text-widget value)
              (setq max-width  (max max-width (current-column))))
@@ -223,7 +241,10 @@ Optional arg MAX-WIDTH is the max width needed so far (defaults to 0)."
               (setq max-width  (max max-width (current-column)))
               (set-buffer src-buf)
               (help-setup-xref (list 'describe-text-properties pos nil buffer)
-                               (called-interactively-p 'interactive))
+                               (if (or (> emacs-major-version 23)
+                                       (and (= emacs-major-version 23)  (> emacs-minor-version 1)))
+                                   (called-interactively-p 'interactive)
+                                 (interactive-p)))
               (with-help-window (help-buffer)
                 (with-current-buffer standard-output
                   (buffer-swap-text output-buffer)
@@ -903,7 +924,10 @@ overlays, and text properties."
                                              item-list)))
         (set-buffer src-buf)
         (help-setup-xref (list 'describe-char pos buffer)
-                         (called-interactively-p 'interactive))
+                         (if (or (> emacs-major-version 23)
+                                 (and (= emacs-major-version 23)  (> emacs-minor-version 1)))
+                             (called-interactively-p 'interactive)
+                           (interactive-p)))
         (with-help-window (help-buffer)
           (with-current-buffer standard-output
             (set-buffer-multibyte multibyte-p)
