@@ -107,6 +107,12 @@ are named \"Emacs[A-Za-z]*.app\".")
       (expand-file-name (concat "elpa-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
 
+;; TODO: Consider extracting the other package paths from use-repo-package.el.
+(eval-after-load "package"
+  ;; Melpa addition borrowed from Sacha's init
+  '(unless (assoc-default "melpa" package-archives)
+     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)))
+
 ;;; Legacy package configuration
 
 ;;; I do too much remote work via tramp with odd NFS settings.  Get
