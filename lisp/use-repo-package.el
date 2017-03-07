@@ -1,8 +1,8 @@
 ;;; use-repo-package.el --- Extensions t use-package    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014 Ron Parker
+;; Copyright (C) 2014, 2017 Ron Parker
 
-;; Author: ronparke <rdparker@gmail.com>
+;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: local
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -39,17 +39,19 @@ ensure that package NAME is used, possibly pulling it from a
 repository.  Otherwise, the package will not be loaded to prevent
 possible init-time errors due to unreachable
 package repositories."
-  (when (file-directory-p package-user-dir)
-    (require 'package)
-    (unless package--initialized (package-initialize))
-    (unless package-archive-contents (package-refresh-contents))
-    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
-    (add-to-list 'package-archives
-		 '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+  (let ((predicate (use-package-plist-get args :if)))
+    `(when ,(or predicate t)
+       (when (file-directory-p package-user-dir)
+	 (require 'package)
+	 (unless package--initialized (package-initialize))
+	 (unless package-archive-contents (package-refresh-contents))
+	 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
+	 (add-to-list 'package-archives
+		      '("elpy" . "http://jorgenschaefer.github.io/packages/"))
 
-    `(use-package ,name
-       :ensure t
-       ,@args)))
+	 (use-package ,name
+	   :ensure t
+	   ,@args)))))
 
 (put 'use-repo-package 'lisp-indent-function 'defun)
 
