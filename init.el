@@ -42,10 +42,12 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
-(require 'use-package)
-(require 'use-repo-package)
 (eval-when-compile
+  (require 'use-package)
+  (require 'use-repo-package)
   (setq use-package-verbose (null byte-compile-current-file)))
+(require 'diminish)
+(require 'bind-key)
 
 (require 'backport)
 (require 'rdp-functions)
