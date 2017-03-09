@@ -710,6 +710,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
 ;;; find-func and find-func+
 (use-package find-func
+  :load-path "site-lisp/find-func"
   :bind (("C-x F" . find-function)
 	 ("C-x 4 F" . find-function-other-window)
 	 ("C-x 5 F" . find-function-other-frame)
@@ -1580,7 +1581,7 @@ and the basename of the executable.")
   (run-with-idle-timer
    .1 nil
    (lambda ()
-     (require 'powerline)
+     (use-package powerline :load-path "site-lisp/powerline")
      (load (expand-file-name "softer-dark-theme" user-emacs-directory))
      (powerline-softer-dark-theme))))
 
