@@ -17,9 +17,10 @@
 
 (defconst emacs-start-time (current-time))
 
-(defmacro comment (&rest body)
-  "Comment out everything within BODY."
-  (progn))
+(eval-when-compile
+  (defmacro comment (&rest body)
+    "Comment out everything within BODY."
+    (progn)))
 
 (unless noninteractive
   (message "Loading %s..." load-file-name))
@@ -494,12 +495,13 @@ it."
 	      (setq desktop-save-mode nil)))
 	  (when desktop-save-mode
 	    (desktop-read)))))))
-(defmacro run-on-first-frame (function)
+(eval-when-compile
+  (defmacro run-on-first-frame (function)
   "Run the given function when the first frame is created."
   `(if (not (daemonp))
        (,function)
      (add-hook 'after-make-frame-functions (quote ,function))
-     (add-hook 'server-visit-hook (quote ,function))))
+     (add-hook 'server-visit-hook (quote ,function)))))
 (run-on-first-frame use-desktop)
 
 ;;; Diff
