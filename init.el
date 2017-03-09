@@ -43,10 +43,11 @@ Note that this should end with a directory separator."))
 (load (expand-file-name "load-path" user-emacs-directory))
 
 (eval-when-compile
+  (add-to-load-path "site-lisp/use-package")
   (require 'use-package)
   (require 'use-repo-package)
   (setq use-package-verbose (null byte-compile-current-file)))
-(require 'diminish)
+(use-package diminish :load-path "site-lisp/diminish")
 (require 'bind-key)
 
 (require 'backport)
@@ -230,6 +231,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;; auto-complete
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
+  :load-path "site-lisp/auto-complete"
+  :init      (use-package popup :load-path "site-lisp/popup")
   :config
   ;; Make sure auto-complete can find the correct JavaScript
   ;; dictionary in spite of mode name aliasing in Emacs 23.
@@ -335,6 +338,7 @@ configured as a GNOME Startup Application."
 	(save-buffers-kill-emacs)))
 
 (use-package dash
+  :load-path "site-lisp/dash"
   :config (dash-enable-font-lock))
 
 ;;; Desktop mode
@@ -348,94 +352,98 @@ called once a user interface has been started."
   (run-with-idle-timer
    .1 nil
    (lambda ()
-     (use-package desktop
-       :init
-       (progn
-	 (setq desktop-load-locked-desktop 'ask
-	       ;; Shared home directories need a per-host desktop files.
-	       desktop-base-file-name (concat ".emacs.desktop." (system-name))
-	       desktop-base-lock-name (concat desktop-base-file-name ".lock")
-	       desktop-dirname user-data-directory)
-	 (desktop-save-mode 1)
-	 (setq desktop-restore-eager 5
-	       desktop-restore-frames nil
-	       desktop-buffers-not-to-save
-	       (concat "\\("
-		       "^tags\\|^TAGS\\|"
-		       "^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
-		       "\\.tar\\|\\.zip$"
-		       "\\)$"))
-	 (mapc (lambda (elt)
-		 (add-to-list 'desktop-modes-not-to-save elt))
-	       '(dired-mode Info-mode info-lookup-mode sr-mode))
+     `(use-package desktop
+	:init
+	(progn
+	  (setq desktop-load-locked-desktop 'ask
+		;; Shared home directories need a per-host desktop files.
+		desktop-base-file-name (concat ".emacs.desktop." (system-name))
+		desktop-base-lock-name (concat desktop-base-file-name ".lock")
+		desktop-dirname user-data-directory)
+	  (desktop-save-mode 1)
+	  (setq desktop-restore-eager 5
+		desktop-restore-frames nil
+		desktop-buffers-not-to-save
+		(concat "\\("
+			"^tags\\|^TAGS\\|"
+			"^/ssh:\\|^/scpx*:\\|^/sudo:\\|/su:\\|"
+			"\\.tar\\|\\.zip$"
+			"\\)$"))
+	  (mapc (lambda (elt)
+		  (add-to-list 'desktop-modes-not-to-save elt))
+		'(dired-mode Info-mode info-lookup-mode sr-mode))
 
-	 ;; Save buffer-display-time so midnight works across desktop sessions.
-	 (add-to-list 'desktop-locals-to-save 'buffer-display-time)
+	  ;; Save buffer-display-time so midnight works across desktop sessions.
+	  (add-to-list 'desktop-locals-to-save 'buffer-display-time)
 
-	 (defadvice desktop-read (around dont-wait-for-input
-					 (&optional dirname))
-	   "Avoid `desktop-read' hanging when Emacs is started as a daemon.
+	  (defadvice desktop-read (around dont-wait-for-input
+					  (&optional dirname))
+	    "Avoid `desktop-read' hanging when Emacs is started as a daemon.
 This includes not prompting when auto-save files or potentially
 unsafe local variables are encountered during startup."
-	   (if (not (daemonp))
-	       ad-do-it
-	     (let* ((debug-on-error window-system)
-		    (enable-local-variables :safe)
-		    (orig-sit-for (symbol-function 'sit-for)))
-	       (fset 'sit-for
-		     (lambda (seconds &optional nodisp)
-		       t))
-	       ad-do-it
-	       (fset 'sit-for orig-sit-for)))
-	   (ad-unadvise 'desktop-read))
+	    (if (not (daemonp))
+		ad-do-it
+	      (let* ((debug-on-error window-system)
+		     (enable-local-variables :safe)
+		     (orig-sit-for (symbol-function 'sit-for)))
+		(fset 'sit-for
+		      (lambda (seconds &optional nodisp)
+			t))
+		ad-do-it
+		(fset 'sit-for orig-sit-for)))
+	    (ad-unadvise 'desktop-read))
 
-	 (defadvice desktop-append-buffer-args (after precreate-lazy-buffers
-						      (&rest args))
-	   "Create placeholder buffers for later lazy loading.
+	  (defadvice desktop-append-buffer-args (after precreate-lazy-buffers
+						       (&rest args))
+	    "Create placeholder buffers for later lazy loading.
 This allows them to appear in the buffer list before they have
 been loaded by `desktop-lazy-create-buffers'."
-	   (save-excursion
-	     (let* ((desktop-buffer-file-name (nth 1 args))
-		    (desktop-buffer-name (nth 2 args))
-		    (desktop-buffer-major-mode (nth 3 args)))
-	       (when desktop-lazy-verbose
-		 (message
-		  "Precreating lazy desktop buffer %s for %s in mode %s."
-			  desktop-buffer-name desktop-buffer-file-name
-			  desktop-buffer-major-mode))
-	       (set-buffer (create-file-buffer desktop-buffer-file-name))
-	       (unless (string= (buffer-name) desktop-buffer-name)
-		 (rename-buffer desktop-buffer-name t))
-	       (setq major-mode desktop-buffer-major-mode))))
+	    (save-excursion
+	      (let* ((desktop-buffer-file-name (nth 1 args))
+		     (desktop-buffer-name (nth 2 args))
+		     (desktop-buffer-major-mode (nth 3 args)))
+		(when desktop-lazy-verbose
+		  (message
+		   "Precreating lazy desktop buffer %s for %s in mode %s."
+		   desktop-buffer-name desktop-buffer-file-name
+		   desktop-buffer-major-mode))
+		(set-buffer (create-file-buffer desktop-buffer-file-name))
+		(unless (string= (buffer-name) desktop-buffer-name)
+		  (rename-buffer desktop-buffer-name t))
+		(setq major-mode desktop-buffer-major-mode))))
 
-	 (defadvice desktop-create-buffer (before kill-precreated-buffer
-						  (desktop-file-version
-						   desktop-buffer-file-name
-						   desktop-buffer-name
-						   desktop-buffer-major-mode
-						   desktop-buffer-minor-modes
-						   desktop-buffer-point
-						   desktop-buffer-mark
-						   desktop-buffer-read-only
-						   desktop-buffer-misc
-						   &optional
-						   desktop-buffer-locals))
-	   "Kill placeholder buffers before lazy loading them.
+	  (defadvice desktop-create-buffer (before kill-precreated-buffer
+						   (desktop-file-version
+						    desktop-buffer-file-name
+						    desktop-buffer-name
+						    desktop-buffer-major-mode
+						    desktop-buffer-minor-modes
+						    desktop-buffer-point
+						    desktop-buffer-mark
+						    desktop-buffer-read-only
+						    desktop-buffer-misc
+						    &optional
+						    desktop-buffer-locals))
+	    "Kill placeholder buffers before lazy loading them.
 They are created by the advice on `desktop-append-buffer-args',
 so that all desktop files will appear in the buffer list before
 they are loaded."
-	   (let ((buf (get-buffer desktop-buffer-name)))
-	     (when (and buf desktop-lazy-verbose)
-	       (message "Destroying precreated buffer %s for %s in mode %s."
-			desktop-buffer-name
-			desktop-buffer-file-name
-			desktop-buffer-major-mode)
-	       (kill-buffer buf))))
+	    (let ((buf (get-buffer desktop-buffer-name)))
+	      (when (and buf desktop-lazy-verbose)
+		(message "Destroying precreated buffer %s for %s in mode %s."
+			 desktop-buffer-name
+			 desktop-buffer-file-name
+			 desktop-buffer-major-mode)
+		(kill-buffer buf))))
 
-	 (defadvice switch-to-buffer (before handle-pending-lazy-buffer
-					     (buffer-or-name
-					      &optional norecord))
-	   "Kill placeholder buffers before loading and switching to them.
+	  (defadvice switch-to-buffer ,(if (>= emacs-major-version 24)
+					   '(before handle-pending-lazy-buffer
+						    (buffer-or-name
+						     &optional norecord force-same-window))
+					 '(before handle-pending-lazy-buffer
+						  (buffer-or-name
+						   &optional norecord)))
+	    "Kill placeholder buffers before loading and switching to them.
 They are created by the advice on `desktop-append-buffer-args',
 so that all desktop files will appear in the buffer list before
 they are loaded.
@@ -448,36 +456,36 @@ its original contents minus this buffer.
 The placeholder buffer will actually be killed by the advice on
 `desktop-create-buffer', when `desktop-lazy-create-buffer' calls
 it."
-	   (let* ((buffer-name (if (bufferp buffer-or-name)
-				   (buffer-name buffer-or-name)
-				 buffer-or-name))
-		  (args (find-if (lambda (elt)
-				   (string= (nth 2 elt) buffer-name))
-				 desktop-buffer-args-list)))
-	     (when args
-	       (let ((original-desktop-buffer-args-list
-		      desktop-buffer-args-list)
-		     (desktop-buffer-args-list (list args)))
-		 (desktop-lazy-create-buffer))
+	    (let* ((buffer-name (if (bufferp buffer-or-name)
+				    (buffer-name buffer-or-name)
+				  buffer-or-name))
+		   (args (find-if (lambda (elt)
+				    (string= (nth 2 elt) buffer-name))
+				  desktop-buffer-args-list)))
+	      (when args
+		(let ((original-desktop-buffer-args-list
+		       desktop-buffer-args-list)
+		      (desktop-buffer-args-list (list args)))
+		  (desktop-lazy-create-buffer))
 
-	       (setq desktop-buffer-args-list
-		     (remove args desktop-buffer-args-list)))))
+		(setq desktop-buffer-args-list
+		      (remove args desktop-buffer-args-list)))))
 
-	 (ad-activate 'desktop-read)
-	 (ad-activate 'desktop-append-buffer-args)
-	 (ad-activate 'desktop-create-buffer)
-	 (ad-activate 'switch-to-buffer))
-       :config
-       (progn
-	 (remove-hook 'after-make-frame-functions 'use-desktop)
-	 (remove-hook 'server-visit-hook 'use-desktop)
-	 ;; The following is taken from desktop itself
-	 (let ((key "--no-desktop"))
-	   (when (member key command-line-args)
-	     (setq command-line-args (delete key command-line-args))
-	     (setq desktop-save-mode nil)))
-	 (when desktop-save-mode
-	   (desktop-read)))))))
+	  (ad-activate 'desktop-read)
+	  (ad-activate 'desktop-append-buffer-args)
+	  (ad-activate 'desktop-create-buffer)
+	  (ad-activate 'switch-to-buffer))
+	:config
+	(progn
+	  (remove-hook 'after-make-frame-functions 'use-desktop)
+	  (remove-hook 'server-visit-hook 'use-desktop)
+	  ;; The following is taken from desktop itself
+	  (let ((key "--no-desktop"))
+	    (when (member key command-line-args)
+	      (setq command-line-args (delete key command-line-args))
+	      (setq desktop-save-mode nil)))
+	  (when desktop-save-mode
+	    (desktop-read)))))))
 (defmacro run-on-first-frame (function)
   "Run the given function when the first frame is created."
   `(if (not (daemonp))
@@ -512,8 +520,11 @@ it."
 (define-key read-expression-map [(tab)] 'hippie-expand)
 (define-key read-expression-map [(shift tab)] 'unexpand)
 
+(use-package s :load-path "site-lisp/s-el")
+
 (use-package smart-tab
   :diminish smart-tab-mode
+  :load-path "site-lisp/smart-tab"
   :init
   (require 'smart-tab)
   (global-smart-tab-mode 1))
@@ -681,6 +692,8 @@ This also updates the \"X-Message-SMTP-Method\" header."
   (remove-hook 'elpy-modules 'elpy-module-highlight-indentation)
   (elpy-enable))
 
+(use-package epl :load-path "site-lisp/epl")
+
 ;;; find-file-in-project
 (use-package find-file-in-project
   :bind (("C-c C-f" . find-file-in-project))
@@ -775,6 +788,7 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (use-package magit
+  :disabled t
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :commands (magit-init magit-git-command)
@@ -1003,6 +1017,7 @@ a argument to perform the pop instead.."
 (use-package helm-config
   :if (or (> emacs-major-version 24)
 	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :load-path "site-lisp/helm"
   :bind (("C-c M-x" . helm-M-x)
 	 ("C-h a"   . helm-apropos)
 	 ("M-s a"   . helm-do-grep)
@@ -1012,6 +1027,7 @@ a argument to perform the pop instead.."
   :init
   (progn
     (use-package helm-descbinds
+      :load-path "site-lisp/helm-descbinds"
       :bind ("C-h b" . helm-descbinds)
       :init
       (fset 'describe-bindings 'helm-descbinds))
@@ -1031,10 +1047,12 @@ a argument to perform the pop instead.."
 ;; just require this stuff.
 (use-package help+20
   :if (< emacs-major-version 22)
+  :load-path "site-lisp/drew-adams"
   :init (require 'help+20))
 
 (use-package help+
   :if (> emacs-major-version 21)
+  :load-path "site-lisp/drew-adams"
   :init
   (progn
     (require 'help+)
@@ -1071,7 +1089,7 @@ a argument to perform the pop instead.."
 ;;    :config
 ;;    (progn
 ;;      (require 'help-fns+)))
-
+;;
 ;; (use-package help+20
 ;;   :if (< emacs-major-version 22)
 ;;    :init
@@ -1095,8 +1113,7 @@ a argument to perform the pop instead.."
 ;;      (define-key help-map [down-mouse-1] 'mouse-help-on-click)
 ;;      (define-key help-map [mode-line down-mouse-1]
 ;;        'mouse-help-on-mode-line-click)
-
-;;      ;; `help-mode' too needs a quit key.
+;;       ;; `help-mode' too needs a quit key.
 ;;      (define-key help-mode-map "q" 'View-quit)))
 
 ;;; hide-ifdef
@@ -1109,6 +1126,7 @@ a argument to perform the pop instead.."
 
 ;;; highlight-symbol
 (use-package highlight-symbol
+  :load-path "site-lisp/highlight-symbol"
   :diminish highlight-symbol-mode
   :commands highlight-symbol-mode
   :bind (("<f5>"     . highlight-symbol-next-in-defun)
@@ -1135,6 +1153,7 @@ a argument to perform the pop instead.."
   (progn
     (use-package flx-ido
       :if (featurep 'cl-lib)
+      :load-path "site-lisp/flx"
       :commands flx-ido-mode)
     (when (featurep 'cl-lib)
       (flx-ido-mode 1))
@@ -1170,8 +1189,8 @@ cf. https://github.com/jwiegley/dot-emacs."
    ;; But, do not resize the frame for info nodes.
    ,(progn
       (if (> emacs-major-version 22)
-	  (require 'info+)
-	(require 'info+20))
+	  (use-package info+ :load-path "site-lisp/drew-adams")
+	(use-package info+20 :load-path "site-lisp/drew-adams"))
       (setq Info-fit-frame-flag nil)))
 
 ;;; Java
@@ -1285,6 +1304,7 @@ cf. https://github.com/jwiegley/dot-emacs."
 ;;; Lisp environment (SLIME, eldoc, paredit, etc.)
 (use-package lispstick
   :commands lispstick-system-p
+  :load-path "site-lisp/lispstick"
   :init
   (when (lispstick-system-p)
     (run-with-idle-timer .1 nil 'lispstick-initialize)))
@@ -1548,6 +1568,8 @@ the nobreak spaces in the powerline shell prompt."
 
 (run-on-first-frame use-powerline)
 
+(use-package pkg-info :load-path "site-lisp/pkg-info")
+
 ;;; Projectile
 ;;
 ;; TODO: Finish reading projectile's README and augment this
@@ -1555,6 +1577,7 @@ the nobreak spaces in the powerline shell prompt."
 ;;
 (use-package projectile
   :if (>= emacs-major-version 24)	; requires lexical-binding
+  :load-path "site-lisp/projectile"
   :commands (projectile-on
 	     projectile-global-mode
 	     projectile-mode)
@@ -1851,6 +1874,7 @@ Each alist element in `skeleton-pair-alist' and
 
 ;;; If there are more than two windows, number them when switching between them.
 (use-package switch-window
+  :load-path "site-lisp/switch-window"
   :bind (("C-x o" . switch-window)))
 
 ;;; Tar-mode
@@ -1926,6 +1950,7 @@ This enables the obsolete `which-func-mode' in older Emacs."
 ;; Automatically cleanup whitespace in files that were initially clean.
 (use-package whitespace-cleanup-mode
   :diminish whitespace-cleanup-mode
+  :load-path "site-lisp/whitespace-cleanup-mode"
   :init
   (add-hooks '(prog-mode-hook text-mode-hook) 'whitespace-cleanup-mode))
 
@@ -1947,6 +1972,7 @@ The hooks are removed once ws-butler has been successfully loaded."
 	  (condition-case dummy (x-display-grayscale-p) ((error nil))))
 
       (use-package ws-butler
+	:load-path "site-lisp/ws-butler"
 	:diminish (ws-butler-mode highlight-changes-mode)
 	;; This mode require highlight-changes-mode, which in turn only
 	;; works on color or grayscale displays.  Be careful not to choke on
@@ -1989,6 +2015,7 @@ The hooks are removed once ws-butler has been successfully loaded."
     (winner-mode 1)))
 
 (use-package window-numbering
+  :load-path "site-lisp/window-numbering"
   :config
   (window-numbering-mode))
 
@@ -2027,6 +2054,7 @@ The hooks are removed once ws-butler has been successfully loaded."
 (use-package yasnippet
   :if (not noninteractive)		; no reason to load in batch mode
   :diminish yas-minor-mode
+  :load-path "site-lisp/yasnippet"
   :commands (yas-minor-mode yas-expand)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :init
@@ -2043,6 +2071,7 @@ The hooks are removed once ws-butler has been successfully loaded."
   :config
   (progn
     (use-package el-autoyas
+      :load-path "site-lisp/el-autoyas"
       :commands el-autoyas-enable
       :init
       (add-hook 'emacs-lisp-mode-hook 'el-autoyas-enable))

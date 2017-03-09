@@ -156,9 +156,9 @@ case they are added at the end."
 (dolist (dir (nreverse
               (list user-override-directory
                     user-lisp-directory
-                    user-lib-directory
-                    user-site-lisp-directory)))
+                    user-lib-directory)))
   (add-to-load-path-recursively dir))
+(add-to-load-path user-site-lisp-directory)
 (add-to-load-path-recursively user-backport-directory t)
 
 (mapc #'add-to-load-path
