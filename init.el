@@ -1581,7 +1581,7 @@ and the basename of the executable.")
   (run-with-idle-timer
    .1 nil
    (lambda ()
-     (require 'powerline)
+     (use-package powerline :load-path "site-lisp/powerline")
      (load (expand-file-name "softer-dark-theme" user-emacs-directory))
      (powerline-softer-dark-theme))))
 
