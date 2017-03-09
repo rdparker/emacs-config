@@ -1,9 +1,6 @@
 [submodule "site-lisp/use-package"]
 	path = site-lisp/use-package
 	url = https://github.com/jwiegley/use-package.git
-[submodule "site-lisp/magit"]
-	path = site-lisp/magit
-	url = https://github.com/magit/magit.git
 [submodule "site-lisp/session"]
 	path = site-lisp/session
 	url = https://github.com/rdparker/session.git
@@ -79,9 +76,6 @@
 [submodule "site-lisp/lispstick"]
 	path = site-lisp/lispstick
 	url = https://github.com/rdparker/lispstick-el
-[submodule "site-lisp/git-modes"]
-	path = site-lisp/git-modes
-	url = https://github.com/magit/git-modes.git
 [submodule "site-lisp/smart-tab"]
 	path = site-lisp/smart-tab
 	url = https://github.com/sroccaserra/smart-tab.git
