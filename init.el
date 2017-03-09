@@ -26,6 +26,14 @@
 
 (eval-when-compile (require 'cl))
 
+(defun emacs>= (version)
+  "Returns t if `emacs-version' is greater than or equal to VERSION."
+  (let* ((major (floor version))
+	 (minor (round (* 10 (- version major)))))
+    (or (> emacs-major-version major)
+	(and (= emacs-major-version major)
+	     (>= emacs-minor-version minor)))))
+
 ;; The `user-emacs-directory' variable, did not exist before Emacs 23.
 ;; Make sure it's defined.
 (unless (boundp 'user-emacs-directory)
@@ -787,73 +795,91 @@ which is an error according to some typographical conventions."
 
 ;;; magit
 
-(use-package magit
-  :disabled t
-  :bind (("C-x g" . magit-status)
-         ("C-x G" . magit-status-with-prefix))
-  :commands (magit-init magit-git-command)
-  :load-path "site-lisp/magit/lisp"
-  :init
-  (use-package with-editor
-    ;; Magit needs this mode
-    :demand t
-    :commands (with-editor-async-shell-command
-	       with-editor-shell-command)
-    :load-path "site-lisp/with-editor")
+(eval-when-compile
+  (setq magit-path (if (emacs>= 24.4)
+		       "site-lisp/magit-24.4+/lisp"
+		     "site-lisp/magit-23.2+")
+	git-modes-path (if (emacs>= 24.4)
+			   "site-lisp/git-modes-24.4+"
+			 "site-lisp/git-modes-23.2+"))
+  (eval
+   `(use-package magit
+      :bind (("C-x g" . magit-status)
+	     ("C-x G" . magit-status-with-prefix))
+      :commands (magit-init magit-git-command)
+      :load-path ,magit-path
+      :init
+      (use-package with-editor
+	:if (emacs>= 24.4)
+	;; Magit needs this mode
+	:demand t
+	:commands (with-editor-async-shell-command
+		   with-editor-shell-command)
+	:load-path "site-lisp/with-editor")
 
-  (defun magit-status-with-prefix ()
-    "Ask the user which repository to open in a Magit status buffer."
-    (interactive)
-    (let ((current-prefix-arg '(4)))
-      (call-interactively 'magit-status)))
+      (use-package git-modes
+	:commands (gitattributes-mode gitconfig-mode gitignore-mode)
+	:load-path ,git-modes-path)
 
-  ;; Magit does not ship autoloads.  Generate them if necessary.
-  (unless (require 'magit-autoloads nil t)
-    (if* filename (locate-library "magit")
-	 (let* ((magit-source-dir (file-name-directory filename))
-		(generated-autoload-file (expand-file-name "magit-autoloads.el"
-							   magit-source-dir)))
-	   (update-directory-autoloads magit-source-dir))))
+      (unless (require 'git-modes-autoloads nil t)
+	(let ((generated-autoload-file (expand-file-name "git-modes-autoloads.el"
+							 git-modes-path)))
+	  (update-directory-autoloads (expand-file-name
+				       ,git-modes-path user-emacs-directory))))
 
-  ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
-  (add-hook 'dired-mode-hook
-	    (lambda ()
-	      (define-key dired-mode-map "r" 'magit-status)))
+      (defun magit-status-with-prefix ()
+	"Ask the user which repository to open in a Magit status buffer."
+	(interactive)
+	(let ((current-prefix-arg '(4)))
+	  (call-interactively 'magit-status)))
 
-  :config
-  (setenv "GIT_PAGER" "")
+      ;; Magit does not ship autoloads.  Generate them if necessary.
+      (unless (require 'magit-autoloads nil t)
+	;; `generated-autoload-file' controls where
+	;; `update-directory-autoloads' writes its output.
+	(let ((generated-autoload-file (expand-file-name "magit-autoloads.el"
+							 magit-path)))
+	  (update-directory-autoloads magit-path)))
 
-  (use-package magit-review
-    :commands magit-review
-    :config (require 'json))
+      ;; Inspired by https://github.com/elim/dotemacs/blob/master/init-magit.el
+      (add-hook 'dired-mode-hook
+		(lambda ()
+		  (define-key dired-mode-map "r" 'magit-status)))
 
-  (unbind-key "M-h" magit-mode-map)
-  (unbind-key "M-s" magit-mode-map)
+      :config
+      (setenv "GIT_PAGER" "")
 
-  (add-hook 'magit-log-edit-mode-hook
-	    #'(lambda ()
-		(auto-fill-mode 1)
-		(flyspell-mode 1)))
+      (use-package magit-review
+	:commands magit-review
+	:config (require 'json))
 
-  (add-hook 'magit-mode-hook
-	    #'(lambda ()
-		(when (magit-get "svn-remote" "svn" "url")
-		  (magit-svn-mode 1))))
+      (unbind-key "M-h" magit-mode-map)
+      (unbind-key "M-s" magit-mode-map)
 
-  (require 'magit-topgit nil t)
+      (add-hook 'magit-log-edit-mode-hook
+		#'(lambda ()
+		    (auto-fill-mode 1)
+		    (flyspell-mode 1)))
 
-  (defvar magit-git-monitor-process nil)
-  (make-variable-buffer-local 'magit-git-monitor-process)
+      (add-hook 'magit-mode-hook
+		#'(lambda ()
+		    (when (magit-get "svn-remote" "svn" "url")
+		      (magit-svn-mode 1))))
 
-  (defun start-git-monitor ()
-    (interactive)
-    (unless magit-git-monitor-process
-      (setq magit-git-monitor-process
-	    (start-process "git-monitor" (current-buffer) "git-monitor"
-			   "-d" (expand-file-name default-directory)))))
+      (require 'magit-topgit nil t)
 
-  ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
-  )
+      (defvar magit-git-monitor-process nil)
+      (make-variable-buffer-local 'magit-git-monitor-process)
+
+      (defun start-git-monitor ()
+	(interactive)
+	(unless magit-git-monitor-process
+	  (setq magit-git-monitor-process
+		(start-process "git-monitor" (current-buffer) "git-monitor"
+			       "-d" (expand-file-name default-directory)))))
+
+      ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
+      )))
 
 ;;; graphviz dot mode
 (use-package graphviz-dot-mode
