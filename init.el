@@ -817,7 +817,6 @@ which is an error according to some typographical conventions."
       (use-package with-editor
 	:if (emacs>= 24.4)
 	;; Magit needs this mode
-	:demand t
 	:commands (with-editor-async-shell-command
 		   with-editor-shell-command)
 	:load-path "site-lisp/with-editor")
