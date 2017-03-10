@@ -140,7 +140,10 @@ is consistent."
      (setq size 12))
    (let* ((font (face-attribute face :font))
 	  (face-size (aref (font-info font) 2)))
-     (when (not (= face-size size))
+     ;; Sometimes on Windows you can get a nil face-size back from the
+     ;; font info.
+     (when (and (not (zerop face-size))
+		(not (= face-size size)))
        (let ((height (face-attribute face :height)))
 	 (set-face-attribute face nil :height (/ (* height size)
 						 face-size)))))))
