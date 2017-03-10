@@ -581,6 +581,8 @@ it."
 
 ;;; email
 (use-package message
+  :bind (:map message-mode-map
+	      ("C-c C-f C-o" . my-change-from))
   :config
 
   (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
@@ -649,9 +651,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 	    ;; any existing one.
 	    (save-restriction
 	      (message-narrow-to-headers)
-	      (message-remove-header method-header)))))))
-
-  (bind-key "C-c C-f C-o" 'my-change-from message-mode-map))
+	      (message-remove-header method-header))))))))
 
 ;;; ecb -- Emacs Code Browser
 (use-package ecb
