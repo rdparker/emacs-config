@@ -745,7 +745,7 @@ which is an error according to some typographical conventions."
   :init
   (progn
     (add-hook-with-check 'text-mode-hook 'flyspell-mode)
-    (add-hook-with-check 'prog-mode-hook 'flyspell-prog-mode)))
+    (add-hook-with-check 'prog-mode-hook 'flyspell-prog-mode 'flyspell-mode)))
 
 ;;; frame
 (use-package frame
