@@ -17,11 +17,6 @@
 
 (defconst emacs-start-time (current-time))
 
-(eval-when-compile
-  (defmacro comment (&rest body)
-    "Comment out everything within BODY."
-    (progn)))
-
 (unless noninteractive
   (message "Loading %s..." load-file-name))
 
@@ -61,6 +56,9 @@ Note that this should end with a directory separator."))
 
 (require 'backport)
 (require 'rdp-functions)
+(eval-when-compile
+  (require 'rdp-macs))
+
 
 (defvar alternate-emacs
   (when (string-match (concat "/Applications/\\(Misc/\\)?"
@@ -498,13 +496,6 @@ it."
 	      (setq desktop-save-mode nil)))
 	  (when desktop-save-mode
 	    (desktop-read)))))))
-(eval-when-compile
-  (defmacro run-on-first-frame (function)
-  "Run the given function when the first frame is created."
-  `(if (not (daemonp))
-       (,function)
-     (add-hook 'after-make-frame-functions (quote ,function))
-     (add-hook 'server-visit-hook (quote ,function)))))
 (run-on-first-frame use-desktop)
 
 ;;; Diff
@@ -753,8 +744,8 @@ which is an error according to some typographical conventions."
   :diminish (flyspell-mode)
   :init
   (progn
-    (add-hook 'text-mode-hook 'flyspell-mode)
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)))
+    (add-hook-with-check 'text-mode-hook 'flyspell-mode)
+    (add-hook-with-check 'prog-mode-hook 'flyspell-prog-mode 'flyspell-mode)))
 
 ;;; frame
 (use-package frame
@@ -791,13 +782,6 @@ which is an error according to some typographical conventions."
 (autoload 'egit "egit" "Emacs git history" t)
 (autoload 'egit-file "egit" "Emacs git history file" t)
 (autoload 'egit-dir "egit" "Emacs git history directory" t)
-
-(defmacro if*  (var cond then &optional else)
-  "Bind VAR to COND and if it is non-nil, do THEN, else do ELSE."
-  `(let ((,var ,cond))
-     (if ,var
-	 ,then
-       ,else)))
 
 ;;; magit
 
