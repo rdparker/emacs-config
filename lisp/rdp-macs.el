@@ -43,6 +43,11 @@
 	 ,then
        ,else)))
 
+(defmacro maybe-unquote (arg)
+  "If ARG is quoted, unquote it in situ."
+  `(when (and (listp ,arg) (eq (first ,arg) 'quote))
+    (setq ,arg (second ,arg))))
+
 (defmacro add-hook-with-check (hook function &optional append local)
   "Generates and adds a function to HOOK, which calls FUNCTION and
 checks that the minor mode with the same name as FUNCTION is
@@ -58,11 +63,8 @@ be used.
 The arguments to this macro may be optionally quoted. The macro
 does not require it, but allowing it matches the call signature
 for `add-hook'."
-  ;; Unquote arguments
-  (when (and (listp hook) (eq (first hook) 'quote))
-    (setq hook (second hook)))
-  (when (and (listp function) (eq (first function) 'quote))
-    (setq function (second function)))
+  (maybe-unquote hook)
+  (maybe-unquote function)
 
   (let ((helper (intern (format "%s-%s-helper" hook function))))
     `(progn
