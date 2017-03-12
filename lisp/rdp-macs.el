@@ -48,23 +48,27 @@
   `(when (and (listp ,arg) (eq (first ,arg) 'quote))
     (setq ,arg (second ,arg))))
 
-(defmacro add-hook-with-check (hook function &optional append local)
+(defmacro add-hook-with-check (hook function &optional mode)
   "Generates and adds a function to HOOK, which calls FUNCTION and
-checks that the minor mode with the same name as FUNCTION is
-nstarted. Otherwise, it removes the generated function from HOOK.
+checks that the minor mode named MODE is started.  Otherwise, it
+removes the generated function from HOOK.
+
+If no MODE is passed, MODE defaults to FUNCTION
 
 This is useful for hooking in minor modes that only work if an
-external program is present. If the program is not found the
-first time the mode is invoked and resulting in the minor mode
-not being activated, the hook will be removed. This avoids
-repeatedly paying the first-time start up cost when a mode cannot
-be used.
+external program is present.  If the program is not found the first
+time the mode is invoked and resulting in the minor mode not being
+activated, the hook will be removed.  This avoids repeatedly paying
+the first-time start up cost when a mode cannot be used.
 
-The arguments to this macro may be optionally quoted. The macro
-does not require it, but allowing it matches the call signature
-for `add-hook'."
+The arguments to this macro may be optionally quoted.  The macro does
+not require it, but allowing it matches the call signature for
+`add-hook'."
   (maybe-unquote hook)
   (maybe-unquote function)
+  (maybe-unquote mode)
+  (when (null mode)
+    (setq mode function))
 
   (let ((helper (intern (format "%s-%s-helper" hook function))))
     `(progn
@@ -72,7 +76,7 @@ for `add-hook'."
 	     #'(lambda ()
 		 (,function)
 		 (unless (buffer-has-mode-p (current-buffer)
-					    (quote ,function))
+					    (quote ,mode))
 		   (message "Unhooking the %s helper from %s..."
 			    (quote ,function) (quote ,hook))
 		   (remove-hook (quote ,hook) (quote ,helper))
