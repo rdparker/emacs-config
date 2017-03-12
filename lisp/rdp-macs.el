@@ -43,5 +43,40 @@
 	 ,then
        ,else)))
 
+(defmacro add-hook-with-check (hook function &optional append local)
+  "Generates and adds a function to HOOK, which calls FUNCTION and
+checks that the minor mode with the same name as FUNCTION is
+nstarted. Otherwise, it removes the generated function from HOOK.
+
+This is useful for hooking in minor modes that only work if an
+external program is present. If the program is not found the
+first time the mode is invoked and resulting in the minor mode
+not being activated, the hook will be removed. This avoids
+repeatedly paying the first-time start up cost when a mode cannot
+be used.
+
+The arguments to this macro may be optionally quoted. The macro
+does not require it, but allowing it matches the call signature
+for `add-hook'."
+  ;; Unquote arguments
+  (when (and (listp hook) (eq (first hook) 'quote))
+    (setq hook (second hook)))
+  (when (and (listp function) (eq (first function) 'quote))
+    (setq function (second function)))
+
+  (let ((helper (intern (format "%s-%s-helper" hook function))))
+    `(progn
+       (fset (quote ,helper)
+	     #'(lambda ()
+		 (,function)
+		 (unless (buffer-has-mode-p (current-buffer)
+					    (quote ,function))
+		   (message "Unhooking the %s helper from %s..."
+			    (quote ,function) (quote ,hook))
+		   (remove-hook (quote ,hook) (quote ,helper))
+		   (message "Unhooking the %s helper from %s...done."
+			    (quote ,function) (quote ,hook)))))
+       (add-hook (quote ,hook) (quote ,helper)))))
+
 (provide 'rdp-macs)
 ;;; rdp-macs.el ends here

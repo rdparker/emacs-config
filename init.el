@@ -744,8 +744,8 @@ which is an error according to some typographical conventions."
   :diminish (flyspell-mode)
   :init
   (progn
-    (add-hook 'text-mode-hook 'flyspell-mode)
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)))
+    (add-hook-with-check 'text-mode-hook 'flyspell-mode)
+    (add-hook-with-check 'prog-mode-hook 'flyspell-prog-mode)))
 
 ;;; frame
 (use-package frame
