@@ -252,10 +252,13 @@ are named \"Emacs[A-Za-z]*.app\".")
 	 (custom-ac-dict-dir
 	  (expand-file-name "auto-complete/dict" user-data-directory))
 	 (js-dict
+	  (expand-file-name "js-mode" standard-ac-dict-dir))
+	 (custom-js-dict
 	  (expand-file-name "js-mode" custom-ac-dict-dir)))
     (unless (file-directory-p custom-ac-dict-dir)
       (mkdir custom-ac-dict-dir t))
-    (unless (file-exists-p js-dict)
+    (unless (or (file-exists-p js-dict)
+		(file-exists-p custom-ac-dict-dir))
       ;; Windows may not support links, try a symbolic link, then a
       ;; hard link, and finally just make a copy.
       (condition-case nil
