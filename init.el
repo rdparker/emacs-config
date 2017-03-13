@@ -786,14 +786,17 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (eval-when-compile
-  (setq magit-path (expand-file-name (if (emacs>= 24.4)
+  (let ((emacs244 (emacs>= 24.4)))
+    (setq magit-path (expand-file-name (if emacs244
 					 "magit-24.4+/lisp"
-				       "magit-23.2+")
-				     user-site-lisp-directory)
-	git-modes-path (expand-file-name (if (emacs>= 24.4)
+					 "magit-23.2+")
+				       user-site-lisp-directory)
+	git-modes-path (expand-file-name (if emacs244
 					     "git-modes-24.4+"
 					   "git-modes-23.2+")
 					 user-site-lisp-directory))
+    (when (not emacs244)
+      (setq magit-last-seen-setup-instructions "1.4.0")))
   (eval
    `(use-package magit
       :bind (("C-x g" . magit-status)
