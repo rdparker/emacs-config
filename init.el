@@ -128,7 +128,7 @@ these out-of-tree directories."
   :defines (daemonp get-scroll-bar-mode))
 (use-package rdp-functions :load-path "lisp")
 (eval-when-compile
-  (require 'rdp-macs))
+  (use-package rdp-macs))
 
 
 (defvar alternate-emacs
@@ -207,8 +207,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 	(setq tab-width 8)
 	(setq default-tab-width 8))			; obsoleted in 23.2
 
-(require 'dired-config)
-(require 'multiple-cursors-config)
+(use-package dired-config)
+(use-package multiple-cursors-config)
 
 ;;; Configuration files
 ;;
@@ -395,7 +395,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 (use-package w3m
   :commands (w3m w3m-browse-url))
 (condition-case ()
-	(require 'w3-auto "w3-auto")
+	(use-package w3-auto)
 	(error nil))
 
 ;;; Daemon mode
@@ -604,7 +604,7 @@ it."
   :diminish smart-tab-mode
   :load-path "site-lisp/smart-tab"
   :init
-  (require 'smart-tab)
+  (use-package smart-tab)
   (global-smart-tab-mode 1))
 
 ;; Replace yasnippets's TAB
@@ -621,7 +621,7 @@ it."
 ;; colorize their output.  It came from
 ;; http://stackoverflow.com/questions/3072648/\
 ;; cucumbers-ansi-colors-messing-up-emacs-compilation-buffer.
-(require 'ansi-color)
+(use-package ansi-color)
 (defun colorize-compilation-buffer ()
   (toggle-read-only)
   (ansi-color-apply-on-region (point-min) (point-max))
@@ -655,7 +655,7 @@ it."
 
   (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
   (unless (featurep 'gnus-start)
-    (require 'gnus-start)
+    (use-package gnus-start)
     (gnus-read-init-file))
 
   (defun select-from-address ()
@@ -790,7 +790,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 	 ("C-x 5 V" . find-variable-other-frame)
 	 ("C-x 4 l" . find-library-other-window))
   :config
-  (require 'find-func+))
+  (use-package find-func+))
 
 ;;; fill
 ;; Emacs 24.4's option to not wrap after a single character word.
@@ -848,9 +848,9 @@ which is an error according to some typographical conventions."
 ;;; git
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
-(require 'git nil t)
+(use-package git)
 (setq git-state-modeline-decoration 'git-state-decoration-large-dot)
-(require 'git-emacs-autoloads nil t)
+(use-package git-emacs-autoloads)
 (autoload 'git-svn "git-svn" nil t)
 (autoload 'gitsum "gitsum" "Entry point into gitsum-diff-mode" t)
 (autoload 'egit "egit" "Emacs git history" t)
@@ -919,7 +919,7 @@ which is an error according to some typographical conventions."
 
       (use-package magit-review
 	:commands magit-review
-	:config (require 'json))
+	:config (use-package json))
 
       (unbind-key "M-h" magit-mode-map)
       (unbind-key "M-s" magit-mode-map)
@@ -934,7 +934,7 @@ which is an error according to some typographical conventions."
 		    (when (magit-get "svn-remote" "svn" "url")
 		      (magit-svn-mode 1))))
 
-      (require 'magit-topgit nil t)
+      (use-package magit-topgit)
 
       (defvar magit-git-monitor-process nil)
       (make-variable-buffer-local 'magit-git-monitor-process)
@@ -989,7 +989,7 @@ which is an error according to some typographical conventions."
       :bind ("M-T" . helm-gtags-select)
       :config
       (progn
-	(require 'gtags)
+	(use-package gtags)
 	(bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
     (use-package anything-gtags
@@ -998,7 +998,7 @@ which is an error according to some typographical conventions."
       :bind ("M-T" . anything-gtags-select)
       :config
       (progn
-	(require 'gtags)
+	(use-package gtags)
 	(bind-key "M-," 'anything-gtags-resume gtags-mode-map)))
 
     ;; Setting to make 'Gtags select mode' easy to see
@@ -1100,7 +1100,7 @@ a argument to perform the pop instead.."
 
 (eval-after-load 'haskell-mode
   '(progn
-     (require 'flymake)
+     (use-package flymake)
      (push '("\\.l?hs\\'" flymake-haskell-init) flymake-allowed-file-name-masks)
      (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
      (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
@@ -1142,19 +1142,19 @@ a argument to perform the pop instead.."
 (use-package help+20
   :if (< emacs-major-version 22)
   :load-path "site-lisp/drew-adams"
-  :init (require 'help+20))
+  :init (use-package help+20))
 
 (use-package help+
   :if (> emacs-major-version 21)
   :load-path "site-lisp/drew-adams"
   :init
   (progn
-    (require 'help+)
-    (require 'help-fns+)
+    (use-package help+)
+    (use-package help-fns+)
     (use-package help-mode
       :config
-      (require 'help-mode+))
-    (require 'descr-text+)))
+      (use-package help-mode+))
+    (use-package descr-text+)))
 
 ;; (use-package help+
 ;;    :if (>= emacs-major-version 22)
@@ -1182,7 +1182,7 @@ a argument to perform the pop instead.."
 ;;    :commands help-for-help-internal
 ;;    :config
 ;;    (progn
-;;      (require 'help-fns+)))
+;;      (use-package help-fns+)))
 ;;
 ;; (use-package help+20
 ;;   :if (< emacs-major-version 22)
@@ -1571,7 +1571,7 @@ and the basename of the executable.")
 ;; CLHS info file
 ;;
 ;; cf. http://users-phys.au.dk/harder/dpans.html.
-(require 'info-look)
+(use-package info-look)
 (info-lookup-add-help
  :mode 'lisp-mode
  :regexp "[^][()'\" \t\n]+"
@@ -1613,7 +1613,7 @@ and the basename of the executable.")
 (setq imaxima-use-maxima-mode-flag t)
 
 ;;; Midnight
-(require 'midnight)
+(use-package midnight)
 (midnight-delay-set 'midnight-delay 43200) ; Noon: 12*3600
 
 ;;; Navigation
@@ -1793,7 +1793,7 @@ the nobreak spaces in the powerline shell prompt."
 						 "~/Documents/Org/"))
   (setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
   (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
-  :init (require 'org-agenda))
+  :init (use-package org-agenda))
 
 ;;; Quilt
 (use-package quilt
@@ -1846,7 +1846,7 @@ the nobreak spaces in the powerline shell prompt."
   :mode (("\\.spec" . rpm-spec-mode)))
 
 ;;; Semantic
-;;(require 'cedet-config)
+;;(use-package cedet-config)
 
 ;;; session
 
@@ -1992,7 +1992,7 @@ Each alist element in `skeleton-pair-alist' and
   :config (tool-bar-mode -1))
 
 ;;; uniquify
-(require 'uniquify)
+(use-package uniquify)
 ;; Use file<partial-dir> instead of file<#>
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
