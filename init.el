@@ -313,7 +313,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
   :load-path "site-lisp/auto-complete"
-  :init      (use-package popup :load-path "site-lisp/popup")
+  :init
+  (use-package popup :defer t :load-path "site-lisp/popup")
   :config
   ;; Make sure auto-complete can find the correct JavaScript
   ;; dictionary in spite of mode name aliasing in Emacs 23.
@@ -959,19 +960,19 @@ which is an error according to some typographical conventions."
 
 ;;; grep
 (use-package grep
+  :defer t
   :config
-  (progn
-    ;; Ignore quilt tracking directories
-    (add-to-list 'grep-find-ignored-directories ".pc")
-    ; Ignore flymake temporary files, if ignoring files is supported.
-    (when (boundp 'grep-find-ignored-files)
-      (add-to-list 'grep-find-ignored-files "*_flymake")
-      (add-to-list 'grep-find-ignored-files "*_flymake.*"))))
+  ;; Ignore quilt tracking directories
+  (add-to-list 'grep-find-ignored-directories ".pc")
+
+  ;; Ignore flymake temporary files, if ignoring files is supported.
+  (when (boundp 'grep-find-ignored-files)
+    (add-to-list 'grep-find-ignored-files "*_flymake")
+    (add-to-list 'grep-find-ignored-files "*_flymake.*")))
 
 ;;; gtags
-(add-to-load-path "/usr/share/gtags")
-
 (use-package gtags
+  :load-path "/usr/share/gtags"
   :commands gtags-mode
   :diminish gtags-mode
   :bind (("M-*" . gtags-pop-stack)
@@ -1685,7 +1686,9 @@ the nobreak spaces in the powerline shell prompt."
   (set (make-local-variable 'nobreak-char-display) nil))
 
 (use-package shell
-  :init
+  :defer t
+  :defines shell-mode-hook
+  :config
   (add-hook 'shell-mode-hook 'disable-nobreak-char-display))
 
 (run-on-first-frame use-powerline)
@@ -2055,7 +2058,8 @@ Each alist element in `skeleton-pair-alist' and
 		  'which-function-mode
 		'which-func-mode)))
     (eval `(use-package which-func
-	     :config
+	     :defer t
+	     :init
 	     (defun enable-which-function-mode ()
 	       "Enable `which-function-mode'.
 This enables the obsolete `which-func-mode' in older Emacs."
