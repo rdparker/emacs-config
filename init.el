@@ -1508,41 +1508,83 @@ and the basename of the executable.")
   (show-paren-mode 1))
 
 ;; lisp fonts and characters
-(defvar lisp-modes  '(emacs-lisp-mode
-                      inferior-emacs-lisp-mode
-                      ielm-mode
-                      lisp-mode
-                      inferior-lisp-mode
-                      lisp-interaction-mode
-                      slime-repl-mode
-		      scheme-mode
-		      closure-mode
-		      nrepl-mode)
-  "The lisp modes that I want to customize.")
+(eval-when-compile
+  (defvar lisp-modes  '(emacs-lisp-mode
+			inferior-emacs-lisp-mode
+			ielm-mode
+			lisp-mode
+			inferior-lisp-mode
+			lisp-interaction-mode
+			slime-repl-mode
+			scheme-mode
+			closure-mode
+			nrepl-mode)
+    "The lisp modes that I want to customize.")
+
+  ;; Borrowed from John Wiegley
+  (defvar lisp-mode-hooks
+    (mapcar #'(lambda (mode)
+		(intern
+		 (concat (symbol-name mode) "-hook")))
+	    lisp-modes)))
+
+(defsubst hook-into-modes (func &rest modes)
+  (dolist (mode-hook modes) (add-hook mode-hook func)))
+
+
+;; ;; CLHS info file
+;; ;;
+;; ;; cf. http://users-phys.au.dk/harder/dpans.html.
+(use-package info-look
+  :commands info-lookup-add-help)
 
 (use-package lisp-mode
-  :init
-  (progn
-    (defface esk-paren-face
-      '((((class color) (background dark))
-         (:foreground "grey50"))
-        (((class color) (background light))
-         (:foreground "grey55")))
-      "Face used to dim parentheses."
-      :group 'starter-kit-faces)
+  :defer t
+  :preface
+  (defface esk-paren-face
+    '((((class color) (background dark))
+       (:foreground "grey50"))
+      (((class color) (background light))
+       (:foreground "grey55")))
+    "Face used to dim parentheses."
+    :group 'starter-kit-faces)
 
-    (mapc (lambda (major-mode)
-	    (font-lock-add-keywords
-	     major-mode
-	     '(
-	       ;; Replace lambda with an actual λ character.
-	       ("(\\(lambda\\)\\>"
-		(0 (ignore
-		    (compose-region (match-beginning 1)
-				    (match-end 1) ?λ))))
-	       ;; Dim parenthesis, brackets, and braces.
-	       ("[]()[{}]" . 'esk-paren-face))))
-	  lisp-modes)))
+  (defvar lisp-mode-initialized nil
+    "Has `my-lisp-mode-hook' done it's one-time initialization?")
+
+  (defun my-lisp-mode-hook ()
+    "Performs one-time initialization for lisp-related modes."
+    (unless lisp-mode-initialized
+      (setq lisp-mode-initialized t))
+
+    (mapc (lambda (mode)
+	    (info-lookup-add-help
+	     :mode mode
+	     :regexp "[^][()'\" \t\n]+"
+	     :ignore-case t
+	     :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+	  lisp-modes))
+
+  ;; :init
+  (mapc (lambda (major-mode)
+	  (font-lock-add-keywords
+	   major-mode
+	   '(
+	     ;; Replace lambda with an actual λ character.
+	     ("(\\(lambda\\)\\>"
+	      (0 (ignore
+		  (compose-region (match-beginning 1)
+				  (match-end 1) ?λ))))
+	     ;; Dim parenthesis, brackets, and braces.
+	     ("[]()[{}]" . 'esk-paren-face)))
+	  (info-lookup-add-help
+	   :mode major-mode
+	   :regexp "[^][()'\" \t\n]+"
+	   :ignore-case t
+	   :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+	lisp-modes)
+
+  (add-hooks  lisp-mode-hooks 'my-lisp-mode-hook))
 
 ;;; TODO Figure out why this block breaks daemonization
 ;;
@@ -1595,30 +1637,6 @@ and the basename of the executable.")
 (use-package c-eldoc
   :commands c-turn-on-eldoc-mode
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
-
-;; CLHS info file
-;;
-;; cf. http://users-phys.au.dk/harder/dpans.html.
-(use-package info-look)
-(info-lookup-add-help
- :mode 'lisp-mode
- :regexp "[^][()'\" \t\n]+"
- :ignore-case t
- :doc-spec '(("(ansicl)Symbol Index" nil nil nil)))
-(info-lookup-add-help
- :mode 'lisp-interaction-mode
- :regexp "[^][()'\" \t\n]+"
- :ignore-case t
- :doc-spec '(("(ansicl)Symbol Index" nil nil nil)))
-(add-hook 'lisp-interaction-mode-hook
-	  (lambda ()
-		(setq info-lookup-mode 'lisp-interaction-mode)))
-(add-hook 'lisp-mode-hook
-	  (lambda ()
-		(setq info-lookup-mode 'lisp-mode)))
-(let ((dpansdir (expand-file-name "~/lib/lisp/cl/dpans2texi")))
-  (when (file-directory-p dpansdir)
-    (add-to-list 'Info-additional-directory-list dpansdir)))
 
 ;;; Markdown
 (use-package markdown-mode
