@@ -46,6 +46,44 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
+(defun add-byte-compile-targets (args)
+  "Add byte-compile directories to `use-package' :load-path.
+
+To give `use-package' the same out-of-tree byte-compilation directory
+support that `add-to-load-path' has, apply this as :filter-args advice
+on `use-package-normalize-paths'.
+
+See `byte-compile-target-directory' for a detailed explanation of
+these out-of-tree directories."
+  (let ((label (first args))
+	(arg (second args))
+	(recursed (cddr args)))
+
+    (if recursed
+	args
+
+      (when (stringp arg)
+	(setq arg (list arg)))
+
+      ;; If arg was not a string or list originally do nothing and let
+      ;; `use-package-normalize-paths' deal with the mistake. I don't
+      ;; want or need to replicate it's error handling in that case.
+      (if (not (listp arg))
+	  args
+	(setq arg
+	      (mapcon
+	       (lambda (x)
+		 ;; Since `use-package' conses onto `load-path', we
+		 ;; pass directories in reverse order.  So that
+		 ;; ultimately, `load-path' contains the compiled
+		 ;; target directory before the source directory.
+		 (list (car x)
+		       (byte-compile-target-directory
+			(expand-file-name (car x) user-emacs-directory))))
+	       arg))
+	(list label arg recursed)))))
+(advice-add 'use-package-normalize-paths :filter-args #'add-byte-compile-targets)
+
 ;;; Pretend use-package is loading itself like this, so we get timing
 ;;; information when desired:
 ;;
