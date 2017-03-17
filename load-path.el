@@ -75,7 +75,7 @@ For example, if `user-emacs-directory' is \"~/.emacs.d\" and
 
 will return
 
-    \"~/.emacs.d/data/erc-99.7/package\"."
+    \"~/.emacs.d/data/elc-99.7/package\"."
 
   ;; Make sure DIRECTORY is not relative
   (setq directory (expand-file-name directory))
@@ -108,7 +108,7 @@ and will be created by this function."
   ;; Make sure filename is not relative
   (setq filename (expand-file-name filename))
 
-  (let* ((byte-compile-dest-file-function) ; Don't recurse back here.
+(let* ((byte-compile-dest-file-function) ; Don't recurse back here.
 	 (elc (byte-compile-dest-file filename))
 	 (target-directory
 	  (byte-compile-target-directory (file-name-directory filename))))
