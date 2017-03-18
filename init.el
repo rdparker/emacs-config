@@ -128,7 +128,7 @@ these out-of-tree directories."
   :defines (daemonp get-scroll-bar-mode))
 (use-package rdp-functions :load-path "lisp")
 (eval-when-compile
-  (require 'rdp-macs))
+  (use-package rdp-macs))
 
 
 (defvar alternate-emacs
@@ -201,14 +201,13 @@ are named \"Emacs[A-Za-z]*.app\".")
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;; Revert undesirable settings from Lisp Cabinet
-(if (or (> emacs-major-version 23)
-		(and (eq emacs-major-version 23)
-			 (>= emacs-minor-version 2)))
-	(setq tab-width 8)
-	(setq default-tab-width 8))			; obsoleted in 23.2
+(set `,(if (emacs>= 23.2)
+	   'tab-width
+	 'default-tab-width)		; obsoleted in 23.2
+     8)
 
-(require 'dired-config)
-(require 'multiple-cursors-config)
+(use-package dired-config)
+(use-package multiple-cursors-config)
 
 ;;; Configuration files
 ;;
@@ -300,6 +299,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; Authentication
 (use-package auth-source
+  :defer t
   :config (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo" "~/.netrc")))
 (use-package netrc
   :defer t
@@ -313,7 +313,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
   :load-path "site-lisp/auto-complete"
-  :init      (use-package popup :load-path "site-lisp/popup")
+  :init
+  (use-package popup :defer t :load-path "site-lisp/popup")
   :config
   ;; Make sure auto-complete can find the correct JavaScript
   ;; dictionary in spite of mode name aliasing in Emacs 23.
@@ -379,6 +380,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;; bbdb
 (defun my-bbdb-insinuate-mail ()
   "Bind C-<tab> to `bbdb-complete-name' since X grabs M-<tab>."
+  (use-package sendmail
+    :defines mail-mode-map)
   (define-key mail-mode-map (kbd "C-<tab>") 'bbdb-complete-name))
 
 (when (require 'bbdb nil t)
@@ -395,7 +398,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 (use-package w3m
   :commands (w3m w3m-browse-url))
 (condition-case ()
-	(require 'w3-auto "w3-auto")
+	(use-package w3-auto)
 	(error nil))
 
 ;;; Daemon mode
@@ -437,6 +440,7 @@ called once a user interface has been started."
    .1 nil
    (lambda ()
      `(use-package desktop
+	:defines (desktop-base-file-name desktop-base-lock-name)
 	:init
 	(progn
 	  (setq desktop-load-locked-desktop 'ask
@@ -604,7 +608,7 @@ it."
   :diminish smart-tab-mode
   :load-path "site-lisp/smart-tab"
   :init
-  (require 'smart-tab)
+  (use-package smart-tab)
   (global-smart-tab-mode 1))
 
 ;; Replace yasnippets's TAB
@@ -621,11 +625,11 @@ it."
 ;; colorize their output.  It came from
 ;; http://stackoverflow.com/questions/3072648/\
 ;; cucumbers-ansi-colors-messing-up-emacs-compilation-buffer.
-(require 'ansi-color)
+(use-package ansi-color)
 (defun colorize-compilation-buffer ()
-  (toggle-read-only)
+  `(if (emacs>= 24.3) (read-only-mode -1) (toggle-read-only))
   (ansi-color-apply-on-region (point-min) (point-max))
-  (toggle-read-only))
+  `(if (emacs>= 24.3) (read-only-mode -1) (toggle-read-only)))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
 (unless (boundp 'stack-trace-on-error)
@@ -655,7 +659,7 @@ it."
 
   (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
   (unless (featurep 'gnus-start)
-    (require 'gnus-start)
+    (use-package gnus-start)
     (gnus-read-init-file))
 
   (defun select-from-address ()
@@ -770,7 +774,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
   (remove-hook 'elpy-modules 'elpy-module-highlight-indentation)
   (elpy-enable))
 
-(use-package epl :load-path "site-lisp/epl")
+(use-package epl :defer t :load-path "site-lisp/epl")
 
 ;;; find-file-in-project
 (use-package find-file-in-project
@@ -790,7 +794,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 	 ("C-x 5 V" . find-variable-other-frame)
 	 ("C-x 4 l" . find-library-other-window))
   :config
-  (require 'find-func+))
+  (use-package find-func+))
 
 ;;; fill
 ;; Emacs 24.4's option to not wrap after a single character word.
@@ -848,9 +852,9 @@ which is an error according to some typographical conventions."
 ;;; git
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
-(require 'git nil t)
+(use-package git)
 (setq git-state-modeline-decoration 'git-state-decoration-large-dot)
-(require 'git-emacs-autoloads nil t)
+(use-package git-emacs-autoloads)
 (autoload 'git-svn "git-svn" nil t)
 (autoload 'gitsum "gitsum" "Entry point into gitsum-diff-mode" t)
 (autoload 'egit "egit" "Emacs git history" t)
@@ -919,7 +923,7 @@ which is an error according to some typographical conventions."
 
       (use-package magit-review
 	:commands magit-review
-	:config (require 'json))
+	:config (use-package json))
 
       (unbind-key "M-h" magit-mode-map)
       (unbind-key "M-s" magit-mode-map)
@@ -934,7 +938,7 @@ which is an error according to some typographical conventions."
 		    (when (magit-get "svn-remote" "svn" "url")
 		      (magit-svn-mode 1))))
 
-      (require 'magit-topgit nil t)
+      (use-package magit-topgit)
 
       (defvar magit-git-monitor-process nil)
       (make-variable-buffer-local 'magit-git-monitor-process)
@@ -956,19 +960,19 @@ which is an error according to some typographical conventions."
 
 ;;; grep
 (use-package grep
+  :defer t
   :config
-  (progn
-    ;; Ignore quilt tracking directories
-    (add-to-list 'grep-find-ignored-directories ".pc")
-    ; Ignore flymake temporary files, if ignoring files is supported.
-    (when (boundp 'grep-find-ignored-files)
-      (add-to-list 'grep-find-ignored-files "*_flymake")
-      (add-to-list 'grep-find-ignored-files "*_flymake.*"))))
+  ;; Ignore quilt tracking directories
+  (add-to-list 'grep-find-ignored-directories ".pc")
+
+  ;; Ignore flymake temporary files, if ignoring files is supported.
+  (when (boundp 'grep-find-ignored-files)
+    (add-to-list 'grep-find-ignored-files "*_flymake")
+    (add-to-list 'grep-find-ignored-files "*_flymake.*")))
 
 ;;; gtags
-(add-to-load-path "/usr/share/gtags")
-
 (use-package gtags
+  :load-path "/usr/share/gtags"
   :commands gtags-mode
   :diminish gtags-mode
   :bind (("M-*" . gtags-pop-stack)
@@ -989,7 +993,7 @@ which is an error according to some typographical conventions."
       :bind ("M-T" . helm-gtags-select)
       :config
       (progn
-	(require 'gtags)
+	(use-package gtags)
 	(bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
     (use-package anything-gtags
@@ -998,7 +1002,7 @@ which is an error according to some typographical conventions."
       :bind ("M-T" . anything-gtags-select)
       :config
       (progn
-	(require 'gtags)
+	(use-package gtags)
 	(bind-key "M-," 'anything-gtags-resume gtags-mode-map)))
 
     ;; Setting to make 'Gtags select mode' easy to see
@@ -1034,10 +1038,10 @@ a argument to perform the pop instead.."
   (start-process "update-gtags" "update-gtags" "bash" "-c" (concat "cd " (gtags-root-dir) " ; gtags --single-update " filename )))
 (defun gtags-update-current-file()
   (interactive)
-  (defvar filename)
-  (setq filename (replace-regexp-in-string (gtags-root-dir) "." (buffer-file-name (current-buffer))))
-  (gtags-update-single filename)
-  (message "Gtags updated for %s" filename))
+  (defvar init-filename)
+  (setq init-filename (replace-regexp-in-string (gtags-root-dir) "." (buffer-file-name (current-buffer))))
+  (gtags-update-single init-filename)
+  (message "Gtags updated for %s" init-filename))
 (defun gtags-update-hook()
   "Update GTAGS file incrementally upon saving a file"
   (when gtags-mode
@@ -1100,7 +1104,7 @@ a argument to perform the pop instead.."
 
 (eval-after-load 'haskell-mode
   '(progn
-     (require 'flymake)
+     (use-package flymake)
      (push '("\\.l?hs\\'" flymake-haskell-init) flymake-allowed-file-name-masks)
      (add-hook 'haskell-mode-hook 'flymake-haskell-enable)
      (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
@@ -1141,20 +1145,30 @@ a argument to perform the pop instead.."
 ;; just require this stuff.
 (use-package help+20
   :if (< emacs-major-version 22)
+  :defer t
   :load-path "site-lisp/drew-adams"
-  :init (require 'help+20))
+  :init (use-package help+20))
 
 (use-package help+
   :if (> emacs-major-version 21)
+  :defer t
   :load-path "site-lisp/drew-adams"
   :init
-  (progn
-    (require 'help+)
-    (require 'help-fns+)
+    ;; (use-package help+)
+    (use-package help-fns+ :defer t)
     (use-package help-mode
+      :defer t
       :config
-      (require 'help-mode+))
-    (require 'descr-text+)))
+      (use-package help-mode+))
+    (use-package descr-text+
+      :defer t
+      :commands describe-text-properties
+      :init
+      (when (>= emacs-major-version 23)
+	(autoload 'describe-char "descr-text+"))
+      (autoload 'describe-property-list "descr-text+")
+      (autoload 'describe-text-properties-1 "descr-text+")
+      (autoload 'describe-text-sexp "descr-text+")))
 
 ;; (use-package help+
 ;;    :if (>= emacs-major-version 22)
@@ -1182,7 +1196,7 @@ a argument to perform the pop instead.."
 ;;    :commands help-for-help-internal
 ;;    :config
 ;;    (progn
-;;      (require 'help-fns+)))
+;;      (use-package help-fns+)))
 ;;
 ;; (use-package help+20
 ;;   :if (< emacs-major-version 22)
@@ -1283,8 +1297,8 @@ cf. https://github.com/jwiegley/dot-emacs."
    ;; But, do not resize the frame for info nodes.
    ,(progn
       (if (> emacs-major-version 22)
-	  (use-package info+ :load-path "site-lisp/drew-adams")
-	(use-package info+20 :load-path "site-lisp/drew-adams"))
+	  (use-package info+ :defer t :load-path "site-lisp/drew-adams")
+	(use-package info+20 :defer t :load-path "site-lisp/drew-adams"))
       (setq Info-fit-frame-flag nil)))
 
 ;;; Java
@@ -1298,6 +1312,7 @@ cf. https://github.com/jwiegley/dot-emacs."
 
 (use-package flymake-jshint
   :commands flymake-jshint-init
+  :defines jshint-mode-node-program
   :init
   (progn
     (add-hook 'js-mode-hook 'flymake-mode-on)
@@ -1347,18 +1362,20 @@ cf. https://github.com/jwiegley/dot-emacs."
   (hs-minor-mode 1))
 
 (use-package js
+  :defer t
   :config
   (add-hook 'js-mode-hook 'imenu-add-menubar-index)
-  (add-hook 'js-mode-hook 'turn-on-hideshow))
-
-(use-package js2-mode
-  :commands js2-minor-mode
-  :init
+  (add-hook 'js-mode-hook 'turn-on-hideshow)
   (add-hook 'js-mode-hook (lambda ()
 			    "Run js2 as a background linter"
 			    (js2-minor-mode 1))))
 
+(use-package js2-mode
+  :defer t
+  :commands js2-minor-mode)
+
 (use-package js-comint
+  :defer t
   :commands run-js
   :config
   (defun my-js-mode-hook ()
@@ -1377,18 +1394,27 @@ cf. https://github.com/jwiegley/dot-emacs."
 ;; web-beautify takes the place of js-beautify and adds support for
 ;; HTML and CSS too.
 (use-package web-beautify
+  :defer t
   :commands (web-beautify-css web-beautify-html web-beautify-js)
   :init
   (progn
     (use-package js
+      :defer t
       :config (bind-key "C-c b" 'web-beautify-js js-mode-map))
     (use-package js2-mode
+      :defer t
       :config (bind-key "C-c b" 'web-beautify-js js2-mode-map))
     (use-package json-mode
+      :defer t
+      :defines json-mode-map
       :config (bind-key "C-c b" 'web-beautify-js json-mode-map))
     (use-package sgml-mode
+      :defer t
+      :defines html-mode-map
       :config (bind-key "C-c b" 'web-beautify-html html-mode-map))
     (use-package css-mode
+      :defer t
+      :defines css-mode-map
       :config (bind-key "C-c b" 'web-beautify-css css-mode-map))))
 
 ;;; linum - line numbers in the margin
@@ -1482,52 +1508,92 @@ and the basename of the executable.")
   (show-paren-mode 1))
 
 ;; lisp fonts and characters
-(defvar lisp-modes  '(emacs-lisp-mode
-                      inferior-emacs-lisp-mode
-                      ielm-mode
-                      lisp-mode
-                      inferior-lisp-mode
-                      lisp-interaction-mode
-                      slime-repl-mode
-		      scheme-mode
-		      closure-mode
-		      nrepl-mode)
-  "The lisp modes that I want to customize.")
+(eval-when-compile
+  (defvar lisp-modes  '(emacs-lisp-mode
+			inferior-emacs-lisp-mode
+			ielm-mode
+			lisp-mode
+			inferior-lisp-mode
+			lisp-interaction-mode
+			slime-repl-mode
+			scheme-mode
+			closure-mode
+			nrepl-mode)
+    "The lisp modes that I want to customize.")
+
+  ;; Borrowed from John Wiegley
+  (defvar lisp-mode-hooks
+    (mapcar #'(lambda (mode)
+		(intern
+		 (concat (symbol-name mode) "-hook")))
+	    lisp-modes)))
+
+(defsubst hook-into-modes (func &rest modes)
+  (dolist (mode-hook modes) (add-hook mode-hook func)))
+
+
+;; ;; CLHS info file
+;; ;;
+;; ;; cf. http://users-phys.au.dk/harder/dpans.html.
+(use-package info-look
+  :commands info-lookup-add-help)
 
 (use-package lisp-mode
-  :init
-  (progn
-    (defface esk-paren-face
-      '((((class color) (background dark))
-         (:foreground "grey50"))
-        (((class color) (background light))
-         (:foreground "grey55")))
-      "Face used to dim parentheses."
-      :group 'starter-kit-faces)
+  :defer t
+  :preface
+  (defface esk-paren-face
+    '((((class color) (background dark))
+       (:foreground "grey50"))
+      (((class color) (background light))
+       (:foreground "grey55")))
+    "Face used to dim parentheses."
+    :group 'starter-kit-faces)
 
-    (mapc (lambda (major-mode)
-	    (font-lock-add-keywords
-	     major-mode
-	     '(
-	       ;; Replace lambda with an actual λ character.
-	       ("(\\(lambda\\)\\>"
-		(0 (ignore
-		    (compose-region (match-beginning 1)
-				    (match-end 1) ?λ))))
-	       ;; Dim parenthesis, brackets, and braces.
-	       ("[]()[{}]" . 'esk-paren-face))))
-	  lisp-modes)))
+  (defvar lisp-mode-initialized nil
+    "Has `my-lisp-mode-hook' done it's one-time initialization?")
+
+  (defun my-lisp-mode-hook ()
+    "Performs one-time initialization for lisp-related modes."
+    (unless lisp-mode-initialized
+      (setq lisp-mode-initialized t))
+
+    (mapc (lambda (mode)
+	    (info-lookup-add-help
+	     :mode mode
+	     :regexp "[^][()'\" \t\n]+"
+	     :ignore-case t
+	     :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+	  lisp-modes))
+
+  ;; :init
+  (mapc (lambda (major-mode)
+	  (font-lock-add-keywords
+	   major-mode
+	   '(
+	     ;; Replace lambda with an actual λ character.
+	     ("(\\(lambda\\)\\>"
+	      (0 (ignore
+		  (compose-region (match-beginning 1)
+				  (match-end 1) ?λ))))
+	     ;; Dim parenthesis, brackets, and braces.
+	     ("[]()[{}]" . 'esk-paren-face)))
+	  (info-lookup-add-help
+	   :mode major-mode
+	   :regexp "[^][()'\" \t\n]+"
+	   :ignore-case t
+	   :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+	lisp-modes)
+
+  (add-hooks  lisp-mode-hooks 'my-lisp-mode-hook))
 
 ;;; TODO Figure out why this block breaks daemonization
 ;;
 ;; It results in a returning to top-level sort of message loop.
-(when (locate-library "paredit")
-  (autoload 'paredit-mode "paredit"
-	"Minor mode for pseudo-structurally editing Lisp code."
-	t)
-  (autoload 'enable-paredit-mode "paredit"
-	"Turn on pseudo-structural editing of Lisp code."
-	t)
+(use-package paredit
+  :commands (paredit-mode enable-paredit-mod enable-paredit-mode)
+  :defer t
+  :load-path "site-lisp/paredit"
+  :init
   (add-hooks '(lisp-mode-hook
 	       emacs-lisp-mode-hook
 	       slime-repl-mode-hook)
@@ -1540,18 +1606,22 @@ and the basename of the executable.")
   ;; `minor-mode-overriding-map-alist' to remove the C-j mapping from
   ;; the standard `paredit-mode' bindings.
   (add-hook 'lisp-interaction-mode-hook
-		(lambda ()
-		  (enable-paren-modes)
-		  (setq minor-mode-overriding-map-alist
-			`((paredit-mode
-			   ,@(remove (cons ?\C-j 'paredit-newline)
+	    (lambda ()
+	      (enable-paren-modes)
+	      (setq minor-mode-overriding-map-alist
+		    `((paredit-mode
+		       ,@(remove (cons ?\C-j 'paredit-newline)
 				 paredit-mode-map))))))
 
+  :config
   ;; Stop SLIME's REPL from grabbing DEL,
   ;; which is annoying when backspacing over a '('
+  (use-package slime-repl
+    :defer t
+    :defines slime-repl-mode-map)
   (defun override-slime-repl-bindings-with-paredit ()
-	(define-key slime-repl-mode-map
-	  (read-kbd-macro paredit-backward-delete-key) nil))
+    (define-key slime-repl-mode-map
+      (read-kbd-macro paredit-backward-delete-key) nil))
   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit))
 
 ;; eldoc
@@ -1568,32 +1638,9 @@ and the basename of the executable.")
   :commands c-turn-on-eldoc-mode
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
 
-;; CLHS info file
-;;
-;; cf. http://users-phys.au.dk/harder/dpans.html.
-(require 'info-look)
-(info-lookup-add-help
- :mode 'lisp-mode
- :regexp "[^][()'\" \t\n]+"
- :ignore-case t
- :doc-spec '(("(ansicl)Symbol Index" nil nil nil)))
-(info-lookup-add-help
- :mode 'lisp-interaction-mode
- :regexp "[^][()'\" \t\n]+"
- :ignore-case t
- :doc-spec '(("(ansicl)Symbol Index" nil nil nil)))
-(add-hook 'lisp-interaction-mode-hook
-	  (lambda ()
-		(setq info-lookup-mode 'lisp-interaction-mode)))
-(add-hook 'lisp-mode-hook
-	  (lambda ()
-		(setq info-lookup-mode 'lisp-mode)))
-(let ((dpansdir (expand-file-name "~/lib/lisp/cl/dpans2texi")))
-  (when (file-directory-p dpansdir)
-    (add-to-list 'Info-additional-directory-list dpansdir)))
-
 ;;; Markdown
 (use-package markdown-mode
+  :defines markdown-command
   :mode (("\\.markdown" . markdown-mode)
 	 ("\\.md" . markdown-mode)
 	 ("\\.mdwn" . markdown-mode))
@@ -1613,7 +1660,7 @@ and the basename of the executable.")
 (setq imaxima-use-maxima-mode-flag t)
 
 ;;; Midnight
-(require 'midnight)
+(use-package midnight)
 (midnight-delay-set 'midnight-delay 43200) ; Noon: 12*3600
 
 ;;; Navigation
@@ -1657,12 +1704,16 @@ the nobreak spaces in the powerline shell prompt."
   (set (make-local-variable 'nobreak-char-display) nil))
 
 (use-package shell
-  :init
+  :defer t
+  :defines shell-mode-hook
+  :config
   (add-hook 'shell-mode-hook 'disable-nobreak-char-display))
 
 (run-on-first-frame use-powerline)
 
-(use-package pkg-info :load-path "site-lisp/pkg-info")
+(use-package pkg-info
+  :defer t
+  :load-path "site-lisp/pkg-info")
 
 ;;; Projectile
 ;;
@@ -1780,7 +1831,8 @@ the nobreak spaces in the powerline shell prompt."
 
 ;;; Org-mode
 (use-package org
-  :commands org-agenda-list
+  :defer t
+  :commands (org-agenda-list jump-to-org-agenda)
   :bind (("M-C"   . jump-to-org-agenda)
 	 ("M-m"   . org-smart-capture)
 	 ("M-M"   . org-inline-note)
@@ -1793,7 +1845,8 @@ the nobreak spaces in the powerline shell prompt."
 						 "~/Documents/Org/"))
   (setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
   (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
-  :init (require 'org-agenda))
+  :config
+  (use-package org-agenda))
 
 ;;; Quilt
 (use-package quilt
@@ -1846,7 +1899,7 @@ the nobreak spaces in the powerline shell prompt."
   :mode (("\\.spec" . rpm-spec-mode)))
 
 ;;; Semantic
-;;(require 'cedet-config)
+;;(use-package cedet-config)
 
 ;;; session
 
@@ -1922,9 +1975,9 @@ Each alist element in `skeleton-pair-alist' and
 `skeleton-pair-insert-maybe'."
       (interactive)
       (dolist (alist (list skeleton-pair-alist skeleton-pair-default-alist))
-	(mapc '(lambda (elt)
-		 (local-set-key (format "%c" (car elt))
-				'skeleton-pair-insert-maybe))
+	(mapc #'(lambda (elt)
+		  (local-set-key (format "%c" (car elt))
+				 'skeleton-pair-insert-maybe))
 	      alist)))
 
     (add-hooks '(text-mode-hook prog-mode-hook)
@@ -1944,11 +1997,11 @@ Each alist element in `skeleton-pair-alist' and
 ;; JavaScript, CSS, HTML REPL
 (use-package skewer-mode
   :commands skewer-mode
+  :defines skewer-mode-map
+  :bind (:map skewer-mode-map ("C-c C-z" . skewer-repl))
   :init
   (progn (add-hook 'js-mode-hook 'skewer-mode)
-	 (add-hook 'js2-mode-hook 'skewer-mode))
-  :config
-  (bind-key "C-c C-z" 'skewer-repl skewer-mode-map))
+	 (add-hook 'js2-mode-hook 'skewer-mode)))
 (use-package skewer-css
   :commands skewer-css-mode
   :init
@@ -1992,7 +2045,7 @@ Each alist element in `skeleton-pair-alist' and
   :config (tool-bar-mode -1))
 
 ;;; uniquify
-(require 'uniquify)
+(use-package uniquify)
 ;; Use file<partial-dir> instead of file<#>
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
@@ -2018,15 +2071,17 @@ Each alist element in `skeleton-pair-alist' and
 	ad-do-it))
 
 ;;; which-func
-(use-package which-func
-  :config
-  (progn
-    (defun enable-which-function-mode ()
-      "Enable `which-function-mode'.
+(eval-when-compile
+  (let ((func (if (emacs>= 24.1)
+		  'which-function-mode
+		'which-func-mode)))
+    (eval `(use-package which-func
+	     :defer t
+	     :init
+	     (defun enable-which-function-mode ()
+	       "Enable `which-function-mode'.
 This enables the obsolete `which-func-mode' in older Emacs."
-      (if (boundp which-func-mode)
-	  (which-function-mode 1)
-	(which-func-mode 1)))
+	       (list (quote ,func) 1))))
     (add-hook 'prog-mode-hook 'enable-which-function-mode)))
 
 ;;; whitespace
@@ -2294,9 +2349,11 @@ The hooks are removed once ws-butler has been successfully loaded."
 ;; So, map both to Meta for X Windows and Mac OS versions of Emacs.
 (when (eq system-type 'darwin)
   (setq x-meta-keysym 'meta
-	x-alt-keysym 'meta
-	mac-command-modifier 'meta
-	ns-command-modifier 'meta))
+	x-alt-keysym 'meta)
+  (if (boundp 'mac-command-modifier)
+      (setq mac-command-modifier 'meta))
+  (if (boundp 'ns-command-modifier)
+      (setq ns-command-modifier 'meta)))
 
 (let ((elapsed (float-time (time-subtract (current-time)
 					  emacs-start-time))))
