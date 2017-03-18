@@ -46,16 +46,49 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
-(eval-when-compile
+;;; Pretend use-package is loading itself like this, so we get timing
+;;; information when desired:
+;;
+;; (use-package use-package
+;;       :load-path "site-lisp/use-package"
+;;       :init
+;;       (setq use-package-verbose t
+;;	    use-package-minimum-reported-time 0.0))
+;;
+(eval-and-compile
   (add-to-load-path "site-lisp/use-package")
-  (require 'use-package)
-  (require 'use-repo-package)
-  (setq use-package-verbose (null byte-compile-current-file)))
-(use-package diminish :load-path "site-lisp/diminish")
-(require 'bind-key)
+  (setq use-package-minimum-reported-time 0.0
+	;; nil and t don't need to be quoted it's just to maintain
+	;; alignment regardless of whether an option is commented out
+	;; or not.
+	use-package-verbose
+	;; 'nil			; quiet
+	;; 't			; verbose
+	'debug			; debug
+	))
 
-(require 'backport)
-(require 'rdp-functions)
+(eval-when-compile
+  (let ((now (current-time)))
+    (if use-package-verbose (message "Loading package use-package..."))
+    (require 'use-package)
+    (let ((elapsed (float-time (time-subtract (current-time) now))))
+      (if use-package-verbose
+	  (if (> elapsed use-package-minimum-reported-time)
+	      (message "Loading package use-package...done (%.3fs)" elapsed)
+	    (message "Loading package use-package...done"))))))
+
+(eval-when-compile
+  (use-package use-repo-package))
+(use-package diminish :defer t :load-path "site-lisp/diminish")
+(use-package bind-key
+  :defer t
+  :load-path "site-lisp/use-package"
+  :defines personal-keybindings)
+
+(use-package backport
+  :defer t
+  :defines (daemonp get-scroll-bar-mode))
+(use-package rdp-functions :load-path "lisp")
 (eval-when-compile
   (require 'rdp-macs))
 
@@ -231,8 +264,11 @@ are named \"Emacs[A-Za-z]*.app\".")
 (use-package auth-source
   :config (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo" "~/.netrc")))
 (use-package netrc
+  :defer t
   :config (setq netrc-file "~/.authinfo.gpg"))
 (use-package nntp-authinfo-file
+  :defer t
+  :defines nntp-authinfo-file
   :config (setq nntp-authinfo-file "~/.authinfo.gpg"))
 
 ;;; auto-complete
