@@ -185,7 +185,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;; sections.  By much faster, I mean about 1/2 second on a Mid-2012
 ;; Macbook pro.
 (setq package-user-dir
-      (expand-file-name (concat "elpa-" emacs-version) user-emacs-directory))
+      (expand-file-name (concat "elpa/emacs-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
 
 ;; TODO: Consider extracting the other package paths from use-repo-package.el.

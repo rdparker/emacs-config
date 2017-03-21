@@ -3,7 +3,7 @@
 .emacs.desktop*
 \#*
 data
+elpa/emacs-*/archives
 non-public
 server
 *.bak
-elpa*/archives
