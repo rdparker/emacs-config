@@ -440,6 +440,7 @@ called once a user interface has been started."
    .1 nil
    (lambda ()
      `(use-package desktop
+	:disabled t
 	:defines (desktop-base-file-name desktop-base-lock-name)
 	:init
 	(progn
@@ -1886,10 +1887,9 @@ the nobreak spaces in the powerline shell prompt."
 
 ;;; recentf
 (use-package recentf
-  :disabled t
   :config
   (setq recentf-save-file
-	(expand-file-name ".recentf" user-data-directory)))
+	(expand-file-name (concat ".recentf." (system-name)) user-data-directory)))
 
 ;;; revert
 (setq revert-without-query '("\.xml$"))
@@ -1904,54 +1904,47 @@ the nobreak spaces in the powerline shell prompt."
 ;;; session
 
 (use-package session
-  :disabled t
   :if (not noninteractive)
   :load-path "site-lisp/session/lisp/"
-  :init
-  (progn
-    (session-initialize)
+  :preface
+  (defun remove-session-use-package-from-settings ()
+    (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
+      (save-excursion
+	(goto-char (point-min))
+	(when (re-search-forward "^ '(session-use-package " nil t)
+	  (delete-region (line-beginning-position)
+			 (1+ (line-end-position)))))))
 
-    (defun remove-session-use-package-from-settings ()
-      (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
-        (save-excursion
-          (goto-char (point-min))
-          (when (re-search-forward "^ '(session-use-package " nil t)
-            (delete-region (line-beginning-position)
-                           (1+ (line-end-position)))))))
+  ;; expanded folded sections as required
+  (defun le::maybe-reveal ()
+    (when (and (or (memq major-mode  '(org-mode outline-mode))
+		   (and (boundp 'outline-minor-mode)
+			outline-minor-mode))
+	       (outline-invisible-p))
+      (if (eq major-mode 'org-mode)
+	  (org-reveal)
+	(show-subtree))))
 
-    (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
+  (defvar server-process nil)
 
-    ;; expanded folded sections as required
-    (defun le::maybe-reveal ()
-      (when (and (or (memq major-mode  '(org-mode outline-mode))
-                     (and (boundp 'outline-minor-mode)
-                          outline-minor-mode))
-                 (outline-invisible-p))
-        (if (eq major-mode 'org-mode)
-            (org-reveal)
-          (show-subtree))))
+  (defun save-information ()
+    (with-temp-message "Saving Emacs information..."
+      (when (and (memq 'recentf features) recentf-mode (recentf-enabled-p))
+	(recentf-cleanup))
 
-    (add-hook 'session-after-jump-to-last-change-hook
-              'le::maybe-reveal)
+      (loop for func in kill-emacs-hook
+	    unless (memq func '(exit-gnus-on-exit server-force-stop))
+	    do (funcall func))
 
-    (defun save-information ()
-      (with-temp-message "Saving Emacs information..."
-	(when (and (memq 'recentf features) recentf-mode (recentf-enabled-p))
-	  (recentf-cleanup))
-
-        (loop for func in kill-emacs-hook
-              unless (memq func '(exit-gnus-on-exit server-force-stop))
-              do (funcall func))
-
-        (unless (or noninteractive
-                    alternate-emacs
-                    (eq 'listen (process-status server-process)))
-          (server-start))))
-
-    (run-with-idle-timer 300 t 'save-information)
-
-    (if window-system
-        (add-hook 'after-init-hook 'session-initialize t))))
+      (unless (or noninteractive
+		  alternate-emacs
+		  (eq 'listen (process-status server-process)))
+	(server-start))))
+  
+  :config
+  (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
+  (add-hook 'session-after-jump-to-last-change-hook 'le::maybe-reveal)
+  (run-with-idle-timer 300 t 'save-information))
 
 ;;; Skeletons -- text templates
 
