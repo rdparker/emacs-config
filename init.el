@@ -2157,9 +2157,12 @@ The hooks are removed once ws-butler has been successfully loaded."
     (winner-mode 1)))
 
 (use-package window-numbering
+  :defer t
+  :commands window-numbering-mode
   :load-path "site-lisp/window-numbering"
-  :config
-  (window-numbering-mode))
+  :init
+  (run-on-first-frame (lambda (&optional frame)
+			(window-numbering-mode))))
 
 (defun transpose-windows (arg)
    "Transpose the buffers shown in two windows."
