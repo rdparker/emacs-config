@@ -1,7 +1,7 @@
 all: submodules subtrees
 
 submodules:
-	git submodule update --init
+	git submodule update --init --recursive --recommend-shallow
 
 subtrees:
 	-git remote add yaml-mode https://github.com/yoshiki/yaml-mode.git
