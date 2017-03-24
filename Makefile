@@ -46,5 +46,6 @@ subtrees:
 	-git remote add projectile https://github.com/bbatsov/projectile.git
 	-git remote add pyvenv https://github.com/jorgenschaefer/pyvenv.git
 	-git remote add emacs-epackage--quilt https://github.com/rdparker/emacs-epackage--quilt.git
+	-git remote add s.el https://github.com/magnars/s.el.git
 
 .PHONY: all submodules subtrees
