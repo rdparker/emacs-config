@@ -15,5 +15,6 @@ subtrees:
 	-git remote add anything-config http://repo.or.cz/r/anything-config.git
 	-git remote add applescript-mode https://github.com/rdparker/applescript-mode.git
 	-git remote add c-eldoc https://github.com/nflath/c-eldoc.git
+	-git remote add creole-mode https://github.com/nicferrier/creole-mode.git
 
 .PHONY: all submodules subtrees

@@ -91,9 +91,6 @@
 [submodule "site-lisp/huskie"]
 	path = site-lisp/huskie
 	url = https://github.com/nicferrier/emacs-huskie.git
-[submodule "site-lisp/creole-mode"]
-	path = site-lisp/creole-mode
-	url = https://github.com/nicferrier/creole-mode.git
 [submodule "site-lisp/helm"]
 	path = site-lisp/helm
 	url = https://github.com/rdparker/helm.git

@@ -1,0 +1,24 @@
+= Edit WikiCreole files =
+
+WikiCreole is a standardized wiki language.
+
+It offers simple text based markup of mainly typographic elements:
+
+* lists
+* headings
+* links
+* line breaks
+* italics
+* bold
+* pre-formatted
+
+[[http://github.com/nicferrier/elwikicreole|elwikicreole]] is a parser
+and converter to HTML written in Elisp.
+
+
+== TODO ==
+
+* fix the open url code
+* add syntax highlighting for lists
+* add customization
+** at least the hook
