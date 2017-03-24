@@ -34,9 +34,6 @@
 [submodule "site-lisp/smart-tab"]
 	path = site-lisp/smart-tab
 	url = https://github.com/sroccaserra/smart-tab.git
-[submodule "site-lisp/popup"]
-	path = site-lisp/popup
-	url = git://github.com/auto-complete/popup-el.git
 [submodule "site-lisp/whitespace-cleanup-mode"]
 	path = site-lisp/whitespace-cleanup-mode
 	url = https://github.com/purcell/whitespace-cleanup-mode.git

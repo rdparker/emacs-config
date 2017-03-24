@@ -41,5 +41,6 @@ subtrees:
 	-git remote add p4.el https://github.com/gareth-rees/p4.el.git
 	-git remote add paredit https://github.com/rdparker/paredit.git
 	-git remote add pkg-info.el https://github.com/lunaryorn/pkg-info.el.git
+	-git remote add popup-el git://github.com/auto-complete/popup-el.git
 
 .PHONY: all submodules subtrees
