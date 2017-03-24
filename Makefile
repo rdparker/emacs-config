@@ -44,5 +44,6 @@ subtrees:
 	-git remote add popup-el git://github.com/auto-complete/popup-el.git
 	-git remote add powerline https://github.com/milkypostman/powerline.git
 	-git remote add projectile https://github.com/bbatsov/projectile.git
+	-git remote add pyvenv https://github.com/jorgenschaefer/pyvenv.git
 
 .PHONY: all submodules subtrees
