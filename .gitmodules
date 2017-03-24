@@ -16,9 +16,6 @@
 [submodule "site-lisp/simple-httpd"]
 	path = site-lisp/simple-httpd
 	url = https://github.com/skeeto/emacs-http-server.git
-[submodule "site-lisp/s-el"]
-	path = site-lisp/s-el
-	url = https://github.com/magnars/s.el.git
 [submodule "site-lisp/web"]
 	path = site-lisp/web
 	url = https://github.com/nicferrier/emacs-web.git
