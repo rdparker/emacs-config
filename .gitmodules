@@ -88,9 +88,6 @@
 [submodule "site-lisp/pyvenv"]
 	path = site-lisp/pyvenv
 	url = https://github.com/jorgenschaefer/pyvenv.git
-[submodule "site-lisp/find-file-in-project"]
-	path = site-lisp/find-file-in-project
-	url = https://github.com/technomancy/find-file-in-project.git
 [submodule "site-lisp/fuzzy"]
 	path = site-lisp/fuzzy
 	url = https://github.com/auto-complete/fuzzy-el.git
