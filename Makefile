@@ -1,7 +1,4 @@
-all: submodules subtrees
-
-submodules:
-	git submodule update --init --recursive --recommend-shallow
+all: subtrees
 
 subtrees:
 	-git remote add yaml-mode https://github.com/yoshiki/yaml-mode.git
@@ -66,4 +63,4 @@ subtrees:
 	-git remote add ruby-on-rails-tmbundle http://github.com/drnic/ruby-on-rails-tmbundle.git
 	-git remote add ruby-tmbundle http://github.com/drnic/ruby-tmbundle.git
 
-.PHONY: all submodules subtrees
+.PHONY: all subtrees
