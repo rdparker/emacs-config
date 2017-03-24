@@ -43,9 +43,6 @@
 [submodule "site-lisp/window-numbering"]
 	path = site-lisp/window-numbering
 	url = https://github.com/nschum/window-numbering.el.git
-[submodule "site-lisp/lispstick"]
-	path = site-lisp/lispstick
-	url = https://github.com/rdparker/lispstick-el
 [submodule "site-lisp/smart-tab"]
 	path = site-lisp/smart-tab
 	url = https://github.com/sroccaserra/smart-tab.git
