@@ -46,9 +46,6 @@
 [submodule "site-lisp/s-el"]
 	path = site-lisp/s-el
 	url = https://github.com/magnars/s.el.git
-[submodule "site-lisp/dash"]
-	path = site-lisp/dash
-	url = https://github.com/magnars/dash.el
 [submodule "site-lisp/pkg-info"]
 	path = site-lisp/pkg-info
 	url = https://github.com/lunaryorn/pkg-info.el.git
