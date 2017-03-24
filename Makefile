@@ -48,5 +48,6 @@ subtrees:
 	-git remote add emacs-epackage--quilt https://github.com/rdparker/emacs-epackage--quilt.git
 	-git remote add s.el https://github.com/magnars/s.el.git
 	-git remote add session https://github.com/rdparker/session.git
+	-git remote add shoes-off https://github.com/rdparker/shoes-off.git
 
 .PHONY: all submodules subtrees
