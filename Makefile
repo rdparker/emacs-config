@@ -23,5 +23,6 @@ subtrees:
 	-git remote add emmet-mode https://github.com/smihica/emmet-mode.git
 	-git remote add epl https://github.com/cask/epl.git
 	-git remote add evernote-mode https://github.com/pymander/evernote-mode.git
+	-git remote add find-file-in-project https://github.com/technomancy/find-file-in-project.git
 
 .PHONY: all submodules subtrees
