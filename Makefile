@@ -37,5 +37,6 @@ subtrees:
 	-git remote add jshint-mode https://github.com/daleharvey/jshint-mode.git
 	-git remote add emacs-kv https://github.com/nicferrier/emacs-kv.git
 	-git remote add lispstick-el https://github.com/rdparker/lispstick-el
+	-git remote add markdown-mode https://github.com/rdparker/markdown-mode.git
 
 .PHONY: all submodules subtrees
