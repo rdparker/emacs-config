@@ -115,9 +115,6 @@
 [submodule "site-lisp/graphviz"]
 	path = site-lisp/graphviz
 	url = https://github.com/ppareit/graphviz-dot-mode.git
-[submodule "site-lisp/ecb"]
-	path = site-lisp/ecb
-	url = https://github.com/emacsmirror/ecb
 [submodule "site-lisp/web-beautify"]
 	path = site-lisp/web-beautify
 	url = https://github.com/yasuyk/web-beautify.git
