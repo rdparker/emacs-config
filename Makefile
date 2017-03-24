@@ -53,5 +53,6 @@ subtrees:
 	-git remote add skewer-mode https://github.com/skeeto/skewer-mode.git
 	-git remote add smart-tab https://github.com/sroccaserra/smart-tab.git
 	-git remote add use-package https://github.com/jwiegley/use-package.git
+	-git remote add emacs-web https://github.com/nicferrier/emacs-web.git
 
 .PHONY: all submodules subtrees
