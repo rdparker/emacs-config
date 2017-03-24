@@ -60,5 +60,6 @@ subtrees:
 	-git remote add ws-butler https://github.com/lewang/ws-butler.git
 	-git remote add yasnippet https://github.com/capitaomorte/yasnippet.git
 	-git remote add yasnips https://github.com/davidmiller/yasnips.git
+	-git remote add jump.el https://github.com/eschulte/jump.el.git
 
 .PHONY: all submodules subtrees
