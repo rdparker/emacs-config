@@ -58,5 +58,6 @@ subtrees:
 	-git remote add whitespace-cleanup-mode https://github.com/purcell/whitespace-cleanup-mode.git
 	-git remote add window-numbering.el https://github.com/nschum/window-numbering.el.git
 	-git remote add ws-butler https://github.com/lewang/ws-butler.git
+	-git remote add yasnippet https://github.com/capitaomorte/yasnippet.git
 
 .PHONY: all submodules subtrees
