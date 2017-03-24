@@ -94,9 +94,6 @@
 [submodule "site-lisp/helm-descbinds"]
 	path = site-lisp/helm-descbinds
 	url = https://github.com/emacs-helm/helm-descbinds.git
-[submodule "site-lisp/elpy"]
-	path = site-lisp/elpy
-	url = https://github.com/jorgenschaefer/elpy.git
 [submodule "site-lisp/pyvenv"]
 	path = site-lisp/pyvenv
 	url = https://github.com/jorgenschaefer/pyvenv.git
