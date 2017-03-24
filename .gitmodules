@@ -13,9 +13,6 @@
 [submodule "site-lisp/window-numbering"]
 	path = site-lisp/window-numbering
 	url = https://github.com/nschum/window-numbering.el.git
-[submodule "site-lisp/smart-tab"]
-	path = site-lisp/smart-tab
-	url = https://github.com/sroccaserra/smart-tab.git
 [submodule "site-lisp/whitespace-cleanup-mode"]
 	path = site-lisp/whitespace-cleanup-mode
 	url = https://github.com/purcell/whitespace-cleanup-mode.git
