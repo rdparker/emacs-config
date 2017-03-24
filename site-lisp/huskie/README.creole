@@ -1,0 +1,124 @@
+= Huskie - the powerful logger =
+
+Make logging through processes.
+
+== Why Huskie?? ==
+
+Named after my trusty Husqavana chainsaw. How I love it.
+
+== Usage ==
+
+{{{
+(huskie-log "something" "logger-name")
+}}}
+
+will send "something" to the "logger-name" which will be
+automatically mapped to a file in "/tmp/logger-name"
+
+The automatic file mapping is done with
+`huskie-log-default-directory' which is a variable you can let-bind
+or simply change.
+
+{{{
+(let ((huskie-log-default-directory "/home/nictest"))
+  (hukie-log "just a test" "my-log"))
+}}}
+
+will send "just a test" to the log process "my-log" and create a
+file "/home/nictest/my-log"
+
+== Log Files ==
+
+The mapping between filenames and lognames can be defined:
+
+{{{
+(huskie-bind-logname->filename "nictest" "/tmp/my-log")
+(huskie-log "test100!" "nictest")
+}}}
+
+will send "test100!" to the file "/tmp/my-log" though a logging
+process called "nictest" will be created.
+
+The filename used MUST be a file, it is specifically checked for
+fileness and huskie fails if it's not.
+
+However, huskie does NOT check that the file is under any sane root;
+indeed, it cannot do so because you might want to save log files in
+all sorts of odd places.
+
+//I am very interested to hear what people think about this so do
+create an issue
+on [[http://github.com/nicferrier/emacs-huskie|the GitHub]] if you
+have a viewpoint about this.//
+
+
+== Processes ==
+
+All the logging is done through async processes. A default process
+is used unless something specific exists for the logname. Setting a
+script can be done with `huskie-set-script'.
+
+The script MUST include a single %s to accept the filename. Failure
+to do so will result in an error.
+
+The script MUST be a shell script.
+
+{{{
+(huskie-set-script
+   "nictest-log"
+   "while read line; do echo $line > %s ; done")
+(huskie-log "test 200" "nictest-log")
+}}}
+
+will send "test 200" through "nictest" via the syslog logger
+program.
+
+You can avoid the use of the filename through shell tricks:
+
+{{{
+(huskie-set-script
+   "nictest-log"
+   "while read line; do logger -t my-log $line ; done # %s")
+(huskie-log "test 200" "nictest-log")
+}}}
+
+this will send the logging through the system logger, the filename is
+just ignored.
+
+The shell script could totally alter the filename passed into it.
+
+Here's an example where all the things that can be adjusted, are:
+
+{{{
+(huskie-set-script
+   "test-log"
+   "while read line; do echo $line > %s ; done")
+(huskie-bind-logname->filename "test-log" "/tmp/my-log")
+(huskie-log "test 200" "test-log")
+}}}
+
+this causes all lines to go through the script, which is simple (but
+could of course be quite complicated) but causes the file created to
+be {{{/tmp/my-log}}}.
+
+== Tips ==
+
+Using the shell form:
+
+{{{
+while read line ; do ... ; done
+}}}
+
+is an excellent way of ensuring you have lines going through
+loggers. This is why huskie does it this way. Other solutions are
+possible of course, but this is probably the best.
+
+Log scripts to create dates and such are likely good candidates for
+the shell script.
+
+
+== Warnings ==
+
+Deriving log file destinations from the log text itself is a **VERY BAD**
+idea. Huskie makes no attempt to thwart this. If you do it you are a
+fool.
