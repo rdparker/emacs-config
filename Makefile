@@ -14,5 +14,6 @@ subtrees:
 	-git remote add anaphora https://github.com/rolandwalker/anaphora.git
 	-git remote add anything-config http://repo.or.cz/r/anything-config.git
 	-git remote add applescript-mode https://github.com/rdparker/applescript-mode.git
+	-git remote add c-eldoc https://github.com/nflath/c-eldoc.git
 
 .PHONY: all submodules subtrees
