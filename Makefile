@@ -56,5 +56,6 @@ subtrees:
 	-git remote add emacs-web https://github.com/nicferrier/emacs-web.git
 	-git remote add web-beautify https://github.com/yasuyk/web-beautify.git
 	-git remote add whitespace-cleanup-mode https://github.com/purcell/whitespace-cleanup-mode.git
+	-git remote add window-numbering.el https://github.com/nschum/window-numbering.el.git
 
 .PHONY: all submodules subtrees
