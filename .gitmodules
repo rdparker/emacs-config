@@ -34,9 +34,6 @@
 [submodule "site-lisp/projectile"]
 	path = site-lisp/projectile
 	url = https://github.com/bbatsov/projectile.git
-[submodule "site-lisp/flx"]
-	path = site-lisp/flx
-	url = https://github.com/lewang/flx.git
 [submodule "site-lisp/s-el"]
 	path = site-lisp/s-el
 	url = https://github.com/magnars/s.el.git
