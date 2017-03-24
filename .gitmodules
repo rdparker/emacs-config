@@ -1,3 +1,0 @@
-[submodule "site-lisp/yasnippet/extras/bundles/ruby-tmbundle"]
-	path = site-lisp/yasnippet/extras/bundles/ruby-tmbundle
-	url = http://github.com/drnic/ruby-tmbundle.git

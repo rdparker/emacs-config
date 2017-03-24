@@ -64,5 +64,6 @@ subtrees:
 	-git remote add ert git://github.com/ohler/ert.git
 	-git remote add html-tmbundle http://github.com/drnic/html-tmbundle.git
 	-git remote add ruby-on-rails-tmbundle http://github.com/drnic/ruby-on-rails-tmbundle.git
+	-git remote add ruby-tmbundle http://github.com/drnic/ruby-tmbundle.git
 
 .PHONY: all submodules subtrees
