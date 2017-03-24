@@ -148,3 +148,18 @@
 [submodule "site-lisp/powerline"]
 	path = site-lisp/powerline
 	url = https://github.com/milkypostman/powerline.git
+[submodule "override/org-mode/testing/jump"]
+	path = override/org-mode/testing/jump
+	url = https://github.com/eschulte/jump.el.git
+[submodule "site-lisp/popup/lib/ert"]
+	path = site-lisp/popup/lib/ert
+	url = git://github.com/ohler/ert.git
+[submodule "site-lisp/yasnippet/extras/bundles/ruby-tmbundle"]
+	path = site-lisp/yasnippet/extras/bundles/ruby-tmbundle
+	url = http://github.com/drnic/ruby-tmbundle.git
+[submodule "site-lisp/yasnippet/extras/bundles/html-tmbundle"]
+	path = site-lisp/yasnippet/extras/bundles/html-tmbundle
+	url = http://github.com/drnic/html-tmbundle.git
+[submodule "site-lisp/yasnippet/extras/bundles/rails-tmbundle"]
+	path = site-lisp/yasnippet/extras/bundles/rails-tmbundle
+	url = http://github.com/drnic/ruby-on-rails-tmbundle.git
