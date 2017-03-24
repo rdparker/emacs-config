@@ -91,9 +91,6 @@
 [submodule "site-lisp/shoes-off"]
 	path = site-lisp/shoes-off
 	url = https://github.com/rdparker/shoes-off.git
-[submodule "site-lisp/anaphora"]
-	path = site-lisp/anaphora
-	url = https://github.com/rolandwalker/anaphora.git
 [submodule "site-lisp/kv"]
 	path = site-lisp/kv
 	url = https://github.com/nicferrier/emacs-kv.git
