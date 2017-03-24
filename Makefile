@@ -34,5 +34,6 @@ subtrees:
 	-git remote add highlight-symbol.el https://github.com/nschum/highlight-symbol.el.git
 	-git remote add emacs-huskie https://github.com/nicferrier/emacs-huskie.git
 	-git remote add iedit https://github.com/victorhge/iedit.git
+	-git remote add jshint-mode https://github.com/daleharvey/jshint-mode.git
 
 .PHONY: all submodules subtrees
