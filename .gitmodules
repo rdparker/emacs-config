@@ -28,9 +28,6 @@
 [submodule "site-lisp/ws-butler"]
 	path = site-lisp/ws-butler
 	url = https://github.com/lewang/ws-butler.git
-[submodule "site-lisp/shoes-off"]
-	path = site-lisp/shoes-off
-	url = https://github.com/rdparker/shoes-off.git
 [submodule "site-lisp/web-beautify"]
 	path = site-lisp/web-beautify
 	url = https://github.com/yasuyk/web-beautify.git
