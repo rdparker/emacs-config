@@ -1,6 +1,3 @@
-[submodule "snippets/davidmiller"]
-	path = snippets/davidmiller
-	url = https://github.com/davidmiller/yasnips.git
 [submodule "override/org-mode/testing/jump"]
 	path = override/org-mode/testing/jump
 	url = https://github.com/eschulte/jump.el.git
