@@ -32,5 +32,6 @@ subtrees:
 	-git remote add emacs-helm-gtags https://github.com/syohex/emacs-helm-gtags.git
 	-git remote add helm-swoop https://github.com/ShingoFukuyama/helm-swoop.git
 	-git remote add highlight-symbol.el https://github.com/nschum/highlight-symbol.el.git
+	-git remote add emacs-huskie https://github.com/nicferrier/emacs-huskie.git
 
 .PHONY: all submodules subtrees
