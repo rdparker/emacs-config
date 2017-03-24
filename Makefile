@@ -10,5 +10,6 @@ subtrees:
 	-git remote add git-modes https://github.com/magit/git-modes.git
 	-git remote add with-editor https://github.com/magit/with-editor.git
 	-git remote add auto-complete https://github.com/auto-complete/auto-complete.git
+	-git remote add org-mode https://github.com/rdparker/org-mode.git
 
 .PHONY: all submodules subtrees
