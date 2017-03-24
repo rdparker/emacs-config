@@ -36,5 +36,6 @@ subtrees:
 	-git remote add iedit https://github.com/victorhge/iedit.git
 	-git remote add jshint-mode https://github.com/daleharvey/jshint-mode.git
 	-git remote add emacs-kv https://github.com/nicferrier/emacs-kv.git
+	-git remote add lispstick-el https://github.com/rdparker/lispstick-el
 
 .PHONY: all submodules subtrees
