@@ -46,9 +46,6 @@
 [submodule "site-lisp/pkg-info"]
 	path = site-lisp/pkg-info
 	url = https://github.com/lunaryorn/pkg-info.el.git
-[submodule "site-lisp/epl"]
-	path = site-lisp/epl
-	url = https://github.com/cask/epl.git
 [submodule "site-lisp/web"]
 	path = site-lisp/web
 	url = https://github.com/nicferrier/emacs-web.git
