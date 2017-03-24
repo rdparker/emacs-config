@@ -4,9 +4,6 @@
 [submodule "snippets/davidmiller"]
 	path = snippets/davidmiller
 	url = https://github.com/davidmiller/yasnips.git
-[submodule "site-lisp/ws-butler"]
-	path = site-lisp/ws-butler
-	url = https://github.com/lewang/ws-butler.git
 [submodule "override/org-mode/testing/jump"]
 	path = override/org-mode/testing/jump
 	url = https://github.com/eschulte/jump.el.git
