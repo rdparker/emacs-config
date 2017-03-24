@@ -19,5 +19,6 @@ subtrees:
 	-git remote add dash.el https://github.com/magnars/dash.el
 	-git remote add ecb https://github.com/emacsmirror/ecb
 	-git remote add el-autoyas.el https://github.com/mlf176f2/el-autoyas.el.git
+	-git remote add elpy https://github.com/jorgenschaefer/elpy.git
 
 .PHONY: all submodules subtrees
