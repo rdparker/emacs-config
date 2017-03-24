@@ -13,5 +13,6 @@ subtrees:
 	-git remote add org-mode https://github.com/rdparker/org-mode.git
 	-git remote add anaphora https://github.com/rolandwalker/anaphora.git
 	-git remote add anything-config http://repo.or.cz/r/anything-config.git
+	-git remote add applescript-mode https://github.com/rdparker/applescript-mode.git
 
 .PHONY: all submodules subtrees
