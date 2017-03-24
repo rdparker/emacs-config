@@ -42,5 +42,6 @@ subtrees:
 	-git remote add paredit https://github.com/rdparker/paredit.git
 	-git remote add pkg-info.el https://github.com/lunaryorn/pkg-info.el.git
 	-git remote add popup-el git://github.com/auto-complete/popup-el.git
+	-git remote add powerline https://github.com/milkypostman/powerline.git
 
 .PHONY: all submodules subtrees

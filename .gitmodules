@@ -49,9 +49,6 @@
 [submodule "site-lisp/web-beautify"]
 	path = site-lisp/web-beautify
 	url = https://github.com/yasuyk/web-beautify.git
-[submodule "site-lisp/powerline"]
-	path = site-lisp/powerline
-	url = https://github.com/milkypostman/powerline.git
 [submodule "override/org-mode/testing/jump"]
 	path = override/org-mode/testing/jump
 	url = https://github.com/eschulte/jump.el.git
