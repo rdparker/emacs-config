@@ -51,5 +51,6 @@ subtrees:
 	-git remote add shoes-off https://github.com/rdparker/shoes-off.git
 	-git remote add emacs-http-server https://github.com/skeeto/emacs-http-server.git
 	-git remote add skewer-mode https://github.com/skeeto/skewer-mode.git
+	-git remote add smart-tab https://github.com/sroccaserra/smart-tab.git
 
 .PHONY: all submodules subtrees
