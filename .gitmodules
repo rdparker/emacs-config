@@ -4,9 +4,6 @@
 [submodule "site-lisp/session"]
 	path = site-lisp/session
 	url = https://github.com/rdparker/session.git
-[submodule "site-lisp/paredit"]
-	path = site-lisp/paredit
-	url = https://github.com/rdparker/paredit.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/capitaomorte/yasnippet.git
