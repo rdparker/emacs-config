@@ -7,9 +7,6 @@
 [submodule "snippets/davidmiller"]
 	path = snippets/davidmiller
 	url = https://github.com/davidmiller/yasnips.git
-[submodule "site-lisp/skewer-mode"]
-	path = site-lisp/skewer-mode
-	url = https://github.com/skeeto/skewer-mode.git
 [submodule "site-lisp/web"]
 	path = site-lisp/web
 	url = https://github.com/nicferrier/emacs-web.git
