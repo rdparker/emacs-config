@@ -70,9 +70,6 @@
 [submodule "site-lisp/pyvenv"]
 	path = site-lisp/pyvenv
 	url = https://github.com/jorgenschaefer/pyvenv.git
-[submodule "site-lisp/iedit"]
-	path = site-lisp/iedit
-	url = https://github.com/victorhge/iedit.git
 [submodule "site-lisp/web-beautify"]
 	path = site-lisp/web-beautify
 	url = https://github.com/yasuyk/web-beautify.git
