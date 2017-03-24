@@ -1,4 +1,10 @@
 #! /bin/bash
+#
+# This file will convert any submodules and their nested submodules
+# into subtrees and add appropriate remotes to Makefile
+#
+# Copyright (C) 2017 by Ron Parker <rdparker@gmail.com>
+#
 
 set -e
 # set -x
@@ -107,7 +113,7 @@ function process_submodule()
     if [ -s .gitmodules ]; then
 	git add .gitmodules || die "Cannot add .gitmodules"
     else
-	git rm .gitmodules || die "Cannot remove .gitmodules"
+	git rm -f .gitmodules || die "Cannot remove .gitmodules"
     fi
 
     # Commit the changes
@@ -174,6 +180,7 @@ function add_nested_submodules()
 		cat $x | sed s=submodule\ \"=\&$escaped_dir/= | \
 		    sed s/path\ =\ /\&$escaped_dir\\// | tee -a .gitmodules || \
 		    exit $?
+		done="false"
 	    fi
 	done
     done
@@ -192,15 +199,19 @@ function add_nested_submodules()
 initial_branch=$(git rev-parse --abbrev-ref HEAD) || exit $?
 git checkout -b submodules-to-subtrees || exit $?
 
-add_nested_submodules
+done="false"
 
-for submod in $(git submodule | awk '{print $2}'); do
-    process_submodule $submod
-    echo "If Emacs does not automatically exit, eval '(kill-emacs 1)'."
-    emacs --debug-init -e kill-emacs || \
-	die "Submodule $submod broke Emacs cleanly exiting."
+while [ "$done" = "false" ]; do
+    done="true"
+    add_nested_submodules
+
+    for submod in $(git submodule | awk '{print $2}'); do
+	process_submodule $submod
+	echo "If Emacs does not automatically exit, eval '(kill-emacs 1)'."
+	emacs --debug-init -e kill-emacs || \
+	    die "Submodule $submod broke Emacs cleanly exiting."
+    done
 done
-
 git checkout "$initial_branch" || exit $?
 git merge --no-edit --no-ff submodules-to-subtrees || exit $?
 git branch -d submodules-to-subtrees
