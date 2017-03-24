@@ -61,9 +61,6 @@
 [submodule "site-lisp/shoes-off"]
 	path = site-lisp/shoes-off
 	url = https://github.com/rdparker/shoes-off.git
-[submodule "site-lisp/kv"]
-	path = site-lisp/kv
-	url = https://github.com/nicferrier/emacs-kv.git
 [submodule "site-lisp/pyvenv"]
 	path = site-lisp/pyvenv
 	url = https://github.com/jorgenschaefer/pyvenv.git
