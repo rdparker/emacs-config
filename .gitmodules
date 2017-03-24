@@ -1,9 +1,6 @@
 [submodule "site-lisp/yasnippet/extras/bundles/ruby-tmbundle"]
 	path = site-lisp/yasnippet/extras/bundles/ruby-tmbundle
 	url = http://github.com/drnic/ruby-tmbundle.git
-[submodule "site-lisp/yasnippet/extras/bundles/html-tmbundle"]
-	path = site-lisp/yasnippet/extras/bundles/html-tmbundle
-	url = http://github.com/drnic/html-tmbundle.git
 [submodule "site-lisp/yasnippet/extras/bundles/rails-tmbundle"]
 	path = site-lisp/yasnippet/extras/bundles/rails-tmbundle
 	url = http://github.com/drnic/ruby-on-rails-tmbundle.git
