@@ -73,9 +73,6 @@
 [submodule "site-lisp/huskie"]
 	path = site-lisp/huskie
 	url = https://github.com/nicferrier/emacs-huskie.git
-[submodule "site-lisp/helm-swoop"]
-	path = site-lisp/helm-swoop
-	url = https://github.com/ShingoFukuyama/helm-swoop.git
 [submodule "site-lisp/pyvenv"]
 	path = site-lisp/pyvenv
 	url = https://github.com/jorgenschaefer/pyvenv.git
