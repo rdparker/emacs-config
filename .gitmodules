@@ -19,9 +19,6 @@
 [submodule "site-lisp/simple-httpd"]
 	path = site-lisp/simple-httpd
 	url = https://github.com/skeeto/emacs-http-server.git
-[submodule "site-lisp/p4"]
-	path = site-lisp/p4
-	url = https://github.com/gareth-rees/p4.el.git
 [submodule "site-lisp/quilt"]
 	path = site-lisp/quilt
 	url = https://github.com/rdparker/emacs-epackage--quilt.git
