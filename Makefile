@@ -50,5 +50,6 @@ subtrees:
 	-git remote add session https://github.com/rdparker/session.git
 	-git remote add shoes-off https://github.com/rdparker/shoes-off.git
 	-git remote add emacs-http-server https://github.com/skeeto/emacs-http-server.git
+	-git remote add skewer-mode https://github.com/skeeto/skewer-mode.git
 
 .PHONY: all submodules subtrees
