@@ -39,5 +39,6 @@ subtrees:
 	-git remote add lispstick-el https://github.com/rdparker/lispstick-el
 	-git remote add markdown-mode https://github.com/rdparker/markdown-mode.git
 	-git remote add p4.el https://github.com/gareth-rees/p4.el.git
+	-git remote add paredit https://github.com/rdparker/paredit.git
 
 .PHONY: all submodules subtrees
