@@ -40,5 +40,6 @@ subtrees:
 	-git remote add markdown-mode https://github.com/rdparker/markdown-mode.git
 	-git remote add p4.el https://github.com/gareth-rees/p4.el.git
 	-git remote add paredit https://github.com/rdparker/paredit.git
+	-git remote add pkg-info.el https://github.com/lunaryorn/pkg-info.el.git
 
 .PHONY: all submodules subtrees
