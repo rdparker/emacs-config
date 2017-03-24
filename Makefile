@@ -17,5 +17,6 @@ subtrees:
 	-git remote add c-eldoc https://github.com/nflath/c-eldoc.git
 	-git remote add creole-mode https://github.com/nicferrier/creole-mode.git
 	-git remote add dash.el https://github.com/magnars/dash.el
+	-git remote add ecb https://github.com/emacsmirror/ecb
 
 .PHONY: all submodules subtrees
