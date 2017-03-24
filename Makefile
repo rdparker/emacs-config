@@ -27,5 +27,6 @@ subtrees:
 	-git remote add flx https://github.com/lewang/flx.git
 	-git remote add fuzzy-el https://github.com/auto-complete/fuzzy-el.git
 	-git remote add graphviz-dot-mode https://github.com/ppareit/graphviz-dot-mode.git
+	-git remote add helm https://github.com/rdparker/helm.git
 
 .PHONY: all submodules subtrees
