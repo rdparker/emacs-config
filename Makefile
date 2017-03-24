@@ -49,5 +49,6 @@ subtrees:
 	-git remote add s.el https://github.com/magnars/s.el.git
 	-git remote add session https://github.com/rdparker/session.git
 	-git remote add shoes-off https://github.com/rdparker/shoes-off.git
+	-git remote add emacs-http-server https://github.com/skeeto/emacs-http-server.git
 
 .PHONY: all submodules subtrees
