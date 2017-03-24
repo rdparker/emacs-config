@@ -62,5 +62,6 @@ subtrees:
 	-git remote add yasnips https://github.com/davidmiller/yasnips.git
 	-git remote add jump.el https://github.com/eschulte/jump.el.git
 	-git remote add ert git://github.com/ohler/ert.git
+	-git remote add html-tmbundle http://github.com/drnic/html-tmbundle.git
 
 .PHONY: all submodules subtrees
