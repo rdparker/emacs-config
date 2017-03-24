@@ -47,5 +47,6 @@ subtrees:
 	-git remote add pyvenv https://github.com/jorgenschaefer/pyvenv.git
 	-git remote add emacs-epackage--quilt https://github.com/rdparker/emacs-epackage--quilt.git
 	-git remote add s.el https://github.com/magnars/s.el.git
+	-git remote add session https://github.com/rdparker/session.git
 
 .PHONY: all submodules subtrees
