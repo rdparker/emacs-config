@@ -1,0 +1,7 @@
+# -*- mode: snippet; coding: utf-8 -*-
+# name: embedded php
+# key: ?
+# group: php
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+<?$0?>
