@@ -25,9 +25,6 @@
 [submodule "site-lisp/quilt"]
 	path = site-lisp/quilt
 	url = https://github.com/rdparker/emacs-epackage--quilt.git
-[submodule "site-lisp/markdown"]
-	path = site-lisp/markdown
-	url = https://github.com/rdparker/markdown-mode.git
 [submodule "site-lisp/projectile"]
 	path = site-lisp/projectile
 	url = https://github.com/bbatsov/projectile.git
