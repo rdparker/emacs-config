@@ -45,5 +45,6 @@ subtrees:
 	-git remote add powerline https://github.com/milkypostman/powerline.git
 	-git remote add projectile https://github.com/bbatsov/projectile.git
 	-git remote add pyvenv https://github.com/jorgenschaefer/pyvenv.git
+	-git remote add emacs-epackage--quilt https://github.com/rdparker/emacs-epackage--quilt.git
 
 .PHONY: all submodules subtrees
