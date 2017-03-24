@@ -1,6 +1,3 @@
-[submodule "site-lisp/popup/lib/ert"]
-	path = site-lisp/popup/lib/ert
-	url = git://github.com/ohler/ert.git
 [submodule "site-lisp/yasnippet/extras/bundles/ruby-tmbundle"]
 	path = site-lisp/yasnippet/extras/bundles/ruby-tmbundle
 	url = http://github.com/drnic/ruby-tmbundle.git
