@@ -63,5 +63,6 @@ subtrees:
 	-git remote add jump.el https://github.com/eschulte/jump.el.git
 	-git remote add ert git://github.com/ohler/ert.git
 	-git remote add html-tmbundle http://github.com/drnic/html-tmbundle.git
+	-git remote add ruby-on-rails-tmbundle http://github.com/drnic/ruby-on-rails-tmbundle.git
 
 .PHONY: all submodules subtrees
