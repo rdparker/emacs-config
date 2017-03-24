@@ -38,5 +38,6 @@ subtrees:
 	-git remote add emacs-kv https://github.com/nicferrier/emacs-kv.git
 	-git remote add lispstick-el https://github.com/rdparker/lispstick-el
 	-git remote add markdown-mode https://github.com/rdparker/markdown-mode.git
+	-git remote add p4.el https://github.com/gareth-rees/p4.el.git
 
 .PHONY: all submodules subtrees
