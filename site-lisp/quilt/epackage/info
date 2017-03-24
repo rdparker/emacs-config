@@ -1,0 +1,30 @@
+Package: quilt
+Section: extensions
+License: GPL
+Depends: emacs (>= 22)
+Status: unmaintained
+Compat:
+Maintainer: Jari Aalto <jari.aalto@cante.net>
+Bugs:
+Upstream: Jari Aalto <jari.aalto@cante.net>
+Upstream-Bugs:
+Vcs-Type: http
+Vcs-Url: http://www.selenic.com/quilt/quilt.el
+Homepage:
+Wiki: http://www.emacswiki.org/emacs/
+Commentary:
+X-Development:
+ 2011-12-30 Matt Mackall <mpm@selenic.com> handed over maintenence
+Description: interactive commands to quilt(1) program
+ Provides M-x commands: quilt-push, quilt-push-all, quilt-pop,
+ quilt-pop-all, quilt-goto, quilt-top, quilt-find-file,
+ quilt-files, quilt-import, quilt-diff, quilt-new, quilt-applied,
+ quilt-add, quilt-edit-patch, quilt-patches, quilt-unapplied,
+ quilt-refresh, quilt-remove, quilt-edit-series, quilt-mode
+ .
+ Quilt manages a series of patches by keeping track of the changes
+ each of them makes. They are logically organized as a stack, and you can
+ apply, un-apply, refresh them easily by traveling into the stack
+ (push/pop).
+ .
+ Note: 2011-12-30 the code hasn't been touched since 2005.

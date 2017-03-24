@@ -1,0 +1,7 @@
+# contributor: David Miller <david@deadpansincerity.com>
+#name : <li>...</li>
+#group : list
+# --
+<li>
+  $0
+</li>

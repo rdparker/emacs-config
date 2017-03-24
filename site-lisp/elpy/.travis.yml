@@ -1,0 +1,37 @@
+language: python
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+  - 3.4
+env:
+  - EVM_EMACS=emacs-24.1-bin
+  - EVM_EMACS=emacs-24.2-bin
+  - EVM_EMACS=emacs-24.3-bin
+  # - EVM_EMACS=emacs-git-snapshot
+install:
+  - sudo mkdir /usr/local/evm
+  - sudo chown $(id -u):$(id -g) /usr/local/evm
+  - curl -fsSkL https://raw.github.com/rejeep/evm/master/go | bash
+  - export PATH="$HOME/.evm/bin:$PATH"
+  - evm install $EVM_EMACS --use
+  - curl -fsSkL https://raw.github.com/cask/cask/master/go | python
+  - export PATH="$HOME/.cask/bin:$PATH"
+  - cask
+  - pip install jedi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 2.6 ]] ; then
+      pip install unittest2 ;
+    fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 2.* ]] ; then
+      pip install rope ;
+    fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 3.* ]] ; then
+      pip install rope_py3k ;
+    fi
+  - pip install coveralls
+script:
+  - nosetests
+  - PYTHONPATH="`pwd`" cask exec ert-runner
+after_success:
+  - coverage run -m nose.__main__
+  - coveralls

@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: ipdb
+# group: debugging
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+import ipdb
+ipdb.set_trace()
