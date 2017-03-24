@@ -10,9 +10,6 @@
 [submodule "site-lisp/skewer-mode"]
 	path = site-lisp/skewer-mode
 	url = https://github.com/skeeto/skewer-mode.git
-[submodule "site-lisp/simple-httpd"]
-	path = site-lisp/simple-httpd
-	url = https://github.com/skeeto/emacs-http-server.git
 [submodule "site-lisp/web"]
 	path = site-lisp/web
 	url = https://github.com/nicferrier/emacs-web.git
