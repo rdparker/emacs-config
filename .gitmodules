@@ -76,9 +76,6 @@
 [submodule "site-lisp/helm-swoop"]
 	path = site-lisp/helm-swoop
 	url = https://github.com/ShingoFukuyama/helm-swoop.git
-[submodule "site-lisp/helm-descbinds"]
-	path = site-lisp/helm-descbinds
-	url = https://github.com/emacs-helm/helm-descbinds.git
 [submodule "site-lisp/pyvenv"]
 	path = site-lisp/pyvenv
 	url = https://github.com/jorgenschaefer/pyvenv.git

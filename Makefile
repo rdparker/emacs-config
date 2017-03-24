@@ -28,5 +28,6 @@ subtrees:
 	-git remote add fuzzy-el https://github.com/auto-complete/fuzzy-el.git
 	-git remote add graphviz-dot-mode https://github.com/ppareit/graphviz-dot-mode.git
 	-git remote add helm https://github.com/rdparker/helm.git
+	-git remote add helm-descbinds https://github.com/emacs-helm/helm-descbinds.git
 
 .PHONY: all submodules subtrees
