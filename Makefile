@@ -12,5 +12,6 @@ subtrees:
 	-git remote add auto-complete https://github.com/auto-complete/auto-complete.git
 	-git remote add org-mode https://github.com/rdparker/org-mode.git
 	-git remote add anaphora https://github.com/rolandwalker/anaphora.git
+	-git remote add anything-config http://repo.or.cz/r/anything-config.git
 
 .PHONY: all submodules subtrees
