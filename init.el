@@ -1641,6 +1641,7 @@ and the basename of the executable.")
 
 ;;; Markdown
 (use-package markdown-mode
+  :load-path "site-lisp/markdown"
   :defines markdown-command
   :mode (("\\.markdown" . markdown-mode)
 	 ("\\.md" . markdown-mode)
