@@ -34,7 +34,7 @@ subtrees:
 	-git remote add jshint-mode https://github.com/daleharvey/jshint-mode.git
 	-git remote add emacs-kv https://github.com/nicferrier/emacs-kv.git
 	-git remote add lispstick-el https://github.com/rdparker/lispstick-el
-	-git remote add markdown-mode https://github.com/rdparker/markdown-mode.git
+	-git remote add markdown-mode https://github.com/jrblevin/markdown-mode.git
 	-git remote add p4.el https://github.com/gareth-rees/p4.el.git
 	-git remote add paredit https://github.com/rdparker/paredit.git
 	-git remote add pkg-info.el https://github.com/lunaryorn/pkg-info.el.git

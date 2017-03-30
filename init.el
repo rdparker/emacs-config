@@ -1641,16 +1641,19 @@ and the basename of the executable.")
 
 ;;; Markdown
 (use-package markdown-mode
-  :defines markdown-command
-  :mode (("\\.markdown" . markdown-mode)
-	 ("\\.md" . markdown-mode)
-	 ("\\.mdwn" . markdown-mode))
+  :load-path "site-lisp/markdown"
+  :defines (markdown-mode gfm-mode)
+  ;; `use-package' adds modes to `auto-mode-alist` in reverse order.
+  :mode (("\\.mdwn\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("README\.md\\'" . gfm-mode))	; GFM takes precedence for README.md
   :init (add-hook 'markdown-mode-hook
-	  (lambda ()
-	    (auto-fill-mode 1)))
-  :config (when (and (not (executable-find "markdown"))
-		     (executable-find "markdown_py"))
-	    (setq markdown-command "markdown_py")))
+		  (lambda ()
+		    (auto-fill-mode 1)))
+  :config (setq markdown-command
+		(cl-find-if #'executable-find
+			    '("multimarkdown" "markdown" "markdown_py"))))
 
 ;;; Maxima
 (add-to-list 'load-path "/usr/local/share/maxima/5.25.1/emacs/")
