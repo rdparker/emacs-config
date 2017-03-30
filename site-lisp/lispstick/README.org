@@ -1,0 +1,14 @@
+LispStick! Initialization
+
+Allows you to use a custom [[https://www.gnu.org/software/emacs/][Emacs]] configuration and simply call a
+function to do what [[http://www.iqool.de/lispstick.html][LispStick!]] normally does at startup in =.emacs=.
+
+Add the following to your Emacs initialization file
+
+#+BEGIN_SRC elisp
+(require 'lispstick)
+(lispstick-initialize)
+#+END_SRC
+
+to duplicate the LispStick! initialization and launch of [[http://www.sbcl.org/][SBCL]] with
+[[http://common-lisp.net/project/slime/][SLIME]].
