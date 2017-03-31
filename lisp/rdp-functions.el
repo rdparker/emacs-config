@@ -135,5 +135,18 @@ Mark will be left at the end of the region nearest `point-max'."
        (set-mark end)
        (goto-char (round (/ (+ point mark) 2)))))
 
+(defun per-system-file-name (name)
+  "Convert NAME to a per-`system-name' name.
+This is useful for keeping separate files for each computer
+system when a shared network home directory is used."
+  (concat (file-name-sans-extension name) "@" (system-name)
+	  (file-name-extension name t)))
+
+(defun per-system-data-file (name)
+  "Convert NAME to a per-`system-name' name in the `user-data-directory'.
+This is useful for keeping separate data and history files when
+using a network-based shared `user-emacs-directory'."
+  (expand-file-name (per-system-file-name name) user-data-directory))
+
 (provide 'rdp-functions)
 ;;; rdp-functions.el ends here

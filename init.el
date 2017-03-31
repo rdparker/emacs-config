@@ -345,7 +345,7 @@ are named \"Emacs[A-Za-z]*.app\".")
     (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
 
   ;; Keep the ~/.emacs.d directory clean
-  (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
+  (setq ac-comphist-file (per-system-data-file "ac-comphist.dat"))
 
   (add-hook 'lisp-mode-hook (lambda ()
 			      (add-to-list 'ac-sources 'ac-source-slime)))
@@ -446,7 +446,7 @@ called once a user interface has been started."
 	(progn
 	  (setq desktop-load-locked-desktop 'ask
 		;; Shared home directories need a per-host desktop files.
-		desktop-base-file-name (concat ".emacs.desktop." (system-name))
+		desktop-base-file-name (per-system-file-name ".emacs.desktop")
 		desktop-base-lock-name (concat desktop-base-file-name ".lock")
 		desktop-dirname user-data-directory)
 	  (desktop-save-mode 1)
@@ -1267,8 +1267,7 @@ a argument to perform the pop instead.."
     (when (featurep 'cl-lib)
       (flx-ido-mode 1))
     (setq ido-use-virtual-buffers t
-	  ido-save-directory-list-file (expand-file-name ".ido.last"
-							 user-data-directory))
+	  ido-save-directory-list-file (per-system-data-file ".ido.last"))
 
     (defun ido-switch-buffer-tiny-frame (buffer)
       "Display BUFFER in a separate tiny frame.
@@ -1734,11 +1733,10 @@ the nobreak spaces in the powerline shell prompt."
   (add-hook 'prog-mode-hook 'projectile-on)
   :config
   (progn
-    (setq projectile-mode-line-lighter "P")
-    (setq projectile-known-projects-file
-	  (expand-file-name "projectile-bookmarks.eld" user-data-directory))
-    (setq projectile-cache-file
-	  (expand-file-name "projectile.cache" user-data-directory))))
+    (setq projectile-mode-line-lighter "P"
+	  projectile-known-projects-file (per-system-file-name
+					  "projectile-bookmarks.eld")
+	  projectile-cache-file (per-system-file-name "projectile.cache"))))
 
 ;;; Python
 
@@ -1891,8 +1889,7 @@ the nobreak spaces in the powerline shell prompt."
 ;;; recentf
 (use-package recentf
   :config
-  (setq recentf-save-file
-	(expand-file-name (concat ".recentf." (system-name)) user-data-directory)))
+  (setq recentf-save-file (per-system-data-file ".recentf")))
 
 ;;; revert
 (setq revert-without-query '("\.xml$"))
