@@ -1941,7 +1941,8 @@ the nobreak spaces in the powerline shell prompt."
 
       (unless (or noninteractive
 		  alternate-emacs
-		  (eq 'listen (process-status server-process)))
+		  (and server-process
+		       (eq 'listen (process-status server-process))))
 	(server-start))))
   
   :config
