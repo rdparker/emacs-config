@@ -188,11 +188,20 @@ are named \"Emacs[A-Za-z]*.app\".")
       (expand-file-name (concat "elpa/emacs-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
 
-;; TODO: Consider extracting the other package paths from use-repo-package.el.
-(eval-after-load "package"
-  ;; Melpa addition borrowed from Sacha's init
-  '(unless (assoc-default "melpa" package-archives)
-     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)))
+(use-package package
+  :defer t
+  :config
+  ;; The idea for conditionally adding package archives came from
+  ;; Sacha's init.  This will add a package archive, but only if it
+  ;; does not exist already regardless of whether or not the location
+  ;; is the same.
+  (mapc (lambda (x)
+	  (unless (assoc-default (car x) package-archives)
+	    (add-to-list 'package-archives x t)))
+	'(("melpa" . "http://melpa.org/packages/")
+	  ("melpa-stable" . "http://stable.melpa.org/packages/")
+	  ("org" . "http://orgmode.org/elpa/")
+	  ("elpy" . "http://jorgenschaefer.github.io/packages/"))))
 
 ;;; Legacy package configuration
 
