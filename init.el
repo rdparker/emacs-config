@@ -399,10 +399,23 @@ are named \"Emacs[A-Za-z]*.app\".")
       (setq exec-path path))))
 
 (use-package w3m
-  :commands (w3m w3m-browse-url))
-(condition-case ()
-	(use-package w3-auto)
-	(error nil))
+  :commands (w3m w3m-browse-url)
+  :load-path "site-lisp/emacs-w3m")
+
+(use-repo-package w3
+  :ensure t
+  :defer t
+  :init
+  ;; Lie to `w3-find-default-stylesheets' about it's configuration
+  ;; directory so that it finds the stylesheet which is located with
+  ;; the source .el.  Otherwise, because I have advised `use-package'
+  ;; to add separate compiled directories to the `load-path' and
+  ;; because the list of directories is checks is very odd, it will
+  ;; not find them.
+  (defadvice w3-find-default-stylesheets (around find-w3-stylesheet)
+    (let ((w3-configuration-directory
+	   (expand-file-name "etc" (file-name-directory (locate-library "w3.el")))))
+      ad-do-it)))
 
 ;;; Daemon mode
 (defun shutdown-emacs-server ()
