@@ -283,8 +283,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;
 ;;  See `helm' below for newer Emacsen.
 (use-package anything-config
-  :if (or (< emacs-major-version 24)
-	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :if (not (emacs>= 24.3))
   :load-path "site-lisp/anything"
   :commands anything
   :bind (("C-c M-x" . anything-M-x)
@@ -833,15 +832,13 @@ which is an error according to some typographical conventions."
 
 ;;; frame
 (use-package frame
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  :if (emacs>= 24.4)
   :bind ("C-M-S-f" . toggle-frame-fullscreen))
 
 (use-package fullscreen
   :bind ("M-RET" . toggle-fullscreen)
   :init
-  (unless (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  (unless (emacs>= 24.4)
     (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
 ;;; gdb
@@ -997,8 +994,7 @@ which is an error according to some typographical conventions."
   :init
   (progn
     (use-package helm-gtags
-      :if (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+      :if (emacs>= 24.3)
       :load-path "site-lisp/helm-gtags"
       :bind ("M-T" . helm-gtags-select)
       :config
@@ -1007,8 +1003,7 @@ which is an error according to some typographical conventions."
 	(bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
     (use-package anything-gtags
-      :if (or (< emacs-major-version 24)
-	      (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+      :if (not (emacs>= 24.3))
       :bind ("M-T" . anything-gtags-select)
       :config
       (progn
@@ -1123,8 +1118,7 @@ a argument to perform the pop instead.."
 ;;
 ;; See `anything' above for older Emacsen.
 (use-package helm-config
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :if (emacs>= 24.3)
   :load-path "site-lisp/helm"
   :bind (("C-c M-x" . helm-M-x)
 	 ("C-h a"   . helm-apropos)
