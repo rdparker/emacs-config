@@ -846,12 +846,14 @@ which is an error according to some typographical conventions."
 
 ;;; gdb
 (use-package gdb-ui
-  :if (<= emacs-minor-version 23)
+  :if (<= emacs-major-version 23)
+  :defer t
   :config
   (setq gdb-many-windows nil))
 
 (use-package gdb-mi
-  :if (>= emacs-minor-version 24)
+  :if (>= emacs-major-version 24)
+  :defer t
   :config
   (setq gdb-many-windows nil))
 
