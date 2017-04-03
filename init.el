@@ -275,6 +275,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; , applescript
 (use-package applescript-mode
+  :load-path "site-lisp/applescript-mode"
   :mode ("\\.scpt\\'" . applescript-mode))
 
 ;;; anything -- because anything's better than nothing
@@ -284,6 +285,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 (use-package anything-config
   :if (or (< emacs-major-version 24)
 	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :load-path "site-lisp/anything"
   :commands anything
   :bind (("C-c M-x" . anything-M-x)
 	 ("C-h a"   . anything-c-apropos)
@@ -751,6 +753,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 ;; This is an extension of zencoding-mode
 (use-package emmet-mode
   :commands emmet-mode
+  :load-path "site-lisp/emmet-mode"
   :init
   (progn
     (add-hook 'nxml-mode-hook 'emmet-mode)
@@ -768,6 +771,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 (use-package elpy
   :if (>= emacs-major-version 24)
   :commands elpy-mode
+  :load-path "site-lisp/elpy"
   :init
   (progn
    (add-hook 'python-mode-hook 'elpy-mode))
@@ -779,6 +783,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
 ;;; find-file-in-project
 (use-package find-file-in-project
+  :load-path "site-lisp/find-file-in-project"
   :bind (("C-c C-f" . find-file-in-project))
   :init
   (defalias 'ffip 'find-file-in-project))
@@ -956,6 +961,7 @@ which is an error according to some typographical conventions."
 
 ;;; graphviz dot mode
 (use-package graphviz-dot-mode
+  :load-path "site-lisp/graphviz"
   :mode (("\\.dot\\'" . graphviz-dot-mode)
 	 ("\\.gv\\'" . graphviz-dot-mode)))
 
@@ -991,6 +997,7 @@ which is an error according to some typographical conventions."
     (use-package helm-gtags
       :if (or (> emacs-major-version 24)
 	      (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+      :load-path "site-lisp/helm-gtags"
       :bind ("M-T" . helm-gtags-select)
       :config
       (progn
@@ -1131,6 +1138,7 @@ a argument to perform the pop instead.."
       :init
       (fset 'describe-bindings 'helm-descbinds))
     (use-package helm-swoop
+      :load-path "site-lisp/helm-swoop"
       :bind ("M-s o" . helm-swoop))
     (unless (eq system-type 'windows-nt)
       (bind-key "M-x" 'helm-M-x)))
@@ -1313,6 +1321,7 @@ cf. https://github.com/jwiegley/dot-emacs."
 (use-package flymake-jshint
   :commands flymake-jshint-init
   :defines jshint-mode-node-program
+  :load-path "site-lisp/jshint-mode"
   :init
   (progn
     (add-hook 'js-mode-hook 'flymake-mode-on)
@@ -1396,6 +1405,7 @@ cf. https://github.com/jwiegley/dot-emacs."
 (use-package web-beautify
   :defer t
   :commands (web-beautify-css web-beautify-html web-beautify-js)
+  :load-path "site-lisp/web-beautify"
   :init
   (progn
     (use-package js
@@ -1636,6 +1646,7 @@ and the basename of the executable.")
 
 (use-package c-eldoc
   :commands c-turn-on-eldoc-mode
+  :load-path "site-lisp/c-eldoc"
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
 
 ;;; Markdown
@@ -1992,22 +2003,26 @@ Each alist element in `skeleton-pair-alist' and
 (use-package skewer-mode
   :commands skewer-mode
   :defines skewer-mode-map
+  :load-path "site-lisp/skewer-mode"
   :bind (:map skewer-mode-map ("C-c C-z" . skewer-repl))
   :init
   (progn (add-hook 'js-mode-hook 'skewer-mode)
 	 (add-hook 'js2-mode-hook 'skewer-mode)))
 (use-package skewer-css
   :commands skewer-css-mode
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn
     (add-hook 'css-mode-hook 'skewer-css-mode)))
 (use-package skewer-html
   :commands skewer-html-mode
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn
     (add-hook 'html-mode-hook 'skewer-html-mode)))
 (use-package skewer-repl
   :commands (skewer-repl skewer-repl--response-hook)
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn
     (add-hook 'skewer-response-hook #'skewer-repl--response-hook)
