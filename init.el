@@ -107,11 +107,13 @@ these out-of-tree directories."
 
 (eval-when-compile
   (let ((now (current-time)))
-    (if use-package-verbose (message "Loading package use-package..."))
+    (if (and (boundp 'use-package-verbose) use-package-verbose)
+	(message "Loading package use-package..."))
     (require 'use-package)
     (let ((elapsed (float-time (time-subtract (current-time) now))))
       (if use-package-verbose
-	  (if (> elapsed use-package-minimum-reported-time)
+	  (if (and (boundp 'use-package-minimum-reported-time)
+		   (> elapsed use-package-minimum-reported-time))
 	      (message "Loading package use-package...done (%.3fs)" elapsed)
 	    (message "Loading package use-package...done"))))))
 
