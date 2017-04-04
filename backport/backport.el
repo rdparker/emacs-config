@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(require 'rdp-functions)
+
 (when (< emacs-major-version 23)
   (defun daemonp ()
     "Return non-nil if the current emacs process is a daemon.
