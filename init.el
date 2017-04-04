@@ -22,14 +22,6 @@
 
 (eval-when-compile (require 'cl))
 
-(defun emacs>= (version)
-  "Returns t if `emacs-version' is greater than or equal to VERSION."
-  (let* ((major (floor version))
-	 (minor (round (* 10 (- version major)))))
-    (or (> emacs-major-version major)
-	(and (= emacs-major-version major)
-	     (>= emacs-minor-version minor)))))
-
 ;; The `user-emacs-directory' variable, did not exist before Emacs 23.
 ;; Make sure it's defined.
 (unless (boundp 'user-emacs-directory)

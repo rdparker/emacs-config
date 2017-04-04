@@ -1,6 +1,6 @@
 ;;; rdp-functions.el --- functions that extend emacs
 
-;; Copyright (C) 2013  Ron Parker
+;; Copyright (C) 2013, 2017  Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: extensions
@@ -147,6 +147,14 @@ system when a shared network home directory is used."
 This is useful for keeping separate data and history files when
 using a network-based shared `user-emacs-directory'."
   (expand-file-name (per-system-file-name name) user-data-directory))
+
+(defun emacs>= (version)
+  "Returns t if `emacs-version' is greater than or equal to VERSION."
+  (let* ((major (floor version))
+	 (minor (round (* 10 (- version major)))))
+    (or (> emacs-major-version major)
+	(and (= emacs-major-version major)
+	     (>= emacs-minor-version minor)))))
 
 (provide 'rdp-functions)
 ;;; rdp-functions.el ends here
