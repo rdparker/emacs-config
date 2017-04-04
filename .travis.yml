@@ -6,10 +6,10 @@ env:
   - EVM_EMACS=emacs-25.1-travis
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > travis.sh && source ./travis.sh
-  - evm install $EVM_EMACS --use --skip
+  - evm install "$EVM_EMACS" --use --skip
   - cask
 install:
   - cask install
 script:
   - emacs --version
-  - cask exec buttercup -L .
+  - cask exec make test

@@ -1,5 +1,8 @@
 all: subtrees
 
+test:
+	emacs --batch --exec '(setq user-init-file "init.el")' -l init.el -f buttercup-run-discover ./tests
+
 subtrees:
 	-git remote add yaml-mode https://github.com/yoshiki/yaml-mode.git
 	-git remote add switch-window https://github.com/dimitri/switch-window.git
