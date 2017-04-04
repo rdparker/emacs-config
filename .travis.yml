@@ -12,6 +12,6 @@ install:
   - cask install
 script:
   - emacs --version
-  - mkdir ~/.emacs.d
+  - mkdir ~/.emacs.d || ls ~/.emacs.d
   - cp -prd . ~/.emacs.d
   - cask exec make -C ~/.emacs.d test
