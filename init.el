@@ -215,6 +215,11 @@ are named \"Emacs[A-Za-z]*.app\".")
 	 'default-tab-width)		; obsoleted in 23.2
      8)
 
+(use-repo-package buttercup
+  :ensure t
+  :pin melpa-stable
+  :commands buttercup-run-discover)
+
 (use-package dired-config)
 (use-package multiple-cursors-config)
 
