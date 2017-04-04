@@ -98,7 +98,7 @@ these out-of-tree directories."
 ;;	    use-package-minimum-reported-time 0.0))
 ;;
 (eval-and-compile
-  (add-to-load-path "site-lisp/use-package")
+  (add-to-load-path "site-lisp/use-package-24.3+")
   (setq use-package-verbose nil)
   (unless (and (boundp 'use-package-quiet) use-package-quiet)
     (setq use-package-minimum-reported-time 0.0
