@@ -896,7 +896,7 @@ which is an error according to some typographical conventions."
    `(use-package magit
       :bind (("C-x g" . magit-status)
 	     ("C-x G" . magit-status-with-prefix))
-      :commands (magit-init magit-git-command)
+      :commands (magit-init magit-git-command magit-version)
       :load-path ,magit-path
       :init
       (use-package with-editor
