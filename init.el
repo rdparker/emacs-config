@@ -46,15 +46,11 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
+;; This is written as an Emacs 24.4+ advice function, but since I
+;; still use older versions of Emacs, I use a `defadvice' wrapper
+;; below to call it.
 (defun add-byte-compile-targets (args)
-  "Add byte-compile directories to `use-package' :load-path.
-
-To give `use-package' the same out-of-tree byte-compilation directory
-support that `add-to-load-path' has, apply this as :filter-args advice
-on `use-package-normalize-paths'.
-
-See `byte-compile-target-directory' for a detailed explanation of
-these out-of-tree directories."
+  "Add byte-compile directories for `use-package-normalize-paths'."
   (let ((label (first args))
 	(arg (second args))
 	(recursed (cddr args)))
@@ -82,7 +78,23 @@ these out-of-tree directories."
 			(expand-file-name (car x) user-emacs-directory))))
 	       arg))
 	(list label arg recursed)))))
-(advice-add 'use-package-normalize-paths :filter-args #'add-byte-compile-targets)
+
+;; This is the pre-Emacs 24.4 equivalent of
+;;
+;;   (advice-add 'use-package-normalize-paths
+;;	         :filter-args #'add-byte-compile-targets)
+;;
+;; with documentation added.
+(defadvice use-package-normalize-paths (before add-elc-paths-for-use-package)
+  "Add byte-compile directories to `use-package' :load-path.
+
+To give `use-package' the same out-of-tree byte-compilation directory
+support that `add-to-load-path' has, apply this as :filter-args advice
+on `use-package-normalize-paths'.
+
+See `byte-compile-target-directory' for a detailed explanation of
+these out-of-tree directories."
+  (ad-set-arg 1 (second (add-byte-compile-targets (ad-get-args 0)))))
 
 ;;; Pretend use-package is loading itself like this, so we get timing
 ;;; information when desired:
