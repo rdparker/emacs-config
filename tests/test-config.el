@@ -38,7 +38,9 @@
 
 (describe "My configuration"
   (it "loaded my functions"
-    (expect features :to-contain 'rdp-functions)))
+      (expect features :to-contain 'rdp-functions))
+  (it "has a proper magit-version number"
+      (expect (magit-version) :not :to-be 'error)))
 
 (provide 'test-config)
 ;;; test-config.el ends here
