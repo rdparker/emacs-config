@@ -1,6 +1,6 @@
 ;;; backport.el --- backport simple features to earlier Emacs
 
-;; Copyright (C) 2014 Ron Parker
+;; Copyright (C) 2014, 2017 Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: lisp
@@ -35,6 +35,11 @@ If the daemon was given a name argument, return that name."
 (when (< emacs-major-version 24)
   (defun get-scroll-bar-mode ()
     scroll-bar-mode))
+
+(unless (emacs>= 24.3)
+  (defun macroexp-progn (exps)
+  "Return an expression equivalent to `(progn ,@EXPS)."
+  (if (cdr exps) `(progn ,@exps) (car exps))))
 
 (provide 'backport)
 ;;; backport.el ends here
