@@ -1,7 +1,10 @@
 all: subtrees
 
 test:
-	emacs --batch --exec '(setq user-init-file "init.el")' -l init.el -f buttercup-run-discover ./tests
+	emacs --batch								\
+	      --exec '(setq use-package-quiet t user-init-file "init.el")'	\
+	      -l init.el							\
+	      -f buttercup-run-discover ./tests
 
 subtrees:
 	-git remote add yaml-mode https://github.com/yoshiki/yaml-mode.git

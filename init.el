@@ -95,15 +95,17 @@ these out-of-tree directories."
 ;;
 (eval-and-compile
   (add-to-load-path "site-lisp/use-package")
-  (setq use-package-minimum-reported-time 0.0
-	;; nil and t don't need to be quoted it's just to maintain
-	;; alignment regardless of whether an option is commented out
-	;; or not.
-	use-package-verbose
-	;; 'nil			; quiet
-	;; 't			; verbose
-	'debug			; debug
-	))
+  (setq use-package-verbose nil)
+  (unless (and (boundp 'use-package-quiet) use-package-quiet)
+    (setq use-package-minimum-reported-time 0.0
+	  ;; nil and t don't need to be quoted it's just to maintain
+	  ;; alignment regardless of whether an option is commented out
+	  ;; or not.
+	  use-package-verbose
+	  ;; 'nil			; quiet
+	  ;; 't				; verbose
+	  'debug			; debug
+	  )))
 
 (eval-when-compile
   (let ((now (current-time)))
