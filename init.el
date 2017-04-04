@@ -122,6 +122,7 @@ these out-of-tree directories."
 	    (message "Loading package use-package...done"))))))
 
 (eval-when-compile
+  (require 'backport)
   (use-package use-repo-package))
 (use-package diminish :defer t :load-path "site-lisp/diminish")
 (use-package bind-key
@@ -129,9 +130,6 @@ these out-of-tree directories."
   :load-path "site-lisp/use-package"
   :defines personal-keybindings)
 
-(use-package backport
-  :defer t
-  :defines (daemonp get-scroll-bar-mode))
 (use-package rdp-functions :load-path "lisp")
 (eval-when-compile
   (use-package rdp-macs))
