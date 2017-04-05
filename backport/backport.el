@@ -36,7 +36,20 @@ If the daemon was given a name argument, return that name."
 
 (when (< emacs-major-version 24)
   (defun get-scroll-bar-mode ()
-    scroll-bar-mode))
+    scroll-bar-mode)
+
+  (defmacro condition-case-unless-debug (var bodyform &rest handlers)
+    "Like `condition-case' except that it does not prevent debugging.
+More specifically if `debug-on-error' is set then the debugger will be invoked
+even if this catches the signal."
+    (declare (debug condition-case) (indent 2))
+    `(condition-case ,var
+	 ,bodyform
+       ,@(mapcar (lambda (handler)
+		   `((debug ,@(if (listp (car handler)) (car handler)
+				(list (car handler))))
+		     ,@(cdr handler)))
+		 handlers))))
 
 (unless (emacs>= 24.3)
   (defun macroexp-progn (exps)
