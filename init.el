@@ -22,14 +22,6 @@
 
 (eval-when-compile (require 'cl))
 
-(defun emacs>= (version)
-  "Returns t if `emacs-version' is greater than or equal to VERSION."
-  (let* ((major (floor version))
-	 (minor (round (* 10 (- version major)))))
-    (or (> emacs-major-version major)
-	(and (= emacs-major-version major)
-	     (>= emacs-minor-version minor)))))
-
 ;; The `user-emacs-directory' variable, did not exist before Emacs 23.
 ;; Make sure it's defined.
 (unless (boundp 'user-emacs-directory)
@@ -46,15 +38,11 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
+;; This is written as an Emacs 24.4+ advice function, but since I
+;; still use older versions of Emacs, I use a `defadvice' wrapper
+;; below to call it.
 (defun add-byte-compile-targets (args)
-  "Add byte-compile directories to `use-package' :load-path.
-
-To give `use-package' the same out-of-tree byte-compilation directory
-support that `add-to-load-path' has, apply this as :filter-args advice
-on `use-package-normalize-paths'.
-
-See `byte-compile-target-directory' for a detailed explanation of
-these out-of-tree directories."
+  "Add byte-compile directories for `use-package-normalize-paths'."
   (let ((label (first args))
 	(arg (second args))
 	(recursed (cddr args)))
@@ -82,7 +70,23 @@ these out-of-tree directories."
 			(expand-file-name (car x) user-emacs-directory))))
 	       arg))
 	(list label arg recursed)))))
-(advice-add 'use-package-normalize-paths :filter-args #'add-byte-compile-targets)
+
+;; This is the pre-Emacs 24.4 equivalent of
+;;
+;;   (advice-add 'use-package-normalize-paths
+;;	         :filter-args #'add-byte-compile-targets)
+;;
+;; with documentation added.
+(defadvice use-package-normalize-paths (before add-elc-paths-for-use-package)
+  "Add byte-compile directories to `use-package' :load-path.
+
+To give `use-package' the same out-of-tree byte-compilation directory
+support that `add-to-load-path' has, apply this as :filter-args advice
+on `use-package-normalize-paths'.
+
+See `byte-compile-target-directory' for a detailed explanation of
+these out-of-tree directories."
+  (ad-set-arg 1 (second (add-byte-compile-targets (ad-get-args 0)))))
 
 ;;; Pretend use-package is loading itself like this, so we get timing
 ;;; information when desired:
@@ -94,28 +98,36 @@ these out-of-tree directories."
 ;;	    use-package-minimum-reported-time 0.0))
 ;;
 (eval-and-compile
-  (add-to-load-path "site-lisp/use-package")
-  (setq use-package-minimum-reported-time 0.0
-	;; nil and t don't need to be quoted it's just to maintain
-	;; alignment regardless of whether an option is commented out
-	;; or not.
-	use-package-verbose
-	;; 'nil			; quiet
-	;; 't			; verbose
-	'debug			; debug
-	))
+  (require 'rdp-functions)
+  (add-to-load-path (if (emacs>= 24.3)
+			"site-lisp/use-package-24.3+"
+		      "site-lisp/use-package-24.2-"))
+  (setq use-package-verbose nil)
+  (unless (and (boundp 'use-package-quiet) use-package-quiet)
+    (setq use-package-minimum-reported-time 0.0
+	  ;; nil and t don't need to be quoted it's just to maintain
+	  ;; alignment regardless of whether an option is commented out
+	  ;; or not.
+	  use-package-verbose
+	  ;; 'nil			; quiet
+	  ;; 't				; verbose
+	  'debug			; debug
+	  )))
 
 (eval-when-compile
   (let ((now (current-time)))
-    (if use-package-verbose (message "Loading package use-package..."))
+    (if (and (boundp 'use-package-verbose) use-package-verbose)
+	(message "Loading package use-package..."))
     (require 'use-package)
     (let ((elapsed (float-time (time-subtract (current-time) now))))
       (if use-package-verbose
-	  (if (> elapsed use-package-minimum-reported-time)
+	  (if (and (boundp 'use-package-minimum-reported-time)
+		   (> elapsed use-package-minimum-reported-time))
 	      (message "Loading package use-package...done (%.3fs)" elapsed)
 	    (message "Loading package use-package...done"))))))
 
 (eval-when-compile
+  (require 'backport)
   (use-package use-repo-package))
 (use-package diminish :defer t :load-path "site-lisp/diminish")
 (use-package bind-key
@@ -123,9 +135,6 @@ these out-of-tree directories."
   :load-path "site-lisp/use-package"
   :defines personal-keybindings)
 
-(use-package backport
-  :defer t
-  :defines (daemonp get-scroll-bar-mode))
 (use-package rdp-functions :load-path "lisp")
 (eval-when-compile
   (use-package rdp-macs))
@@ -188,11 +197,20 @@ are named \"Emacs[A-Za-z]*.app\".")
       (expand-file-name (concat "elpa/emacs-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
 
-;; TODO: Consider extracting the other package paths from use-repo-package.el.
-(eval-after-load "package"
-  ;; Melpa addition borrowed from Sacha's init
-  '(unless (assoc-default "melpa" package-archives)
-     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)))
+(use-package package
+  :defer t
+  :config
+  ;; The idea for conditionally adding package archives came from
+  ;; Sacha's init.  This will add a package archive, but only if it
+  ;; does not exist already regardless of whether or not the location
+  ;; is the same.
+  (mapc (lambda (x)
+	  (unless (assoc-default (car x) package-archives)
+	    (add-to-list 'package-archives x t)))
+	'(("melpa" . "http://melpa.org/packages/")
+	  ("melpa-stable" . "http://stable.melpa.org/packages/")
+	  ("org" . "http://orgmode.org/elpa/")
+	  ("elpy" . "http://jorgenschaefer.github.io/packages/"))))
 
 ;;; Legacy package configuration
 
@@ -205,6 +223,11 @@ are named \"Emacs[A-Za-z]*.app\".")
 	   'tab-width
 	 'default-tab-width)		; obsoleted in 23.2
      8)
+
+(use-repo-package buttercup
+  :ensure t
+  :pin melpa-stable
+  :commands buttercup-run-discover)
 
 (use-package dired-config)
 (use-package multiple-cursors-config)
@@ -275,6 +298,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 
 ;;; , applescript
 (use-package applescript-mode
+  :load-path "site-lisp/applescript-mode"
   :mode ("\\.scpt\\'" . applescript-mode))
 
 ;;; anything -- because anything's better than nothing
@@ -282,8 +306,8 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;
 ;;  See `helm' below for newer Emacsen.
 (use-package anything-config
-  :if (or (< emacs-major-version 24)
-	  (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+  :if (not (emacs>= 24.3))
+  :load-path "site-lisp/anything"
   :commands anything
   :bind (("C-c M-x" . anything-M-x)
 	 ("C-h a"   . anything-c-apropos)
@@ -345,7 +369,7 @@ are named \"Emacs[A-Za-z]*.app\".")
     (add-to-list 'ac-dictionary-directories custom-ac-dict-dir))
 
   ;; Keep the ~/.emacs.d directory clean
-  (setq ac-comphist-file (expand-file-name "ac-comphist.dat" user-data-directory))
+  (setq ac-comphist-file (per-system-data-file "ac-comphist.dat"))
 
   (add-hook 'lisp-mode-hook (lambda ()
 			      (add-to-list 'ac-sources 'ac-source-slime)))
@@ -396,10 +420,23 @@ are named \"Emacs[A-Za-z]*.app\".")
       (setq exec-path path))))
 
 (use-package w3m
-  :commands (w3m w3m-browse-url))
-(condition-case ()
-	(use-package w3-auto)
-	(error nil))
+  :commands (w3m w3m-browse-url)
+  :load-path "site-lisp/emacs-w3m")
+
+(use-repo-package w3
+  :ensure t
+  :defer t
+  :init
+  ;; Lie to `w3-find-default-stylesheets' about it's configuration
+  ;; directory so that it finds the stylesheet which is located with
+  ;; the source .el.  Otherwise, because I have advised `use-package'
+  ;; to add separate compiled directories to the `load-path' and
+  ;; because the list of directories is checks is very odd, it will
+  ;; not find them.
+  (defadvice w3-find-default-stylesheets (around find-w3-stylesheet)
+    (let ((w3-configuration-directory
+	   (expand-file-name "etc" (file-name-directory (locate-library "w3.el")))))
+      ad-do-it)))
 
 ;;; Daemon mode
 (defun shutdown-emacs-server ()
@@ -446,7 +483,7 @@ called once a user interface has been started."
 	(progn
 	  (setq desktop-load-locked-desktop 'ask
 		;; Shared home directories need a per-host desktop files.
-		desktop-base-file-name (concat ".emacs.desktop." (system-name))
+		desktop-base-file-name (per-system-file-name ".emacs.desktop")
 		desktop-base-lock-name (concat desktop-base-file-name ".lock")
 		desktop-dirname user-data-directory)
 	  (desktop-save-mode 1)
@@ -654,9 +691,9 @@ it."
 
 ;;; email
 (use-package message
-  :bind (:map message-mode-map
-	      ("C-c C-f C-o" . my-change-from))
   :config
+  (bind-keys :map message-mode-map
+	     ("C-c C-f C-o" . my-change-from))
 
   (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
   (unless (featurep 'gnus-start)
@@ -751,6 +788,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 ;; This is an extension of zencoding-mode
 (use-package emmet-mode
   :commands emmet-mode
+  :load-path "site-lisp/emmet-mode"
   :init
   (progn
     (add-hook 'nxml-mode-hook 'emmet-mode)
@@ -768,6 +806,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 (use-package elpy
   :if (>= emacs-major-version 24)
   :commands elpy-mode
+  :load-path "site-lisp/elpy"
   :init
   (progn
    (add-hook 'python-mode-hook 'elpy-mode))
@@ -779,6 +818,7 @@ This also updates the \"X-Message-SMTP-Method\" header."
 
 ;;; find-file-in-project
 (use-package find-file-in-project
+  :load-path "site-lisp/find-file-in-project"
   :bind (("C-c C-f" . find-file-in-project))
   :init
   (defalias 'ffip 'find-file-in-project))
@@ -828,25 +868,25 @@ which is an error according to some typographical conventions."
 
 ;;; frame
 (use-package frame
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  :if (emacs>= 24.4)
   :bind ("C-M-S-f" . toggle-frame-fullscreen))
 
 (use-package fullscreen
   :bind ("M-RET" . toggle-fullscreen)
   :init
-  (unless (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 4)))
+  (unless (emacs>= 24.4)
     (bind-key "C-M-S-F" 'toggle-frame-fullscreen)))
 
 ;;; gdb
 (use-package gdb-ui
-  :if (<= emacs-minor-version 23)
+  :if (<= emacs-major-version 23)
+  :defer t
   :config
   (setq gdb-many-windows nil))
 
 (use-package gdb-mi
-  :if (>= emacs-minor-version 24)
+  :if (>= emacs-major-version 24)
+  :defer t
   :config
   (setq gdb-many-windows nil))
 
@@ -880,7 +920,7 @@ which is an error according to some typographical conventions."
    `(use-package magit
       :bind (("C-x g" . magit-status)
 	     ("C-x G" . magit-status-with-prefix))
-      :commands (magit-init magit-git-command)
+      :commands (magit-init magit-git-command magit-version)
       :load-path ,magit-path
       :init
       (use-package with-editor
@@ -956,6 +996,7 @@ which is an error according to some typographical conventions."
 
 ;;; graphviz dot mode
 (use-package graphviz-dot-mode
+  :load-path "site-lisp/graphviz"
   :mode (("\\.dot\\'" . graphviz-dot-mode)
 	 ("\\.gv\\'" . graphviz-dot-mode)))
 
@@ -989,8 +1030,8 @@ which is an error according to some typographical conventions."
   :init
   (progn
     (use-package helm-gtags
-      :if (or (> emacs-major-version 24)
-	      (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+      :if (emacs>= 24.3)
+      :load-path "site-lisp/helm-gtags"
       :bind ("M-T" . helm-gtags-select)
       :config
       (progn
@@ -998,8 +1039,7 @@ which is an error according to some typographical conventions."
 	(bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
     (use-package anything-gtags
-      :if (or (< emacs-major-version 24)
-	      (and (= emacs-major-version 24) (< emacs-minor-version 3)))
+      :if (not (emacs>= 24.3))
       :bind ("M-T" . anything-gtags-select)
       :config
       (progn
@@ -1114,8 +1154,7 @@ a argument to perform the pop instead.."
 ;;
 ;; See `anything' above for older Emacsen.
 (use-package helm-config
-  :if (or (> emacs-major-version 24)
-	  (and (= emacs-major-version 24) (>= emacs-minor-version 3)))
+  :if (emacs>= 24.3)
   :load-path "site-lisp/helm"
   :bind (("C-c M-x" . helm-M-x)
 	 ("C-h a"   . helm-apropos)
@@ -1131,6 +1170,7 @@ a argument to perform the pop instead.."
       :init
       (fset 'describe-bindings 'helm-descbinds))
     (use-package helm-swoop
+      :load-path "site-lisp/helm-swoop"
       :bind ("M-s o" . helm-swoop))
     (unless (eq system-type 'windows-nt)
       (bind-key "M-x" 'helm-M-x)))
@@ -1267,8 +1307,7 @@ a argument to perform the pop instead.."
     (when (featurep 'cl-lib)
       (flx-ido-mode 1))
     (setq ido-use-virtual-buffers t
-	  ido-save-directory-list-file (expand-file-name ".ido.last"
-							 user-data-directory))
+	  ido-save-directory-list-file (per-system-data-file ".ido.last"))
 
     (defun ido-switch-buffer-tiny-frame (buffer)
       "Display BUFFER in a separate tiny frame.
@@ -1314,6 +1353,7 @@ cf. https://github.com/jwiegley/dot-emacs."
 (use-package flymake-jshint
   :commands flymake-jshint-init
   :defines jshint-mode-node-program
+  :load-path "site-lisp/jshint-mode"
   :init
   (progn
     (add-hook 'js-mode-hook 'flymake-mode-on)
@@ -1397,6 +1437,7 @@ cf. https://github.com/jwiegley/dot-emacs."
 (use-package web-beautify
   :defer t
   :commands (web-beautify-css web-beautify-html web-beautify-js)
+  :load-path "site-lisp/web-beautify"
   :init
   (progn
     (use-package js
@@ -1637,20 +1678,24 @@ and the basename of the executable.")
 
 (use-package c-eldoc
   :commands c-turn-on-eldoc-mode
+  :load-path "site-lisp/c-eldoc"
   :init (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode))
 
 ;;; Markdown
 (use-package markdown-mode
-  :defines markdown-command
-  :mode (("\\.markdown" . markdown-mode)
-	 ("\\.md" . markdown-mode)
-	 ("\\.mdwn" . markdown-mode))
+  :load-path "site-lisp/markdown"
+  :defines (markdown-mode gfm-mode)
+  ;; `use-package' adds modes to `auto-mode-alist` in reverse order.
+  :mode (("\\.mdwn\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("README\.md\\'" . gfm-mode))	; GFM takes precedence for README.md
   :init (add-hook 'markdown-mode-hook
-	  (lambda ()
-	    (auto-fill-mode 1)))
-  :config (when (and (not (executable-find "markdown"))
-		     (executable-find "markdown_py"))
-	    (setq markdown-command "markdown_py")))
+		  (lambda ()
+		    (auto-fill-mode 1)))
+  :config (setq markdown-command
+		(cl-find-if #'executable-find
+			    '("multimarkdown" "markdown" "markdown_py"))))
 
 ;;; Maxima
 (add-to-list 'load-path "/usr/local/share/maxima/5.25.1/emacs/")
@@ -1731,11 +1776,10 @@ the nobreak spaces in the powerline shell prompt."
   (add-hook 'prog-mode-hook 'projectile-on)
   :config
   (progn
-    (setq projectile-mode-line-lighter "P")
-    (setq projectile-known-projects-file
-	  (expand-file-name "projectile-bookmarks.eld" user-data-directory))
-    (setq projectile-cache-file
-	  (expand-file-name "projectile.cache" user-data-directory))))
+    (setq projectile-mode-line-lighter "P"
+	  projectile-known-projects-file (per-system-file-name
+					  "projectile-bookmarks.eld")
+	  projectile-cache-file (per-system-file-name "projectile.cache"))))
 
 ;;; Python
 
@@ -1888,8 +1932,7 @@ the nobreak spaces in the powerline shell prompt."
 ;;; recentf
 (use-package recentf
   :config
-  (setq recentf-save-file
-	(expand-file-name (concat ".recentf." (system-name)) user-data-directory)))
+  (setq recentf-save-file (per-system-data-file ".recentf")))
 
 ;;; revert
 (setq revert-without-query '("\.xml$"))
@@ -1938,7 +1981,8 @@ the nobreak spaces in the powerline shell prompt."
 
       (unless (or noninteractive
 		  alternate-emacs
-		  (eq 'listen (process-status server-process)))
+		  (and server-process
+		       (eq 'listen (process-status server-process))))
 	(server-start))))
   
   :config
@@ -1991,22 +2035,27 @@ Each alist element in `skeleton-pair-alist' and
 (use-package skewer-mode
   :commands skewer-mode
   :defines skewer-mode-map
-  :bind (:map skewer-mode-map ("C-c C-z" . skewer-repl))
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn (add-hook 'js-mode-hook 'skewer-mode)
-	 (add-hook 'js2-mode-hook 'skewer-mode)))
+	 (add-hook 'js2-mode-hook 'skewer-mode))
+  :config
+  (bind-keys :map skewer-mode-map ("C-c C-z" . skewer-repl)))
 (use-package skewer-css
   :commands skewer-css-mode
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn
     (add-hook 'css-mode-hook 'skewer-css-mode)))
 (use-package skewer-html
   :commands skewer-html-mode
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn
     (add-hook 'html-mode-hook 'skewer-html-mode)))
 (use-package skewer-repl
   :commands (skewer-repl skewer-repl--response-hook)
+  :load-path "site-lisp/skewer-mode"
   :init
   (progn
     (add-hook 'skewer-response-hook #'skewer-repl--response-hook)

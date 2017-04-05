@@ -1,6 +1,6 @@
 ;;; backport.el --- backport simple features to earlier Emacs
 
-;; Copyright (C) 2014 Ron Parker
+;; Copyright (C) 2014, 2017 Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: lisp
@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(require 'rdp-functions)
+
 (when (< emacs-major-version 23)
   (defun daemonp ()
     "Return non-nil if the current emacs process is a daemon.
@@ -34,7 +36,25 @@ If the daemon was given a name argument, return that name."
 
 (when (< emacs-major-version 24)
   (defun get-scroll-bar-mode ()
-    scroll-bar-mode))
+    scroll-bar-mode)
+
+  (defmacro condition-case-unless-debug (var bodyform &rest handlers)
+    "Like `condition-case' except that it does not prevent debugging.
+More specifically if `debug-on-error' is set then the debugger will be invoked
+even if this catches the signal."
+    (declare (debug condition-case) (indent 2))
+    `(condition-case ,var
+	 ,bodyform
+       ,@(mapcar (lambda (handler)
+		   `((debug ,@(if (listp (car handler)) (car handler)
+				(list (car handler))))
+		     ,@(cdr handler)))
+		 handlers))))
+
+(unless (emacs>= 24.3)
+  (defun macroexp-progn (exps)
+  "Return an expression equivalent to `(progn ,@EXPS)."
+  (if (cdr exps) `(progn ,@exps) (car exps))))
 
 (provide 'backport)
 ;;; backport.el ends here
