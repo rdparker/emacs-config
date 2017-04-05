@@ -22,14 +22,6 @@
 
 (eval-when-compile (require 'cl))
 
-(defun emacs>= (version)
-  "Returns t if `emacs-version' is greater than or equal to VERSION."
-  (let* ((major (floor version))
-	 (minor (round (* 10 (- version major)))))
-    (or (> emacs-major-version major)
-	(and (= emacs-major-version major)
-	     (>= emacs-minor-version minor)))))
-
 ;; The `user-emacs-directory' variable, did not exist before Emacs 23.
 ;; Make sure it's defined.
 (unless (boundp 'user-emacs-directory)
@@ -46,15 +38,11 @@ Note that this should end with a directory separator."))
 
 (load (expand-file-name "load-path" user-emacs-directory))
 
+;; This is written as an Emacs 24.4+ advice function, but since I
+;; still use older versions of Emacs, I use a `defadvice' wrapper
+;; below to call it.
 (defun add-byte-compile-targets (args)
-  "Add byte-compile directories to `use-package' :load-path.
-
-To give `use-package' the same out-of-tree byte-compilation directory
-support that `add-to-load-path' has, apply this as :filter-args advice
-on `use-package-normalize-paths'.
-
-See `byte-compile-target-directory' for a detailed explanation of
-these out-of-tree directories."
+  "Add byte-compile directories for `use-package-normalize-paths'."
   (let ((label (first args))
 	(arg (second args))
 	(recursed (cddr args)))
@@ -82,7 +70,23 @@ these out-of-tree directories."
 			(expand-file-name (car x) user-emacs-directory))))
 	       arg))
 	(list label arg recursed)))))
-(advice-add 'use-package-normalize-paths :filter-args #'add-byte-compile-targets)
+
+;; This is the pre-Emacs 24.4 equivalent of
+;;
+;;   (advice-add 'use-package-normalize-paths
+;;	         :filter-args #'add-byte-compile-targets)
+;;
+;; with documentation added.
+(defadvice use-package-normalize-paths (before add-elc-paths-for-use-package)
+  "Add byte-compile directories to `use-package' :load-path.
+
+To give `use-package' the same out-of-tree byte-compilation directory
+support that `add-to-load-path' has, apply this as :filter-args advice
+on `use-package-normalize-paths'.
+
+See `byte-compile-target-directory' for a detailed explanation of
+these out-of-tree directories."
+  (ad-set-arg 1 (second (add-byte-compile-targets (ad-get-args 0)))))
 
 ;;; Pretend use-package is loading itself like this, so we get timing
 ;;; information when desired:
@@ -94,16 +98,21 @@ these out-of-tree directories."
 ;;	    use-package-minimum-reported-time 0.0))
 ;;
 (eval-and-compile
-  (add-to-load-path "site-lisp/use-package")
-  (setq use-package-minimum-reported-time 0.0
-	;; nil and t don't need to be quoted it's just to maintain
-	;; alignment regardless of whether an option is commented out
-	;; or not.
-	use-package-verbose
-	;; 'nil			; quiet
-	;; 't			; verbose
-	'debug			; debug
-	))
+  (require 'rdp-functions)
+  (add-to-load-path (if (emacs>= 24.3)
+			"site-lisp/use-package-24.3+"
+		      "site-lisp/use-package-24.2-"))
+  (setq use-package-verbose nil)
+  (unless (and (boundp 'use-package-quiet) use-package-quiet)
+    (setq use-package-minimum-reported-time 0.0
+	  ;; nil and t don't need to be quoted it's just to maintain
+	  ;; alignment regardless of whether an option is commented out
+	  ;; or not.
+	  use-package-verbose
+	  ;; 'nil			; quiet
+	  ;; 't				; verbose
+	  'debug			; debug
+	  )))
 
 (eval-when-compile
   (let ((now (current-time)))
@@ -118,6 +127,7 @@ these out-of-tree directories."
 	    (message "Loading package use-package...done"))))))
 
 (eval-when-compile
+  (require 'backport)
   (use-package use-repo-package))
 (use-package diminish :defer t :load-path "site-lisp/diminish")
 (use-package bind-key
@@ -125,9 +135,6 @@ these out-of-tree directories."
   :load-path "site-lisp/use-package"
   :defines personal-keybindings)
 
-(use-package backport
-  :defer t
-  :defines (daemonp get-scroll-bar-mode))
 (use-package rdp-functions :load-path "lisp")
 (eval-when-compile
   (use-package rdp-macs))
@@ -190,11 +197,20 @@ are named \"Emacs[A-Za-z]*.app\".")
       (expand-file-name (concat "elpa/emacs-" emacs-version) user-emacs-directory))
 (add-to-load-path-recursively package-user-dir)
 
-;; TODO: Consider extracting the other package paths from use-repo-package.el.
-(eval-after-load "package"
-  ;; Melpa addition borrowed from Sacha's init
-  '(unless (assoc-default "melpa" package-archives)
-     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)))
+(use-package package
+  :defer t
+  :config
+  ;; The idea for conditionally adding package archives came from
+  ;; Sacha's init.  This will add a package archive, but only if it
+  ;; does not exist already regardless of whether or not the location
+  ;; is the same.
+  (mapc (lambda (x)
+	  (unless (assoc-default (car x) package-archives)
+	    (add-to-list 'package-archives x t)))
+	'(("melpa" . "http://melpa.org/packages/")
+	  ("melpa-stable" . "http://stable.melpa.org/packages/")
+	  ("org" . "http://orgmode.org/elpa/")
+	  ("elpy" . "http://jorgenschaefer.github.io/packages/"))))
 
 ;;; Legacy package configuration
 
@@ -207,6 +223,11 @@ are named \"Emacs[A-Za-z]*.app\".")
 	   'tab-width
 	 'default-tab-width)		; obsoleted in 23.2
      8)
+
+(use-repo-package buttercup
+  :ensure t
+  :pin melpa-stable
+  :commands buttercup-run-discover)
 
 (use-package dired-config)
 (use-package multiple-cursors-config)
@@ -670,9 +691,9 @@ it."
 
 ;;; email
 (use-package message
-  :bind (:map message-mode-map
-	      ("C-c C-f C-o" . my-change-from))
   :config
+  (bind-keys :map message-mode-map
+	     ("C-c C-f C-o" . my-change-from))
 
   (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
   (unless (featurep 'gnus-start)
@@ -899,7 +920,7 @@ which is an error according to some typographical conventions."
    `(use-package magit
       :bind (("C-x g" . magit-status)
 	     ("C-x G" . magit-status-with-prefix))
-      :commands (magit-init magit-git-command)
+      :commands (magit-init magit-git-command magit-version)
       :load-path ,magit-path
       :init
       (use-package with-editor
@@ -2015,10 +2036,11 @@ Each alist element in `skeleton-pair-alist' and
   :commands skewer-mode
   :defines skewer-mode-map
   :load-path "site-lisp/skewer-mode"
-  :bind (:map skewer-mode-map ("C-c C-z" . skewer-repl))
   :init
   (progn (add-hook 'js-mode-hook 'skewer-mode)
-	 (add-hook 'js2-mode-hook 'skewer-mode)))
+	 (add-hook 'js2-mode-hook 'skewer-mode))
+  :config
+  (bind-keys :map skewer-mode-map ("C-c C-z" . skewer-repl)))
 (use-package skewer-css
   :commands skewer-css-mode
   :load-path "site-lisp/skewer-mode"
