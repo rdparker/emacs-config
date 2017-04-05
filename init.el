@@ -98,7 +98,10 @@ these out-of-tree directories."
 ;;	    use-package-minimum-reported-time 0.0))
 ;;
 (eval-and-compile
-  (add-to-load-path "site-lisp/use-package-24.3+")
+  (require 'rdp-functions)
+  (add-to-load-path (if (emacs>= 24.3)
+			"site-lisp/use-package-24.3+"
+		      "site-lisp/use-package-24.2-"))
   (setq use-package-verbose nil)
   (unless (and (boundp 'use-package-quiet) use-package-quiet)
     (setq use-package-minimum-reported-time 0.0
@@ -672,9 +675,9 @@ it."
 
 ;;; email
 (use-package message
-  :bind (:map message-mode-map
-	      ("C-c C-f C-o" . my-change-from))
   :config
+  (bind-keys :map message-mode-map
+	     ("C-c C-f C-o" . my-change-from))
 
   (setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory))
   (unless (featurep 'gnus-start)
@@ -2010,10 +2013,11 @@ Each alist element in `skeleton-pair-alist' and
 (use-package skewer-mode
   :commands skewer-mode
   :defines skewer-mode-map
-  :bind (:map skewer-mode-map ("C-c C-z" . skewer-repl))
   :init
   (progn (add-hook 'js-mode-hook 'skewer-mode)
-	 (add-hook 'js2-mode-hook 'skewer-mode)))
+	 (add-hook 'js2-mode-hook 'skewer-mode))
+  :config
+  (bind-keys :map skewer-mode-map ("C-c C-z" . skewer-repl)))
 (use-package skewer-css
   :commands skewer-css-mode
   :init
