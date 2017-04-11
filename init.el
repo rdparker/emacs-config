@@ -685,6 +685,49 @@ it."
   (interactive)
   (compile "make -kw dist"))
 
+;; This is based on Mike Zamansky's, Using Emacs - 29, 31, and 31 with
+;; quite a few tweaks and modifications.
+;;
+;; https://cestlaz.github.io/posts/using-emacs-29%20elfeed/
+(use-package elfeed
+  :if (emacs>= 24.3)
+  :load-path "site-lisp/elfeed"
+  :bind (("C-x w" . elfeed)
+	 :map elfeed-search-mode-map
+	 ("q" . bjm/elfeed-save-db-and-bury)
+	 ("Q" . bjm/elfeed-save-db-and-bury)
+	 ("m" . elfeed-toggle-star)
+	 ("M" . elfeed-toggle-star))
+  :commands elfeed
+  :init
+  (defun elfeed-mark-all-as-read ()
+    (interactive)
+    (mark-whole-buffer)
+    (elfeed-search-untag-all-unread))
+
+
+  ;;functions to support syncing .elfeed between machines
+  ;;makes sure elfeed reads index from disk before launching
+  (defun bjm/elfeed-load-db-and-open ()
+    "Wrapper to load the elfeed db from disk before opening"
+    (interactive)
+    (elfeed-db-load)
+    (elfeed)
+    (elfeed-search-update--force))
+
+  ;;write to disk when quiting
+  (defun bjm/elfeed-save-db-and-bury ()
+    "Wrapper to save the elfeed db to disk before burying buffer"
+    (interactive)
+    (elfeed-db-save)
+    (quit-window))
+
+  :config
+  (setq elfeed-db-directory "~/Dropbox/Emacs/.elfeed")
+
+  (defalias 'elfeed-toggle-star
+    (elfeed-expose #'elfeed-search-toggle-all 'star)))
+
 ;;; elide-head -- elide most of standard license header text
 (use-package elide-head
   :init (add-hook 'find-file-hook 'elide-head))
