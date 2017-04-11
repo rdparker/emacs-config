@@ -736,7 +736,14 @@ the search buffer is entered."
   (setq elfeed-db-directory "~/Dropbox/Emacs/.elfeed")
 
   (defalias 'elfeed-toggle-star
-    (elfeed-expose #'elfeed-search-toggle-all 'star)))
+    (elfeed-expose #'elfeed-search-toggle-all 'star))
+
+  (use-package ace-jump-mode :load-path "site-lisp/ace-jump-mode")
+  (use-package noflet :load-path "site-lisp/noflet")
+  (use-package popwin :load-path "site-lisp/popwin")
+  (use-package elfeed-goodies
+    :load-path "site-lisp/elfeed-goodies"
+    :config (elfeed-goodies/setup)))
 
 ;;; elide-head -- elide most of standard license header text
 (use-package elide-head
