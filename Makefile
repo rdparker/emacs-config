@@ -25,6 +25,7 @@ subtrees:
 	-git remote add el-autoyas.el https://github.com/mlf176f2/el-autoyas.el.git
 	-git remote add elfeed https://github.com/skeeto/elfeed.git
 	-git remote add elfeed-goodies https://github.com/algernon/elfeed-goodies.git
+	-git remote add elfeed-org https://github.com/remyhonig/elfeed-org.git
 	-git remote add elpy https://github.com/jorgenschaefer/elpy.git
 	-git remote add emmet-mode https://github.com/smihica/emmet-mode.git
 	-git remote add epl https://github.com/cask/epl.git
