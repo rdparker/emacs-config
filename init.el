@@ -1935,23 +1935,32 @@ the nobreak spaces in the powerline shell prompt."
 ;; 	       (compilation-fake-loc orig-start f))))))))
 
 ;;; Org-mode
-(use-package org
-  :defer t
-  :commands (org-agenda-list jump-to-org-agenda)
-  :bind (("M-C"   . jump-to-org-agenda)
-	 ("M-m"   . org-smart-capture)
-	 ("M-M"   . org-inline-note)
-	 ("C-c a" . org-agenda)
-	 ("C-c S" . org-store-link)
-	 ("C-c l" . org-insert-link))
-  :mode (("\\.org" . org-mode))
-  :config
-  (setq org-default-notes-file (expand-file-name "Notes.org"
-						 "~/Documents/Org/"))
-  (setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
-  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
-  :config
-  (use-package org-agenda))
+(eval-when-compile
+  (let* ((emacs243 (emacs>= 24.3))
+	 (org-path (if emacs243
+			    "override/org-mode-8"
+			  "override/org-mode-8"))
+	 (contrib-path (expand-file-name "contrib/lisp" org-path)))
+
+    (eval
+     `(use-package org
+	:load-path (,(expand-file-name "contrib/lisp" org-path)
+		    ,(expand-file-name "lisp" org-path))
+	:commands (org-agenda-list jump-to-org-agenda)
+	:bind (("M-C"   . jump-to-org-agenda)
+	       ("M-m"   . org-smart-capture)
+	       ("M-M"   . org-inline-note)
+	       ("C-c a" . org-agenda)
+	       ("C-c S" . org-store-link)
+	       ("C-c l" . org-insert-link))
+	:mode (("\\.org" . org-mode))
+	:config
+	(setq org-default-notes-file (expand-file-name "Notes.org"
+						       "~/Documents/Org/"))
+	(setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
+	(setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+	:config
+	(use-package org-agenda)))))
 
 ;;; Quilt
 (use-package quilt
