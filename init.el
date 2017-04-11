@@ -692,24 +692,28 @@ it."
 (use-package elfeed
   :if (emacs>= 24.3)
   :load-path "site-lisp/elfeed"
-  :bind (("C-x w" . elfeed)
+  :bind (("C-x w" . bjm/elfeed-load-db-and-open)
 	 :map elfeed-search-mode-map
 	 ("q" . bjm/elfeed-save-db-and-bury)
 	 ("Q" . bjm/elfeed-save-db-and-bury)
 	 ("m" . elfeed-toggle-star)
 	 ("M" . elfeed-toggle-star))
-  :commands elfeed
+  :commands elfeed-db-load
   :init
   (defun elfeed-mark-all-as-read ()
     (interactive)
     (mark-whole-buffer)
     (elfeed-search-untag-all-unread))
 
-
-  ;;functions to support syncing .elfeed between machines
-  ;;makes sure elfeed reads index from disk before launching
   (defun bjm/elfeed-load-db-and-open ()
-    "Wrapper to load the elfeed db from disk before opening"
+    "Read web feeds, syncing the shared database and feed listing.
+Normally `elfeed' enters the Elfeed search buffer, but the
+database is only loaded the first time the buffer is entered.
+Because Elfeed may be running in more than one instance of Emacs
+on more than one computer, we want to re-read the database each
+time we enter the Elfeed search buffer and save the database
+anytime that buffer is buried.  Saving the database when burying
+the buffer is handled by `bjm/elfeed-save-db-and-bury'."
     (interactive)
     (elfeed-db-load)
     (elfeed)
@@ -717,7 +721,13 @@ it."
 
   ;;write to disk when quiting
   (defun bjm/elfeed-save-db-and-bury ()
-    "Wrapper to save the elfeed db to disk before burying buffer"
+    "Save the elfeed database, quit the window and bury the buffer.
+Since we are using a shared Elfeed database between various
+computers it is a good idea to save the database when quitting an
+Elfeed search window.  This keeps things in sync when feeds are
+read on different devices. The `bjm/elfeed-load-db-and-open'
+function handles re-reading the possibly changed database when
+the search buffer is entered."
     (interactive)
     (elfeed-db-save)
     (quit-window))
