@@ -14,6 +14,7 @@ subtrees:
 	-git remote add with-editor https://github.com/magit/with-editor.git
 	-git remote add auto-complete https://github.com/auto-complete/auto-complete.git
 	-git remote add org-mode https://github.com/rdparker/org-mode.git
+	-git remote add ace-jump-mode https://github.com/winterTTr/ace-jump-mode.git
 	-git remote add anaphora https://github.com/rolandwalker/anaphora.git
 	-git remote add anything-config http://repo.or.cz/r/anything-config.git
 	-git remote add applescript-mode https://github.com/rdparker/applescript-mode.git
@@ -23,6 +24,7 @@ subtrees:
 	-git remote add ecb https://github.com/emacsmirror/ecb
 	-git remote add el-autoyas.el https://github.com/mlf176f2/el-autoyas.el.git
 	-git remote add elfeed https://github.com/skeeto/elfeed.git
+	-git remote add elfeed-goodies https://github.com/algernon/elfeed-goodies.git
 	-git remote add elpy https://github.com/jorgenschaefer/elpy.git
 	-git remote add emmet-mode https://github.com/smihica/emmet-mode.git
 	-git remote add epl https://github.com/cask/epl.git
@@ -42,10 +44,12 @@ subtrees:
 	-git remote add emacs-kv https://github.com/nicferrier/emacs-kv.git
 	-git remote add lispstick-el https://github.com/rdparker/lispstick-el
 	-git remote add markdown-mode https://github.com/jrblevin/markdown-mode.git
+	-git remote add noflet https://github.com/nicferrier/emacs-noflet.git
 	-git remote add p4.el https://github.com/gareth-rees/p4.el.git
 	-git remote add paredit https://github.com/rdparker/paredit.git
 	-git remote add pkg-info.el https://github.com/lunaryorn/pkg-info.el.git
 	-git remote add popup-el git://github.com/auto-complete/popup-el.git
+	-git remote add popwin https://github.com/m2ym/popwin-el.git
 	-git remote add powerline https://github.com/milkypostman/powerline.git
 	-git remote add projectile https://github.com/bbatsov/projectile.git
 	-git remote add pyvenv https://github.com/jorgenschaefer/pyvenv.git
