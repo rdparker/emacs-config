@@ -1,0 +1,9 @@
+* tree1                                                                             :tag3:
+:PROPERTIES:
+:ID: elfeed
+:END:
+** entry-title: \(linux\|gnome\)
+** entry-title: \(apple\)
+** http://url                                                                       :tag1:
+** [[http://namedorgmodelink][namedorgmodelink]]
+** [[http://unnamedorgmodelink]]
