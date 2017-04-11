@@ -1938,7 +1938,7 @@ the nobreak spaces in the powerline shell prompt."
 (eval-when-compile
   (let* ((emacs243 (emacs>= 24.3))
 	 (org-path (if emacs243
-			    "override/org-mode-8"
+			    "override/org-mode-9"
 			  "override/org-mode-8"))
 	 (contrib-path (expand-file-name "contrib/lisp" org-path)))
 
