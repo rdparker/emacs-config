@@ -743,7 +743,13 @@ the search buffer is entered."
   (use-package popwin :load-path "site-lisp/popwin")
   (use-package elfeed-goodies
     :load-path "site-lisp/elfeed-goodies"
-    :config (elfeed-goodies/setup)))
+    :config (elfeed-goodies/setup))
+
+  (use-package elfeed-org
+    :load-path "site-lisp/elfeed-org"
+    :config
+    (elfeed-org)
+    (setq rmh-elfeed-org-files '("~/Dropbox/Emacs/elfeed.org"))))
 
 ;;; elide-head -- elide most of standard license header text
 (use-package elide-head
