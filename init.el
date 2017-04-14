@@ -698,8 +698,8 @@ it."
 	 ("Q" . bjm/elfeed-save-db-and-bury)
 	 ("m" . elfeed-toggle-star)
 	 ("M" . elfeed-toggle-star)
-	 ("j" . mz/make-and-run-elfeed-hydra)
-	 ("J" . mz/make-and-run-elfeed-hydra))
+	 ("j" . make-and-run-elfeed-hydra)
+	 ("J" . make-and-run-elfeed-hydra))
   :commands elfeed-db-load
   :init
   (defun elfeed-mark-all-as-read ()
@@ -735,7 +735,8 @@ the search buffer is entered."
     (quit-window))
 
   :config
-  (setq elfeed-db-directory "~/Dropbox/Emacs/.elfeed")
+  (setq elfeed-db-directory "~/Dropbox/Emacs/.elfeed"
+	elfeed-search-filter "@6-months-ago +unread -cOmments")
 
   (defalias 'elfeed-toggle-star
     (elfeed-expose #'elfeed-search-toggle-all 'star))
@@ -766,6 +767,24 @@ the search buffer is entered."
 	 (downcase (substring string loc (1+ loc)))
 	 (substring string 0 1)))
 
+  (defun make-elfeed-filter (tagname)
+    "Return an `elfeed-search-set-filter' call to filter for TAGNAME.
+This will suppress comment feeds for all tag names except
+\"cOmments\".  It also defaults to filtering for content from the
+past 6 months unless TAGNAME begins with an at-sign (@)."
+    (let (filter)
+      ;; Use @... tags as the default time filter.  Append all others
+      ;; to the default timefilter
+      (setq filter
+	    (if (string-match-p "^@" tagname)
+		tagname
+	      (format "@6-months-ago +%s" tagname)))
+
+      (unless (string= tagname "cOmments")
+	(setq filter (concat filter " -cOmments")))
+
+      `(elfeed-search-set-filter ,filter)))
+
   (defun make-elfeed-heads (tags)
     "Return a list of heads from TAGS for feeding to `defhydra'.
 
@@ -780,26 +799,25 @@ no capital."
      (lambda (tag)
        (let* ((tagstring (symbol-name tag))
 	      (c (get-capital-or-first-char tagstring)))
-	 `(,c (elfeed-search-set-filter ,(format "@6-months-ago +%s" tagstring))
-	      ,tagstring)))
+	 (list c (make-elfeed-filter tagstring) tagstring)))
      tags))
 
-  (defmacro mz/make-elfeed-hydra ()
-    `(defhydra mz/hydra-elfeed ()
+  (defmacro make-elfeed-hydra ()
+    `(defhydra hydra-elfeed ()
        "filter"
        ,@(make-elfeed-heads (elfeed-db-get-all-tags))
-       ("*" (elfeed-search-set-filter "@6-months-ago +star") "Starred")
+       ("*" ,(make-elfeed-filter "star") "Starred")
        ("M" elfeed-toggle-star "Mark")
-       ("A" (elfeed-search-set-filter "@6-months-ago") "All")
-       ("T" (elfeed-search-set-filter "@1-day-ago") "Today")
+       ("A" ,(make-elfeed-filter "@6-months-ago") "All")
+       ("T" ,(make-elfeed-filter "@1-day-ago") "Today")
        ("Q" bjm/elfeed-save-db-and-bury "Quit Elfeed" :color blue)
        ("q" nil "quit" :color blue)))
 
-  (defun mz/make-and-run-elfeed-hydra ()
+  (defun make-and-run-elfeed-hydra ()
     "Make and run a hydra for elfeed-org based upon the tags in the file."
     (interactive)
-    (mz/make-elfeed-hydra)
-    (mz/hydra-elfeed/body)))
+    (make-elfeed-hydra)
+    (hydra-elfeed/body)))
 
 ;;; elide-head -- elide most of standard license header text
 (use-package elide-head
