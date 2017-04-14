@@ -685,6 +685,140 @@ it."
   (interactive)
   (compile "make -kw dist"))
 
+;; This is based on Mike Zamansky's, Using Emacs - 29, 31, and 31 with
+;; quite a few tweaks and modifications.
+;;
+;; https://cestlaz.github.io/posts/using-emacs-29%20elfeed/
+(use-package elfeed
+  :if (emacs>= 24.3)
+  :load-path "site-lisp/elfeed"
+  :bind (("C-x w" . bjm/elfeed-load-db-and-open)
+	 :map elfeed-search-mode-map
+	 ("q" . bjm/elfeed-save-db-and-bury)
+	 ("Q" . bjm/elfeed-save-db-and-bury)
+	 ("m" . elfeed-toggle-star)
+	 ("M" . elfeed-toggle-star)
+	 ("j" . make-and-run-elfeed-hydra)
+	 ("J" . make-and-run-elfeed-hydra))
+  :commands elfeed-db-load
+  :init
+  (defun elfeed-mark-all-as-read ()
+    (interactive)
+    (mark-whole-buffer)
+    (elfeed-search-untag-all-unread))
+
+  (defun bjm/elfeed-load-db-and-open ()
+    "Read web feeds, syncing the shared database and feed listing.
+Normally `elfeed' enters the Elfeed search buffer, but the
+database is only loaded the first time the buffer is entered.
+Because Elfeed may be running in more than one instance of Emacs
+on more than one computer, we want to re-read the database each
+time we enter the Elfeed search buffer and save the database
+anytime that buffer is buried.  Saving the database when burying
+the buffer is handled by `bjm/elfeed-save-db-and-bury'."
+    (interactive)
+    (elfeed-db-load)
+    (elfeed)
+    (elfeed-search-update--force))
+
+  ;;write to disk when quiting
+  (defun bjm/elfeed-save-db-and-bury ()
+    "Save the elfeed database, quit the window and bury the buffer.
+Since we are using a shared Elfeed database between various
+computers it is a good idea to save the database when quitting an
+Elfeed search window.  This keeps things in sync when feeds are
+read on different devices. The `bjm/elfeed-load-db-and-open'
+function handles re-reading the possibly changed database when
+the search buffer is entered."
+    (interactive)
+    (elfeed-db-save)
+    (quit-window))
+
+  :config
+  (setq elfeed-db-directory "~/Dropbox/Emacs/.elfeed"
+	elfeed-search-filter "@6-months-ago +unread -cOmments")
+
+  (defalias 'elfeed-toggle-star
+    (elfeed-expose #'elfeed-search-toggle-all 'star))
+
+  (use-package ace-jump-mode :load-path "site-lisp/ace-jump-mode")
+  (use-package noflet :load-path "site-lisp/noflet")
+  (use-package popwin :load-path "site-lisp/popwin")
+  (use-package elfeed-goodies
+    :load-path "site-lisp/elfeed-goodies"
+    :config (elfeed-goodies/setup))
+
+  (use-package elfeed-org
+    :load-path "site-lisp/elfeed-org"
+    :config
+    (elfeed-org)
+    (setq rmh-elfeed-org-files '("~/Dropbox/Emacs/elfeed.org")))
+
+  (use-package hydra :load-path "site-lisp/hydra")
+
+  (defun string-has-capital-p (string)
+    "Return the index of the first capital letter in STRING, or nil."
+    (let ((case-fold-search nil))
+      (string-match-p "[[:upper:]]" string)))
+
+  (defun get-capital-or-first-char (string)
+    "Return the capital letter or first character in STRING as lowercase."
+    (if* loc (string-has-capital-p string)
+	 (downcase (substring string loc (1+ loc)))
+	 (substring string 0 1)))
+
+  (defun make-elfeed-filter (tagname)
+    "Return an `elfeed-search-set-filter' call to filter for TAGNAME.
+This will suppress comment feeds for all tag names except
+\"cOmments\".  It also defaults to filtering for content from the
+past 6 months unless TAGNAME begins with an at-sign (@)."
+    (let (filter)
+      ;; Use @... tags as the default time filter.  Append all others
+      ;; to the default timefilter
+      (setq filter
+	    (if (string-match-p "^@" tagname)
+		tagname
+	      (format "@6-months-ago +%s" tagname)))
+
+      (unless (string= tagname "cOmments")
+	(setq filter (concat filter " -cOmments")))
+
+      `(elfeed-search-set-filter ,filter)))
+
+  (defun make-elfeed-heads (tags)
+    "Return a list of heads from TAGS for feeding to `defhydra'.
+
+Each will have the format
+
+    (KEY (elfeed-search-set-filter \"@6-months-ago +TAG\") TAG)
+
+where the key is either the first capital letter in TAG,
+converted to lowercase, or the first character if there is
+no capital."
+    (mapcar
+     (lambda (tag)
+       (let* ((tagstring (symbol-name tag))
+	      (c (get-capital-or-first-char tagstring)))
+	 (list c (make-elfeed-filter tagstring) tagstring)))
+     tags))
+
+  (defmacro make-elfeed-hydra ()
+    `(defhydra hydra-elfeed ()
+       "filter"
+       ,@(make-elfeed-heads (elfeed-db-get-all-tags))
+       ("*" ,(make-elfeed-filter "star") "Starred")
+       ("M" elfeed-toggle-star "Mark")
+       ("A" ,(make-elfeed-filter "@6-months-ago") "All")
+       ("T" ,(make-elfeed-filter "@1-day-ago") "Today")
+       ("Q" bjm/elfeed-save-db-and-bury "Quit Elfeed" :color blue)
+       ("q" nil "quit" :color blue)))
+
+  (defun make-and-run-elfeed-hydra ()
+    "Make and run a hydra for elfeed-org based upon the tags in the file."
+    (interactive)
+    (make-elfeed-hydra)
+    (hydra-elfeed/body)))
+
 ;;; elide-head -- elide most of standard license header text
 (use-package elide-head
   :init (add-hook 'find-file-hook 'elide-head))
@@ -1875,23 +2009,32 @@ the nobreak spaces in the powerline shell prompt."
 ;; 	       (compilation-fake-loc orig-start f))))))))
 
 ;;; Org-mode
-(use-package org
-  :defer t
-  :commands (org-agenda-list jump-to-org-agenda)
-  :bind (("M-C"   . jump-to-org-agenda)
-	 ("M-m"   . org-smart-capture)
-	 ("M-M"   . org-inline-note)
-	 ("C-c a" . org-agenda)
-	 ("C-c S" . org-store-link)
-	 ("C-c l" . org-insert-link))
-  :mode (("\\.org" . org-mode))
-  :config
-  (setq org-default-notes-file (expand-file-name "Notes.org"
-						 "~/Documents/Org/"))
-  (setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
-  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
-  :config
-  (use-package org-agenda))
+(eval-when-compile
+  (let* ((emacs243 (emacs>= 24.3))
+	 (org-path (if emacs243
+			    "override/org-mode-9"
+			  "override/org-mode-8"))
+	 (contrib-path (expand-file-name "contrib/lisp" org-path)))
+
+    (eval
+     `(use-package org
+	:load-path (,(expand-file-name "contrib/lisp" org-path)
+		    ,(expand-file-name "lisp" org-path))
+	:commands (org-agenda-list jump-to-org-agenda)
+	:bind (("M-C"   . jump-to-org-agenda)
+	       ("M-m"   . org-smart-capture)
+	       ("M-M"   . org-inline-note)
+	       ("C-c a" . org-agenda)
+	       ("C-c S" . org-store-link)
+	       ("C-c l" . org-insert-link))
+	:mode (("\\.org" . org-mode))
+	:config
+	(setq org-default-notes-file (expand-file-name "Notes.org"
+						       "~/Documents/Org/"))
+	(setq org-agenda-files (list (expand-file-name "~/Documents/Org/")))
+	(setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+	:config
+	(use-package org-agenda)))))
 
 ;;; Quilt
 (use-package quilt

@@ -35,12 +35,18 @@
 ;;; Code:
 
 (require 'buttercup)
+(require 'rdp-functions)
 
 (describe "My configuration"
   (it "loaded my functions"
       (expect features :to-contain 'rdp-functions))
   (it "has a proper magit-version number"
-      (expect (magit-version) :not :to-be 'error)))
+      (expect (magit-version) :not :to-be 'error))
+  (when (emacs>= 24.3)
+    (it "can run Elfeed"
+	(expect (progn (use-package elfeed :commands elfeed) (elfeed)) :to-be nil))
+    (it "and close it"
+	(expect (quit-window) :to-be nil))))
 
 (provide 'test-config)
 ;;; test-config.el ends here
