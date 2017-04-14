@@ -755,46 +755,48 @@ the search buffer is entered."
 
   (use-package hydra :load-path "site-lisp/hydra")
 
-  (defun z/hasCap (s) ""
-	 (let ((case-fold-search nil))
-	   (string-match-p "[[:upper:]]" s)
-	   ))
+  (defun string-has-capital-p (string)
+    "Return the index of the first capital letter in STRING, or nil."
+    (let ((case-fold-search nil))
+      (string-match-p "[[:upper:]]" string)))
 
-  (defun z/get-hydra-option-key (s)
-    "returns single upper case letter (converted to lower) or first"
-    (interactive)
-    (let ( (loc (z/hasCap s)))
-      (if loc
-	  (downcase (substring s loc (+ loc 1)))
-	(substring s 0 1)
-	)))
+  (defun get-capital-or-first-char (string)
+    "Return the capital letter or first character in STRING as lowercase."
+    (if* loc (string-has-capital-p string)
+	 (downcase (substring string loc (1+ loc)))
+	 (substring string 0 1)))
 
-  (defun mz/make-elfeed-cats (tags)
-    "Returns a list of lists. Each one is line for the hydra configuratio in the form
-     (c function hint)"
-    (interactive)
-    (mapcar (lambda (tag)
-	      (let* (
-		     (tagstring (symbol-name tag))
-		     (c (z/get-hydra-option-key tagstring))
-		     )
-		(list c (append '(elfeed-search-set-filter) (list (format "@6-months-ago +%s" tagstring) ))tagstring  )))
-	    tags))
+  (defun make-elfeed-heads (tags)
+    "Return a list of heads from TAGS for feeding to `defhydra'.
+
+Each will have the format
+
+    (KEY (elfeed-search-set-filter \"@6-months-ago +TAG\") TAG)
+
+where the key is either the first capital letter in TAG,
+converted to lowercase, or the first character if there is
+no capital."
+    (mapcar
+     (lambda (tag)
+       (let* ((tagstring (symbol-name tag))
+	      (c (get-capital-or-first-char tagstring)))
+	 `(,c (elfeed-search-set-filter ,(format "@6-months-ago +%s" tagstring))
+	      ,tagstring)))
+     tags))
 
   (defmacro mz/make-elfeed-hydra ()
     `(defhydra mz/hydra-elfeed ()
        "filter"
-       ,@(mz/make-elfeed-cats (elfeed-db-get-all-tags))
+       ,@(make-elfeed-heads (elfeed-db-get-all-tags))
        ("*" (elfeed-search-set-filter "@6-months-ago +star") "Starred")
        ("M" elfeed-toggle-star "Mark")
        ("A" (elfeed-search-set-filter "@6-months-ago") "All")
        ("T" (elfeed-search-set-filter "@1-day-ago") "Today")
        ("Q" bjm/elfeed-save-db-and-bury "Quit Elfeed" :color blue)
-       ("q" nil "quit" :color blue)
-       ))
+       ("q" nil "quit" :color blue)))
 
   (defun mz/make-and-run-elfeed-hydra ()
-    ""
+    "Make and run a hydra for elfeed-org based upon the tags in the file."
     (interactive)
     (mz/make-elfeed-hydra)
     (mz/hydra-elfeed/body)))
