@@ -18,6 +18,7 @@ subtrees:
 	-git remote add anaphora https://github.com/rolandwalker/anaphora.git
 	-git remote add anything-config http://repo.or.cz/r/anything-config.git
 	-git remote add applescript-mode https://github.com/rdparker/applescript-mode.git
+	-git remote add auto-compile https://github.com/tarsius/auto-compile.git
 	-git remote add c-eldoc https://github.com/nflath/c-eldoc.git
 	-git remote add creole-mode https://github.com/nicferrier/creole-mode.git
 	-git remote add dash.el https://github.com/magnars/dash.el
