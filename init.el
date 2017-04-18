@@ -1,4 +1,4 @@
-;;; init.el --- Emacs initialization -*- coding: utf-8 -*-
+;;; init.el --- Emacs initialization -*- coding: utf-8; no-byte-compile: t -*-
 ;;;
 ;;; TODO: Review my use of :init vs :config in `use-package'
 ;;;       statements.  There are places I had them reversed and I may
@@ -129,6 +129,17 @@ these out-of-tree directories."
 (eval-when-compile
   (require 'backport)
   (use-package use-repo-package))
+(use-package dash
+  :load-path "site-lisp/dash"
+  :config (dash-enable-font-lock))
+(use-package auto-compile
+  :if (emacs>= 24.3)
+  :load-path "site-lisp/auto-compile"
+  :init
+  (use-package packed :load-path "site-lisp/packed")
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
 (use-package diminish :defer t :load-path "site-lisp/diminish")
 (use-package bind-key
   :defer t
@@ -460,10 +471,6 @@ configured as a GNOME Startup Application."
   (let ((last-nonmenu-event nil)
 	(window-system "x"))
 	(save-buffers-kill-emacs)))
-
-(use-package dash
-  :load-path "site-lisp/dash"
-  :config (dash-enable-font-lock))
 
 ;;; Desktop mode
 (defun use-desktop (&optional frame)
