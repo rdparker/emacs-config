@@ -4,16 +4,16 @@
 ;; Description: Customizations to be done at the end of startup.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1995-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1995-2018, Drew Adams, all rights reserved.
 ;; Created: Thu Dec 28 09:15:00 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:37:48 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:50:50 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 2005
-;; URL: http://www.emacswiki.org/start-opt.el
+;;     Update #: 2008
+;; URL: https://www.emacswiki.org/emacs/download/start-opt.el
 ;; Keywords: local, init
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -58,6 +58,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/10/11 dadams
+;;     Do not turn on icomplete-mode.
 ;; 2016/03/16 dadams
 ;;     Do not use latex-mode for *.log files.
 ;; 2015/03/26 dadams
@@ -341,7 +343,8 @@
 ;;;                        (delete-1-window-frames-on ediff-control-buffer)))))
 ;;; (setq ediff-split-window-function 'ediff-use-separate-frames)
 
-(eval-after-load "icomplete+" '(icomplete-mode 99))
+;; Removed 2017-10-11.
+;; (eval-after-load "icomplete+" '(icomplete-mode 99))
 
 ;;; VC stuff.  I no longer use VC.
 ;;; (eval-after-load "vc"

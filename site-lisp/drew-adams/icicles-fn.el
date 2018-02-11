@@ -4,16 +4,16 @@
 ;; Description: Non-interactive functions for Icicles
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Feb 27 09:25:53 2006
-;; Last-Updated: Fri Mar  3 14:50:15 2017 (-0800)
+;; Last-Updated: Sun Jan 14 16:52:36 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 15223
+;;     Update #: 15259
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-fn.el
-;; Doc URL: http://www.emacswiki.org/Icicles
+;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: internal, extensions, help, abbrev, local, minibuffer,
 ;;           keys, apropos, completion, matching, regexp, command
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -24,9 +24,9 @@
 ;;   `fuzzy-match', `help+20', `hexrgb', `icicles-opt',
 ;;   `icicles-var', `info', `info+20', `kmacro', `levenshtein',
 ;;   `menu-bar', `menu-bar+', `misc-cmds', `misc-fns', `naked',
-;;   `package', `pp', `pp+', `regexp-opt', `second-sel', `strings',
-;;   `thingatpt', `thingatpt+', `unaccent', `w32browser-dlgopen',
-;;   `wid-edit', `wid-edit+', `widget'.
+;;   `package', `pp', `pp+', `second-sel', `strings', `thingatpt',
+;;   `thingatpt+', `unaccent', `w32browser-dlgopen', `wid-edit',
+;;   `wid-edit+', `widget'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -108,11 +108,12 @@
 ;;    `icicle-completion-setup-function',
 ;;    `icicle-completion--embedded-envvar-table',
 ;;    `icicle-completion-try-completion', `icicle-create-thumb',
-;;    `icicle-current-TAB-method', `icicle-custom-type',
-;;    `icicle-custom-variable-p', `icicle-defaults-at-point',
-;;    `icicle-define-crm-completion-map', `icicle-defined-thing-p',
-;;    `icicle-delete-alist-dups', `icicle-delete-count',
-;;    `icicle-delete-dups', `icicle-delete-whitespace-from-string',
+;;    `icicle-current-TAB-method', `icicle-custom-rogue-p',
+;;    `icicle-custom-type', `icicle-custom-variable-p',
+;;    `icicle-defaults-at-point', `icicle-define-crm-completion-map',
+;;    `icicle-defined-thing-p', `icicle-delete-alist-dups',
+;;    `icicle-delete-count', `icicle-delete-dups',
+;;    `icicle-delete-whitespace-from-string',
 ;;    `icicle-dired-read-shell-command',
 ;;    `icicle-dir-prefix-wo-wildcards',
 ;;    `icicle-dirs-and-latest-use-first-p', `icicle-dirs-first-p',
@@ -237,10 +238,11 @@
 ;;    `icicle-restore-standard-options',
 ;;    `icicle-restore-std-completion-fns', `icicle-reversible-sort',
 ;;    `icicle-saved-fileset-p', `icicle-save-or-restore-input',
-;;    `icicle-save-raw-input', `icicle-scatter',
+;;    `icicle-save-raw-input', `icicle-scatter-re',
 ;;    `icicle-scatter-match', `icicle-scroll-or-update-Completions',
 ;;    `icicle-set-difference', `icicle-set-intersection',
-;;    `icicle-set-union', `icicle-some', `icicle-special-candidate-p',
+;;    `icicle-set-union', `icicle-some', `icicle-SPC-scatter-match',
+;;    `icicle-SPC-scatter-re', `icicle-special-candidate-p',
 ;;    `icicle-special-candidates-first-p', `icicle-special-display-p',
 ;;    `icicle-special-variable-p',
 ;;    `icicle-start-of-candidates-in-Completions',
@@ -371,7 +373,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Macros")
 ;;  (@> "Redefined Standard Functions")
@@ -523,6 +525,7 @@
 (defvar icicle-Info-index-nodes)        ; In `icicles-cmd2.el'
 (defvar icicle-Info-manual)             ; In `icicles-cmd2.el'
 (defvar icicle-read-char-history)       ; In `icicles-var.el' for Emacs 23+.
+(defvar icomplete-mode)                 ; In `icomplete.el'
 (defvar image-dired-thumb-height)       ; In `image-dired.el'.
 (defvar image-dired-thumb-width)        ; In `image-dired.el'.
 (defvar last-repeatable-command)        ; Defined in `repeat.el'.
@@ -1955,15 +1958,16 @@ This binds variable `icicle-buffer-name-input-p' to non-nil."
       (let ((completion-ignore-case  (if (boundp 'read-buffer-completion-ignore-case)
                                          read-buffer-completion-ignore-case
                                        completion-ignore-case)))
-        (completing-read prompt
-                         (cond ((and (eq icicle-buffer-complete-fn 'internal-complete-buffer)
-                                     icicle-buffer-ignore-space-prefix-flag)
-                                'internal-complete-buffer) ; Emacs 22+
-                               (icicle-buffer-complete-fn)
-                               (t
-                                (mapcar (lambda (buf) (and (buffer-live-p buf)  (list (buffer-name buf))))
-                                        (buffer-list))))
-                         nil require-match nil 'buffer-name-history default nil)))))
+        (completing-read
+         prompt
+         (cond ((and (eq icicle-buffer-complete-fn 'internal-complete-buffer)
+                     icicle-buffer-ignore-space-prefix-flag)
+                'internal-complete-buffer) ; Emacs 22+
+               (icicle-buffer-complete-fn)
+               (t
+                (let ((bufs  (if (listp icicle-bufflist) icicle-bufflist (buffer-list))))
+                  (mapcar (lambda (buf) (and (buffer-live-p buf)  (list (buffer-name buf)))) bufs))))
+         nil require-match nil 'buffer-name-history default nil)))))
 
 
 ;; REPLACE ORIGINAL `read-number' defined in `subr.el',
@@ -4242,9 +4246,13 @@ This means that all of the characters in STRING are also in string
 COMPLETION, in the same order, but perhaps scattered among other
 characters.  For example, STRING = \"ure\" matches COMPLETION
 \"curried\"."
-  (string-match (icicle-scatter string) completion))
+  (string-match (icicle-scatter-re string) completion))
 
-(defun icicle-scatter (string)
+
+(defalias 'icicle-scatter 'icicle-scatter-re)
+(make-obsolete 'icicle-scatter 'icicle-scatter-re) ; 2018-01-14
+
+(defun icicle-scatter-re (string)
   "Returns a regexp that matches a scattered version of STRING.
 The regexp will match any string that contains the characters in
 STRING, in the same order, but possibly with other characters as well.
@@ -4263,6 +4271,36 @@ Returns, e.g., \"a[^b]*b[^c]*c[^d]*d\" for input string \"abcd\"."
                    (regexp-quote (string ch))))
                string
                "")))
+
+(defun icicle-SPC-scatter-match (string completion)
+  "Returns non-nil if SPC chars in STRING scatter-match COMPLETION.
+This means that all of the characters in STRING except SPC are also in
+string COMPLETION, in the same order, and that there can be other
+characters except newline in COMPLETION wherever SPC occurs in STRING.
+
+The effect is as if regexp `.*' were inserted in place of each
+substring of SPC chars in STRING."
+  (string-match (icicle-SPC-scatter-re string) completion))
+
+(defun icicle-SPC-scatter-re (string)
+  "Return a SPC-scatter regexp for STRING.
+Return a copy of STRING but with each sequence of one or more SPC
+chars in it replaced by one less SPC char followed by `.*'."
+  (let ((max-char-in-name  0)
+        (repl-char         0))          ; NULL char: ?\^@
+    ;; Set REPL-CHAR to 1+ the highest char code used in STRING, or NULL if that is not possible.
+    (dolist (char  (append string ()))  ; `string-to-list'
+      (when (> char max-char-in-name) (setq max-char-in-name  char)))
+    ;; Make sure we do not go past the max allowable char for Emacs.  If so, just use NULL char.
+    ;; Emacs 20-22 has no `max-char' function, so just try adding 1 and see if result is valid.
+    (when (or (and (fboundp 'max-char)  (< (1+ max-char-in-name) (max-char))) ; Emacs 23+
+              (char-valid-p (1+ max-char-in-name))) ; Emacs 20-22.
+      (setq repl-char  (1+ max-char-in-name)))
+    (let* ((one-spc   (replace-regexp-in-string "\\([^ ]\\|\\`\\)\\( \\)\\([^ ]\\|\\'\\)" ".*"
+                                                string 'FIXEDCASE 'LITERAL 2))
+           (mult-spc  (replace-regexp-in-string " \\{1,\\}\\( \\)" ".*"
+                                                one-spc 'FIXEDCASE 'LITERAL 1)))
+      mult-spc)))
 
 (defun icicle-levenshtein-strict-match (s1 s2)
   "String S1 is within `icicle-levenshtein-distance' of string S2.
@@ -5151,10 +5189,9 @@ Optional args MINIBUF and ALL-FRAMES are as for `get-buffer-window-list'."
     (dolist (x xs) (when (funcall pred x) (push x result)))
     (nreverse result)))
 
-(defun icicle-frames-on (buffer &optional frame) ; From `frames-on' in `frame-fns.el'.
-  "List of all live frames showing BUFFER (a buffer or its name).
-The optional FRAME argument is as for function `get-buffer-window'."
-  (filtered-frame-list (function (lambda (fr) (get-buffer-window buffer fr)))))
+(defun icicle-frames-on (buffer)        ; From `frames-on' in `frame-fns.el'.
+  "List of all live frames showing BUFFER (a buffer or its name)."
+  (filtered-frame-list (lambda (fr) (get-buffer-window buffer fr))))
 
 (defun icicle-candidate-set-1 (set-fn msg)
   "Helper function for defining Icicle set commands.
@@ -6833,6 +6870,15 @@ argument, so we drop that arg in that case."
       (all-completions string collection predicate hide-spaces)
     (wrong-number-of-arguments (all-completions string collection predicate))))
 
+(defun icicle-custom-rogue-p (symbol)
+  "Return non-nil if SYMBOL value differs from persistent/customized value."
+  (let ((cval (or (get symbol 'customized-value) ; User changed it in Customize
+                  (get symbol 'saved-value)      ; User saved it
+                  (get symbol 'standard-value)))) ; Predefined value
+    (and cval
+         (default-boundp symbol)        ; Just to be sure.
+         (not (equal (eval (car cval)) (default-value symbol))))))
+
 (defun icicle-bounds-of-thing-at-point (thing &optional syntax-table)
   "`thingatpt+.el' version of `bounds-of-thing-at-point', if possible.
 `tap-bounds-of-thing-at-point' if defined, else
@@ -7345,8 +7391,8 @@ candidates."
       (setq s1  (icicle-upcase s1)
             s2  (icicle-upcase s2)))
     (or (and s1-special  (not s2-special))
-        (and s1-special  s2-special  (icicle-case-string-less-p s1 s2))
-        (and (not s1-special)  (not s2-special)  (icicle-case-string-less-p s1 s2)))))
+        (and (not s1-special)  (not s2-special)  (icicle-case-string-less-p s1 s2))
+        (and      s1-special        s2-special   (icicle-case-string-less-p s1 s2)))))
 
 (defun icicle-extra-candidates-first-p (s1 s2)
   "Non-nil if S1 is an extra candidate and S2 is not or S1<S2 (alphabet).
@@ -8505,6 +8551,14 @@ face `icicle-special-candidate'."
       (and (stringp candidate)
            (stringp icicle-special-candidate-regexp)
            (icicle-string-match-p icicle-special-candidate-regexp candidate))
+      ;; UGLY hack.  Unfortunately, it is `icicle-display-candidates-in-Completions' that puts face
+      ;; `icicle-special-candidate' on elements of `icicle-completion-candidates', and it is called
+      ;; AFTER `icicle-(prefix|apropos)-candidates' is called, and it is there that sorting is done.
+      (and (stringp candidate)
+           (let ((symb   (intern-soft candidate))
+                 (alist  (or icicle-candidates-alist  icicle-complete-keys-alist)))
+             (and symb  (assq symb alist)  (get symb 'icicle-special-candidate))))
+      ;; Keep this anyway, at least for now.
       (and (stringp candidate)
            (let ((fprop  (get-text-property 0 'face candidate)))
              (if (consp fprop)

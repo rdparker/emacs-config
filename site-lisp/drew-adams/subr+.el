@@ -4,17 +4,17 @@
 ;; Description: Extensions to standard library `subr.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2014-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2014-2018, Drew Adams, all rights reserved.
 ;; Created: Sat May 24 19:24:18 2014 (-0700)
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:40:44 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:55:16 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 162
-;; URL: http://www.emacswiki.org/simple%2b.el
-;; Doc URL: http://www.emacswiki.org/SplittingStrings
+;;     Update #: 169
+;; URL: https://www.emacswiki.org/emacs/download/subr%2b.el
+;; Doc URL: https://www.emacswiki.org/emacs/SplittingStrings
 ;; Keywords: strings, text
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -62,6 +62,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/05/01 dadams
+;;     split-string-by-regexp: Refer to split-string-by-regexp, not split-string, in doc string.
 ;; 2014/05/31 dadams
 ;;     Added: buffer-substring-of-*.
 ;;     split-string-by-property: Corrected second cond clause for FLIP case.
@@ -197,10 +199,11 @@ TRIM.  Making SEPARATORS match that whitespace gives incorrect results
 when there is whitespace at the start or end of STRING.  If you see
 such calls to `split-string', please fix them.
 
-Note that the effect of `(split-string STRING)' is the same as that of
-`(split-string STRING split-string-default-separators t)'.  In the
-rare case that you wish to retain empty substrings when splitting on
-whitespace, use `(split-string STRING split-string-default-separators)'.
+The effect of `(split-string-by-regexp STRING)' is the same as that of
+`(split-string-by-regexp STRING split-string-default-separators t)'.
+In the rare case that you want to retain empty substrings when
+splitting on whitespace, use `(split-string-by-regexp STRING
+split-string-default-separators)'.
 
 Modifies the match data; use `save-match-data' if necessary."
   (let* ((regexp    (or separators  split-string-default-separators))

@@ -4,16 +4,16 @@
 ;; Description: Top-level commands for Icicles
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Thu May 21 13:31:43 2009 (-0700)
-;; Last-Updated: Fri Mar  3 14:44:41 2017 (-0800)
+;; Last-Updated: Mon Jan  1 13:59:20 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 7435
+;;     Update #: 7444
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-cmd2.el
-;; Doc URL: http://www.emacswiki.org/Icicles
+;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: extensions, help, abbrev, local, minibuffer,
 ;;           keys, apropos, completion, matching, regexp, command
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -25,9 +25,9 @@
 ;;   `frame-cmds', `frame-fns', `fuzzy', `fuzzy-match', `help+20',
 ;;   `hexrgb', `icicles-cmd1', `icicles-fn', `icicles-mcmd',
 ;;   `icicles-opt', `icicles-var', `image-dired', `info', `info+20',
-;;   `kmacro', `levenshtein', `menu-bar', `menu-bar+', `misc-cmds',
-;;   `misc-fns', `mouse3', `mwheel', `naked', `package', `pp', `pp+',
-;;   `regexp-opt', `ring', `second-sel', `strings', `thingatpt',
+;;   `isearch+', `kmacro', `levenshtein', `menu-bar', `menu-bar+',
+;;   `misc-cmds', `misc-fns', `mouse3', `mwheel', `naked', `package',
+;;   `pp', `pp+', `ring', `second-sel', `strings', `thingatpt',
 ;;   `thingatpt+', `unaccent', `w32browser-dlgopen', `wid-edit',
 ;;   `wid-edit+', `widget'.
 ;;
@@ -297,7 +297,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Icicles Commands for Other Packages")
 ;;  (@> "Icicles Top-Level Commands, Part 2")
@@ -453,6 +453,7 @@
 (defvar icicle-package-completing-p)    ; Here
 (defvar icicle-search-ecm)              ; In `icicle-search'
 (defvar icicle-track-pt)                ; In `icicle-insert-thesaurus-entry'
+(defvar icomplete-mode)                 ; In `icomplete.el'
 (defvar imenu-after-jump-hook)          ; In `imenu.el' (Emacs 22+)
 (defvar replace-count)                  ; In `replace.el'
 (defvar woman-expanded-directory-path)  ; In `woman.el'

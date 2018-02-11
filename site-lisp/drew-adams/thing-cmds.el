@@ -4,17 +4,17 @@
 ;; Description: Commands that use things, as defined by `thingatpt.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2006-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2006-2018, Drew Adams, all rights reserved.
 ;; Created: Sun Jul 30 16:40:29 2006
 ;; Version: 0
 ;; Package-Requires: ((hide-comnt "0"))
-;; Last-Updated: Sun Jan  1 11:45:40 2017 (-0800)
+;; Last-Updated: Mon Jan  1 16:03:00 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 759
-;; URL: http://www.emacswiki.org/thing-cmds.el
-;; Doc URL: http://www.emacswiki.org/ThingAtPointCommands
+;;     Update #: 789
+;; URL: https://www.emacswiki.org/emacs/download/thing-cmds.el
+;; Doc URL: https://www.emacswiki.org/emacs/ThingAtPointCommands
 ;; Keywords: thingatpt, thing, region, selection
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -29,6 +29,10 @@
 ;;  point.  They are especially useful in combination with Transient
 ;;  Mark mode.
 ;;
+;;
+;;  Macros defined here:
+;;
+;;    `with-comments-hidden'.
 ;;
 ;;  Commands defined here:
 ;;
@@ -66,6 +70,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/03/31 dadams
+;;     Duplicated here from hide-comnt.el: with-comments-hidden.
 ;; 2014/12/01 dadams
 ;;     Typo: emacs-version -> emacs-major-version.
 ;; 2014/11/17 dadams
@@ -158,6 +164,13 @@
 ;;
 ;;; Code:
 
+
+;; Quiet the byte compiler.
+
+(defvar ignore-comments-flag)
+
+;;----------
+
 (when (< emacs-major-version 22) (eval-when-compile (require 'cl))) ;; for Emacs 20: dolist
 
 (require 'thingatpt) ;; bounds-of-thing-at-point
@@ -167,8 +180,29 @@
   (tap-put-thing-at-point-props))
   ;; tap-bounds-of-thing-at-point, bounds-of-thing-nearest-point
 
-(when (> emacs-major-version 20)        ; `hide-comnt.el' is for Emacs 21+.
-  (require 'hide-comnt));; with-comments-hidden, so also hide/show-comments, ignore-comments-flag.
+(when (> emacs-major-version 20)       ; `hide-comnt.el' is for Emacs 21+.
+  (require 'hide-comnt)) ;; hide/show-comments, ignore-comments-flag.
+
+;; Duplicated from `hide-comnt.el'
+;;
+(defmacro with-comments-hidden (start end &rest body)
+  "Evaluate the forms in BODY while comments are hidden from START to END.
+But if `ignore-comments-flag' is nil, just evaluate BODY,
+without hiding comments.  Show comments again when BODY is finished.
+
+See `hide/show-comments', which is used to hide and show the comments.
+Note that prior to Emacs 21, this never hides comments."
+  (let ((result  (make-symbol "result"))
+        (ostart  (make-symbol "ostart"))
+        (oend    (make-symbol "oend")))
+    `(let ((,ostart  ,start)
+           (,oend    ,end)
+           ,result)
+      (unwind-protect (setq ,result  (progn (when ignore-comments-flag
+                                              (hide/show-comments 'hide ,ostart ,oend))
+                                            ,@body))
+        (when ignore-comments-flag (hide/show-comments 'show ,ostart ,oend))
+        ,result))))
 
 ;; Quiet the byte-compiler
 (defvar last-repeatable-command)        ; Defined in `repeat.el'.
@@ -376,8 +410,8 @@ instead of the end.
 syntax table determines which characters are such balanced delimiters.
 See (emacs) `Moving by Parens' and (elisp) `List Motion'.
 
-This command might does not work as expected if point is in a string
-or a comment."
+This command might not work as expected if point is in a string or a
+comment."
   (interactive "P\np")
   (cond ((and allow-extend  (or (and (eq last-command this-command)  (mark t))
                                 (and transient-mark-mode  mark-active)))
@@ -406,7 +440,7 @@ or a comment."
       (mark-enclosing-list nil t)
     (mark-enclosing-list (- (prefix-numeric-value arg)) t)))
 
-(when (> emacs-major-version 20)        ; `hide-comnt.el' is for Emacs 21+.
+(when (> emacs-major-version 20)        ; `with-comments-hidden' is for Emacs 21+.
   (defun previous-visible-thing (thing start &optional end)
     "Same as `next-visible-thing', except it moves backward, not forward."
     (interactive
@@ -427,7 +461,7 @@ or a comment."
         (with-comments-hidden start end (next-visible-thing thing start end 'BACKWARD))
       (next-visible-thing thing start end 'BACKWARD))))
 
-(when (> emacs-major-version 20)        ; `hide-comnt.el' is for Emacs 21+.
+(when (> emacs-major-version 20)        ; `with-comments-hidden' is for Emacs 21+.
   (defun next-visible-thing (thing &optional start end backward)
     "Go to the next visible THING.
 Start at START.  If END is non-nil then look no farther than END.

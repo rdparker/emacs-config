@@ -4,16 +4,16 @@
 ;; Description: Miscellaneous commands (interactive functions).
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Wed Aug  2 11:20:41 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jan 13 09:06:25 2017 (-0800)
+;; Last-Updated: Mon Jan  1 14:54:08 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 3283
-;; URL: http://www.emacswiki.org/misc-cmds.el
+;;     Update #: 3295
+;; URL: https://www.emacswiki.org/emacs/download/misc-cmds.el
 ;; Keywords: internal, unix, extensions, maint, local
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -41,15 +41,16 @@
 ;;    `indent-rigidly-tab-stops', `indirect-buffer',
 ;;    `kill-buffer-and-its-windows', `list-colors-nearest',
 ;;    `list-colors-nearest-color-at', `mark-buffer-after-point',
-;;    `mark-buffer-before-point', `mark-line', `narrow-to-line',
-;;    `next-buffer-repeat' (Emacs 22+), `old-rename-buffer',
-;;    `previous-buffer-repeat' (Emacs 22+), `quit-window-delete',
-;;    `recenter-top-bottom', `recenter-top-bottom-1',
-;;    `recenter-top-bottom-2', `region-length', `region-to-buffer',
-;;    `region-to-file', `resolve-file-name',
-;;    `reversible-transpose-sexps', `revert-buffer-no-confirm',
-;;    `selection-length', `split-para-at-sentence-ends' (Emacs 21+),
-;;    `split-para-mode' (Emacs 21+), `switch-to-alternate-buffer',
+;;    `mark-buffer-before-point', `mark-line', `mark-whole-word',
+;;    `narrow-to-line', `next-buffer-repeat' (Emacs 22+),
+;;    `old-rename-buffer', `previous-buffer-repeat' (Emacs 22+),
+;;    `quit-window-delete', `recenter-top-bottom',
+;;    `recenter-top-bottom-1', `recenter-top-bottom-2',
+;;    `region-length', `region-to-buffer', `region-to-file',
+;;    `resolve-file-name', `reversible-transpose-sexps',
+;;    `revert-buffer-no-confirm', `selection-length',
+;;    `split-para-at-sentence-ends' (Emacs 21+), `split-para-mode'
+;;    (Emacs 21+), `switch-to-alternate-buffer',
 ;;    `switch-to-alternate-buffer-other-window',
 ;;    `to-indentation-repeat-backward',
 ;;    `to-indentation-repeat-forward', `undo-repeat' (Emacs 24.3+),
@@ -94,6 +95,7 @@
 ;;   (global-set-key "\M-m"           'to-indentation-repeat-backward)
 ;;   (global-set-key "\M-n"           'to-indentation-repeat-forward)
 ;;
+;;   (global-set-key [remap mark-word]       'mark-whole-word)
 ;;   (global-set-key [remap previous-buffer] 'previous-buffer-repeat)
 ;;   (global-set-key [remap next-buffer]     'next-buffer-repeat)
 ;;   (global-set-key [remap undo]            'undo-repeat)
@@ -102,6 +104,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/08/23 dadams
+;;     Added: mark-whole-word.
 ;; 2017/01/13 dadams
 ;;     Added: split-para-at-sentence-ends, split-para-mode.
 ;; 2016/07/19 dadams
@@ -438,7 +442,7 @@ This is similar to `end-of-line', but:
 ;;;###autoload
 (defun beginning-of-line+ (&optional n)
   "Move cursor to beginning of current line or next line if repeated.
-This is the similar to `beginning-of-line', but:
+This is similar to `beginning-of-line', but:
 1. With arg N, the direction is the opposite: this command moves
    backward, not forward, N lines.
 2. If called interactively with no prefix arg:
@@ -742,6 +746,42 @@ originally in."
     (save-excursion
       (forward-line arg)
       (narrow-to-region (line-beginning-position) (line-end-position)))))
+
+(when (fboundp 'looking-back)           ; Emacs 22+
+
+  (defun mark-whole-word (&optional arg allow-extend)
+    "Like `mark-word', but selects whole words and skips over whitespace.
+If you use a negative prefix arg then select words backward.
+Otherwise select them forward.
+
+If cursor starts in the middle of word then select that whole word.
+
+If there is whitespace between the initial cursor position and the
+first word (in the selection direction), it is skipped (not selected).
+
+If the command is repeated or the mark is active, select the next NUM
+words, where NUM is the numeric prefix argument.  (Negative NUM
+selects backward.)"
+    (interactive "P\np")
+    (let ((num  (prefix-numeric-value arg)))
+      (unless (eq last-command this-command)
+        (if (natnump num)
+            (skip-syntax-forward "\\s-")
+          (skip-syntax-backward "\\s-")))
+      (unless (or (eq last-command this-command)
+                  (if (natnump num)
+                      (looking-at "\\b")
+                    (looking-back "\\b")))
+        (if (natnump num)
+            (if (fboundp 'left-word)    ; Emacs 24+
+                (left-word)
+              (backward-word 1))
+          (if (fboundp 'right-word)
+              (right-word)
+            (forward-word 1))))
+      (mark-word arg allow-extend)))
+
+  )
 
 ;;;###autoload
 (defalias 'selection-length 'region-length)
@@ -1508,7 +1548,7 @@ See `compare-windows' - this is the same, except repeatable."
   "View file `/usr/lib/X11/rgb.txt', which lists available X11 colors."
   (interactive) (view-file-other-window "/usr/lib/X11/rgb.txt")) ; In `view.el'.
 
-;; Inspired from code at http://www.masteringemacs.org/.
+;; Inspired from code at https://www.masteringemacs.org/.
 (when (> emacs-major-version 23)        ; Needs variable `list-colors-sort'.
   (defun list-colors-nearest (color &optional use-hsv-p)
     "List colors, in order of distance from COLOR.

@@ -4,17 +4,17 @@
 ;; Description: Enhancements to library `dired-details+.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2005-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2005-2018, Drew Adams, all rights reserved.
 ;; Created: Tue Dec 20 13:33:01 2005
 ;; Version: 0
 ;; Package-Requires: ((dired-details "0"))
-;; Last-Updated: Tue Feb 21 16:29:40 2017 (-0800)
+;; Last-Updated: Mon Jan  1 10:52:44 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 230
+;;     Update #: 238
 ;; URL: https://www.emacswiki.org/emacs/download/dired-details%2b.el
-;; Doc URL: http://www.emacswiki.org/DiredDetails
+;; Doc URL: https://www.emacswiki.org/emacs/DiredDetails
 ;; Keywords: dired, frames
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -28,11 +28,16 @@
 ;;  This enhances the functionality of library `dired-details.el'.
 ;;
 ;;
-;;    NOTE: If you use Emacs 24.4 or later then you DO NOT NEED this
-;;    library or library `dired-details.el'.  Instead, use
-;;    `dired-hide-details-mode'.  Library `dired+.el' enhances
-;;    `dired-hide-details-mode' to give it the save features as
-;;    `dired-details+.el' provides.  Just use `(require 'dired+.el)'.
+;;    NOTE: If you use Emacs 24.4 or later, and if you use library
+;;          `dired+.el', THEN YOU DO NOT NEED THIS library or library
+;;          `dired-details.el'.
+;;
+;;          Instead, you can use `dired-hide-details-mode'.  Library
+;;          `dired+.el' enhances `dired-hide-details-mode' to give it
+;;          the same features as `dired-details+.el' provides.  In
+;;          that case, use `(require 'dired+.el)', and use option
+;;          `diredp-hide-details-propagate-flag' instead of option
+;;          `dired-details-propagate-flag'.
 ;;
 ;;
 ;;  `dired-details+.el' enhances `dired-details.el' in these ways:

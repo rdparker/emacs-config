@@ -4,16 +4,16 @@
 ;; Description: Startup assignments: hooks etc.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Thu Dec 28 09:15:00 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:32:24 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:43:17 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 797
-;; URL: http://www.emacswiki.org/setup.el
+;;     Update #: 800
+;; URL: https://www.emacswiki.org/emacs/download/setup.el
 ;; Keywords: internal, local
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -51,6 +51,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/10/11 dadams
+;;     Do not turn on icomplete-mode.
 ;; 2015/09/27 dadams
 ;;     lisp-indentation-hack:
 ;;       Use common-lisp-indent-function from flet & labels for cl-flet & cl-labels.
@@ -243,7 +245,8 @@
 (column-number-mode 1)
 (when (fboundp 'size-indication-mode) (size-indication-mode 1)) ; Emacs 21 and 22.
 
-(eval-after-load "icomplete+" '(icomplete-mode 99))
+;; Removed 2017-10-11.
+;; (eval-after-load "icomplete+" '(icomplete-mode 99))
 
 (when (fboundp 'echo-bell-mode) (echo-bell-mode 1)) ; Turn on visual bell in echo area.
 

@@ -4,21 +4,21 @@
 ;; Description: Extensions to `icomplete.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Oct 16 13:33:18 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Mar  3 14:56:32 2017 (-0800)
+;; Last-Updated: Mon Jan  1 14:23:08 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 1702
+;;     Update #: 1709
 ;; URL: https://www.emacswiki.org/emacs/download/icomplete%2b.el
-;; Doc URL: http://emacswiki.org/IcompleteMode
+;; Doc URL: https://emacswiki.org/emacs/IcompleteMode
 ;; Keywords: help, abbrev, internal, extensions, local, completion, matching
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `icomplete'.
+;;   `icomplete', `icomplete+'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -319,11 +319,11 @@ icomplete+.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/DrewsElispLibraries")
+          "https://www.emacswiki.org/emacs/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/icomplete+.el")
+          "https://www.emacswiki.org/emacs/download/icomplete+.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/IcompleteMode#IcompleteModePlus")
+          "https://www.emacswiki.org/emacs/IcompleteMode#IcompleteModePlus")
   :link '(emacs-commentary-link :tag "Commentary" "icomplete+"))
 
 ;;;###autoload
@@ -1165,8 +1165,7 @@ If SORT-FUNCTION is nil, sort per `completion-all-sorted-completions':
 
 
 (when (or (> emacs-major-version 24)    ; Emacs 24.4+
-          (and (= emacs-major-version 24)  (> emacs-minor-version 3))
-          (and (= emacs-major-version 24)  (string-match-p "24.3.50" emacs-version))) ;@@@@ TO REMOVE
+          (and (= emacs-major-version 24)  (> emacs-minor-version 3)))
 
 
   ;; REPLACES ORIGINAL defined in `icomplete.el':

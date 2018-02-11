@@ -4,16 +4,16 @@
 ;; Description: Top-level commands for Icicles
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Feb 27 09:25:04 2006
-;; Last-Updated: Fri Mar  3 14:43:30 2017 (-0800)
+;; Last-Updated: Mon Jan  1 13:57:15 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 27508
+;;     Update #: 27588
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-cmd1.el
-;; Doc URL: http://www.emacswiki.org/Icicles
+;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: extensions, help, abbrev, local, minibuffer,
 ;;           keys, apropos, completion, matching, regexp, command
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -24,12 +24,12 @@
 ;;   `el-swank-fuzzy', `ffap', `ffap-', `fit-frame', `flx',
 ;;   `frame-cmds', `frame-fns', `fuzzy', `fuzzy-match', `help+20',
 ;;   `hexrgb', `icicles-fn', `icicles-mcmd', `icicles-opt',
-;;   `icicles-var', `image-dired', `info', `info+20', `kmacro',
-;;   `levenshtein', `menu-bar', `menu-bar+', `misc-cmds', `misc-fns',
-;;   `mouse3', `mwheel', `naked', `package', `pp', `pp+',
-;;   `regexp-opt', `ring', `second-sel', `strings', `thingatpt',
-;;   `thingatpt+', `unaccent', `w32browser-dlgopen', `wid-edit',
-;;   `wid-edit+', `widget'.
+;;   `icicles-var', `image-dired', `info', `info+20', `isearch+',
+;;   `kmacro', `levenshtein', `menu-bar', `menu-bar+', `misc-cmds',
+;;   `misc-fns', `mouse3', `mwheel', `naked', `package', `pp', `pp+',
+;;   `ring', `second-sel', `strings', `thingatpt', `thingatpt+',
+;;   `unaccent', `w32browser-dlgopen', `wid-edit', `wid-edit+',
+;;   `widget'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -445,7 +445,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Internal Variables (alphabetical)")
 ;;  (@> "Macros")
@@ -641,6 +641,7 @@
 (defvar icicle-custom-themes-update-flag) ; In `icicles-opt.el' (Emacs 24+)
 (defvar icicle--last-toggle-transforming-msg) ; Here
 (defvar icicle-window-alist)            ; In `icicle-select-window'
+(defvar icomplete-mode)                 ; In `icomplete.el'
 (defvar lexical-binding)                ; Emacs 24+
 (defvar locate-make-command-line)       ; In `locate.el'
 (defvar proced-signal-list)             ; In `proced.el' (Emacs 23+)
@@ -1529,7 +1530,7 @@ Vanilla `dabbrev--abbrev-at-point' raises an error if no match."
 ;; saving it for restoration when you toggle `icicle-mode'.
 ;;
 ;; BBDB Version 3.1, the Insidious Big Brother Database, is available from these locations:
-;; * http://download.savannah.gnu.org/releases/bbdb/
+;; * https://download.savannah.gnu.org/releases/bbdb/
 ;; * http://melpa.milkbox.net/
 ;;
 ;; Uses Icicles completion when there are multiple candidates.
@@ -4672,7 +4673,7 @@ If ABBREV-OR-CMD is not an abbreviation or a command, raise an error."
    (icicle-all-candidates-list-alt-action-fn ; `M-|'
     (or icicle-all-candidates-list-alt-action-fn  alt-fn  (icicle-alt-act-fn-for-type "command")))))
 
-(when (locate-library "kmacro")
+(when (require 'kmacro nil t)           ; Emacs 22+
   (icicle-define-command icicle-kmacro  ; Bound to `S-f4' in Icicle mode (Emacs 22+).
     "Execute a keyboard macro according to its position in `kmacro-ring'.
 Macros in the keyboard macro ring are given names `1', `2', and so on,
@@ -6988,18 +6989,20 @@ want this remapping, then customize option
       (icicle-remove-Completions-window)
     (if bufferp (icicle-delete-windows) (delete-window))))
 
+
+(put 'icicle-kill-buffer 'icicle-Completions-window-max-height 200)
 (icicle-define-command icicle-kill-buffer ; Bound to `C-x k' in Icicle mode.
-  "Kill a buffer.
+  "Kill a buffer, matching its name, its content, or both.
 See `icicle-buffer' for more information, including about buffer-name
-completion candidates, default values, and additional key bindings.
+completion candidates, default values, the use of a prefix argument,
+and additional key bindings for filtering and acting on candidates.
 
 By default, Icicle mode remaps all key sequences that are normally
 bound to `kill-buffer' to `icicle-kill-buffer'.  If you do not want
 this remapping, then customize option
 `icicle-top-level-key-bindings'."       ; Doc string
   icicle-kill-a-buffer-and-update-completions ; Action function
-  (icicle-buffer-name-prompt "Kill")    ; `completing-read' args
-  (mapcar (lambda (buf) (list (buffer-name buf))) icicle-bufflist) nil ; `icicle-bufflist' is free here.
+  prompt 'icicle-buffer-multi-complete nil ; `completing-read' args
   (and (fboundp 'confirm-nonexistent-file-or-buffer)  (confirm-nonexistent-file-or-buffer)) ; Emacs 23.
   nil 'buffer-name-history (if (< emacs-major-version 23)
                                (buffer-name (current-buffer))
@@ -7007,8 +7010,23 @@ this remapping, then customize option
                                    (icicle-default-buffer-names current-prefix-arg)))
   nil
   (icicle-buffer-bindings               ; Bindings
-   ((icicle-use-candidates-only-once-flag  t)))
-  (icicle-bind-buffer-candidate-keys)   ; First code
+   ((prompt                                 (icicle-buffer-name-prompt "Kill"))
+    (icicle-use-candidates-only-once-flag   t)
+    (icicle-show-multi-completion-flag      t) ; Override user setting.
+    (icicle-multi-completing-p              t)
+    (icicle-list-use-nth-parts              '(1))
+    (icicle-candidate-help-fn               'icicle-buffer-cand-help))
+   ((icicle-buffer-complete-fn              'icicle-buffer-multi-complete)
+    ;; Bind `icicle-apropos-complete-match-fn' to nil to prevent automatic input matching in
+    ;; `icicle-unsorted-apropos-candidates' etc., because `icicle-buffer-multi-complete' does everything.
+    (icicle-apropos-complete-match-fn       nil)
+    (icicle-last-apropos-complete-match-fn  'icicle-buffer-apropos-complete-match)
+    ;; `icicle-bufflist' is FREE here.
+    (icicle-bufflist                        (setq icicle-bufflist  (delete icicle-orig-buff icicle-bufflist)))))
+  (progn (icicle-bind-buffer-candidate-keys)
+         (put-text-property 0 1 'icicle-fancy-candidates t prompt) ; First code
+         (icicle-highlight-lighter)
+         (message "Matching buffer contents..."))
   nil                                   ; Undo code
   (icicle-unbind-buffer-candidate-keys)) ; Last code
 
@@ -7018,6 +7036,8 @@ ACTION is the command action, a string.  It starts the prompt.
 Non-nil OTHER-WINDOW-P appends \" in other window\" to the prompt."
   (concat  (cond ((null current-prefix-arg)
                   (format "%s buffer" action))
+                 ((eq current-prefix-arg '-) ; `-'
+                  (format "%s modified buffer" action))
                  ((and (consp current-prefix-arg)  (> (prefix-numeric-value current-prefix-arg) 16)) ; 3 `C-u'
                   (format "%s invisible buffer" action))
                  ((and (consp current-prefix-arg)  (> (prefix-numeric-value current-prefix-arg) 4)) ; `C-u C-u'
@@ -7026,7 +7046,7 @@ Non-nil OTHER-WINDOW-P appends \" in other window\" to the prompt."
                   (format "%s buffer with same or ancestor mode" action))
                  ((zerop (prefix-numeric-value current-prefix-arg)) ; `C-0'
                   (format "%s buffer with same mode" action))
-                 ((< (prefix-numeric-value current-prefix-arg) 0) ; `C--'
+                 ((< (prefix-numeric-value current-prefix-arg) 0) ; `C-- 1'
                   (format "%s buffer for same frame" action))
                  (t                     ; `C-1'
                   (format "%s file buffer" action)))
@@ -7095,13 +7115,15 @@ The buffer-name portion of completion candidates is as follows,
 depending on the prefix arg:
 
 * No prefix arg: all buffers
-* Numeric arg > 0: buffers visiting files or directories (Dired)
-* Numeric arg < 0: buffers associated with the selected frame
-* Numeric arg = 0: buffers with the same mode as the current buffer
 * Plain prefix arg (`C-u'): buffers with the same mode as current,
   or with a mode that the current mode is derived from
 * Double plain (`C-u C-u'): visible buffers (possibly iconified)
 * Triple plain (`C-u C-u C-u'): invisible buffers
+* Plain `-': buffers that have been modifed (unsaved)
+* Numeric arg = 0: buffers with the same mode as the current buffer
+* Numeric arg < 0 (and not plain `-'): buffers associated with the
+  selected frame
+* Numeric arg > 0: buffers visiting files or directories (Dired)
 
 Those are the default prefix-argument behaviors, but you can change
 them using option `icicle-buffer-prefix-arg-filtering'.
@@ -7122,6 +7144,8 @@ You can use these additional keys during completion:
 * `C-x C-m -' Remove candidate buffers whose mode is derived from a
               given mode.  Repeatable.  (`C-m' = `RET'.)
 * `C-x C-m +' Keep only buffers in a mode derived from a given mode.
+* `C-x * -'   Remove buffers that are modified (unsaved)
+* `C-x * +'   Keep only buffers that are modified (unsaved)
 * `C-x v -'   Remove buffers that are visible (maybe iconified).
 * `C-x v +'   Keep only buffers that are visible (maybe iconified).
 * `\\[icicle-delete-candidate-object]'  Kill the buffer named by a completion candidate.
@@ -7182,8 +7206,7 @@ the behavior."                          ; Doc string
     (icicle-apropos-complete-match-fn       nil)
     (icicle-last-apropos-complete-match-fn  'icicle-buffer-apropos-complete-match)
     ;; `icicle-bufflist' is FREE here.
-    (icicle-bufflist                        (setq icicle-bufflist
-                                                  (delete icicle-orig-buff icicle-bufflist)))))
+    (icicle-bufflist                        (setq icicle-bufflist  (delete icicle-orig-buff icicle-bufflist)))))
   (progn (icicle-bind-buffer-candidate-keys)
          (put-text-property 0 1 'icicle-fancy-candidates t prompt) ; First code
          (icicle-highlight-lighter)
@@ -7212,14 +7235,14 @@ completion candidates:
 
 In any case, the current buffer is always excluded."
   (if (< emacs-major-version 23)
-      (let ((bname  (buffer-name (if (fboundp 'another-buffer) ; In `misc-fns.el'.
-                                     (another-buffer nil t)
-                                   (other-buffer (current-buffer))))))
-        (if (and icicle-bufflist  (not (member bname icicle-bufflist)))
-            (car icicle-bufflist)
-          bname))
+      (let* ((bname    (buffer-name (if (fboundp 'another-buffer) ; In `misc-fns.el'.
+                                        (another-buffer nil t)
+                                      (other-buffer (current-buffer)))))
+             (ibnames  (and (consp icicle-bufflist)  (mapcar #'buffer-name icicle-bufflist))))
+        (if (or (not ibnames)  (member bname ibnames)) bname (car ibnames)))
     ;; Emacs 23 accepts a list of default values.  ; Just keep the first 4.  (This could be an option.)
-    (let ((bfnames  (mapcar #'buffer-name (delete (current-buffer) (or icicle-bufflist  (buffer-list))))))
+    (let ((bfnames  (mapcar #'buffer-name (delete (current-buffer)
+                                                  (if (consp icicle-bufflist) icicle-bufflist (buffer-list))))))
       (when icicle-buffer-ignore-space-prefix-flag
         (setq bfnames  (icicle-remove-if (lambda (bfname) (icicle-string-match-p "^ " bfname)) bfnames)))
       (let ((six  (icicle-first-N 6 bfnames)))
@@ -7285,7 +7308,8 @@ Used as the value of `icicle-buffer-complete-fn' and hence as
                                  (concat "^" (regexp-quote name-pat))))
                  (content-pat  (let ((icicle-list-use-nth-parts  '(2)))
                                  (icicle-transform-multi-completion strg)))
-                 (bufs         (delq nil (mapcar (lambda (buf) (buffer-name buf)) icicle-bufflist)))
+                 (bufs         (delq nil (mapcar #'buffer-name
+                                                 (if (listp icicle-bufflist) icicle-bufflist (buffer-list)))))
                  (bufs         (if icicle-buffer-ignore-space-prefix-flag
                                    (icicle-remove-if (lambda (buf) (icicle-string-match-p "^ " buf)) bufs)
                                  bufs))
@@ -7311,7 +7335,7 @@ Used as the value of `icicle-buffer-complete-fn' and hence as
                                                 ;; Bound in `icicle-visit-marked-file-of-content-1'.
                                                 (IGNORE  (unless (memq (setq buf  (get-buffer buf))
                                                                        icicle-existing-bufs)
-                                                          (add-to-list 'icicle-new-bufs-to-kill buf)))
+                                                           (add-to-list 'icicle-new-bufs-to-kill buf)))
                                                 (found   (with-current-buffer buf
                                                            (save-excursion
                                                              (goto-char (point-min))
@@ -7375,7 +7399,8 @@ Used as the value of `icicle-buffer-complete-fn' and hence as
                                            found)))
                                   filnames))))
     ;; `icicle-buffer-easy-files' is FREE here - bound in `icicle-buffer(-other-window)'.
-    (setq bufs  (append bufs (setq icicle-buffer-easy-files  filnames)))
+    (when (boundp 'icicle-buffer-easy-files)
+      (setq bufs  (append bufs (setq icicle-buffer-easy-files  filnames))))
     (cond ((and (eq 'metadata completion-mode)  (> emacs-major-version 23))
            '(metadata (category . buffer)))
           (completion-mode
@@ -7749,7 +7774,7 @@ snapshot.
 
 To use this command, you must have loaded library `color-theme.el',
 available from http://www.nongnu.org/color-theme.  See also:
-http://www.emacswiki.org/ColorTheme."   ; Doc string
+https://www.emacswiki.org/emacs/ColorThemes."   ; Doc string
   (lambda (theme)
     (when (string= "" theme) (icicle-user-error "No color theme name entered (empty input)"))
     (funcall  (intern theme)))          ; Action function: just call the theme.
@@ -8411,9 +8436,8 @@ toggle this hiding using `\\[icicle-dispatch-C-x.]'."
   (and (fboundp 'confirm-nonexistent-file-or-buffer)  (confirm-nonexistent-file-or-buffer)) ;Emacs 23.
   nil nil
   (icicle-file-bindings                 ; Bindings
-   ((prompt                             (concat "File or directory" (and icicle-pref-arg
-                                                                         " (read-only)") ": "))
-    (icicle-pref-arg                    current-prefix-arg)
+   ((icicle-pref-arg                    current-prefix-arg)
+    (prompt                             (concat "File or directory" (and icicle-pref-arg  " (read-only)") ": "))
     (icicle-all-candidates-list-alt-action-fn ; `M-|'
      (lambda (files) (let ((enable-recursive-minibuffers  t))
                        (dired-other-window (cons (read-string "Dired buffer name: ") files)))))))
@@ -9602,10 +9626,12 @@ Return non-nil if the current multi-completion INPUT matches FILE-NAME."
            ;; Do this to ensure we visit only the `icicle-completion-candidates' already determined so far.
            (or (not icicle-narrow-regexp)  (icicle-string-match-p icicle-narrow-regexp file))
            (or (not date-pat)  (not date)  (icicle-string-match-p date-pat date))
-           (or find-file-run-dired  (not (file-directory-p file)))
+           ;; Do not match dir unless `find-file-run-dired' and either not content-searching or OK to search dirs.
+           (or (not (file-directory-p file))
+               (and find-file-run-dired  (or (equal "" content-pat)  icicle-file-search-dir-as-dired-flag)))
            (or (equal "" content-pat)
-               (and (not (run-hook-with-args-until-success 'icicle-file-skip-functions file))
-                    (let* ((dir-p   (file-directory-p file))
+               (run-hook-with-args-until-success 'icicle-file-skip-functions file)
+               (and (let* ((dir-p   (file-directory-p file))
                            (exists  nil)
                            (buf     (if dir-p
                                         (find-file-noselect file)

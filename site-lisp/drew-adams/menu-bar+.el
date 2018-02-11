@@ -4,17 +4,17 @@
 ;; Description: Extensions to `menu-bar.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Thu Aug 17 10:05:46 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 10:50:05 2017 (-0800)
+;; Last-Updated: Fri Jan 19 21:33:55 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 3756
-;; URL: http://www.emacswiki.org/menu-bar+.el
-;; Doc URL: http://www.emacswiki.org/MenuBarPlus
+;;     Update #: 3803
+;; URL: https://www.emacswiki.org/emacs/download/menu-bar%2b.el
+;; Doc URL: https://www.emacswiki.org/emacs/MenuBarPlus
 ;; Keywords: internal, local, convenience
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -128,6 +128,18 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2018/01/19 dadams
+;;     make-frame(-on-display), delete-this-frame: Guard with (boundp 'menu-bar-frames-menu).
+;; 2017/12/21 dadams
+;;     Added make-frame(-on-display), delete-this-frame to Frames menu.
+;;     Removed frame stuff from Files menu, since added it to Frames menu.
+;; 2017/07/20 dadams
+;;     menu-bar-options-menu: Protect edit-options entry with fboundp.
+;; 2017/06/18 dadams
+;;     menu-bar-apropos-menu: Added apropos-local-(value|variable).
+;;     Renamed apropos-user-options to apropos-user-option.
+;; 2017/04/12 dadams
+;;     kill-this-buffer: Updated for more recent Emacs versions.
 ;; 2016/12/09 dadams
 ;;     Updated for Emacs 25: x-get-selection -> gui-get-selection,
 ;;                           x-select-enable-clipboard -> select-enable-clipboard.
@@ -422,7 +434,7 @@
 (require 'misc-cmds nil t) ;; (no error if not found): kill-buffer-and-its-windows
 (require 'second-sel nil t) ;; (no error if not found):
                             ;; primary-to-secondary, secondary-to-primary, yank-secondary
-(require 'apropos+ nil t) ;; (no error if not found): apropos-user-options
+(require 'apropos+ nil t);; (no error if not found): apropos-local-value, apropos-local-variable
 
 (when (> emacs-major-version 20)
   (require 'cmds-menu nil t)) ;; (no error if not found): recent-cmds-menu
@@ -565,6 +577,22 @@ submenu of the \"Help\" menu."))
 (when (and (featurep 'fit-frame) (not (featurep 'frame-cmds)) (eq window-system 'w32))
   (define-key menu-bar-frames-menu [maximize-frame]
     '(menu-item "Maximize Frame" maximize-frame :help "Maximize the selected frame")))
+
+(when (boundp 'menu-bar-frames-menu)
+  (define-key menu-bar-frames-menu [make-frame-on-display]
+    '(menu-item "New Frame on Display..." make-frame-on-display
+      :visible (fboundp 'make-frame-on-display)
+      :help "Open a new frame on another display"))
+  (define-key menu-bar-frames-menu [make-frame]
+    '(menu-item "New Frame" make-frame-command
+      :visible (fboundp 'make-frame-command)
+      :help "Open a new frame"))
+  (define-key menu-bar-frames-menu [delete-this-frame] ; `delete-frame' is for a special event
+    '(menu-item "Delete Frame" delete-frame
+      :visible (and (fboundp 'delete-frame)  (fboundp 'delete-frame-enabled-p))
+      :enable (and (fboundp 'delete-frame-enabled-p)  (delete-frame-enabled-p))
+      :help "Delete currently selected frame")))
+
 (when (featurep 'fit-frame)
   (define-key menu-bar-frames-menu [fit-frame]
     '(menu-item "Fit This Frame" fit-frame :help "Resize frame to fit its selected window")))
@@ -729,6 +757,12 @@ submenu of the \"Help\" menu."))
 
 ;;; `Files' menu.
 ;;
+
+;; Remove frame stuff from `Files' menu, since we moved it to `Frames' menu.
+(define-key menu-bar-file-menu [make-frame-on-display] nil)
+(define-key menu-bar-file-menu [make-frame] nil)
+(define-key menu-bar-file-menu [delete-this-frame] nil)
+
 (when (< emacs-major-version 21)
   ;; Use `dlgopen-open-files' if available; else use `find-file-other-frame'.
   (define-key menu-bar-file-menu [open-file]
@@ -787,13 +821,20 @@ submenu of the \"Help\" menu."))
 ;;
 ;;;###autoload
 (defun kill-this-buffer ()
-"Delete the current buffer and delete all of its windows."
+  "Delete the current buffer and delete all of its windows.
+But if invoked in the minibuffer just invoke `abort-recursive-edit'."
   (interactive)
-  (if (and (boundp 'sub-kill-buffer-and-its-windows) ; In `setup-keys.el'.
-           sub-kill-buffer-and-its-windows
-           (fboundp 'kill-buffer-and-its-windows))
-      (kill-buffer-and-its-windows (current-buffer)) ;`misc-cmds.el'
-    (kill-buffer (current-buffer))))    ; <-- original defn.
+  (cond ((and (fboundp 'menu-bar-menu-frame-live-and-visible-p) ; Emacs 22+
+              (not (menu-bar-menu-frame-live-and-visible-p))))
+        ((or (not (fboundp 'menu-bar-non-minibuffer-window-p))
+             (menu-bar-non-minibuffer-window-p)) ; Emacs 22+
+         (if (and (boundp 'sub-kill-buffer-and-its-windows) ; In `setup-keys.el'.
+                  sub-kill-buffer-and-its-windows
+                  (fboundp 'kill-buffer-and-its-windows))
+             (kill-buffer-and-its-windows (current-buffer)) ;`misc-cmds.el'
+           (kill-buffer (current-buffer))))
+        (t
+         (abort-recursive-edit))))
 
 
 ;; Remove search stuff from `Tools' menu, since we moved it to `Search' menu.
@@ -1401,18 +1442,26 @@ string.\nIt is most convenient from the keyboard.  Try it!")))
 (define-key menu-bar-apropos-menu [apropos] nil)
 (define-key menu-bar-apropos-menu [apropos-symbol]
   '(menu-item "Symbols..." apropos :help "Find symbols whose name matches a regexp"))
+(when (fboundp 'apropos-local-variable)
+  (define-key menu-bar-apropos-menu [apropos-local-value]
+    '(menu-item "Buffer-Local Variable Values..." apropos-local-value
+      :help "Find buffer-local variables whose values match a pattern")))
+(when (fboundp 'apropos-local-variable)
+  (define-key menu-bar-apropos-menu [apropos-local-variable]
+    '(menu-item "Buffer-local Variables..." apropos-local-variable
+      :help "Find buffer-local variables whose names match a pattern")))
 (define-key menu-bar-apropos-menu [apropos-value] nil)
 (define-key menu-bar-apropos-menu [apropos-var-value]
   '(menu-item "Variable Values..." apropos-value
-    :help "Find variables whose values match a regexp"))
+    :help "Find variables whose values match a pattern"))
 (define-key menu-bar-apropos-menu [apropos-variables] nil)
 (define-key menu-bar-apropos-menu [apropos-variable]
   '(menu-item "All Variables..." apropos-variable
-    :help "Find variables whose name matches a regexp"))
-(when (fboundp 'apropos-user-options)
-  (define-key menu-bar-apropos-menu [apropos-user-options]
-    '(menu-item "User Options..." apropos-user-options
-      :help "Find user options (variables you can change) whose name matches a regexp")))
+    :help "Find variables whose names match a pattern"))
+(when (fboundp 'apropos-user-option)
+  (define-key menu-bar-apropos-menu [apropos-user-option]
+    '(menu-item "User Options..." apropos-user-option
+      :help "Find user options (variables you can change) whose names match a pattern")))
 (define-key menu-bar-apropos-menu [apropos-commands] nil)
 (define-key menu-bar-apropos-menu [apropos-command]
   '(menu-item "Commands..." apropos-command :help "Find commands whose name matches a regexp"))
@@ -1658,10 +1707,11 @@ setting the variable and displaying a status message (not MESSAGE)."
                           "Thumbifying instead of iconifying frames is %s"
                           "Thumbifying instead of iconifying frames")))
 
-(define-key menu-bar-options-menu [all-options-separator] '("--"))
-(define-key menu-bar-options-menu [edit-options]
-  '(menu-item "Show, Edit All Options" edit-options
-    :help "Edit a list of Emacs user option (variable) values"))
+(when (fboundp 'edit-options)
+  (define-key menu-bar-options-menu [all-options-separator] '("--"))
+  (define-key menu-bar-options-menu [edit-options]
+    '(menu-item "Show, Edit All Options" edit-options
+      :help "Edit a list of Emacs user option (variable) values")))
 
 ;; (when (boundp 'replace-w-completion-flag)
 ;;   (define-key-after menu-bar-options-menu [replace-w-completion-flag]
