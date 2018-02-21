@@ -41,7 +41,9 @@
    (quote
     ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
  '(column-number-mode t)
- '(custom-safe-themes (quote ("96c29d8a3d7a12b98326772fca78f5d37fda186d48c008e3764e37c313d54399")))
+ '(custom-safe-themes
+   (quote
+    ("886f1c95a255790b4881582a4d6ba620fd2a3f79bf86314929f637d3268d57c4" "96c29d8a3d7a12b98326772fca78f5d37fda186d48c008e3764e37c313d54399")))
  '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))
