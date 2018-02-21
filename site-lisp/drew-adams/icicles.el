@@ -4,18 +4,18 @@
 ;; Description: Minibuffer completion and cycling.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Tue Aug  1 14:21:16 1995
-;; Version: 2016.12.21
+;; Version: 2018.01.15
 ;; Package-Requires: ()
-;; Last-Updated: Fri Mar  3 14:55:48 2017 (-0800)
+;; Last-Updated: Mon Jan 15 15:19:34 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 23710
+;;     Update #: 23720
 ;; URL: https://www.emacswiki.org/emacs/download/icicles.el
-;; Doc URL: http://emacswiki.org/Icicles
+;; Doc URL: https://emacswiki.org/emacs/Icicles
 ;; Keywords: extensions, help, abbrev, local, minibuffer, projects,
 ;;           keys, apropos, completion, matching, regexp, command
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -29,9 +29,9 @@
 ;;   `fuzzy-match', `help+20', `hexrgb', `highlight', `icicles-cmd1',
 ;;   `icicles-cmd2', `icicles-face', `icicles-fn', `icicles-mcmd',
 ;;   `icicles-mode', `icicles-opt', `icicles-var', `image-dired',
-;;   `image-file', `info', `info+20', `kmacro', `levenshtein',
-;;   `menu-bar', `menu-bar+', `misc-cmds', `misc-fns', `mouse3',
-;;   `mwheel', `naked', `package', `pp', `pp+', `regexp-opt', `ring',
+;;   `image-file', `info', `info+20', `isearch+', `kmacro',
+;;   `levenshtein', `menu-bar', `menu-bar+', `misc-cmds', `misc-fns',
+;;   `mouse3', `mwheel', `naked', `package', `pp', `pp+', `ring',
 ;;   `second-sel', `strings', `subr-21', `thingatpt', `thingatpt+',
 ;;   `unaccent', `w32-browser', `w32browser-dlgopen', `wid-edit',
 ;;   `wid-edit+', `widget'.
@@ -64,10 +64,10 @@
 ;;  Files `icicles-doc1.el' and `icicles-doc2.el' contain the doc for
 ;;  Icicles, including how to install and use Icicles.  You can also
 ;;  read the Icicles doc, in formatted form, on the Emacs-Wiki Web
-;;  site: http://www.emacswiki.org/Icicles.  Emacs Wiki also has a few
-;;  addtional pages about Icicles.  In particular, if you are new to
-;;  Emacs, as well as Icicles, see this page:
-;;  http://www.emacswiki.org/EmacsNewbieWithIcicles.
+;;  site: https://www.emacswiki.org/emacs/Icicles.  Emacs Wiki also
+;;  has a few addtional pages about Icicles.  In particular, if you
+;;  are new to Emacs, as well as Icicles, see this page:
+;;  https://www.emacswiki.org/emacs/EmacsNewbieWithIcicles.
 ;;
 ;;  See also: Library `lacarte.el', which lets you execute menu
 ;;  commands, cycling and completing them.  It is not part of Icicles,
@@ -83,7 +83,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Things Defined in Icicles")
 ;;  (@> "Miscellaneous")
@@ -1358,7 +1358,8 @@
 ;;    `icicle-show-current-help-in-mode-line',
 ;;    `icicle-show-help-in-mode-line', `icicle-show-in-mode-line',
 ;;    `icicle-signum', `icicle-S-iso-lefttab-to-S-TAB',
-;;    `icicle-sit-for', `icicle-some', `icicle-special-candidate-p',
+;;    `icicle-sit-for', `icicle-some', `icicle-SPC-scatter-match',
+;;    `icicle-SPC-scatter-re', `icicle-special-candidate-p',
 ;;    `icicle-special-candidates-first-p', `icicle-special-display-p',
 ;;    `icicle-special-variable-p', `icicle-split-input',
 ;;    `icicle-start-of-candidates-in-Completions',

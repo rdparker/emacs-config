@@ -4,17 +4,18 @@
 ;; Description: Highlighting commands.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1995-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1995-2018, Drew Adams, all rights reserved.
 ;; Created: Wed Oct 11 15:07:46 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Thu Feb 23 07:43:19 2017 (-0800)
+;; Last-Updated: Tue Jan 30 07:42:53 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 4088
+;;     Update #: 4133
 ;; URL: https://www.emacswiki.org/emacs/download/highlight.el
-;; Doc URL: http://www.emacswiki.org/HighlightLibrary
+;; URL (GIT mirror): https://github.com/steckerhalter/highlight.el
+;; Doc URL: https://www.emacswiki.org/emacs/HighlightLibrary
 ;; Keywords: faces, help, local
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -42,7 +43,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Things Defined Here")
 ;;  (@> "Documentation")
@@ -61,6 +62,7 @@
 ;;    (@> "Commands That Won't Work in Emacs 20")
 ;;    (@> "To Do")
 ;;  (@> "Change log")
+;;  (@> "Macros")
 ;;  (@> "Key Bindings")
 ;;  (@> "Menus")
 ;;  (@> "Variables and Faces")
@@ -74,6 +76,10 @@
 ;;
 ;;  Things Defined Here
 ;;  -------------------
+;;
+;;  Macros defined here:
+;;
+;;    `hlt-user-error'.
 ;;
 ;;  Commands defined here:
 ;;
@@ -300,7 +306,7 @@
 ;;  active region.  If the region is not active then they act on the
 ;;  text in the whole buffer.  The commands with `to-end' in their
 ;;  name act on the text from point to the end of the buffer.  See
-;;  also (@* "What Gets Highlighted: Region, Buffer, New Text You Type").
+;;  also (@> "What Gets Highlighted: Region, Buffer, New Text You Type").
 ;;
 ;;  The commands you will use the most often are perhaps
 ;;  `hlt-highlight', `hlt-highlighter', `hlt-highlight-symbol',
@@ -441,14 +447,15 @@
 ;;  you can use `C-x n a' (command `zz-add-zone') to add the current
 ;;  region to the same variable.
 ;;
-;;  You can use command `hlt-highlight-regions' to highlight the
-;;  `zz-izones' zones, and you can use command
-;;  `hlt-highlight-regions-in-buffers' to highlight all zones recorded
-;;  for a given set of buffers.  You can use commands
-;;  `hlt-unhighlight-regions' and `hlt-unhighlight-regions-in-buffers'
-;;  to unhighlight them.  If option `hlt-auto-faces-flag' is non-nil
-;;  then each zone gets a different face.  Otherwise, all of them are
-;;  highlighted with the same face.
+;;  You can use command `hlt-highlight-regions' to highlight buffer
+;;  zones, as defined by their limits (interactively, `zz-izones'),
+;;  and you can use command `hlt-highlight-regions-in-buffers' to
+;;  highlight all zones recorded for a given set of buffers.  You can
+;;  use commands `hlt-unhighlight-regions' and
+;;  `hlt-unhighlight-regions-in-buffers' to unhighlight them.  If
+;;  option `hlt-auto-faces-flag' is non-nil then each zone gets a
+;;  different face.  Otherwise, all of them are highlighted with the
+;;  same face.
 ;;
 ;;  From Isearch you can highlight the search-pattern matches.  You
 ;;  can do this across multiple buffers being searched together.
@@ -565,8 +572,8 @@
 ;;  The other hide and show commands depend on your also using
 ;;  Icicles, which is a set of libraries that offer enhanced
 ;;  completion.  Complete information about Icicles is here:
-;;  `http://www.emacswiki.org/emacs/Icicles'.  You can obtain Icicles
-;;  here: `http://www.emacswiki.org/emacs/Icicles_-_Libraries'.
+;;  `https://www.emacswiki.org/emacs/Icicles'.  You can obtain Icicles
+;;  here: `https://www.emacswiki.org/emacs/Icicles_-_Libraries'.
 ;;
 ;;  The Icicles commands defined for `highlight.el' are the following:
 ;;
@@ -716,13 +723,13 @@
 ;;  * `highlight-chars.el' - Provides ways to highlight different sets
 ;;    of characters, including whitespace and Unicode characters.  It
 ;;    is available here:
-;;    http://www.emacswiki.org/highlight-chars.el              (code)
-;;    http://www.emacswiki.org/ShowWhiteSpace#HighlightChars   (doc)
+;;    https://www.emacswiki.org/emacs/download/highlight-chars.el (code)
+;;    https://www.emacswiki.org/emacs/ShowWhiteSpace#HighlightChars (doc)
 ;;
 ;;  * `hi-lock.el' - The features of `highlight.el' are complementary
 ;;    to those of vanilla Emacs library `hi-lock.el', so you can use
 ;;    the two libraries together.  See this page for a comparison:
-;;    http://www.emacswiki.org/HighlightTemporarily.
+;;    https://www.emacswiki.org/emacs/HighlightTemporarily.
 ;;
 ;;(@* "Commands That Won't Work in Emacs 20")
 ;;  ** Commands That Won't Work in Emacs 20 **
@@ -761,6 +768,11 @@
 ;;
 ;;(@* "Change log")
 ;;
+;; 2017/10/15 dadams
+;;     Added: hlt-user-error.  Use it for user errors.
+;;     hlt-highlighter, hlt-eraser: Better error message if drag out of window.
+;; 2017/06/30 dadams
+;;     hlt-(un)highlight-regions: Define even if zones.el is not loaded.  Uses zones.el only for interactive.
 ;; 2016/12/23 dadams
 ;;     Added: hlt-string-match-p.
 ;;     Faces hlt-regexp-level-*: Do not inherit.
@@ -1076,7 +1088,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+ 
+;;(@* "Macros")
 
+;;; Macros -----------------------------------------------------------
+
+(defmacro hlt-user-error (&rest args)
+  "`user-error' if defined, otherwise `error'."
+  `(if (fboundp 'user-error) (user-error ,@args) (error ,@args)))
  
 ;;(@* "Key Bindings")
 
@@ -1195,8 +1214,8 @@
 highlight.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
-  :link '(url-link :tag "Download" "http://www.emacswiki.org/highlight.el")
-  :link '(url-link :tag "Description" "http://www.emacswiki.org/HighLight")
+  :link '(url-link :tag "Download" "https://www.emacswiki.org/emacs/download/highlight.el")
+  :link '(url-link :tag "Description" "https://www.emacswiki.org/emacs/HighLight")
   :link '(emacs-commentary-link :tag "Commentary" "highlight"))
 
 (defface hlt-regexp-level-1 '((((background dark)) (:background "#071F473A0000")) ; a dark green
@@ -1571,6 +1590,7 @@ of `hlt-auto-face-backgrounds' (uses `hlt-next-face')."
                               (memq (car-safe event) '(switch-frame select-window))))
               (unless (memq (car-safe event) '(switch-frame select-window))
                 (setq end-point  (posn-point (event-end event))))
+              (unless (integer-or-marker-p end-point) (hlt-user-error "Mouse dragged out of window"))
               (cond (hlt-use-overlays-flag
                      (setq overlay  (move-overlay overlay start-point end-point))
                      (overlay-put overlay hlt-face-prop  hlt-last-face)
@@ -1628,6 +1648,7 @@ erase the face represented by the Nth entry of
                               (memq (car-safe event) '(switch-frame select-window))))
               (unless (memq (car-safe event) '(switch-frame select-window))
                 (let ((posn-point  (posn-point (event-end event))))
+                  (unless (integer-or-marker-p posn-point) (hlt-user-error "Mouse dragged out of window"))
                   (setq end    (max end posn-point)
                         start  (min start posn-point))))
               (when hlt-use-overlays-flag ; Erase overlay properties
@@ -1723,7 +1744,7 @@ This is several commands rolled into one, depending on the prefix arg:
 * Positive prefix arg (`C-1'): highlight regexp matches
 * Negative prefix arg (`C--'): UNhighlight regexp matches
 
-You can also used the individual commands:
+You can also use the individual commands:
 
 * `hlt-highlight-region'          - same as no prefix arg
 * `hlt-unhighlight-region'        - same as `C-u' or `C-0'
@@ -1851,17 +1872,37 @@ Optional 6th arg BUFFERS is the list of buffers to highlight.
                        (if mbufs (format " in `%s'"  (buffer-name buf)) "")
                        remove-msg))))))))
 
-(when (fboundp 'zz-izone-limits)
-
-  ;; No need to use (zz-izone-limits nil nil 'ONLY-THIS-BUFFER), since `hlt-highlight-region' DTRT.
-  (defun hlt-highlight-regions (&optional regions face msgp mousep buffers)
-    "Apply `hlt-highlight-region' to each zone in `zz-izones'.
+;; No need to use (zz-izone-limits nil nil 'ONLY-THIS-BUFFER), since `hlt-highlight-region' DTRT.
+(defun hlt-highlight-regions (&optional regions face msgp mousep buffers)
+  "Apply `hlt-highlight-region' to each zone in `zz-izones'.
+You need library `zones.el' to use this command interactively.
 Non-interactively, REGIONS is a list of (START END) region limits.
-The other args are passed to `hlt-highlight-region'.
-You need library `zones.el' for this command."
-    (interactive (list (zz-izone-limits) nil t current-prefix-arg))
-    (dolist (start+end  regions)
-      (hlt-highlight-region (nth 0 start+end) (nth 1 start+end) face msgp mousep buffers)))
+The other args are passed to `hlt-highlight-region'."
+  (interactive (list (if (require 'zones nil t)
+                         (zz-izone-limits)
+                       (hlt-user-error "You need library `zones.el' to use this command interactively"))
+                     nil
+                     t
+                     current-prefix-arg))
+  (dolist (start+end  regions)
+    (hlt-highlight-region (nth 0 start+end) (nth 1 start+end) face msgp mousep buffers)))
+
+;; No need to use (zz-izone-limits nil nil 'ONLY-THIS-BUFFER), since `hlt-unhighlight-region' DTRT.
+(defun hlt-unhighlight-regions (&optional regions face msgp mousep buffers)
+  "Apply `hlt-unhighlight-region' to each zone in `zz-izones'.
+You need library `zones.el' to use this command interactively.
+Non-interactively, REGIONS is a list of (START END) region limits.
+The other args are passed to `hlt-unhighlight-region'."
+  (interactive (list (if (require 'zones nil t)
+                         (zz-izone-limits)
+                       (hlt-user-error "You need library `zones.el' to use this command interactively"))
+                     nil
+                     t
+                     current-prefix-arg))
+  (dolist (start+end  regions)
+    (hlt-unhighlight-region (car start+end) (cadr start+end) face msgp mousep buffers)))
+
+(when (fboundp 'zz-izone-limits)
 
   (defun hlt-highlight-regions-in-buffers (buffers &optional regions msgp)
     "Use `hlt-highlight-regions' in each buffer of list BUFFERS.
@@ -1882,16 +1923,6 @@ Non-nil optional arg MSGP means show status messages."
     (hlt-highlight-regions (zz-izone-limits-in-bufs buffers) nil msgp
                            (and current-prefix-arg  (>= (prefix-numeric-value current-prefix-arg) 0))
                            buffers))
-
-  ;; No need to use (zz-izone-limits nil nil 'ONLY-THIS-BUFFER), since `hlt-unhighlight-region' DTRT.
-  (defun hlt-unhighlight-regions (&optional regions face msgp mousep buffers)
-    "Apply `hlt-unhighlight-region' to each zone in `zz-izones'.
-Non-interactively, REGIONS is a list of (START END) region limits.
-The other args are passed to `hlt-unhighlight-region'.
-You need library `zones.el' for this command."
-    (interactive (list (zz-izone-limits) nil t current-prefix-arg))
-    (dolist (start+end  regions)
-      (hlt-unhighlight-region (car start+end) (cadr start+end) face msgp mousep buffers)))
 
   (defun hlt-unhighlight-regions-in-buffers (buffers &optional regions msgp)
     "Use `hlt-unhighlight-regions' in each buffer of list BUFFERS.
@@ -2157,7 +2188,7 @@ If UNHIGHLIGHTP:
                                                 (format "Lots of highlighting slows things down.  Do you \
 really want to highlight up to %d chars?  "
                                                         reg-size))))))
-                (error "OK, highlighting cancelled"))))
+                (hlt-user-error "OK, highlighting cancelled"))))
           (when (eq t msgp)
             (message "%sighlighting occurrences of `%s'%s..."
                      (if unhighlightp "UNh" "H")
@@ -2377,7 +2408,8 @@ When called from Lisp:
      (when (listp last-nonmenu-event)
        (mouse-set-point last-nonmenu-event))
      (let ((symb  (symbol-at-point)))
-       (unless symb (error "No symbol %s" (if (listp last-nonmenu-event) "under mouse pointer" "at point")))
+       (unless symb
+         (hlt-user-error "No symbol %s" (if (listp last-nonmenu-event) "under mouse pointer" "at point")))
        (list symb current-prefix-arg))))
   (let ((hlt-auto-faces-flag  (not face))
         (regexp               (format (if (> emacs-major-version 21) "\\_<%s\\_>" "%s") symbol))
@@ -2411,7 +2443,8 @@ When called from Lisp:
      (when (listp last-nonmenu-event)
        (mouse-set-point last-nonmenu-event))
      (let ((symb  (symbol-at-point)))
-       (unless symb (error "No symbol %s" (if (listp last-nonmenu-event) "under mouse pointer" "at point")))
+       (unless symb
+         (hlt-user-error "No symbol %s" (if (listp last-nonmenu-event) "under mouse pointer" "at point")))
        (list symb current-prefix-arg))))
   (let ((hlt-auto-faces-flag  (not face))
         (regexp               (format (if (> emacs-major-version 21) "\\_<%s\\_>" "%s") symbol))
@@ -2584,8 +2617,7 @@ NOTE: If the list of copied text properties is empty, then yanking
       provides an easy way to UNpropertize text."
   (interactive "r\nP\np")
   ;; Do nothing if no active region.
-  (unless (or (hlt-nonempty-region-p)  (not msgp))
-    (error "No region to paste properties to"))
+  (unless (or (hlt-nonempty-region-p)  (not msgp)) (hlt-user-error "No region to paste properties to"))
   (let ((read-only                           buffer-read-only)
         (modified-p                          (buffer-modified-p))
         (inhibit-modification-hooks          t)
@@ -2953,7 +2985,7 @@ When called non-interactively:
           (setq beg  start) (goto-char beg)))
       (unless (or (and (equal face face-found)  (not (eq (point) orig-point)))  no-error-p)
         (goto-char orig-point)
-        (error "No %s highlight with face `%s'" (if backward-p "previous" "next") face)))
+        (hlt-user-error "No %s highlight with face `%s'" (if backward-p "previous" "next") face)))
     (unless (interactive-p)
       (cons (point)
             (next-single-char-property-change (point) (if mousep 'mouse-face hlt-face-prop)

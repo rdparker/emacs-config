@@ -4,15 +4,15 @@
 ;; Description: Bookmark+ key and menu bindings.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2010-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2010-2018, Drew Adams, all rights reserved.
 ;; Created: Fri Apr  1 15:34:50 2011 (-0700)
-;; Last-Updated: Tue Jan 10 15:34:24 2017 (-0800)
+;; Last-Updated: Mon Jan  1 09:57:17 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 789
-;; URL: http://www.emacswiki.org/bookmark+-key.el
-;; Doc URL: http://www.emacswiki.org/BookmarkPlus
+;;     Update #: 794
+;; URL: https://www.emacswiki.org/emacs/download/bookmark%2b-key.el
+;; Doc URL: https://www.emacswiki.org/emacs/BookmarkPlus
 ;; Keywords: bookmarks, bookmark+, placeholders, annotations, search, info, url, eww, w3m, gnus
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -44,7 +44,7 @@
 ;;       Web'.
 ;;
 ;;    2. From the Emacs-Wiki Web site:
-;;       http://www.emacswiki.org/BookmarkPlus.
+;;       https://www.emacswiki.org/emacs/BookmarkPlus.
 ;;
 ;;    3. From the Bookmark+ group customization buffer:
 ;;       `M-x customize-group bookmark-plus', then click link
@@ -182,7 +182,7 @@ Each value of the list is a prefix key bound to keymap
 (defvar bmkp-bmenu-menubar-menu)        ; In `bookmark+-bmu.el'.
 (defvar bmkp-bmenu-toggle-menu)         ; In `bookmark+-bmu.el'.
 (defvar bmkp-crosshairs-flag)           ; In `bookmark+-1.el'.
-(defvar bmkp-eww-replace-keys-flag)     ; In `bookmark+-1.el' (Emacs 24.4+).
+(defvar bmkp-eww-replace-keys-flag)     ; In `bookmark+-1.el' (Emacs 25+).
 (defvar bmkp-prompt-for-tags-flag)      ; In `bookmark+-1.el'.
 (defvar bmkp-save-new-location-flag)    ; In `bookmark+-1.el'.
 (defvar diredp-bookmark-menu)           ; In `dired+.el'.
@@ -418,17 +418,15 @@ Each value of the list is a prefix key bound to keymap
 (define-key bmkp-jump-other-window-map "d"    'bmkp-dired-jump-other-window)              ; `C-x 4 j d'
 
 (eval-after-load "eww"
-  '(when (or (> emacs-major-version 24)  (and (= emacs-major-version 24)  (> emacs-minor-version 3)))
+  '(when (> emacs-major-version 24)     ; Emacs 25+
     (when bmkp-eww-replace-keys-flag
       (bmkp-remap 'eww-add-bookmark       'bookmark-set                eww-mode-map)
       (bmkp-remap 'eww-list-bookmarks     'bookmark-bmenu-list         eww-mode-map)
       (bmkp-remap 'eww-next-bookmark      'bmkp-previous-url-bookmark  eww-mode-map)
-      (bmkp-remap 'eww-previous-bookmark  'bmkp-previous-url-bookmark  eww-mode-map))))
+      (bmkp-remap 'eww-previous-bookmark  'bmkp-previous-url-bookmark  eww-mode-map))
+    (define-key bmkp-jump-map              "e"  'bmkp-eww-jump)                             ; `C-x j e'
+    (define-key bmkp-jump-other-window-map "e"  'bmkp-eww-jump-other-window)))            ; `C-x 4 j e'
 
-(when (fboundp 'bmkp-eww-jump)          ; Emacs 24.4+
-  (define-key bmkp-jump-map              "e"  'bmkp-eww-jump)                               ; `C-x j e'
-  (define-key bmkp-jump-other-window-map "e"  'bmkp-eww-jump-other-window)                ; `C-x 4 j e'
-  )
 (define-key bmkp-jump-map              "f"    'bmkp-file-jump)                              ; `C-x j f'
 (define-key bmkp-jump-other-window-map "f"    'bmkp-file-jump-other-window)               ; `C-x 4 j f'
 (define-key bmkp-jump-map              "\C-f" 'bmkp-find-file)                            ; `C-x j C-f'

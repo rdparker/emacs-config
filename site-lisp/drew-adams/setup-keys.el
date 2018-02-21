@@ -4,16 +4,16 @@
 ;; Description: Some key bindings.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1999-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1999-2018, Drew Adams, all rights reserved.
 ;; Created: Fri Apr  2 12:34:20 1999
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:33:08 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:42:00 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 1332
-;; URL: http://www.emacswiki.org/setup-keys.el
+;;     Update #: 1338
+;; URL: https://www.emacswiki.org/emacs/download/setup-keys.el
 ;; Keywords: mouse, keyboard, menus, menu-bar
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -75,6 +75,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/09/10 dadams
+;;     Change binding of 1on1-fit-minibuffer-frame in minibuffer keymaps to M-up from C-o.
 ;; 2016/11/02 dadams
 ;;     Added: sub-transpose-sexps.
 ;;     Remap transpose-sexps to reversible-transpose-sexps, if sub-transpose-sexps.
@@ -474,29 +476,29 @@ whatever OLD is bound to in MAP, or in OLDMAP, if provided."
 ;; Because C-M- is being used for secondary.
 (eval-after-load "foldout" '(setq foldout-mouse-modifiers '(meta shift)))
 
-(eval-after-load "oneonone"                                                      ; `C-o'
+(eval-after-load "oneonone" ; Bind `1on1-fit-minibuffer-frame' to `M-up' in minubuffer maps.
   '(when (framep 1on1-minibuffer-frame) ; Standalone minibuffer frame.
-    (define-key minibuffer-local-map "\C-o" '1on1-fit-minibuffer-frame)
+    (define-key minibuffer-local-map [(meta up)] '1on1-fit-minibuffer-frame)
     (unless (eq minibuffer-local-map (keymap-parent minibuffer-local-completion-map))
-      (define-key minibuffer-local-must-match-map "\C-o" '1on1-fit-minibuffer-frame)
-      (define-key minibuffer-local-completion-map "\C-o" '1on1-fit-minibuffer-frame))
+      (define-key minibuffer-local-must-match-map [(meta up)] '1on1-fit-minibuffer-frame)
+      (define-key minibuffer-local-completion-map [(meta up)] '1on1-fit-minibuffer-frame))
     (when (boundp 'minibuffer-local-filename-completion-map)
-      (define-key minibuffer-local-filename-completion-map "\C-o"
+      (define-key minibuffer-local-filename-completion-map [(meta up)]
         '1on1-fit-minibuffer-frame))
     (when (boundp 'minibuffer-local-must-match-filename-map) ; Emacs 22
-      (define-key minibuffer-local-must-match-filename-map "\C-o"
+      (define-key minibuffer-local-must-match-filename-map [(meta up)]
         '1on1-fit-minibuffer-frame))
     (when (boundp 'minibuffer-local-filename-must-match-map) ; Emacs 23+
-      (define-key minibuffer-local-filename-must-match-map "\C-o"
+      (define-key minibuffer-local-filename-must-match-map [(meta up)]
         '1on1-fit-minibuffer-frame))
     (when (boundp 'minibuffer-local-isearch-map)
       (unless (eq minibuffer-local-map (keymap-parent minibuffer-local-isearch-map))
-        (define-key minibuffer-local-isearch-map "\C-o" '1on1-fit-minibuffer-frame)))
+        (define-key minibuffer-local-isearch-map [(meta up)] '1on1-fit-minibuffer-frame)))
     (when (boundp 'minibuffer-local-shell-command-map)
       (unless (eq minibuffer-local-map (keymap-parent minibuffer-local-shell-command-map))
-        (define-key minibuffer-local-shell-command-map "\C-o" '1on1-fit-minibuffer-frame)))
+        (define-key minibuffer-local-shell-command-map [(meta up)] '1on1-fit-minibuffer-frame)))
     (when (boundp 'minibuffer-inactive-mode-map)
-      (define-key minibuffer-inactive-mode-map "\C-o" '1on1-fit-minibuffer-frame))))
+      (define-key minibuffer-inactive-mode-map [(meta up)] '1on1-fit-minibuffer-frame))))
 
 (eval-after-load "frame-cmds"
   '(progn

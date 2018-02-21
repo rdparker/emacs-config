@@ -6,17 +6,17 @@
 ;;      Sebastian Kremer <sk@thp.uni-koeln.de>,
 ;;      Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Wed Jan 10 14:31:50 1996
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Wed Feb 22 17:50:18 2017 (-0800)
+;; Last-Updated: Mon Jan  1 11:31:09 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 1214
+;;     Update #: 1245
 ;; URL: https://www.emacswiki.org/emacs/download/find-dired%2b.el
-;; Doc URL: http://emacswiki.org/LocateFilesAnywhere
+;; Doc URL: https://emacswiki.org/emacs/LocateFilesAnywhere
 ;; Keywords: internal, unix, tools, matching, local
-;; Compatibility: GNU Emacs 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -25,9 +25,9 @@
 ;;   `bookmark+-lit', `dired', `dired+', `dired-aux', `dired-x',
 ;;   `easymenu', `ffap', `find-dired', `fit-frame', `frame-fns',
 ;;   `help+20', `highlight', `image-dired', `image-file', `info',
-;;   `info+20', `menu-bar', `menu-bar+', `misc-cmds', `misc-fns',
-;;   `naked', `pp', `pp+', `second-sel', `strings', `subr-21',
-;;   `thingatpt', `thingatpt+', `time-date', `unaccent',
+;;   `info+20', `kmacro', `menu-bar', `menu-bar+', `misc-cmds',
+;;   `misc-fns', `naked', `pp', `pp+', `second-sel', `strings',
+;;   `subr-21', `thingatpt', `thingatpt+', `time-date', `unaccent',
 ;;   `w32-browser', `w32browser-dlgopen', `wid-edit', `wid-edit+',
 ;;   `widget'.
 ;;
@@ -90,6 +90,12 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/12/30 dadams
+;;     find-dired-filter: Updated for Emacs bug #29803, for better alignment with human-readable file sizes.
+;; 2017/11/11 dadams
+;;     find(-name|-grep|-time)-dired: Clarified use of EXCLUDED-PATHS in doc string.
+;; 2017/04/09 dadams
+;;     Updated to new Dired+ menu name: diredp-menu-bar-dir-menu.
 ;; 2017/01/27 dadams
 ;;     find-dired-hook: Added tip to doc string about removing hook function.
 ;;     find-dired-sentinel: Use with-current-buffer instead of save-excursion + set-buffer.
@@ -225,7 +231,7 @@
 
 (require 'dired+ nil t) ;; (no error if not found):
                         ;; dired-insert-set-properties,
-                        ;; diredp-menu-bar-subdir-menu
+                        ;; diredp-menu-bar-dir-menu
  ;; Note: `dired+.el' does a (require 'dired): dired-mode-map
 
 (when (and (require 'thingatpt+ nil t);; (no error if not found)
@@ -235,6 +241,8 @@
  ;; region-or-non-nil-symbol-name-nearest-point
 
 ;; Quiet the byte-compiler.
+(defvar diredp-menu-bar-dir-menu)       ; In `dired+.el'
+(defvar diredp-menu-bar-subdir-menu)    ; In `dired+.el' (old name)
 (defvar find-ls-subdir-switches)        ; Emacs 22+
 (defvar find-name-arg)                  ; Emacs 22+
 (defvar find-program)                   ; Emacs 22+
@@ -312,7 +320,7 @@ If a command uses more chars than this then it is shown only in buffer
 
 ;; REPLACES ORIGINAL in `find-dired.el':
 ;;
-;; Use `dired-listing-switches' for Windows.
+;; Use `dired-listing-switches' for MS Windows.
 ;;
 ;; Note: `defconst' is necessary here because this is preloaded by Emacs.
 ;;       It is not sufficient to do a defvar before loading `find-dired.el'.
@@ -361,8 +369,10 @@ Optional args:
 When both optional args are non-nil, the `find' command run is this:
 
   find . -mindepth MIN-DEPTH -maxdepth MAX-DEPTH
-         \\( -path \*edir1\* -o -path \*edir2\* ... \\)
-         -prune -o \\( ARGS \\) LS-SWITCHES"
+         \\( -path EXCLUDE1 -o -path EXCLUDE2 ... \\)
+         -prune -o \\( ARGS \\) LS-SWITCHES
+
+where EXCLUDE1, EXCLUDE2... are the EXCLUDED-PATHS, but shell-quoted."
   (interactive
    (let ((default  (and (functionp find-diredp-default-fn) (funcall find-diredp-default-fn))))
      (list (funcall (if (fboundp 'read-directory-name) 'read-directory-name 'read-file-name)
@@ -463,7 +473,7 @@ When both optional args are non-nil, the `find' command run is this:
 ;;
 ;;;###autoload
 (defun find-name-dired (directory pattern &optional depth-limits excluded-paths)
-  "Run `dired' on all files under DIRECTORY that match globbing PATTERN.
+  "Use Dired on files under DIRECTORY whose name matches globbing PATTERN.
 PATTERN can use shell wildcards, and it need not be quoted.  It is not
 an Emacs regexp.
 
@@ -483,8 +493,10 @@ Optional arg EXCLUDED-PATHS is a list of strings that match paths to
 When both optional args are non-nil, the `find' command run is this:
 
   find . -mindepth MIN-DEPTH -maxdepth MAX-DEPTH
-         \\( -path \*edir1\* -o -path \*edir2\* ... \\)
-         -prune -o name 'PATTERN' \\( ARGS \\) LS-SWITCHES"
+         \\( -path EXCLUDE1 -o -path EXCLUDE2 ... \\)
+         -prune -o name 'PATTERN' \\( ARGS \\) LS-SWITCHES
+
+where EXCLUDE1, EXCLUDE2... are the EXCLUDED-PATHS, but shell-quoted."
   (interactive
    (let ((default  (and (functionp find-diredp-default-fn) (funcall find-diredp-default-fn))))
      (list (if (fboundp 'read-directory-name) ; Emacs 22+
@@ -504,12 +516,12 @@ When both optional args are non-nil, the `find' command run is this:
 ;;
 ;;;###autoload
 (defun find-grep-dired (dir regexp &optional depth-limits excluded-paths)
-  "Find files in DIR containing a regexp REGEXP.
-The output is in a Dired buffer.
+  "Use Dired on the list of files in DIR whose contents match REGEXP.
 The `find' command run (after changing into DIR) is essentially this,
 where LS-SWITCHES is `(car find-ls-option)':
 
-  find . -exec grep find-grep-options REGEXP {} \\\; LS-SWITCHES
+  find . \\( -type f -exec grep grep-program find-grep-options \\
+    -e REGEXP {} \\; \\) LS-SWITCHES
 
 Thus REGEXP can also contain additional grep options.
 
@@ -521,10 +533,13 @@ Optional arg EXCLUDED-PATHS is a list of strings that match paths to
 
 When both optional args are non-nil, the `find' command run is this:
 
-  find . -mindepth MIN-DEPTH -maxdepth MAX-DEPTH
-         \\( -path \*edir1\* -o -path \*edir2\* ... \\)
-         -prune -o -exec grep find-grep-options REGEXP {} \\\;
-         LS-SWITCHES"
+  find .
+    -mindepth MIN-DEPTH -maxdepth MAX-DEPTH
+    \\( -path EXCLUDE1 -o -path EXCLUDE2 ... \\)
+    -prune -o -exec grep-program find-grep-options -e REGEXP {} \\\;
+    LS-SWITCHES
+
+where EXCLUDE1, EXCLUDE2... are the EXCLUDED-PATHS, but shell-quoted."
   (interactive
    (let ((default  (and (functionp find-diredp-default-fn) (funcall find-diredp-default-fn))))
      (list (read-file-name "Find-grep (directory): " nil "" t)
@@ -541,7 +556,9 @@ When both optional args are non-nil, the `find' command run is this:
 
 
 ;; REPLACES ORIGINAL in `find-dired.el':
+;;
 ;; Removes lines that just list a file.
+;;
 (defun find-dired-filter (proc string)
   "Filter for \\[find-dired] processes.
 PROC is the process.
@@ -556,7 +573,10 @@ STRING is the string to insert."
               (let ((buffer-read-only  nil)
                     (beg               (point-max))
                     (l-opt             (and (consp find-ls-option)  (string-match "l" (cdr find-ls-option))))
-                    (ls-regexp         "^ +[^ \t\r\n]+\\( +[^ \t\r\n]+\\) +[^ \t\r\n]+ +[^ \t\r\n]+\\( +[0-9]+\\)"))
+                    (ls-regexp         (concat "^ +[^ \t\r\n]+\\( +[^ \t\r\n]+\\) +"
+                                               (if (> emacs-major-version 21)
+                                                   "[^ \t\r\n]+ +[^ \t\r\n]+\\( +[^[:space:]]+\\)"
+                                                 "[^ \t\r\n]+ +[^ \t\r\n]+\\( +[0-9]+\\)"))))
                 (goto-char beg)
                 (insert string)
                 (goto-char beg)
@@ -646,12 +666,13 @@ If args DEPTH-LIMITS and EXCLUDED-PATHS are both non-nil then the
 command run is essentially the following:
 
     find . -mindepth MIN-DEPTH -maxdepth MAX-DEPTH
-           \\( -path \*edir1\* -o -path \*edir2\* ... \\)
+           \\( -path EXCLUDE1 -o -path EXCLUDE2 ... \\)
            -prune -o \\( -TIME-SWITCH -SINCE-MIN -TIME-SWITCH +SINCE-MAX \\)
            LS-SWITCHES
 
 where:
 
+* EXCLUDE1, EXCLUDE2... are the EXCLUDED-PATHS, but shell-quoted.
 * TIME-SWITCH is `find-diredp-time-prefix' concatenated with \"min\".
 * SINCE-MIN is the elapsed time since MIN-TIME in minutes.
 * SINCE-MAX is the elapsed time since MAX-TIME in minutes.
@@ -776,13 +797,15 @@ If `encode-time' returns nil then the current time is returned."
 (when (boundp 'menu-bar-search-menu)
   (define-key dired-mode-map [menu-bar search separator-find] '("--"))
   (define-key dired-mode-map [menu-bar search find] '("Run `find' Command" . menu-bar-run-find-menu)))
+
 ;; Add it to Dired's `Dir' menu (called `Subdir' in `dired.el').
-(when (boundp 'diredp-menu-bar-subdir-menu) ; Defined in `dired+.el'.
-  (if (or (> emacs-major-version 21)  (fboundp 'wdired-change-to-wdired-mode))
-      (define-key-after diredp-menu-bar-subdir-menu [find]
-        '("Run `find' Command" . menu-bar-run-find-menu)
-        'wdired-mode)
-    (define-key diredp-menu-bar-subdir-menu [find] '("Run `find' Command" . menu-bar-run-find-menu))))
+(when (or (boundp 'diredp-menu-bar-dir-menu)  (boundp 'diredp-menu-bar-subdir-menu)) ; Defined in `dired+.el'.
+  (let ((menu  (if (boundp 'diredp-menu-bar-dir-menu) diredp-menu-bar-dir-menu diredp-menu-bar-subdir-menu))) ; Old name
+    (if (or (> emacs-major-version 21)  (fboundp 'wdired-change-to-wdired-mode))
+        (define-key-after menu [find]
+          '("Run `find' Command" . menu-bar-run-find-menu)
+          'wdired-mode)
+      (define-key menu [find] '("Run `find' Command" . menu-bar-run-find-menu)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 

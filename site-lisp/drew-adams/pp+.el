@@ -4,17 +4,17 @@
 ;; Description: Extensions to `pp.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1999-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1999-2018, Drew Adams, all rights reserved.
 ;; Created: Fri Sep  3 13:45:40 1999
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:17:09 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:21:16 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 419
-;; URL: http://www.emacswiki.org/pp%2b.el
-;; Doc URL: http://emacswiki.org/EvaluatingExpressions
+;;     Update #: 446
+;; URL: https://www.emacswiki.org/emacs/download/pp%2b.el
+;; Doc URL: https://emacswiki.org/emacs/EvaluatingExpressions
 ;; Keywords: lisp
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -101,6 +101,7 @@
 ;;
 ;;  User options defined here:
 ;;
+;;    `pp-eval-expression-print-circle',
 ;;    `pp-eval-expression-print-length',
 ;;    `pp-eval-expression-print-level', `pp-max-tooltip-size' (Emacs
 ;;    24+).
@@ -136,6 +137,13 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/10/23 dadams
+;;     pp-show-tooltip, pp-expression-size, pp-display-expression:
+;;       Wrap calls to posn-* with save-excursion.
+;; 2017/10/08 dadams
+;;     Added: pp-eval-expression-print-circle.
+;;     pp-show-tooltip, pp-eval-last-sexp-with(out)-tooltip, pp-eval-last-sexp:
+;;       Bind print-(circle|length|level) so pp-to-string prints all.
 ;; 2016/11/14 dadams
 ;;     pp-max-tooltip-size: Mention in doc that if point is off-screen then tooltip not used.
 ;;     pp-display-expression: If point is off-screen then do not try to use tooltip.
@@ -241,6 +249,12 @@
     (setq pp-read-expression-map  map)))
 
 ;;;###autoload
+(defcustom pp-eval-expression-print-circle nil
+  "*Value for `print-circle' while printing value in `pp-eval-expression'.
+Non-nil means print recursive structures using #N= and #N# syntax."
+  :group 'pp :group 'lisp :type 'boolean)
+
+;;;###autoload
 (defcustom pp-eval-expression-print-length nil
   "*Value for `print-length' while printing value in `pp-eval-expression'.
 A value of nil means no limit."
@@ -291,8 +305,8 @@ expression that moves point off-screen."
             (const :tag "Do not use a tooltip" nil)
             (const :tag "Always use a tooltip, and clip value if too big" t)
             (cons  :tag "Use a tooltip only if smaller than WIDTH x HEIGHT"
-             (integer :tag "Width (characters)"  :value ,(car x-max-tooltip-size))
-             (integer :tag "Height (characters)" :value ,(cdr x-max-tooltip-size))))
+                   (integer :tag "Width (characters)"  :value ,(car x-max-tooltip-size))
+                   (integer :tag "Height (characters)" :value ,(cdr x-max-tooltip-size))))
     :group 'pp :group 'lisp)
 
   (defface pp-tooltip
@@ -334,18 +348,22 @@ Optional arg FACE defaults to `pp-tooltip'."
 
   (defun pp-show-tooltip (value)
     "Show Lisp VALUE in a tooltip at point using face `pp-tooltip'."
-    (let* ((posn-at-pt                (posn-at-point))
-           (x-y                       (and posn-at-pt  (posn-x-y posn-at-pt)))
-           (win-edges                 (and x-y  (window-inside-absolute-pixel-edges)))
-           (left                      (and x-y  (+ (car x-y) (car win-edges))))
-           (top                       (and x-y  (+ (cdr x-y) (cadr win-edges))))
-           (tooltip-frame-parameters  `((name . "tooltip")
-                                        (internal-border-width . 2)
-                                        (border-width . 1)
-                                        (left ,@ left)
-                                        (top  ,@ top))))
-      (pp-tooltip-show (pp-to-string value))
-      value))
+    (save-excursion
+      (let* ((posn-at-pt                (posn-at-point))
+             (x-y                       (and posn-at-pt  (posn-x-y posn-at-pt)))
+             (win-edges                 (and x-y  (window-inside-absolute-pixel-edges)))
+             (left                      (and x-y  (+ (car x-y) (car win-edges))))
+             (top                       (and x-y  (+ (cdr x-y) (cadr win-edges))))
+             (tooltip-frame-parameters  `((name . "tooltip")
+                                          (internal-border-width . 2)
+                                          (border-width . 1)
+                                          (left ,@ left)
+                                          (top  ,@ top)))
+             (print-length              pp-eval-expression-print-length)
+             (print-level               pp-eval-expression-print-level)
+             (print-circle              pp-eval-expression-print-circle))
+        (pp-tooltip-show (pp-to-string value))
+        value)))
 
   (defun pp-expression-size (value buffer)
     "Return the size in characters needed to pretty-print Lisp VALUE.
@@ -353,21 +371,22 @@ Pretty-print VALUE in BUFFER in a temporary invisible frame, then
 return the value of `posn-col-row'.  If the value is non-`nil', it is
 a cons (COLUMNS . ROWS) of the rectangle needed for the result of
 pretty-printing."
-    (let ((buf  (get-buffer-create buffer))
-          posn)
-      (with-current-buffer buf
-        (erase-buffer)
-        (let* ((special-display-buffer-names  ())
-               (special-display-regexps       ())
-               (invis-frame                   (make-frame '((visibility . nil))))
-               (win                           (display-buffer buf nil invis-frame)))
-          (pp value buf)
-          (with-selected-frame invis-frame
-            (select-window win)
-            (goto-char (point-max))
-            (setq posn  (posn-at-point))
-            (prog1 (and posn  (posn-col-row posn))
-              (delete-frame)))))))
+    (save-excursion
+      (let ((buf  (get-buffer-create buffer))
+            posn)
+        (with-current-buffer buf
+          (erase-buffer)
+          (let* ((special-display-buffer-names  ())
+                 (special-display-regexps       ())
+                 (invis-frame                   (make-frame '((visibility . nil))))
+                 (win                           (display-buffer buf nil invis-frame)))
+            (pp value buf)
+            (with-selected-frame invis-frame
+              (select-window win)
+              (goto-char (point-max))
+              (setq posn  (posn-at-point))
+              (prog1 (and posn  (posn-col-row posn))
+                (delete-frame))))))))
 
   (defun pp-eval-expression-with-tooltip (expression &optional insert-value)
     "This is `pp-eval-expression', but using a tooltip when possible.
@@ -400,7 +419,11 @@ This is `pp-eval-last-sexp' with `pp-max-tooltip-size' bound to
 buffer `*Pp Eval Output*'."
     (interactive "P")
     (if arg
-        (insert (pp-to-string (eval (pp-last-sexp) lexical-binding)))
+        (let ((print-length  pp-eval-expression-print-length)
+              (print-level   pp-eval-expression-print-level)
+              (print-circle  (and (boundp 'print-circle) ; Emacs 22+
+                                  pp-eval-expression-print-circle)))
+          (insert (pp-to-string (eval (pp-last-sexp) lexical-binding))))
       (let ((pp-max-tooltip-size  x-max-tooltip-size))
         (pp-eval-expression (pp-last-sexp)))))
 
@@ -409,7 +432,11 @@ buffer `*Pp Eval Output*'."
 This is `pp-eval-expression' with `pp-max-tooltip-size' bound to `nil'."
     (interactive "P")
     (if arg
-        (insert (pp-to-string (eval (pp-last-sexp) lexical-binding)))
+        (let ((print-length  pp-eval-expression-print-length)
+              (print-level   pp-eval-expression-print-level)
+              (print-circle  (and (boundp 'print-circle) ; Emacs 22+
+                                  pp-eval-expression-print-circle)))
+          (insert (pp-to-string (eval (pp-last-sexp) lexical-binding))))
       (let ((pp-max-tooltip-size  nil))
         (pp-eval-expression (pp-last-sexp)))))
 
@@ -528,8 +555,12 @@ This command respects user options `pp-eval-expression-print-length',
             (pp-eval-last-sexp-with-tooltip nil)
           (pp-eval-last-sexp-without-tooltip nil))
       (if insert-value
-          (insert (pp-to-string (eval (pp-last-sexp) lexical-binding)))
+          (let ((print-length  pp-eval-expression-print-length)
+                (print-level   pp-eval-expression-print-level)
+                (print-circle  pp-eval-expression-print-circle))
+            (insert (pp-to-string (eval (pp-last-sexp) lexical-binding))))
         (pp-eval-expression (pp-last-sexp)))))
+
   )
 
 
@@ -553,7 +584,7 @@ Else show it in buffer OUT-BUFFER-NAME."
          (use-tooltip  (or use-tooltip  (and sexp-size
                                              (<= (car sexp-size) (car pp-max-tooltip-size))
                                              (<= (cdr sexp-size) (cdr pp-max-tooltip-size))))))
-    (if (and use-tooltip  (posn-at-point)) ; Ensure that point is on-screen now.
+    (if (and use-tooltip  (save-excursion (posn-at-point))) ; Ensure that point is on-screen now.
         (progn (pp-show-tooltip expression) (message nil))
       (let* ((old-show-function  temp-buffer-show-function)
              (temp-buffer-show-function

@@ -4,17 +4,17 @@
 ;; Description: Enhancements to cus-edit.el.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2000-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2000-2018, Drew Adams, all rights reserved.
 ;; Created: Thu Jun 29 13:19:36 2000
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Mon Feb  6 16:02:27 2017 (-0800)
+;; Last-Updated: Mon Jan  1 10:35:51 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 1627
-;; URL: http://www.emacswiki.org/cus-edit+.el
-;; Doc URL: http://emacswiki.org/CustomizingAndSaving
+;;     Update #: 1641
+;; URL: https://www.emacswiki.org/emacs/download/cus-edit%2b.el
+;; Doc URL: https://emacswiki.org/emacs/CustomizingAndSaving
 ;; Keywords: help, customize, help, faces
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -353,6 +353,8 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/06/04 dadams
+;;     custom-magic-alist: Use newer face names (which are aliased to the old ones).
 ;; 2017/01/06 dadams
 ;;     Added: customize-unsaved-confirm-exits-flag.
 ;;     Renamed: customize-customized-ignore to customize-unsaved-ignore.  Latter is obsolete alias.
@@ -526,10 +528,10 @@ cus-edit+.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/DrewsElispLibraries")
-  :link '(url-link :tag "Download" "http://www.emacswiki.org/cus-edit+.el")
+          "https://www.emacswiki.org/emacs/DrewsElispLibraries")
+  :link '(url-link :tag "Download" "https://www.emacswiki.org/emacs/download/cus-edit%2b.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/CustomizingAndSaving#CustomizePlus")
+          "https://www.emacswiki.org/emacs/CustomizingAndSaving#CustomizePlus")
   :link '(emacs-commentary-link :tag "Commentary" "cus-edit+")
   )
 
@@ -547,11 +549,11 @@ Don't forget to mention your Emacs and library versions."))
 Items in this list are symbols naming faces or variables."
   :type '(repeat symbol) :group 'Custom-Plus
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/DrewsElispLibraries")
+          "https://www.emacswiki.org/emacs/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/cus-edit+.el")
+          "https://www.emacswiki.org/emacs/download/cus-edit%2b.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/CustomizingAndSaving#CustomizePlus")
+          "https://www.emacswiki.org/emacs/CustomizingAndSaving#CustomizePlus")
   :link '(emacs-commentary-link :tag "Commentary" "cus-edit+"))
 
 (defcustom customize-unsaved-confirm-exits-flag nil
@@ -612,31 +614,52 @@ use etags instead.  Etags support is not as robust as imenu support."
 ;; Changed text for saved, to not give impression that preference
 ;; was necessarily set and saved.
 ;;
-(defconst custom-magic-alist '((nil "#" underline "\
+(defconst custom-magic-alist `((nil "#" underline "\
 UNINITIALIZED - you should not see this.")
                                (unknown "?" italic "\
 UNKNOWN - you should not see this.")
                                (hidden "-" default "\
 HIDDEN - invoke \"Show\" in the previous line to show." "\
 The group is now hidden - invoke \"Show\" to show it.")
-                               (invalid "x" custom-invalid-face "\
+                               (invalid
+                                "x"
+                                ,(if (> emacs-major-version 21) 'custom-invalid-face 'custom-invalid)
+                                "\
 INVALID - the %c cannot be set to the value shown.")
-                               (modified "*" custom-modified-face "\
+                               (modified
+                                "*"
+                                (if (> emacs-major-version 21) 'custom-modified-face 'custom-modified)
+                                "\
 EDITED - your changes for this %c take effect only when you set or save it." "\
 You have edited something in this group, but not set it.")
-                               (set "+" custom-set-face "\
+                               (set
+                                "+"
+                                (if (> emacs-major-version 21) 'custom-set-face 'custom-set)
+                                "\
 SET - your changes for this %c are for this session only, unless you also save them." "\
 Something in this group has been set, but not saved.")
-                               (changed ":" custom-changed-face "\
+                               (changed
+                                ":"
+                                (if (> emacs-major-version 21) 'custom-changed-face 'custom-changed)
+                                "\
 CHANGED OUTSIDE - this %c has been changed outside buffer *Customize*." "\
 Something in this group has been changed outside customize.")
-                               (saved "!" custom-saved-face "\
+                               (saved
+                                "!"
+                                (if (> emacs-major-version 21) 'custom-saved-face 'custom-saved)
+                                "\
 UNCHANGED - this %c is unchanged from the SAVED (startup) setting." "\
 Something in this group is unchanged from the saved (startup) setting.")
-                               (themed "o" custom-themed "\
+                               (themed
+                                "o"
+                                (if (> emacs-major-version 21) 'custom-themed-face 'custom-themed)
+                                "\
 THEMED - this %c has been set by a theme." "\
 Visible group members are all at standard values.")
-                               (rogue "@" custom-rogue-face "\
+                               (rogue
+                                "@"
+                                (if (> emacs-major-version 21) 'custom-rogue-face 'custom-rogue)
+                                "\
 NO CUSTOMIZATION DATA - this %c has NOT been changed using Customize." "\
 Something in this group is not prepared for customization.")
                                (standard " " nil "\
@@ -822,7 +845,7 @@ widget.  If FILTER is nil, ACTION is always valid.")
       ;; init-file-user rather than user-init-file.  This is in case
       ;; cus-edit is loaded by something in site-start.el, because
       ;; user-init-file is not set at that stage.
-      ;; http://lists.gnu.org/archive/html/emacs-devel/2007-10/msg00310.html
+      ;; https://lists.gnu.org/archive/html/emacs-devel/2007-10/msg00310.html
       ,@(when
          (or custom-file  init-file-user)
          '(("Save for Future Sessions" custom-variable-save

@@ -1,6 +1,6 @@
 ;;; settings.el --- emacs customization settings
 
-;; Copyright (C) 2013  Ron Parker
+;; Copyright (C) 2013, 2017  Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: faces, local
@@ -41,7 +41,7 @@
    (quote
     ("*scratch*" "*Messages*" "*server*" "*Org Agenda*")))
  '(column-number-mode t)
- '(custom-safe-themes (quote ("3b1db1cbd61ae70e22a23ba071c11f51a7b149dc9f87ce7ea848e8b08ba2bd52" "2c6420e6c971e446731e7d0ab01b9ea65b94c9ebe44300520c440de91bfe22eb" "039ba4528a704c38a34f604e26f339593916414b756d27f55feebc003f90ac96")))
+ '(custom-safe-themes (quote ("96c29d8a3d7a12b98326772fca78f5d37fda186d48c008e3764e37c313d54399")))
  '(default-input-method "TeX")
  '(ecb-options-version "2.40")
  '(erc-fool-highlight-type (quote all))
@@ -56,16 +56,6 @@
     (autojoin button completion fill irccontrols keep-place list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp spelling track truncate)))
  '(erc-truncate-mode t)
  '(erc-warn-about-blank-lines t)
- '(face-font-family-alternatives
-   (quote
-    (("Source Code Pro" "Onuava" "Verily Serif Mono" "Monaco" "DejaVu Sans Mono" "Liberation Mono" "Monospace" "courier" "fixed")
-     ("Onuava" "Verily Serif Mono" "Monaco" "Monospace" "courier" "fixed")
-     ("DejaVu Sans Mono" "Source Code Pro" "Consolas" "Menlo" "Courier")
-     ("Source Code Pro" "DejaVu Sans Mono" "Consolas" "Menlo" "Courier")
-     ("Monospace" "courier" "fixed")
-     ("courier" "CMU Typewriter Text" "fixed")
-     ("Sans Serif" "helv" "helvetica" "arial" "fixed")
-     ("helv" "helvetica" "arial" "fixed"))))
  '(highlight-symbol-idle-delay 1.0)
  '(indicate-buffer-boundaries (quote ((t . right) (top . left))))
  '(inhibit-startup-screen t)

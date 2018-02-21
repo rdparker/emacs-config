@@ -4,21 +4,22 @@
 ;; Description: Customizable behavior for `mouse-3'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2010-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2010-2018, Drew Adams, all rights reserved.
 ;; Created: Tue Nov 30 15:22:56 2010 (-0800)
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:01:05 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:07:26 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 1759
-;; URL: http://www.emacswiki.org/mouse3.el
-;; Doc URL: http://www.emacswiki.org/Mouse3
+;;     Update #: 1810
+;; URL: https://www.emacswiki.org/emacs/download/mouse3.el
+;; Doc URL: https://www.emacswiki.org/emacs/Mouse3
 ;; Keywords: mouse menu keymap kill rectangle region
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `naked'.
+;;   `avoid', `cl', `frame-fns', `isearch+', `misc-cmds', `misc-fns',
+;;   `naked', `strings', `thingatpt', `thingatpt+'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -300,6 +301,7 @@
 ;;   `mouse3-region-popup-register-submenu',
 ;;   `mouse3-region-popup-remove/replace-items',
 ;;   `mouse3-region-popup-remove/replace-rect-submenu',
+;;   `mouse3-region-popup-search/replace-submenu',
 ;;   `mouse3-save-then-kill-command'.
 ;;
 ;;
@@ -313,6 +315,11 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2017/11/12 dadams
+;;     Added: mouse3-region-popup-search/replace-submenu.
+;;     mouse3-region-popup-x-popup-panes: Added Search/Replace entries.
+;;     mouse3-region-popup-entries: Added mouse3-region-popup-search/replace-submenu.
+;;     Soft-require isearch+.el.
 ;; 2016/12/21 dadams
 ;;     Added: mouse3-ffap-max-region-size, mouse3-ffap-guesser.
 ;;     mouse3-file-or-dir, mouse3-noregion-popup-misc-submenu: Use mouse3-ffap-guesser, not ffap-guesser.
@@ -426,6 +433,8 @@
 ;;; Code:
 
 (require 'naked nil t) ;; (no error if not found): naked-key-description
+(require 'isearch+ nil t) ;; (no error if not found):
+                          ;; isearchp-forward-regexp-region, isearchp-forward-regexp-region
 
 ;; Quiet the byte-compiler.
 (defvar picture-killed-rectangle)
@@ -443,11 +452,11 @@
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs version and mouse3.el `Update #'."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/DrewsElispLibraries")
+          "https://www.emacswiki.org/emacs/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/mouse3.el")
+          "https://www.emacswiki.org/emacs/download/mouse3.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/Mouse3")
+          "https://www.emacswiki.org/emacs/Mouse3")
   :link '(emacs-commentary-link :tag "Doc" "mouse3"))
 
 (defun mouse3-nonempty-region-p ()
@@ -593,7 +602,13 @@ If nil, or if both `mouse3-region-popup-x-popup-panes' and
 ;; Another good reason to use the standard format instead.
 ;;;###autoload
 (defcustom mouse3-region-popup-x-popup-panes
-  `(("Remove/Replace"
+  `(("Search/Replace"
+     ,@`(,@(and (fboundp 'isearchp-forward-region)
+                '(("Isearch"                    . isearchp-forward-region)
+                  ("Isearch Regexp"             . isearchp-forward-regexp-region)))
+         ("Query Replace"                       . query-replace)
+         ("Query Replace Regexp"                . query-replace-regexp)))
+    ("Remove/Replace"
      ,@`(("Kill"                                . kill-region)
          ("Delete"                              . delete-region)
          ("Yank (Replace)"                      . (lambda (start end)
@@ -1020,6 +1035,21 @@ not use this option.  Instead, set option
       (hlt-yank-props menu-item "Yank Copied Text Properties" hlt-yank-props ; Defined in `highlight.el'.
        :visible (and (not buffer-read-only)  (fboundp 'hlt-yank-props)  hlt-copied-props)))
   "Menu items for removing or replacing the mouse selection.")
+
+(defconst mouse3-region-popup-search/replace-submenu
+    `(search-replace-menu
+      menu-item
+      "Search/Replace"
+      (keymap
+       (isearch             menu-item "Isearch" isearchp-forward-region
+        :visible (fboundp 'isearchp-forward-region))
+       (isearch-regexp      menu-item "Isearch Regexp" isearchp-forward-regexp-region
+        :visible (fboundp 'isearchp-forward-regexp-region))
+       (query-replace       menu-item "Query Replace" query-replace
+        :enable (and (not buffer-read-only)  (mouse3-nonempty-region-p)))
+       (query-replaceregexp menu-item "Query Replace Regexp" query-replace-regexp
+        :enable (and (not buffer-read-only)  (mouse3-nonempty-region-p)))))
+  "Submenu for searching or replacing text in the region by the mouse.")
 
 (defconst mouse3-region-popup-remove/replace-rect-submenu
     '(remove/replace-rect-menu
@@ -1478,6 +1508,7 @@ restore it by yanking."
 (defcustom mouse3-region-popup-entries `(,@mouse3-region-popup-remove/replace-items
                                          (sep1-std-entries menu-item "--" nil
                                           :visible (not buffer-read-only))
+                                         ,mouse3-region-popup-search/replace-submenu
                                          ,mouse3-region-popup-remove/replace-rect-submenu
                                          ,mouse3-region-popup-copy-submenu
                                          ,mouse3-region-popup-register-submenu
@@ -1798,7 +1829,8 @@ is the menu title and PANE-TITLE is a submenu title.
 
 ;; REPLACE ORIGINAL in `mouse.el'.
 ;;
-;; Use `mouse3-second-click-command' to determine the action for a second `mouse-3' click.
+;; 1. Use `mouse3-second-click-command' to determine the action for a second `mouse-3' click.
+;; 2. Added optional arg PREFIX.
 ;;
 ;;;###autoload
 (defun mouse-save-then-kill (click &optional prefix)

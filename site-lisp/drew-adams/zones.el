@@ -4,18 +4,18 @@
 ;; Description:  Zones of text - like multiple regions
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2010-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 2010-2018, Drew Adams, all rights reserved.
 ;; Created: Sun Apr 18 12:58:07 2010 (-0700)
 ;; Version: 2015-08-16
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 12:02:07 2017 (-0800)
+;; Last-Updated: Tue Jan  9 14:51:56 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 1728
-;; URL: http://www.emacswiki.org/zones.el
-;; Doc URL: http://www.emacswiki.org/Zones
-;; Doc URL: http://www.emacswiki.org/MultipleNarrowings
+;;     Update #: 1813
+;; URL: https://www.emacswiki.org/emacs/download/zones.el
+;; Doc URL: https://www.emacswiki.org/emacs/Zones
+;; Doc URL: https://www.emacswiki.org/emacs/MultipleNarrowings
 ;; Keywords: narrow restriction widen region zone
-;; Compatibility: GNU Emacs 20.x, 21.x, 22.x, 23.x, 24.x, 25.x,
+;; Compatibility: GNU Emacs 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -42,7 +42,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Things Defined Here")
 ;;  (@> "Documentation")
@@ -66,21 +66,32 @@
 ;;    `zz-add-zone-and-unite', `zz-clone-and-coalesce-zones',
 ;;    `zz-clone-and-unite-zones', `zz-clone-zones',
 ;;    `zz-coalesce-zones', `zz-delete-zone', `zz-narrow',
-;;    `zz-narrow-repeat', `zz-select-region',
+;;    `zz-narrow-repeat', `zz-query-replace-zones' (Emacs 25+),
+;;    `zz-query-replace-regexp-zones' (Emacs 25+), `zz-select-region',
 ;;    `zz-select-region-repeat', `zz-set-izones-var',
 ;;    `zz-unite-zones'.
 ;;
+;;  User options defined here:
+;;
+;;    `zz-narrowing-use-fringe-flag'.
+;;
+;;  Faces defined here:
+;;
+;;    `zz-fringe-for-narrowing'.
+;;
 ;;  Non-interactive functions defined here:
 ;;
-;;    `zz-buffer-of-markers', `zz-car-<', `zz-every',
+;;    `zz-buffer-of-markers', `zz-car-<', `zz-dot-pairs', `zz-every',
 ;;    `zz-izone-has-other-buffer-marker-p', `zz-izone-limits',
-;;    `zz-izone-limits-in-bufs', `zz-izones', `zz-izones-from-zones',
-;;    `zz-izones-p', `zz-izones-renumber', `zz-marker-from-object',
-;;    `zz-markerize', `zz-max', `zz-min', `zz-narrowing-lighter',
-;;    `zz-number-or-marker-p', `zz-rassoc-delete-all',
-;;    `zz-readable-marker', `zz-readable-marker-p',
-;;    `zz-read-any-variable', `zz-read-bufs', `zz-regexp-car-member',
-;;    `zz-remove-if', `zz-remove-if-not',
+;;    `zz-izone-limits-in-bufs', `zz-izones',
+;;    `zz-izones-from-noncontiguous-region' (Emacs 25+),
+;;    `zz-izones-from-zones', `zz-izones-p', `zz-izones-renumber',
+;;    `zz-marker-from-object', `zz-markerize', `zz-max', `zz-min',
+;;    `zz-narrowing-lighter', `zz-noncontiguous-region-from-izones',
+;;    `zz-noncontiguous-region-from-zones', `zz-number-or-marker-p',
+;;    `zz-rassoc-delete-all', `zz-readable-marker',
+;;    `zz-readable-marker-p', `zz-read-any-variable', `zz-read-bufs',
+;;    `zz-regexp-car-member', `zz-remove-if', `zz-remove-if-not',
 ;;    `zz-remove-izones-w-other-buffer-markers',
 ;;    `zz-remove-zones-w-other-buffer-markers', `zz-repeat-command',
 ;;    `zz-set-intersection', `zz-set-union', `zz-some',
@@ -88,8 +99,9 @@
 ;;    `zz-two-zone-union', `zz-zones-complement',
 ;;    `zz-zone-has-other-buffer-marker-p', `zz-zone-intersection',
 ;;    `zz-zone-intersection-1', `zz-zone-ordered',
-;;    `zz-zones-overlap-p', `zz-zones-same-buffer-p',
-;;    `zz-zone-union', `zz-zone-union-1'.
+;;    `zz-zones-from-noncontiguous-region' (Emacs 25+),
+;;    `zz-zones-overlap-p', `zz-zones-same-buffer-p', `zz-zone-union',
+;;    `zz-zone-union-1'.
 ;;
 ;;  Internal variables defined here:
 ;;
@@ -125,7 +137,8 @@
 ;;
 ;;  Some of the functions defined here are not available for Emacs
 ;;  versions prior to Emacs 22.  Others are not available for versions
-;;  prior to Emacs 23.  This is mentioned where applicable.
+;;  prior to Emacs 23.  Still others are available only starting with
+;;  Emacs 25.  This is mentioned where applicable.
 ;;
 ;;
 ;;(@* "Zones")
@@ -236,6 +249,8 @@
 ;;    bookmark to restore it in a subsequent Emacs session.  For this
 ;;    you need library `bookmark+.el'.
 ;;
+;;  * Query-replace over them (Emacs 25 and later).
+;;
 ;;
 ;;(@* "Izone List Variables")
 ;;  ** Izone List Variables **
@@ -290,7 +305,7 @@
 ;;(@* "Keys")
 ;;  ** Keys **
 ;;
-;;  Most of the commands that manipulate izones are bound on keymap
+;;  Many of the commands that manipulate izones are bound on keymap
 ;;  `narrow-map'.  They are available on prefix key `C-x n', along
 ;;  with the narrowing/widening keys `C-x n d', `C-x n n', `C-x n p',
 ;;  and `C-x n w':
@@ -357,6 +372,12 @@
 ;;  `-NUM' part uses `zz-narrow-repeat' to cycle to the next
 ;;  narrowing.
 ;;
+;;  If option `zz-narrowing-use-fringe-flag' is non-nil, which it is
+;;  by default, then the face of the selected frame's fringe is set to
+;;  `zz-fringe-for-narrowing' whenever the buffer is narrowed.  This
+;;  shows you that the current buffer is narrowed even if the
+;;  mode-line does not.
+;;
 ;;
 ;;(@* "Define Your Own Commands")
 ;;  ** Define Your Own Commands **
@@ -407,6 +428,19 @@
 ;;
 ;;(@* "Change log")
 ;;
+;; 2018/01/09 dadams
+;;     zz-readable-marker:
+;;       If arg is already a readable marker just return it (idempotent).  If it is a marker then use its buffer.
+;;       If it is a number then use it as is, using BUFFER arg or current buffer name.
+;; 2017/08/02 dadams
+;;     Added: zz-izones-from-noncontiguous-region, zz-zones-from-noncontiguous-region,
+;;            zz-noncontiguous-region-from-izones, zz-noncontiguous-region-from-zones, zz-dot-pairs.
+;; 2017/08/01 dadams
+;;     Added: zz-query-replace-zones, zz-query-replace-regexp-zones - Emacs 25+ only.
+;; 2017/06/05 dadams
+;;     zz-set-fringe-for-narrowing: Use copy-face, not face-spec-set-2.  OK for Emacs 24.4+
+;; 2017/06/04 dadams
+;;     Added: zz-narrowing-use-fringe-flag, zz-fringe-for-narrowing, zz-set-fringe-for-narrowing.
 ;; 2016/02/09 dadams
 ;;     zz-zones-complement: Removed unused optional BUFFER arg.  Use zz-marker-from-object on BEG and END.
 ;; 2015/09/07 dadams
@@ -615,7 +649,7 @@
 ;; General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -624,6 +658,7 @@
 ;; Quiet the byte-compiler.
 (defvar mode-line-modes)                ; Emacs 22+
 (defvar narrow-map)                     ; Emacs 23+
+(defvar region-extract-function)        ; Emacs 25+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
  
@@ -636,9 +671,35 @@
 zones.el bug: \
 &body=Describe bug here, starting with `emacs -Q'.  \
 Don't forget to mention your Emacs and library versions."))
-  :link '(url-link :tag "Download" "http://www.emacswiki.org/zones.el")
-  :link '(url-link :tag "Description" "http://www.emacswiki.org/Zones")
+  :link '(url-link :tag "Download" "https://www.emacswiki.org/emacs/download/zones.el")
+  :link '(url-link :tag "Description" "https://www.emacswiki.org/emacs/Zones")
   :link '(emacs-commentary-link :tag "Commentary" "zones"))
+
+(when (or (> emacs-major-version 24)    ; Emacs 24.4+
+          (and (= emacs-major-version 24)  (> emacs-minor-version 3))) ; `reset' arg to `face-spec-set'.
+
+  (defface zz-fringe-for-narrowing 
+      '((((background dark)) (:background "#FFFF2429FC15")) ; a dark magenta
+        (t (:background "LightGreen")))
+    "*Face used for fringe when buffer is narrowed."
+    :group 'zones :group 'faces)
+
+  (defcustom zz-narrowing-use-fringe-flag t
+    "Non-nil means use fringe face `zz-fringe-for-narrowing' when narrowed."
+    :type 'boolean :group 'zones
+    :set (lambda (sym defs)
+           (custom-set-default sym defs)
+           (if (symbol-value sym)
+               (add-hook 'post-command-hook 'zz-set-fringe-for-narrowing)
+             (remove-hook 'post-command-hook 'zz-set-fringe-for-narrowing))))
+
+  (defun zz-set-fringe-for-narrowing ()
+    "Set fringe face if buffer is narrowed."
+    (if (buffer-narrowed-p)
+        (copy-face 'zz-fringe-for-narrowing 'fringe (selected-frame))
+      (face-spec-set 'fringe (get 'fringe 'face-defface-spec) 'reset)))
+
+  )
 
 (defvar zz-lighter-narrowing-part ""
   "String to append to \" Narrow\" in mode-line lighter or messages.")
@@ -1207,26 +1268,32 @@ OBJECT is returned."
        (eq 'marker (nth 0 object))  (stringp (nth 1 object))  (numberp (nth 2 object))
        object))
 
-(defun zz-readable-marker (number-or-marker &optional buffer)
-  "Return a readable-marker object equivalent to NUMBER-OR-MARKER, or nil.
+(defun zz-readable-marker (number-or-marker &optional num-buffer)
+  "Return a readable marker equivalent to NUMBER-OR-MARKER, or nil.
 Return nil if NUMBER-OR-MARKER is not `number-or-marker-p'.
+\(If NUMBER-OR-MARKER is already a readable marker then return it.)
 
-This is a non-destructive operation.
+A readable marker satisfies `zz-readable-marker-p'.  It has the form
+\(marker BUFFER POSITION), where BUFFER is a buffer name (string) and
+POSITION is a buffer position (number).
 
-Optional arg BUFFER is a buffer or a buffer name (default: name of
-current buffer).  It is used as the marker buffer when
-`number-or-marker-p' is a number.
+If NUMBER-OR-MARKER is itself a readable marker then return it.
 
-A readable-marker object is a sexp of form (marker BUFFER POSITION),
-where BUFFER is a buffer name (string) and POSITION is buffer
-position (number)."
-  (let* ((buf   (get-buffer (or buffer  (current-buffer))))
-         (buf   (and buf  (buffer-name buf)))
-         (mrkr  (and (number-or-marker-p number-or-marker)
-                     (if (markerp number-or-marker)
-                         number-or-marker
-                       (with-current-buffer buf (copy-marker number-or-marker))))))
-    (and mrkr  `(marker ,buf ,(marker-position mrkr)))))
+If NUMBER-OR-MARKER is a marker then its buffer is used as BUFFER.
+
+If NUMBER-OR-MARKER is a number then:
+ If   NUM-BUFFER names an existing buffer then it is used as BUFFER.
+ Else the name of the current buffer is used as BUFFER.
+
+This is a non-destructive operation."
+  (cond ((zz-readable-marker-p number-or-marker) number-or-marker)
+        ((markerp number-or-marker)
+         `(marker ,(marker-buffer number-or-marker) ,(marker-position number-or-marker)))
+        ((numberp number-or-marker)
+         `(marker
+           ,(buffer-name (or (and (stringp num-buffer)  (get-buffer num-buffer))  (current-buffer)))
+           ,number-or-marker))
+        (t nil)))
 
 (defun zz-izones-p (value)
   "Return non-nil if VALUE is a (possibly empty) list of izones.
@@ -1726,6 +1793,177 @@ that is the value of `zz-izones-var' can be modified."
                   (point))))
       (when (or (interactive-p)  zz-add-zone-anyway-p) (zz-add-zone beg end nil nil nil 'MSG))
       (narrow-to-region beg end))))
+
+
+(when (> emacs-major-version 24)
+
+  (defun zz-query-replace-zones (from-string to-string &optional delimited start end backward zones)
+    "`query-replace' in the zones currently defined in the current buffer.
+The value of variable `zz-izones' defines the zones."
+    (interactive
+     (let* ((common  (query-replace-read-args
+                      (concat "Query replace"
+                              (if current-prefix-arg
+                                  (if (eq current-prefix-arg '-) " backward" " word")
+                                "")
+                              (if (use-region-p) " in region" ""))
+                      nil))
+            (beg     (point-max))
+            (end     (point-min))
+            zs)
+       (dolist  (zone  (zz-izone-limits (zz-unite-zones zz-izones-var)))
+         (setq beg  (min beg (car zone))
+               end  (max end (cadr zone)))
+         (push (cons (car zone) (cadr zone)) zs))
+       (setq zs  (nreverse zs))
+       (list (nth 0 common) (nth 1 common) (nth 2 common)
+             beg
+             end
+             (nth 3 common)
+             zs)))
+    (unless zones (error "No zones to search"))
+    (let ((region-extract-function  (lambda (_ignore) zones)))
+      (query-replace from-string to-string delimited start end backward t)))
+
+  (defun zz-query-replace-regexp-zones (regexp to-string &optional delimited start end backward zones)
+    "`query-replace-regexp' in the zones currently defined in the current buffer.
+The value of variable `zz-izones' defines the zones."
+    (interactive
+     (let* ((common  (query-replace-read-args
+                      (concat "Query replace"
+                              (if current-prefix-arg
+                                  (if (eq current-prefix-arg '-) " backward" " word")
+                                "")
+                              (if (use-region-p) " in region" ""))
+                      nil))
+            (beg     (point-max))
+            (end     (point-min))
+            zs)
+       (dolist  (zone  (zz-izone-limits (zz-unite-zones zz-izones-var)))
+         (setq beg  (min beg (car zone))
+               end  (max end (cadr zone)))
+         (push (cons (car zone) (cadr zone)) zs))
+       (setq zs  (nreverse zs))
+       (list (nth 0 common) (nth 1 common) (nth 2 common)
+             beg
+             end
+             (nth 3 common)
+             zs)))
+    (unless zones (error "No zones to search"))
+    (let ((region-extract-function  (lambda (_ignore) zones)))
+      (query-replace-regexp regexp to-string delimited start end backward t)))
+
+  ;; The next three will wait until vanilla Emacs adds handling of noncontiguous regions to
+  ;; `map-query-replace-regexp', `replace-string', and `replace-regexp' - see bug #27897.
+  
+  ;;   (defun zz-map-query-replace-regexp-zones (regexp to-strings &optional n start end zones)
+  ;;     "`map-query-replace-regexp' in the zones currently defined in the current buffer.
+  ;; The value of variable `zz-izones' defines the zones."
+  ;;     (interactive
+  ;;      (let* ((from  (read-regexp "Map query replace (regexp): " nil
+  ;;                                 query-replace-from-history-variable))
+  ;;             (to    (read-from-minibuffer
+  ;;                     (format "Query replace %s with (space-separated strings): "
+  ;;                             (query-replace-descr from))
+  ;;                     nil nil nil
+  ;;                     query-replace-to-history-variable from t))
+  ;;             (beg   (point-max))
+  ;;             (end   (point-min))
+  ;;             zs)
+  ;;        (dolist  (zone  (zz-izone-limits (zz-unite-zones zz-izones-var)))
+  ;;          (setq beg  (min beg (car zone))
+  ;;                end  (max end (cadr zone)))
+  ;;          (push (cons (car zone) (cadr zone)) zs))
+  ;;        (setq zs  (nreverse zs))
+  ;;        (list from to
+  ;;              (and current-prefix-arg  (prefix-numeric-value current-prefix-arg))
+  ;;              beg
+  ;;              end
+  ;;              zs)))
+  ;;     (unless zones (error "No zones to search"))
+  ;;     (let ((region-extract-function  (lambda (_ignore) zones)))
+  ;;       (map-query-replace-regexp regexp to-strings n start end t)))
+  
+  ;;   (defun zz-replace-string-zones (from-string to-string &optional delimited start end backward zones)
+  ;;     "`replace-string' in the zones currently defined in the current buffer.
+  ;; The value of variable `zz-izones' defines the zones."
+  ;;     (declare (interactive-only "use `search-forward' and `replace-match' instead."))
+  ;;     (interactive
+  ;;      (let ((common  (query-replace-read-args
+  ;;                      (concat "Replace"
+  ;;                              (if current-prefix-arg
+  ;;                                  (if (eq current-prefix-arg '-) " backward" " word")
+  ;;                                "")
+  ;;                              " string"
+  ;;                              (if (use-region-p) " in region" ""))
+  ;;                      nil))
+  ;;            (beg     (point-max))
+  ;;            (end     (point-min))
+  ;;            zs)
+  ;;        (dolist  (zone  (zz-izone-limits (zz-unite-zones zz-izones-var)))
+  ;;          (setq beg  (min beg (car zone))
+  ;;                end  (max end (cadr zone)))
+  ;;          (push (cons (car zone) (cadr zone)) zs))
+  ;;        (setq zs  (nreverse zs))
+  ;;        (list (nth 0 common) (nth 1 common) (nth 2 common) beg end (nth 3 common) zs)))
+  ;;     (unless zones (error "No zones to search"))
+  ;;     (let ((region-extract-function  (lambda (_ignore) zones)))
+  ;;       (replace-string from-string to-string delimited start end backward t)))
+
+  ;;   (defun replace-regexp (regexp to-string &optional delimited start end backward zones)
+  ;;     "`replace-regexp' in the zones currently defined in the current buffer.
+  ;; The value of variable `zz-izones' defines the zones."
+  ;;     (declare (interactive-only "use `re-search-forward' and `replace-match' instead."))
+  ;;     (interactive
+  ;;      (let ((common  (query-replace-read-args
+  ;;                      (concat "Replace"
+  ;;                              (if current-prefix-arg
+  ;;                                  (if (eq current-prefix-arg '-) " backward" " word")
+  ;;                                "")
+  ;;                              " regexp"
+  ;;                              (if (use-region-p) " in region" ""))
+  ;;                      t))
+  ;;            (beg     (point-max))
+  ;;            (end     (point-min))
+  ;;            zs)
+  ;;        (list (nth 0 common) (nth 1 common) (nth 2 common) beg end (nth 3 common) zs)))
+  ;;     (unless zones (error "No zones to search"))
+  ;;     (let ((region-extract-function  (lambda (_ignore) zones)))
+  ;;       (replace-regexp regexp to-string delimited start end backward t)))
+
+
+  (defun zz-izones-from-noncontiguous-region ()
+    "Return a list if izones from `region-extract-function' bounds."
+    (let ((ii  0))
+      (mapcar (lambda (posn) (cons (setq ii  (1+ ii)) (list (copy-marker (car posn)) (copy-marker (cdr posn)))))
+              (funcall region-extract-function 'bounds))))
+         
+  (defun zz-zones-from-noncontiguous-region ()
+    "Return a list if basic zones from `region-extract-function' bounds."
+    (mapcar (lambda (posn) (list (copy-marker (car posn)) (copy-marker (cdr posn))))
+            (funcall region-extract-function 'bounds)))
+
+  )
+
+(defun zz-noncontiguous-region-from-izones ()
+  "Return a noncontiguous region from value of value of `zz-izones-var'.
+An Emacs \"noncontiguous region\" (Emacs 25+) is what the value of
+`region-extract-function' returns.  It is like a list of basic zones,
+but the entry pairs are dotted: `(beg . end)', not `(beg end)'."
+  (nreverse (zz-izone-limits (zz-unite-zones zz-izones-var))))
+
+(defun zz-noncontiguous-region-from-zones (basic-zones)
+  "Return a noncontiguous region from a list of BASIC-ZONES.
+An Emacs \"noncontiguous region\" (Emacs 25+) is what the value of
+`region-extract-function' returns.  It is like a list of basic zones,
+but the entry pairs are dotted: `(beg . end)', not `(beg end)'."
+  (mapcar #'zz-dot-pairs (zz-zone-union basic-zones)))
+
+(defun zz-dot-pairs (pairs)
+  "Dot PAIRS, a list of lists, each of which has at least two elements."
+  (mapcar (lambda (b-e) (cons (car b-e) (cadr b-e))) pairs))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 

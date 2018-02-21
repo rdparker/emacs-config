@@ -7,4 +7,4 @@ be used to update this directory from his files on [[https://www.emacswiki.org][
 script is fairly well commented to explain what it does.
 
 Emacs can be started with his init file via by running the following:
-=emacs -q -l ~/.emacs.d/site-lisp/drew-adams/emacs-init.el=.
+=emacs -q -L ~/.emacs.d/site-lisp/drew-adams -l emacs-init.el=.

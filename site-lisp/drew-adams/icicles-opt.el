@@ -4,16 +4,16 @@
 ;; Description: User options (customizable variables) for Icicles
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Feb 27 09:22:14 2006
-;; Last-Updated: Fri Mar  3 14:54:13 2017 (-0800)
+;; Last-Updated: Mon Jan 15 10:37:26 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 6174
+;;     Update #: 6211
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-opt.el
-;; Doc URL: http://www.emacswiki.org/Icicles
+;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: internal, extensions, help, abbrev, local, minibuffer,
 ;;           keys, apropos, completion, matching, regexp, command
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -23,9 +23,9 @@
 ;;   `ffap-', `fit-frame', `frame-fns', `fuzzy', `fuzzy-match',
 ;;   `help+20', `hexrgb', `info', `info+20', `kmacro', `levenshtein',
 ;;   `menu-bar', `menu-bar+', `misc-cmds', `misc-fns', `naked',
-;;   `package', `pp', `pp+', `regexp-opt', `second-sel', `strings',
-;;   `thingatpt', `thingatpt+', `unaccent', `w32browser-dlgopen',
-;;   `wid-edit', `wid-edit+', `widget'.
+;;   `package', `pp', `pp+', `second-sel', `strings', `thingatpt',
+;;   `thingatpt+', `unaccent', `w32browser-dlgopen', `wid-edit',
+;;   `wid-edit+', `widget'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -126,6 +126,7 @@
 ;;    `icicle-expand-input-to-common-match-alt', `icicle-file-extras',
 ;;    `icicle-file-match-regexp', `icicle-file-no-match-regexp',
 ;;    `icicle-file-predicate', `icicle-file-require-match-flag',
+;;    `icicle-file-search-dir-as-dired-flag',
 ;;    `icicle-file-skip-functions', `icicle-file-sort',
 ;;    `icicle-files-ido-like-flag',
 ;;    `icicle-filesets-as-saved-completion-sets-flag',
@@ -265,7 +266,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Constants used to define user options")
 ;;  (@> "User options, organized alphabetically, except for dependencies")
@@ -295,6 +296,8 @@
 ;; so there seems no way around this, short of coding without push and dolist.
 ;; This MUST be `eval-and-compile', even though in principle `eval-when-compile' should be enough.
 (eval-and-compile (when (< emacs-major-version 21) (require 'cl))) ;; dolist, push
+
+(eval-when-compile (require 'cl))       ; incf
 
 (require 'thingatpt)        ;; symbol-at-point, thing-at-point, thing-at-point-url-at-point
 
@@ -490,10 +493,12 @@
        (next-TAB menu-item "Next TAB Completion Method"
         icicle-next-TAB-completion-method
         :visible (not current-prefix-arg))
-       (using-~-for-home menu-item "Toggle Using `~' for $HOME"
-        icicle-toggle-~-for-home-dir)
+       (comp-mode-keys menu-item "Completion Mode Keys"
+        icicle-toggle-completion-mode-keys)
        (using-C-for-actions menu-item "Toggle Using `C-' for Actions"
         icicle-toggle-C-for-actions)
+       (using-~-for-home menu-item "Toggle Using `~' for $HOME"
+        icicle-toggle-~-for-home-dir)
        (removing-dups menu-item "Toggle Duplicate Removal" icicle-toggle-transforming)
        (proxy-candidates menu-item "Toggle Including Proxy Candidates"
         icicle-toggle-proxy-candidates)
@@ -1017,6 +1022,8 @@ Remember that you can use multi-command `icicle-toggle-option' anytime
   `(
     (,(icicle-kbd "C-x m")         icicle-bookmark-non-file-other-window             ; `C-x m'
      (require 'bookmark+ nil t))
+    (,(icicle-kbd "C-x * -")       icicle-remove-buffer-cands-for-modified        t) ; `C-x * -'
+    (,(icicle-kbd "C-x * +")       icicle-keep-only-buffer-cands-for-modified     t) ; `C-x * +'
     (,(icicle-kbd "C-x M -")       icicle-remove-buffer-cands-for-mode            t) ; `C-x M -'
     (,(icicle-kbd "C-x M +")       icicle-keep-only-buffer-cands-for-mode         t) ; `C-x M +'
     (,(icicle-kbd "C-x C-m -")     icicle-remove-buffer-cands-for-derived-mode    t) ; `C-x C-m -'
@@ -1167,6 +1174,9 @@ provides the same behavior as value `use-default' (but it is slower):
       (null cpa))
     nil)                                          ; Any (no filtering)
 
+   ((lambda (cpa) (and (consp cpa)  (eq cpa '-))) ; `-'
+    (lambda (bf) (not (buffer-modified-p bf))))   ; Modified (unsaved)
+
    ((lambda (cpa)                                 ; `C-u C-u C-u'
       (and (consp cpa)
            (> (prefix-numeric-value cpa) 16)))
@@ -1178,7 +1188,7 @@ provides the same behavior as value `use-default' (but it is slower):
     (lambda (bf) (not (get-buffer-window bf 0)))) ; Visible
 
    ((lambda (cpa)                                 ; `C-u'
-      (and (consp current-prefix-arg)
+      (and (consp cpa)
            (fboundp 'derived-mode-p)))
     (lambda (bf)                                  ; Derived mode
       (not (derived-mode-p
@@ -2065,6 +2075,7 @@ the full candidate object.")
     (,(icicle-kbd "C-*")       icicle-candidate-set-intersection t)                   ; `C-*'
     (,(icicle-kbd "C->")       icicle-candidate-set-save-more t)                      ; `C->'
     (,(icicle-kbd "C-M->")     icicle-candidate-set-save t)                           ; `C-M->'
+    (,(icicle-kbd "C-S-<tab>") icicle-toggle-completion-mode-keys t)                  ; `C-S-<tab>'
     (,(icicle-kbd "C-(")       icicle-next-TAB-completion-method t)                   ; `C-('
     (,(icicle-kbd "C-M-(")     icicle-next-completion-style-set
      (fboundp 'icicle-next-completion-style-set))                                     ; `C-M-('
@@ -2901,6 +2912,26 @@ You can toggle this option at any time from the minibuffer using
 `\\<minibuffer-local-completion-map>\\[icicle-toggle-expand-directory]'."
   :type 'boolean :group 'Icicles-Files :group 'Icicles-Miscellaneous)
 
+(defcustom icicle-file-search-dir-as-dired-flag nil
+  "Non-nil means `icicle-file' searches directories as Dired listings.
+This applies to `icicle-file' and similar multi-completion commands
+that let you match file content as well as file names.
+
+The option has no effect if your input has no content-matching part.
+
+The default value of nil prevents a command from visiting a directory
+in Dired mode to search for the content-matching part of your
+multi-completion input.
+
+A non-nil value means that such Dired visiting and searching is
+governed instead by the value of option `find-file-run-dired'.
+
+Option `icicle-file-search-dir-as-dired-flag' is specifically for
+content-matching.  A nil value lets you prevent content matching but
+still allow file-finding commands to visit a directory in Dired (by
+way of non-nil `find-file-run-dired')."
+  :type 'boolean :group 'Icicles-Files :group 'Icicles-Matching :group 'Icicles-Searching)
+
 (defcustom icicle-file-skip-functions '(icicle-image-file-p icicle-file-elc-p)
   "*Hook run by file-visiting commands on each matching file name.
 The value is a list of functions.  Each is applied to the file-name
@@ -2934,7 +2965,7 @@ See also option `icicle-buffer-skip-functions'."
     ,@(and (fboundp 'completion-pcm--all-completions) '(completion-pcm--all-completions))
 
     ;; Uncomment `dired-read-shell-command' and `read-shell-command' if you want Icicles completion for
-    ;; shell commands.  See http://www.emacswiki.org/Icicles_-_Shell-Command_Enhancements.
+    ;; shell commands.  See https://www.emacswiki.org/emacs/Icicles_-_Shell-Command_Enhancements.
     ;; dired-read-shell-command             read-shell-command
 
     ess-complete-object-name             gud-gdb-complete-command
@@ -3511,7 +3542,7 @@ However, note that for some commands a prefix argument can reverse the
 sense of this flag."
   :type 'boolean :group 'Icicles-Buffers :group 'Icicles-Files :group 'Icicles-Matching)
 
-(when (boundp 'kmacro-ring)             ; Emacs 22+
+(when (require 'kmacro nil t)           ; Emacs 22+
   (defcustom icicle-kmacro-ring-max (if (boundp 'most-positive-fixnum)
                                         most-positive-fixnum
                                       67108863) ; 1/2 of `most-positive-fixnum' on Windows.
@@ -4570,6 +4601,7 @@ The candidates are highlighted in buffer `*Completions*' using face
 (defcustom icicle-S-TAB-completion-methods-alist ; Cycle with `M-('.
   `(("apropos" . string-match)
     ("scatter" . icicle-scatter-match)
+    ("SPC scatter" . icicle-SPC-scatter-match)
     ,@(and (require 'fuzzy nil t)       ; `fuzzy.el', part of library Autocomplete.
            '(("Jaro-Winkler" . fuzzy-match)))
     ,@(and (require 'levenshtein nil t)
@@ -4582,6 +4614,10 @@ messages to indicate the type of completion matching.
 
 By default, `S-TAB' is the key for this completion. The actual keys
 used are the value of option `icicle-apropos-complete-keys'.
+
+NOTE: This option has no effect on some Icicles commands, in
+particular commands that allow for multi-completion input, such as
+`icicle-buffer' and `icicle-file'.
 
 See also options `icicle-TAB-completion-methods' and
 `icicle-S-TAB-completion-methods-per-command'."
@@ -4606,7 +4642,11 @@ for `TAB' completion.  The default behavior is provided by option
 NOTE: If you remove an entry from this list, that does NOT remove the
 advice for that command.  To do that you will need to explicitly
 invoke command `icicle-set-S-TAB-methods-for-command' using a negative
-prefix argument (or else start a new Emacs session)."
+prefix argument (or else start a new Emacs session).
+
+NOTE: This option has no effect on some Icicles commands, in
+particular commands that allow for multi-completion input, such as
+`icicle-buffer' and `icicle-file'."
   :type (let ((methods  ()))
           (when (require 'levenshtein nil t)
             (push '(const :tag "Levenshtein strict"
@@ -4617,6 +4657,7 @@ prefix argument (or else start a new Emacs session)."
           (when (require 'fuzzy nil t)  ; `fuzzy.el', part of library Autocomplete.
             (push '(const :tag "Jaro-Winkler" ("Jaro-Winkler" . fuzzy-match)) methods))
           (push '(const :tag "scatter" ("scatter" . icicle-scatter-match)) methods)
+          (push '(const :tag "SPC scatter" ("SRC scatter" . icicle-SPC-scatter-match)) methods)
           (push '(const :tag "apropos" ("apropos" . string-match)) methods)
           `(alist
             :key-type   (restricted-sexp
@@ -4716,7 +4757,6 @@ completion produces no match when you think it should, remember that
 you can use `\\[icicle-next-TAB-completion-method]' on the fly to \
 change the completion method.
 
-
 If you do not customize `icicle-TAB-completion-methods', then the
 default value (that is, the available `TAB' completion methods) will
 reflect your current Emacs version and whether you have loaded
@@ -4724,6 +4764,10 @@ libraries `fuzzy-match.el' and `el-swank-fuzzy.el'.
 
 By default, `TAB' is the key for this completion. The actual keys
 used are the value of option `icicle-prefix-complete-keys'.
+
+NOTE: This option has no effect on some Icicles commands, in
+particular commands that allow for multi-completion input, such as
+`icicle-buffer' and `icicle-file'.
 
 See also options `icicle-TAB-completion-methods-per-command'
 `icicle-S-TAB-completion-methods-alist'."
@@ -4756,7 +4800,11 @@ option `icicle-TAB-completion-methods' (and
 NOTE: If you remove an entry from this list, that does NOT remove the
 advice for that command.  To do that you will need to explicitly
 invoke command `icicle-set-TAB-methods-for-command' using a negative
-prefix argument (or else start a new Emacs session)."
+prefix argument (or else start a new Emacs session).
+
+NOTE: This option has no effect on some Icicles commands, in
+particular commands that allow for multi-completion input, such as
+`icicle-buffer' and `icicle-file'."
   :type (let ((methods  ()))
           ;; Unfortunately, `el-swankfuzzy.el' requires `cl.el' at runtime.
           ;; Comment this first sexp out if you do not want that.

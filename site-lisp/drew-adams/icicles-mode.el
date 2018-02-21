@@ -4,16 +4,16 @@
 ;; Description: Icicle Mode definition for Icicles
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1996-2016, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Feb 27 10:21:10 2006
-;; Last-Updated: Fri Mar  3 14:53:22 2017 (-0800)
+;; Last-Updated: Mon Jan  1 14:16:47 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 10269
+;;     Update #: 10293
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-mode.el
-;; Doc URL: http://www.emacswiki.org/Icicles
+;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: internal, extensions, help, abbrev, local, minibuffer,
 ;;           keys, apropos, completion, matching, regexp, command
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -27,9 +27,9 @@
 ;;   `fuzzy-match', `help+20', `hexrgb', `highlight', `icicles-cmd1',
 ;;   `icicles-cmd2', `icicles-fn', `icicles-mcmd', `icicles-opt',
 ;;   `icicles-var', `image-dired', `image-file', `info', `info+20',
-;;   `kmacro', `levenshtein', `menu-bar', `menu-bar+', `misc-cmds',
-;;   `misc-fns', `mouse3', `mwheel', `naked', `package', `pp', `pp+',
-;;   `regexp-opt', `ring', `second-sel', `strings', `subr-21',
+;;   `isearch+', `kmacro', `levenshtein', `menu-bar', `menu-bar+',
+;;   `misc-cmds', `misc-fns', `mouse3', `mwheel', `naked', `package',
+;;   `pp', `pp+', `ring', `second-sel', `strings', `subr-21',
 ;;   `thingatpt', `thingatpt+', `unaccent', `w32-browser',
 ;;   `w32browser-dlgopen', `wid-edit', `wid-edit+', `widget'.
 ;;
@@ -115,7 +115,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://www.emacswiki.org/emacs/download/linkd.el.
+;;  https://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "User Options (alphabetical)")
 ;;  (@> "Internal variables (alphabetical)")
@@ -217,8 +217,9 @@
   ;; (no error if not found): minibuffer-depth-indicate-mode
 
 (require 'dired+ nil t) ;; (no error if not found):
-                        ;; diredp-menu-bar-operate-menu, diredp-menu-bar-recursive-marked-menu,
-                        ;; diredp-menu-bar-subdir-menu
+                        ;; diredp-menu-bar-multiple-menu, diredp-menu-bar-operate-menu,
+                        ;; diredp-menu-bar-recursive-marked-menu, diredp-menu-bar-dir-menu,
+;;                      ;; diredp-menu-bar-subdir-menu
 (require 'dired) ;; dired-mode-map
 (require 'menu-bar+ nil t) ;; (no error if not found):
   ;; menu-bar-apropos-menu, menu-bar-describe-menu, menu-bar-edit-menu, menu-bar-file-menu,
@@ -242,7 +243,11 @@
 (defvar crm-local-completion-map)       ; In `crm.el'.
 (defvar crm-local-must-match-map)       ; In `crm.el'.
 (defvar dired-mode-map)                 ; In `dired.el'.
+(defvar diredp-menu-bar-multiple-menu)  ; In `dired+.el'
+(defvar diredp-menu-bar-operate-menu)   ; In `dired+.el' (old name)
 (defvar diredp-menu-bar-recursive-marked-menu) ; In `dired+.el'
+(defvar diredp-menu-bar-dir-menu)       ; In `dired+.el'
+(defvar diredp-menu-bar-subdir-menu)    ; In `dired+.el' (old name)
 (defvar gud-minibuffer-local-map)       ; In `gud.el'.
 (defvar ibuffer-mode-map)               ; In `ibuffer.el'.
 (defvar ibuffer-mode-operate-map)       ; In `ibuffer.el'.
@@ -924,6 +929,9 @@ Used on `pre-command-hook'."
     (define-key icicle-options-menu-map [toggle]
       (list 'menu-item "Toggle" icicle-options-toggle-menu-map :visible 'icicle-mode))
 
+    (define-key icicle-options-toggle-menu-map [icicle-toggle-completion-mode-keys]
+      '(menu-item "Completion Mode Keys" icicle-toggle-completion-mode-keys :keys "C-S-<tab>"
+        :help "Toggle keys between apropos and prefix completion"))
     (define-key icicle-options-toggle-menu-map [icicle-toggle-C-for-actions]
       '(menu-item "Using `C-' for Actions" icicle-toggle-C-for-actions :keys "M-g"
         :help "Toggle option `icicle-use-C-for-actions-flag'"))
@@ -1127,7 +1135,7 @@ Used on `pre-command-hook'."
     (define-key icicle-menu-map [icicle-add/update-saved-completion-set]
       '(menu-item "Add/Update Saved Candidate Set..." icicle-add/update-saved-completion-set
         :help "Add or update an entry in `icicle-saved-completion-sets'"))
-    (when (fboundp 'icicle-kmacro)
+    (when (fboundp 'icicle-kmacro)      ; Emacs 22+
       (define-key icicle-menu-map [icicle-kmacro]
         '(menu-item "+ Execute Nth Keyboard Macro..." icicle-kmacro
           :enable (or (kmacro-ring-head)  kmacro-ring)
@@ -2052,9 +2060,13 @@ Used on `pre-command-hook'."
     (cond ((not icicle-touche-pas-aux-menus-flag)
            (defvar icicle-dired-multiple-menu-map (make-sparse-keymap)
              "`Icicles' submenu for Dired's `Multiple' (or `Operate') menu.")
-           (if (boundp 'diredp-menu-bar-operate-menu) ; In `dired+.el'.
-               (define-key diredp-menu-bar-operate-menu [icicles]
-                 (list 'menu-item "Icicles" icicle-dired-multiple-menu-map :visible 'icicle-mode))
+           (if (or (boundp 'diredp-menu-bar-multiple-menu) ; In `dired+.el'.
+                   (boundp 'diredp-menu-bar-operate-menu)) ; In `dired+.el' (old name).
+               (let ((menu  (if (boundp 'diredp-menu-bar-multiple-menu)
+                                diredp-menu-bar-multiple-menu
+                              diredp-menu-bar-operate-menu)))
+                 (define-key menu [icicles]
+                   (list 'menu-item "Icicles" icicle-dired-multiple-menu-map :visible 'icicle-mode)))
              (define-key dired-mode-map [menu-bar operate icicles]
                (list 'menu-item "Icicles" icicle-dired-multiple-menu-map :visible 'icicle-mode)))
 
@@ -2177,9 +2189,13 @@ Used on `pre-command-hook'."
     (cond ((not icicle-touche-pas-aux-menus-flag)
            (defvar icicle-dired-dir-menu-map (make-sparse-keymap)
              "`Icicles' submenu for Dired's `Dir' (or `Subdir') menu.")
-           (if (boundp 'diredp-menu-bar-subdir-menu) ; In `dired+.el'.
-               (define-key diredp-menu-bar-subdir-menu [icicles]
-                 (list 'menu-item "Icicles" icicle-dired-dir-menu-map :visible 'icicle-mode))
+           (if (or (boundp 'diredp-menu-bar-dir-menu) ; In `dired+.el'.
+                   (boundp 'diredp-menu-bar-subdir-menu)) ; In `dired+.el' (old name).
+               (let ((menu  (if (boundp 'diredp-menu-bar-dir-menu)
+                                diredp-menu-bar-dir-menu
+                              diredp-menu-bar-subdir-menu)))
+                 (define-key menu [icicles]
+                   (list 'menu-item "Icicles" icicle-dired-dir-menu-map :visible 'icicle-mode)))
              (define-key dired-mode-map [menu-bar subdir icicles]
                (list 'menu-item "Icicles" icicle-dired-dir-menu-map :visible 'icicle-mode))))
           (t
@@ -3415,11 +3431,12 @@ Usually run by inclusion in `minibuffer-setup-hook'."
     (run-hooks 'icicle-minibuffer-setup-hook)))
 
 (defun icicle-last-non-minibuffer-buffer ()
-  "Return the most recently used non-minibuffer buffer."
-  (if (fboundp 'minibufferp)            ; Emacs 22+
-      (let ((bufs  (icicle-remove-if 'minibufferp (buffer-list))))
-        (or (car bufs)  (car (buffer-list))))
-    (cadr (buffer-list))))              ; Punt - but could be just a higher-level minibuffer.
+  "Return the most recently used non-minibuffer live buffer."
+  (let ((live-bufs  (icicle-remove-if (lambda (buf) (not (buffer-live-p buf))) (buffer-list))))
+    (if (fboundp 'minibufferp)          ; Emacs 22+
+        (let ((bufs  (icicle-remove-if 'minibufferp live-bufs)))
+          (or (car bufs)  (car live-bufs)))
+      (cadr live-bufs))))               ; Punt - but could be just a higher-level minibuffer.
 
 (defun icicle-define-cycling-keys (map)
   "Define keys for cycling candidates.
@@ -3852,7 +3869,7 @@ Non-nil NO-FILE-P means do not include the buffer's file name."
           search-ring-max                      icicle-search-ring-max
           icicle-saved-regexp-search-ring-max  regexp-search-ring-max ; Save it.
           regexp-search-ring-max               icicle-regexp-search-ring-max))
-  (when (boundp 'icicle-kmacro-ring-max)
+  (when (boundp 'icicle-kmacro-ring-max) ; Emacs 22+
     (setq icicle-saved-kmacro-ring-max  kmacro-ring-max ; Save it.
           kmacro-ring-max               icicle-kmacro-ring-max)))
 

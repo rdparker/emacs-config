@@ -4,16 +4,16 @@
 ;; Description: Main Emacs startup file: require/autoload other files.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 1995-2017, Drew Adams, all rights reserved.
+;; Copyright (C) 1995-2018, Drew Adams, all rights reserved.
 ;; Created: Wed Aug  2 11:12:24 1995
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Sun Jan  1 11:38:36 2017 (-0800)
+;; Last-Updated: Mon Jan  1 15:52:42 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 3064
-;; URL: http://www.emacswiki.org/start.el
+;;     Update #: 3078
+;; URL: https://www.emacswiki.org/emacs/download/start.el
 ;; Keywords: abbrev, internal, local, init
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -34,9 +34,9 @@
 ;;   `finder', `finder+', `finder-inf', `fit-frame', `font-lock',
 ;;   `font-lock-menus', `frame-cmds', `frame-fns', `fuzzy-match',
 ;;   `header2', `help+20', `hexrgb', `highlight', `highlight-chars',
-;;   `icomplete', `icomplete+', `image-dired', `image-file', `imenu',
-;;   `imenu+', `info', `info+20', `isearch+', `iso-transl',
-;;   `lacarte', `lib-requires', `lisp-mnt', `loadhist', `local-lpr',
+;;   `image-dired', `image-file', `imenu', `imenu+', `info',
+;;   `info+20', `isearch+', `iso-transl', `kmacro', `lacarte',
+;;   `lib-requires', `lisp-mnt', `loadhist', `local-lpr',
 ;;   `local-ps-print', `lpr', `ls-lisp', `ls-lisp+',
 ;;   `ls-lisp-verbosity', `menu-bar', `menu-bar+', `misc-cmds',
 ;;   `misc-fns', `moccur-edit', `mouse', `mouse+', `mwheel', `naked',
@@ -84,6 +84,10 @@
 ;;
 ;; Change Log:
 ;;
+;; 2017/10/11 dadams
+;;    Load icomplete+.el only if icomplete.el is loaded.
+;; 2017/06/18 dadams
+;;     Autoload apropos+ for apropos-local-variable and apropos-local-value.
 ;; 2016/07/01 dadams
 ;;     Do not require bm.el (Bookmark+ does everything it does, and better.)
 ;; 2015/09/20 dadams
@@ -445,8 +449,8 @@
 (require 'zones nil t)                  ; Ring/stack of buffer zones (including narrowings).
 ;;; ;; Use my update to Francis Wright's version of `ls-lisp.el', if available.
 ;;; (when (and (< emacs-major-version 21) (memq system-type '(windows-nt ms-dos macos)))
-;;;   ;; If you don't have my version, from http://www.emacswiki.org/emacs/ls-lisp.el, and you use
-;;;   ;; Emacs 20, then you will need to do this, because FJW's `ls-lisp.el' uses `mapc':
+;;;   ;; If you don't have my version, from https://www.emacswiki.org/emacs/download/ls-lisp.el, and
+;;    ;; you use Emacs 20, then you will need to do this, because FJW's `ls-lisp.el' uses `mapc':
 ;;;   ;;(require 'cl)
 ;;;   (load-library "ls-lisp")) ; Don't use `require', so get FJW's version, not vanilla version.
 (unless (and (memq system-type '(windows-nt ms-dos macos)) ; Redefinitions.
@@ -478,7 +482,7 @@
 (require 'pcmpl-auto nil t)             ; Pcomplete
 
 ;; `ls-lisp-verbosity.el' is essentially `leo-toggle-ls-lisp-verbosity'
-;;     from (http://www.emacswiki.org/LsLispToggleVerbosity)
+;;     from (https://www.emacswiki.org/emacs/LsLispToggleVerbosity)
 (require 'ls-lisp-verbosity nil t)
 
 ;; Dired-X:
@@ -587,7 +591,9 @@ See the Dired-X Info pages (type \\[info]) for information on this package.")
 (autoload 'make-regexp "make-regexp" "Return a regexp to match a string item in STRINGS.")
 (autoload 'make-regexps "make-regexp" "Return a regexp to REGEXPS.")
 
-(autoload 'apropos-user-options "apropos+" "Show user options that match REGEXP." t)
+(autoload 'apropos-local-value    "apropos+"
+  "Show buffer-local variables whose values match PATTERN." t)
+(autoload 'apropos-local-variable "apropos+" "Show buffer-local variables that match PATTERN." t)
 (autoload 'erase-nonempty-inactive-minibuffer "strings"
   "Erase the minibuffer, if inactive and `minibuffer-empty-p'." t)
 (autoload 'update-file-autoloads "autoload+"
@@ -678,7 +684,7 @@ See the Dired-X Info pages (type \\[info]) for information on this package.")
 (require 'lacarte nil t)                ; Menu-bar menu-command completion and execution via keyboard.
 (require 'synonyms nil t)               ; Thesaurus.
 (when (> emacs-major-version 20) (require 'tool-bar+ nil t)) ; Extensions to `tool-bar.el'.
-(require 'icomplete+ nil t)             ; Sorted, colored icompletion
+(eval-after-load "icomplete" '(require 'icomplete+ nil t)) ; Sorted, colored icompletion
 ;;; (when (< emacs-major-version 21)
 ;;;   (require 'mkhtml nil t)               ; Create HTML from Emacs buffers/files.
 ;;;   (require 'cal-opts nil t)             ; Calendar and diary options.

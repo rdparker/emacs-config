@@ -36,7 +36,7 @@ done
 others=$(for f in *.el; do
 	     found=0;
 	     for g in $files; do
-		 if [ $g.el == $f ]; then
+		 if [ $g.el = $f ]; then
 		     found=1;
 		     break;
 		 fi;
