@@ -832,6 +832,7 @@ no capital."
 
 ;;; email
 (use-package message
+  :defer t
   :config
   (bind-keys :map message-mode-map
 	     ("C-c C-f C-o" . my-change-from))
