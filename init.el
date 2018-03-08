@@ -684,8 +684,6 @@ it."
 
 (global-set-key [C-f6] 'previous-error)
 (global-set-key [C-f7] 'next-error)
-(global-set-key [f6] 'flymake-goto-prev-error)
-(global-set-key [f7] 'flymake-goto-next-error)
 (global-set-key [f8] 'comment-or-uncomment-region)
 (setq compilation-scroll-output t)
 
@@ -998,7 +996,9 @@ which is an error according to some typographical conventions."
 ;;; flymake
 (use-package flymake
   :commands flymake-mode
-  :init
+  :bind (([f6] . flymake-goto-prev-error)
+	 ([f7] . flymake-goto-next-error))
+  :config
   (use-package flymake-cursor))
 
 ;;; flyspell
