@@ -348,6 +348,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;; auto-complete
 (use-package auto-complete-config
   :if (>= emacs-major-version 24)
+  :defer 10
   :load-path "site-lisp/auto-complete"
   :init
   (use-package popup :defer t :load-path "site-lisp/popup")
