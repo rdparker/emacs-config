@@ -318,6 +318,7 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;  See `helm' below for newer Emacsen.
 (use-package anything-config
   :if (not (emacs>= 24.3))
+  :defer 2
   :load-path "site-lisp/anything"
   :commands anything
   :bind (("C-c M-x" . anything-M-x)
@@ -1297,6 +1298,7 @@ a argument to perform the pop instead.."
 ;; See `anything' above for older Emacsen.
 (use-package helm-config
   :if (emacs>= 24.3)
+  :defer 2
   :load-path "site-lisp/helm"
   :bind (("C-c M-x" . helm-M-x)
 	 ("C-h a"   . helm-apropos)
