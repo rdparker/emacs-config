@@ -6,9 +6,9 @@
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
 ;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Feb 27 09:25:53 2006
-;; Last-Updated: Sun Jan 14 16:52:36 2018 (-0800)
+;; Last-Updated: Sat Mar  3 09:39:04 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 15259
+;;     Update #: 15280
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-fn.el
 ;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: internal, extensions, help, abbrev, local, minibuffer,
@@ -91,7 +91,7 @@
 ;;    `icicle-candidate-short-help',
 ;;    `icicle-case-insensitive-string-less-p',
 ;;    `icicle-case-string-less-p', `icicle-cdr-lessp',
-;;    `icicle-char-cands-from-charlist',
+;;    `icicle-char-cands-from-charlist' (Emacs 23-25),
 ;;    `icicle-choose-completion-string', `icicle-clear-lighter',
 ;;    `icicle-clear-minibuffer', `icicle-color-gray-p',
 ;;    `icicle-color-name-w-bg', `icicle-color-rgb-lessp',
@@ -176,8 +176,9 @@
 ;;    `icicle-levenshtein-strict-match', `icicle-list-position',
 ;;    `icicle-looks-like-dir-name-p', `icicle-local-keys-first-p',
 ;;    `icicle-lru-window-for-buffer' (Emacs 24+),
-;;    `icicle-make-char-candidate', `icicle-make-face-candidate',
-;;    `icicle-make-plain-predicate', `icicle-major-mode-name-less-p',
+;;    `icicle-make-char-candidate' (Emacs 23-25),
+;;    `icicle-make-face-candidate', `icicle-make-plain-predicate',
+;;    `icicle-major-mode-name-less-p',
 ;;    `icicle-maybe-sort-and-strip-candidates',
 ;;    `icicle-maybe-sort-maybe-truncate', `icicle-mctize-all',
 ;;    `icicle-mctized-display-candidate',
@@ -202,8 +203,8 @@
 ;;    `icicle-ORIG-display-completion-list',
 ;;    `icicle-ORIG-face-valid-attribute-values',
 ;;    `icicle-ORIG-minibuffer-default-add-completions',
-;;    `icicle-ORIG-read-buffer', `icicle-ORIG-read-char-by-name',
-;;    `icicle-ORIG-read-face-name',
+;;    `icicle-ORIG-read-buffer', `icicle-ORIG-read-char-by-name'
+;;    (Emacs 23-25), `icicle-ORIG-read-face-name',
 ;;    `icicle-ORIG-read-from-minibuffer', `icicle-ORIG-read-number',
 ;;    `icicle-ORIG-read-string', `icicle-ORIG-shell-command',
 ;;    `icicle-ORIG-shell-command-on-region',
@@ -220,10 +221,11 @@
 ;;    `icicle-put-at-head', `icicle-put-whole-cand-prop',
 ;;    `icicle-quote-file-name-part-of-cmd',
 ;;    `icicle-readable-to-markers', `icicle-read-buffer',
-;;    `icicle-read-char-by-name', `icicle-read-char-exclusive',
-;;    `icicle-read-char-maybe-completing', `icicle-read-face-name',
-;;    `icicle-read-file-name', `icicle-read-file-name-default',
-;;    `icicle-read-from-minibuffer',
+;;    `icicle-read-char-by-name' (Emacs 23-25),
+;;    `icicle-read-char-exclusive',
+;;    `icicle-read-char-maybe-completing' (Emacs 23-25),
+;;    `icicle-read-face-name', `icicle-read-file-name',
+;;    `icicle-read-file-name-default', `icicle-read-from-minibuffer',
 ;;    `icicle-read-from-minibuf-nil-default', `icicle-read-number',
 ;;    `icicle-read-regexp', `icicle-read-shell-command',
 ;;    `icicle-read-shell-command-completing', `icicle-read-string',
@@ -252,7 +254,7 @@
 ;;    `icicle-take', `icicle-toggle-icicle-mode-twice',
 ;;    `icicle-transform-candidates',
 ;;    `icicle-transform-multi-completion', `icicle-try-switch-buffer',
-;;    `icicle-ucs-names', `icicle-unhighlight-lighter',
+;;    `icicle-ucs-names' (Emacs 23-25), `icicle-unhighlight-lighter',
 ;;    `icicle-unlist', `icicle-unpropertize-completion',
 ;;    `icicle-unsorted-apropos-candidates',
 ;;    `icicle-unsorted-file-name-apropos-candidates',
@@ -329,7 +331,7 @@
 ;;
 ;;
 ;;  ***** NOTE: The following functions defined in `mule-cmds.el'
-;;              have been REDEFINED HERE:
+;;              have been REDEFINED HERE (Emacs 23-25 only):
 ;;
 ;;    `read-char-by-name'            - Use `icicle-ucs-names'.
 ;;                                     Display the char also.
@@ -499,7 +501,9 @@
 (when (< emacs-major-version 23)
   (defvar completion--embedded-envvar-re) ; In `minibuffer.el'.
   (defvar completion-styles)            ; In `minibuffer.el'
-  (defvar icicle-Completions-text-scale-decrease) ; In `icicles-opt.el' (for Emacs 23+)
+  (defvar icicle-Completions-text-scale-decrease)) ; In `icicles-opt.el' (for Emacs 23+)
+
+(when (or (< emacs-major-version 23)  (> emacs-major-version 25))
   (defvar icicle-read-char-by-name-multi-completion-flag)) ; In `icicles-opt.el' (for Emacs 23+)
 
 (defvar completion-root-regexp)         ; In `simple.el' (for Emacs 22 and 23.1)
@@ -524,7 +528,8 @@
 (defvar icicle-file-name-completion-table) ; In `icicles-var.el' for Emacs 24+.
 (defvar icicle-Info-index-nodes)        ; In `icicles-cmd2.el'
 (defvar icicle-Info-manual)             ; In `icicles-cmd2.el'
-(defvar icicle-read-char-history)       ; In `icicles-var.el' for Emacs 23+.
+(when (or (fboundp 'read-char-by-name)  (> emacs-major-version 25))
+  (defvar icicle-read-char-history))    ; In `icicles-var.el' for Emacs 23-25.
 (defvar icomplete-mode)                 ; In `icomplete.el'
 (defvar image-dired-thumb-height)       ; In `image-dired.el'.
 (defvar image-dired-thumb-width)        ; In `image-dired.el'.
@@ -2243,7 +2248,7 @@ before you call this function."
        (or (get variable 'custom-type)
            (progn (custom-load-symbol variable) (get variable 'custom-type)))))
 
-(when (fboundp 'read-char-by-name)      ; Emacs 23+
+(when (and (fboundp 'read-char-by-name)  (< emacs-major-version 26)) ; Emacs 23-25
   (defun icicle-read-char-maybe-completing (&optional prompt names inherit-input-method seconds)
     "Read a char with PROMPT, possibly completing against NAMES.
 If the character read is `C-q' then read another character.
@@ -2287,7 +2292,7 @@ CHARS defaults to the value of `icicle-read-char-history'."
 ;; 5. Add char read to `icicle-read-char-history'.
 ;; 6. See doc string for the rest.
 ;;
-(when (fboundp 'read-char-by-name)      ; Emacs 23+
+(when (and (fboundp 'read-char-by-name)  (< emacs-major-version 26)) ; Emacs 23-25
 
   (defun icicle-make-char-candidate (name.char)
     "Return multi-completion candidate for NAME.CHAR.
@@ -5893,7 +5898,7 @@ kept."
 
 ;; Same as `delete-dups' from Emacs 22+.
 (if (fboundp 'delete-dups)
-    (defalias 'icicle-delete-dups (symbol-function 'delete-dups))
+    (defalias 'icicle-delete-dups 'delete-dups)
   (defun icicle-delete-dups (list)
     "Destructively remove `equal' duplicates from LIST.
 Store the result in LIST and return it.  LIST must be a proper list.
@@ -6938,7 +6943,7 @@ makes candidates matching previous inputs available first (at the top
 of buffer `*Completions*').  Candidates are effectively in two groups,
 each of which is sorted alphabetically separately: matching previous
 inputs, followed by matching candidates that have not yet been used."
-  ;; We could use `icicle-delete-duplicates' to shorten the history, but that takes time too.
+  ;; We could use `icicle-delete-dups' to shorten the history, but that takes time too.
   ;; And, starting in Emacs 22, histories will not contain duplicates anyway.
   (let ((hist  (and (symbolp minibuffer-history-variable)  (boundp minibuffer-history-variable)
                     (symbol-value minibuffer-history-variable)))
@@ -6961,7 +6966,7 @@ inputs, followed by matching candidates that have not yet been used."
 ;;  S1 < S2 if S1 was used previously but S2 was not.
 ;;  S1 < S2 if neither was used previously
 ;;   and S1 `icicle-case-string-less-p' S2."
-;;   ;; We could use `icicle-delete-duplicates' to shorten the history, but that takes time too.
+;;   ;; We could use `icicle-delete-dups' to shorten the history, but that takes time too.
 ;;   ;; And, starting in Emacs 22, histories will not contain duplicates anyway.
 ;;   (let ((hist  (and (symbolp minibuffer-history-variable)
 ;;                     (symbol-value minibuffer-history-variable)))
@@ -6984,7 +6989,7 @@ Also:
  S1 < S2 if S1 was used as input previously but S2 was not.
  S1 < S2 if neither was used as input previously
   and S1 `icicle-case-string-less-p' S2."
-  ;; We could use `icicle-delete-duplicates' to shorten the history, but that takes time too.
+  ;; We could use `icicle-delete-dups' to shorten the history, but that takes time too.
   ;; And, starting in Emacs 22, histories do not contain duplicates anyway.
   (let ((hist     (and (symbolp minibuffer-history-variable) (boundp minibuffer-history-variable)
                        (symbol-value minibuffer-history-variable)))
@@ -7197,7 +7202,7 @@ S1 < S2 if neither was used as input previously
 If not doing file-name completion then this is the same as
 `icicle-latest-input-first-p'."
   (if (or (icicle-file-name-input-p)  icicle-abs-file-candidates)
-      ;; We could use `icicle-delete-duplicates' to shorten the history, but that takes time too.
+      ;; We could use `icicle-delete-dups' to shorten the history, but that takes time too.
       ;; And, starting in Emacs 22, histories do not contain duplicates anyway.
       (let ((hist     (and (symbolp minibuffer-history-variable)  (boundp minibuffer-history-variable)
                            (symbol-value minibuffer-history-variable)))
