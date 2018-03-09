@@ -10,7 +10,7 @@ files=$(sed -n '
   /;;   /{
     s/[;`,.]//g;p
   }
-}' emacs-init.el | sed "s/'//g")
+}' *.el | sed "s/'//g" | tr '[ ]' '[\n]' | sort -u )
 
 for f in $files; do
     # Append the .el extension
@@ -52,5 +52,7 @@ grep ';; URL:' $others | \
     xargs -n 1 wget
 
 # The downloads will have .1 appended to their names. Replace the
-# originals with the new files.
+# originals with the new files, removing emacs-init.el.1 in case
+# it got re-downloaded.
+rm emacs-init.el.1 2>/dev/null
 for f in *.el.1; do mv $f $(basename $f .1); done
