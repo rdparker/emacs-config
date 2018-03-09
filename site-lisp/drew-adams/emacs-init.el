@@ -434,7 +434,7 @@
 ;;; For example:
 ;;;   (if (eq system-type 'windows-nt)        ; Test
 ;;;       "C:\\drews-lisp-20"                 ; Windows path
-;;;     "~/drews-lisp-20")                    ; non-Windows path
+;;;     "~/.emacs.d/site-lisp/drew-adams")                    ; non-Windows path
 
 
 ;;; COMMENT THESE OUT IF YOU DO NOT WANT TO DEBUG EMACS
@@ -532,7 +532,7 @@
 (defvar drews-lisp-dir
   (if (eq system-type 'windows-nt)      ; Windows
       "C:\\drews-lisp-20"
-    "~/drews-lisp-20")
+    "~/.emacs.d/site-lisp/drew-adams")
   "Address of Drew's lisp libraries.")
 
 
