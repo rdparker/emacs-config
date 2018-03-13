@@ -143,11 +143,6 @@ and will be created by this function."
     (make-directory target-directory t)
     (concat target-directory (file-name-nondirectory elc))))
 
-;;;###autoload
-(defun peeve-enable ()
-  "Enable using emacs-version-specific byte compilation directories."
-  (setq byte-compile-dest-file-function 'peeve-byte-compile-dest-file))
-
 ;; This is written as an Emacs 24.4+ advice function, but since I
 ;; still use older versions of Emacs, I use a `defadvice' wrapper
 ;; below to call it.
@@ -190,7 +185,7 @@ arguments of `use-package-normalize-paths`"
 ;;
 ;; with documentation added.
 (defadvice use-package-normalize-paths
-    (before peeve-add-elc-paths-for-use-package)
+    (before peeve-add-elc-paths-for-use-package disable)
   "Add byte-compile target directory support to `use-package' :load-path.
 
 To give `use-package' the same out-of-tree byte-compilation
@@ -201,6 +196,30 @@ See `peeve-byte-compile-target-directory' for a detailed
 explanation of these out-of-tree directories."
   (ad-set-arg
    1 (second (peeve-add-byte-compile-targets (ad-get-args 0)))))
+
+;;;###autoload
+(define-minor-mode peeve-mode
+  "Toggle `emacs-version'-specific byte compilation output directories.
+With a prefix argument ARG, enable Peeve mode if ARG is positive,
+and disable it otherwise.  If called from Lisp, enable Peeve mode
+if ARG is omitted or nil."
+  :init-value t
+  :global t
+  (if menu-bar-mode
+      (progn
+	(setq byte-compile-dest-file-function 'peeve-byte-compile-dest-file)
+	(ad-enable-advice 'use-package-normalize-paths 'before
+			  'peeve-add-elc-paths-for-use-package))
+    (setq byte-compile-dest-file-function nil)
+    (ad-disable-advice 'use-package-normalize-paths 'before
+		       'peeve-add-elc-paths-for-use-package))
+  ;; Make the message appear when Emacs is idle.  We can not call message
+  ;; directly.  The minor-mode message "Menu-bar mode disabled" comes
+  ;; after this function returns, overwriting any message we do here.
+  (when (and (called-interactively-p 'interactive) (not menu-bar-mode))
+    (run-with-idle-timer
+     0 nil
+     'message "Peeve mode disabled.  Use M-x peeve-mode to reenable it.")))
 
 (provide 'peeve)
 

@@ -79,7 +79,7 @@ and will be created by this function."
     (make-directory target-directory t)
     (concat target-directory (file-name-nondirectory elc))))
 
-(peeve-enable)
+(peeve-mode 1)
 
 (defun add-to-load-path-recursively (dir &optional append)
   "Recursively add all subdirectories of DIR to `load-path'.
