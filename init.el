@@ -36,57 +36,8 @@
 Various programs in Emacs store information in this directory.
 Note that this should end with a directory separator."))
 
+(load (expand-file-name "lisp/peeve" user-emacs-directory))
 (load (expand-file-name "load-path" user-emacs-directory))
-
-;; This is written as an Emacs 24.4+ advice function, but since I
-;; still use older versions of Emacs, I use a `defadvice' wrapper
-;; below to call it.
-(defun add-byte-compile-targets (args)
-  "Add byte-compile directories for `use-package-normalize-paths'."
-  (let ((label (first args))
-	(arg (second args))
-	(recursed (cddr args)))
-
-    (if recursed
-	args
-
-      (when (stringp arg)
-	(setq arg (list arg)))
-
-      ;; If arg was not a string or list originally do nothing and let
-      ;; `use-package-normalize-paths' deal with the mistake. I don't
-      ;; want or need to replicate it's error handling in that case.
-      (if (not (listp arg))
-	  args
-	(setq arg
-	      (mapcon
-	       (lambda (x)
-		 ;; Since `use-package' conses onto `load-path', we
-		 ;; pass directories in reverse order.  So that
-		 ;; ultimately, `load-path' contains the compiled
-		 ;; target directory before the source directory.
-		 (list (car x)
-		       (byte-compile-target-directory
-			(expand-file-name (car x) user-emacs-directory))))
-	       arg))
-	(list label arg recursed)))))
-
-;; This is the pre-Emacs 24.4 equivalent of
-;;
-;;   (advice-add 'use-package-normalize-paths
-;;	         :filter-args #'add-byte-compile-targets)
-;;
-;; with documentation added.
-(defadvice use-package-normalize-paths (before add-elc-paths-for-use-package)
-  "Add byte-compile directories to `use-package' :load-path.
-
-To give `use-package' the same out-of-tree byte-compilation directory
-support that `add-to-load-path' has, apply this as :filter-args advice
-on `use-package-normalize-paths'.
-
-See `byte-compile-target-directory' for a detailed explanation of
-these out-of-tree directories."
-  (ad-set-arg 1 (second (add-byte-compile-targets (ad-get-args 0)))))
 
 ;;; Pretend use-package is loading itself like this, so we get timing
 ;;; information when desired:
@@ -99,9 +50,9 @@ these out-of-tree directories."
 ;;
 (eval-and-compile
   (require 'rdp-functions)
-  (add-to-load-path (if (emacs>= 24.3)
-			"site-lisp/use-package-24.3+"
-		      "site-lisp/use-package-24.2-"))
+  (peeve-add-to-load-path (if (emacs>= 24.3)
+				"site-lisp/use-package-24.3+"
+			      "site-lisp/use-package-24.2-"))
   (setq use-package-verbose nil)
   (unless (and (boundp 'use-package-quiet) use-package-quiet)
     (setq use-package-minimum-reported-time 0.0
