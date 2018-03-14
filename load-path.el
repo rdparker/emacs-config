@@ -55,30 +55,6 @@ where I will store them.")
 This should appear late in `load-path' to give priority to any
 version which ships with Emacs.b;bss")
 
-(defun my-byte-compile-dest-file (filename)
-  "Convert an Emacs Lisp source file name to compiled file name.
-The returned file name will be in an emacs-version-specific
-directory inside of `peeve-output-directory'.  This is to allow
-different versions of Emacs to share Lisp source directories
-while having separately byte-compiled files.
-
-The FILENAME is passed to the function `byte-compile-dest-file'
-so that version numbers and other things are handled as expected.
-The directory is computed by `peeve-byte-compile-dest-directory'
-and will be created by this function."
-
-  ;; Make sure filename is not relative
-  (setq filename (expand-file-name filename))
-
-  (let* ((byte-compile-dest-file-function) ; Don't recurse back here.
-	 (elc (byte-compile-dest-file filename))
-	 (target-directory
-	  (peeve-byte-compile-dest-directory
-	   (file-name-directory filename))))
-
-    (make-directory target-directory t)
-    (concat target-directory (file-name-nondirectory elc))))
-
 (peeve-mode 1)
 
 (defun add-to-load-path-recursively (dir &optional append)
