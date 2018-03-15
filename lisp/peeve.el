@@ -205,7 +205,7 @@ and disable it otherwise.  If called from Lisp, enable Peeve mode
 if ARG is omitted or nil."
   :init-value t
   :global t
-  (if menu-bar-mode
+  (if peeve-mode
       (progn
 	(setq byte-compile-dest-file-function 'peeve-byte-compile-dest-file)
 	(ad-enable-advice 'use-package-normalize-paths 'before
