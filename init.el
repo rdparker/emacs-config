@@ -20,6 +20,24 @@
 (unless noninteractive
   (message "Loading %s..." load-file-name))
 
+;; Disabling the special file name handling and putting off gc during
+;; load improves my Emacs startup performance by 10-25%.
+(defvar file-name-handler-alist-old file-name-handler-alist)
+(defvar gc-cons-threshold-old gc-cons-threshold)
+(defvar gc-cons-percentage-old gc-cons-percentage)
+
+(setq package-enable-at-startup nil
+      file-name-handler-alist nil
+      gc-cons-threshold 402653184
+      gc-cons-percentage 0.6)
+
+(add-hook 'after-init-hook
+          `(lambda ()
+             (setq file-name-handler-alist file-name-handler-alist-old
+                   gc-cons-threshold gc-cons-threshold-old
+                   gc-cons-percentage gc-cons-threshold-old)
+             (garbage-collect)) t)
+
 (eval-when-compile (require 'cl))
 
 ;; The `user-emacs-directory' variable, did not exist before Emacs 23.
