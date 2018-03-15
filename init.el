@@ -189,7 +189,7 @@ are named \"Emacs[A-Za-z]*.app\".")
   "If SYM is bound, set it to VAL.
 The SYM symbol is a variable; it is literal (not evaluated).
 The value VAL is an expression; it is evaluated."
-  (when (boundp symbol)
+  (when (boundp sym)
     `(setq ,sym ,val)))
 
 ;;; Revert undesirable settings from Lisp Cabinet
