@@ -1259,6 +1259,7 @@ a argument to perform the pop instead.."
 ;;
 ;; See `anything' above for older Emacsen.
 (use-package helm-config
+  :disabled t
   :if (emacs>= 24.3)
   :defer 2
   :load-path "site-lisp/helm"
@@ -1284,6 +1285,12 @@ a argument to perform the pop instead.."
   :config
   (helm-match-plugin-mode t))
 
+(use-package icicles
+  ;; :disabled t
+  :load-path "site-lisp/drew-adams"
+  :defer 2
+  :config
+  (icy-mode 1))
 
 ;;; Help extensions
 ;;
