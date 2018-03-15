@@ -152,7 +152,7 @@ ARGS will be a list containining the LABEL, ARG, and RECURSED
 arguments of `use-package-normalize-paths`"
   (let ((label (first args))
 	(arg (second args))
-	(recursed (cddr args)))
+	(recursed (third args)))
 
     (if recursed
 	args
