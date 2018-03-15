@@ -31,9 +31,17 @@
 ;; there are Elisp libraries in read-only directories that have not
 ;; been byte compiled or were compiled for another version of Emacs.
 
-;; TODO: Convert peeve-enable to peeve-mode and only enable the
-;; use-package advice when it is on. Also document the fact that this
-;; works with use-package's :load-path.
+;; Using `peeve-mode' is not compatible with auto-compile's
+;; `auto-compile-delete-stray-dest' setting.  Therefore, enabling
+;; `peeve-mode' will automatically disable the setting. See
+;; `peeve-mode' for a more detailed explaination.
+
+;; To use `peeve-mode' just add
+;;
+;;     (require 'peeve)
+;;
+;; to your Emacs `user-init-file'.  You do not have to separately
+;; enable `peeve-mode'.
 
 ;;; Code:
 
