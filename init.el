@@ -36,8 +36,8 @@
 Various programs in Emacs store information in this directory.
 Note that this should end with a directory separator."))
 
-(load (expand-file-name "lisp/peeve" user-emacs-directory))
-(load (expand-file-name "load-path" user-emacs-directory))
+(dolist (lib '("lisp/peeve" "load-path"))
+  (load (expand-file-name lib user-emacs-directory)))
 
 ;;; Pretend use-package is loading itself like this, so we get timing
 ;;; information when desired:
