@@ -13,6 +13,10 @@
 ;; You may delete these explanatory comments.
 ;(package-initialize)
 
+;; Set these early to reduce frame flashing on startup.
+(set-foreground-color "#e0dedb")
+(set-background-color "#201f1f")
+
 (setq message-log-max 16384)
 
 (defconst emacs-start-time (current-time))
