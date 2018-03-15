@@ -185,11 +185,16 @@ are named \"Emacs[A-Za-z]*.app\".")
 ;;; tired of 'yes' to save a file.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+(defmacro set-if-bound (sym val)
+  "If SYM is bound, set it to VAL.
+The SYM symbol is a variable; it is literal (not evaluated).
+The value VAL is an expression; it is evaluated."
+  (when (boundp symbol)
+    `(setq ,sym ,val)))
+
 ;;; Revert undesirable settings from Lisp Cabinet
-(set `,(if (emacs>= 23.2)
-	   'tab-width
-	 'default-tab-width)		; obsoleted in 23.2
-     8)
+(set-if-bound tab-width 8)
+(set-if-bound default-tab-width 8)	; obsoleted in 23.2
 
 (use-repo-package buttercup
   :ensure t
