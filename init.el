@@ -54,46 +54,36 @@
 Various programs in Emacs store information in this directory.
 Note that this should end with a directory separator."))
 
-(dolist (lib '("lisp/peeve" "load-path"))
-  (load (expand-file-name lib user-emacs-directory)))
+(defun load-libraries (list)
+  "Load the LIST of libraries."
+  (dolist (lib list)
+    (load (expand-file-name lib user-emacs-directory))))
 
-;;; Pretend use-package is loading itself like this, so we get timing
-;;; information when desired:
-;;
-;; (use-package use-package
-;;       :load-path "site-lisp/use-package"
-;;       :init
-;;       (setq use-package-verbose t
-;;	    use-package-minimum-reported-time 0.0))
-;;
-(eval-and-compile
-  (require 'rdp-functions)
-  (peeve-add-to-load-path (if (emacs>= 24.3)
-				"site-lisp/use-package-24.3+"
-			      "site-lisp/use-package-24.2-"))
-  (setq use-package-verbose nil)
-  (unless (and (boundp 'use-package-quiet) use-package-quiet)
-    (setq use-package-minimum-reported-time 0.0
-	  ;; nil and t don't need to be quoted it's just to maintain
-	  ;; alignment regardless of whether an option is commented out
-	  ;; or not.
-	  use-package-verbose
-	  ;; 'nil			; quiet
-	  ;; 't				; verbose
-	  'debug			; debug
-	  )))
+(load-libraries '("lisp/peeve" "load-path"))
+
+;; Use package may be fully evaluated at compile time and does not
+;; need to be loaded at runtime, but it and bind-key may be otherwise
+;; invoked at runtime. So, put it in load-path.
+(peeve-add-to-load-path
+ ;; According to `package-lint-current-buffer' it is `user-error` in
+ ;; newer versions of use-package that make it require emacs 24.3.
+ (if (fboundp 'user-error)
+     "site-lisp/use-package-24.3+"
+   "site-lisp/use-package-24.2-"))
 
 (eval-when-compile
-  (let ((now (current-time)))
-    (if (and (boundp 'use-package-verbose) use-package-verbose)
-	(message "Loading package use-package..."))
-    (require 'use-package)
-    (let ((elapsed (float-time (time-subtract (current-time) now))))
-      (if use-package-verbose
-	  (if (and (boundp 'use-package-minimum-reported-time)
-		   (> elapsed use-package-minimum-reported-time))
-	      (message "Loading package use-package...done (%.3fs)" elapsed)
-	    (message "Loading package use-package...done"))))))
+  (unless (and (boundp 'use-package-quiet) use-package-quiet)
+    (setq ;; use-package-minimum-reported-time 0.0
+          ;; nil and t don't need to be quoted it's just to maintain
+          ;; alignment regardless of whether an option is commented out
+          ;; or not.
+          use-package-verbose
+	    ;; 'nil			; quiet
+	    ;; 't			; verbose
+	    'debug			; debug
+	    ))
+
+  (require 'use-package))
 
 (eval-when-compile
   (require 'backport)
@@ -110,10 +100,7 @@ Note that this should end with a directory separator."))
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 (use-package diminish :defer t :load-path "site-lisp/diminish")
-(use-package bind-key
-  :defer t
-  :load-path "site-lisp/use-package"
-  :defines personal-keybindings)
+(use-package bind-key :defer t :defines personal-keybindings)
 
 (use-package rdp-functions :load-path "lisp")
 (eval-when-compile
