@@ -202,12 +202,26 @@ explanation of these out-of-tree directories."
   "Toggle `emacs-version'-specific byte compilation output directories.
 With a prefix argument ARG, enable Peeve mode if ARG is positive,
 and disable it otherwise.  If called from Lisp, enable Peeve mode
-if ARG is omitted or nil."
+if ARG is omitted or nil.
+
+You cannot use this mode with `auto-compile-delete-stray-dest'.
+They are incompatible.
+
+Peeve mode places the byte-compiled files in a separate directory
+from the source files so that each version of Emacs may have its
+own .elc files.  Setting `auto-compile-delete-stray-dest' causes
+auto-compile to delete these output files as \"strays\", because
+there is no corresponding source in the same directory.
+
+Therefore, enabling `peeve-mode' will automatically disable the
+deletion of strays by setting `auto-compile-delete-stray-dest'
+to nil."
   :init-value t
   :global t
   (if peeve-mode
       (progn
 	(setq byte-compile-dest-file-function 'peeve-byte-compile-dest-file)
+	(setq auto-compile-delete-stray-dest nil)
 	(ad-enable-advice 'use-package-normalize-paths 'before
 			  'peeve-add-elc-paths-for-use-package))
     (setq byte-compile-dest-file-function nil)
