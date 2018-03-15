@@ -85,10 +85,10 @@ will return
 
   (let* ((prefix (expand-file-name user-emacs-directory))
 	 (length (length prefix))
-	 (versioned-directory (file-name-as-directory
-			       (concat peeve-output-directory
-                                       `,(concat peeve-prefix
-                                                 emacs-version))))
+	 (versioned-directory
+	  (file-name-as-directory (expand-file-name
+				   `,(concat peeve-prefix emacs-version)
+				   peeve-output-directory)))
 	 (relative-path (if (and (>= (length directory) length)
 				 (string= prefix
 					  (substring directory 0 length)))
