@@ -106,7 +106,7 @@ the optional argument APPEND is non-nil, in which case DIR is
 added at the end.
 
 The corresponding compilation directory is also added to the
-path.  It is computed by `peeve-byte-compile-target-directory'."
+path.  It is computed by `peeve-byte-compile-dest-directory'."
   (unless dir
     (setq dir user-emacs-directory))
   (when path
@@ -173,7 +173,7 @@ arguments of `use-package-normalize-paths`"
 		 ;; ultimately, `load-path' contains the compiled
 		 ;; target directory before the source directory.
 		 (list (car x)
-		       (peeve-byte-compile-target-directory
+		       (peeve-byte-compile-dest-directory
 			(expand-file-name (car x) user-emacs-directory))))
 	       arg))
 	(list label arg recursed)))))
@@ -192,7 +192,7 @@ To give `use-package' the same out-of-tree byte-compilation
 directory support that `peeve-add-to-load-path' has, apply this
 as :filter-args advice on `use-package-normalize-paths'.
 
-See `peeve-byte-compile-target-directory' for a detailed
+See `peeve-byte-compile-dest-directory' for a detailed
 explanation of these out-of-tree directories."
   (ad-set-arg
    1 (second (peeve-add-byte-compile-targets (ad-get-args 0)))))
