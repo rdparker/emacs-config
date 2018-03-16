@@ -132,8 +132,17 @@ function process_submodule()
 	git commit -m "Add a remote to support a $mod subtree" \
 	     || die "Error committing changes"
     fi
-    git remote add $mod $origin || \
-	die "If you restarted mod2tree please remove the $mod remote and try again."
+
+    # If the remote already exists and matches the desired origin, do
+    # not try setting it up.  This can happen if the same repository
+    # is used in two different locations, which can happen when using
+    # different versions of a package, like Org, for different
+    # versions of Emacs.
+    current_origin=$(git remote get-url $mod 2>/dev/null)
+    if [ "$current_origin"x != "$origin"x ]; then
+	git remote add $mod $origin || \
+	    die "If you restarted mod2tree please remove the $mod remote and try again."
+    fi
 
     ###
     ### Create the subtree
