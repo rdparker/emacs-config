@@ -3,7 +3,7 @@
 # This file will convert any submodules and their nested submodules
 # into subtrees and add appropriate remotes to Makefile
 #
-# Copyright (C) 2017 by Ron Parker <rdparker@gmail.com>
+# Copyright (C) 2017, 2018 by Ron Parker <rdparker@gmail.com>
 #
 
 set -e
@@ -192,7 +192,7 @@ function add_nested_submodules()
 	    die "Error committing changes"
     fi
 
-    make submodules
+    git submodule update --init --recursive --recommend-shallow
 }
 
 
