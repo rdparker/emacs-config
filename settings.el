@@ -36,6 +36,7 @@
  '(ansi-color-names-vector
    ["black" "red" "green" "yellow" "#9bf" "magenta" "cyan" "white"])
  '(auto-insert-query t)
+ '(autofit-frames-flag nil)
  '(cfengine-parameters-indent (quote (promise arrow 16)))
  '(clean-buffer-list-kill-never-buffer-names
    (quote
