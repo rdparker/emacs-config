@@ -271,6 +271,13 @@ The value VAL is an expression; it is evaluated."
 	  (lambda ()
 		(ibuffer-switch-to-saved-filter-groups "default")
 		(ibuffer-add-to-tmp-hide "^TAGS.*$")))
+;;; ace-jump-mode
+(use-package ace-jump-mode
+  :load-path "site-lisp/ace-jump-mode"
+  :bind (("C-c SPC" . ace-jump-mode)
+	 ("C-x SPC" . ace-jump-mode-pop-mark))
+  :config
+  (ace-jump-mode-enable-mark-sync))
 
 ;;; , applescript
 (use-package applescript-mode
@@ -713,7 +720,6 @@ the search buffer is entered."
   (defalias 'elfeed-toggle-star
     (elfeed-expose #'elfeed-search-toggle-all 'star))
 
-  (use-package ace-jump-mode :load-path "site-lisp/ace-jump-mode")
   (use-package noflet :load-path "site-lisp/noflet")
   (use-package popwin :load-path "site-lisp/popwin")
   (use-package elfeed-goodies
