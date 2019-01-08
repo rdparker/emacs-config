@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/vermiculus/graphql.el.git
+	branch = 0.1.1
+	commit = 672dd9ebd7e67d8089388b0c484cd650e76565f3
+	parent = ecd4ff0c39f9332be98fab1235f911eae66e2895
+	method = merge
+	cmdver = 0.4.0
