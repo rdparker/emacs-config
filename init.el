@@ -1021,15 +1021,18 @@ which is an error according to some typographical conventions."
 ;;; magit
 
 (eval-when-compile
-  (let ((emacs244 (emacs>= 24.4)))
-    (setq magit-path (expand-file-name (if emacs244
-					 "magit-24.4+/lisp"
-					 "magit-23.2+")
-				       user-site-lisp-directory)
-	git-modes-path (expand-file-name (if emacs244
-					     "git-modes-24.4+"
-					   "git-modes-23.2+")
-					 user-site-lisp-directory))
+  (let ((emacs244 (emacs>= 24.4))
+	(emacs251 (emacs>= 25.1)))
+    (setq magit-path (expand-file-name
+		      (cond (emacs251 "magit-25.1+/lisp")
+			    (emacs244 "magit-24.4+/lisp")
+			    (t "magit-23.2+"))
+		      user-site-lisp-directory)
+	  git-modes-path (expand-file-name
+			  (cond (emacs251 "git-modes-25.1+")
+				(emacs244 "git-modes-24.4+")
+				(t "git-modes-23.2+"))
+			  user-site-lisp-directory))
     (when (not emacs244)
       (setq magit-last-seen-setup-instructions "1.4.0")))
   (eval
@@ -1045,6 +1048,17 @@ which is an error according to some typographical conventions."
 	:commands (with-editor-async-shell-command
 		   with-editor-shell-command)
 	:load-path "site-lisp/with-editor")
+
+      (use-package magit-popup
+	:if (emacs>= 25.1)
+	:load-path "site-lisp/magit-popup")
+
+      (use-package ghub
+	:if (emacs>= 25.1)
+	:load-path "site-lisp/ghub"
+	:init
+	(use-package graphql :load-path "site-lisp/graphql")
+	(use-package treepy :load-path "site-lisp/treepy"))
 
       (use-package git-modes
 	:commands (gitattributes-mode gitconfig-mode gitignore-mode)
