@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/magit/ghub.git
+	branch = v3.2.0
+	commit = b04c7d9a3318316ef67a5d360582d990dc9f6098
+	parent = 0067144600cd5ffcf6263d9825402235068c0488
+	method = merge
+	cmdver = 0.4.0
