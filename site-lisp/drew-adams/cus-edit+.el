@@ -8,9 +8,9 @@
 ;; Created: Thu Jun 29 13:19:36 2000
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Mon Jan  1 10:35:51 2018 (-0800)
+;; Last-Updated: Thu Apr  5 14:28:30 2018 (-0700)
 ;;           By: dradams
-;;     Update #: 1641
+;;     Update #: 1668
 ;; URL: https://www.emacswiki.org/emacs/download/cus-edit%2b.el
 ;; Doc URL: https://emacswiki.org/emacs/CustomizingAndSaving
 ;; Keywords: help, customize, help, faces
@@ -308,7 +308,7 @@
 ;;  Commands defined here:
 ;;
 ;;    `Custom-consider-unchanged', `Custom-ignore-unsaved',
-;;    `customize-apropos-options-of-type',
+;;    `custom-mismatches', `customize-apropos-options-of-type',
 ;;    `customize-consider-all-faces-unchanged',
 ;;    `customize-consider-all-unchanged',
 ;;    `customize-consider-all-vars-unchanged',
@@ -320,7 +320,7 @@
 ;;
 ;;  Functions defined here:
 ;;
-;;    `custom-consider-face-unchanged',
+;;    `cus-editp-remove-duplicates', `custom-consider-face-unchanged',
 ;;    `custom-consider-variable-unchanged',
 ;;    `custom-ignore-unsaved-preference', `custom-type',
 ;;    `custom-update-face', `custom-update-variable',
@@ -353,6 +353,9 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2018/04/05 dadams
+;;     Added: cus-editp-remove-duplicates.  Use instead of help-remove-duplicates.
+;;     Added: custom-mismatches.
 ;; 2017/06/04 dadams
 ;;     custom-magic-alist: Use newer face names (which are aliased to the old ones).
 ;; 2017/01/06 dadams
@@ -917,6 +920,17 @@ widget.  If FILTER is nil, ACTION is always valid.")
 
 ;;; FUNCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun cus-editp-remove-duplicates (list &optional use-eq)
+  "Copy of LIST with duplicate elements removed.
+Test using `equal' by default, or `eq' if optional USE-EQ is non-nil."
+  (let ((tail  list)
+        new)
+    (while tail
+      (unless (if use-eq (memq (car tail) new) (member (car tail) new))
+        (push (car tail) new))
+      (pop tail))
+    (nreverse new)))
+
 ;;;###autoload
 (defun customize-apropos-options-of-type (type regexp &optional arg)
   "Customize all loaded customizable options of type TYPE that match REGEXP.
@@ -936,7 +950,7 @@ potential candidates."
                           (push (list (format "%s" (format "%S" (get cand 'custom-type))))
                                 types))))
                      (completing-read "Customize all options of type: "
-                                      (help-remove-duplicates types)
+                                      (cus-editp-remove-duplicates types)
                                       nil nil nil nil "nil")))
                 (end-of-file (error "No such custom type"))))
          (read-string "Customize options matching (regexp): ")
@@ -1008,10 +1022,16 @@ impossible to know which concrete types a value must match."
     (otherwise         (custom-var-inherits-type-p variable types))))
 
 (defun custom-var-matches-type-p (variable types)
-  "VARIABLE's type matches a member of TYPES."
+  "VARIABLE's type matches a member of TYPES.
+String elements of TYPES are matched by a stringified version of type
+of VARIABLE.  Non-string elements are matched using `equal'.
+
+Note: If `nil' or \"nil\" is an element of TYPES then a VARIABLE whose
+`defcustom' does not specify `:type' matches, because its type is
+explicitly `nil'.)"
   (catch 'custom-type-matches
     (let ((var-type  (get variable 'custom-type)))
-      (dolist (type types)
+      (dolist (type  types)
         (when (if (stringp type)
                   (save-match-data (string-match type (format "%s" (format "%S" var-type))))
                 (equal var-type type))
@@ -1019,10 +1039,11 @@ impossible to know which concrete types a value must match."
     nil))
 
 (defun custom-var-inherits-type-p (variable types)
-  "VARIABLE's type matches or is a subtype of a member of list TYPES."
+  "VARIABLE's type matches or is a subtype of a member of list TYPES.
+See `custom-var-matches-type-p' for information about type matching."
   (catch 'custom-type-inherits
     (let ((var-type  (get variable 'custom-type)))
-      (dolist (type types)
+      (dolist (type  types)
         (while var-type
           (when (or (and (stringp type)
                          (save-match-data
@@ -1040,16 +1061,18 @@ impossible to know which concrete types a value must match."
     nil))
 
 (defun custom-var-val-satisfies-type-p (variable types)
-  "VARIABLE is bound, and its value satisfies a type in the list TYPES."
+  "VARIABLE is bound, and its value satisfies a type in the list TYPES.
+Strings and `nil' are ignored as elements of TYPES."
   (and (boundp variable)
        (let ((val  (symbol-value variable)))
          (and (widget-convert (get variable 'custom-type))
               (custom-value-satisfies-type-p val types)))))
 
 (defun custom-value-satisfies-type-p (value types)
-  "Return non-nil if VALUE satisfies a type in the list TYPES."
+  "Return non-nil if VALUE satisfies a type in the list TYPES.
+Strings and `nil' are ignored as elements of TYPES."
   (catch 'custom-type-value-satisfies
-    (dolist (type types)
+    (dolist (type  types)
       (unless (stringp type)            ; Skip, for regexp type.
         (setq type  (widget-convert type))
         ;; Satisfies if either :match or :validate.
@@ -1227,7 +1250,7 @@ When interactive, call `custom-redraw' on each Customize widget."
     (message "Updating Customize to recognize external settings..."))
   (customize-update-all-vars)
   (customize-update-all-faces)
-  (dolist (widget custom-options) (custom-redraw widget))
+  (dolist (widget  custom-options) (custom-redraw widget))
   (when (interactive-p)
     (message "Updating Customize to recognize external settings...done")))
 
@@ -1252,7 +1275,7 @@ When interactive, call `custom-redraw' on each Customize widget."
                               (default-value symbol))))
          (put symbol 'customized-value (list (custom-quote (eval symbol))))))))
   (when (interactive-p)
-    (dolist (widget custom-options) (custom-redraw widget))
+    (dolist (widget  custom-options) (custom-redraw widget))
     (message
      "Updating Customize to recognize external variable settings...done")))
 
@@ -1280,7 +1303,7 @@ to keep Customize synched with Emacs changes."
            (put symbol 'customized-face-comment (get symbol 'face-comment))
            (put symbol 'face-modified nil))))))
   (when (interactive-p)
-    (dolist (widget custom-options) (custom-redraw widget))
+    (dolist (widget  custom-options) (custom-redraw widget))
     (message "Updating Customize to recognize external face settings...done")))
 
 (defun custom-update-variable (widget)
@@ -1610,6 +1633,24 @@ variable, since it was considered unchanged."
 ;;          (put symbol 'face-comment c-face-comment)
 ;;          (put symbol 'customized-face-comment nil)))))
 ;;   (message "All current face values are now considered unchanged.  They were not saved."))
+
+;;;###autoload
+(defun custom-mismatches (&optional msgp)
+  "Return list of options whose values do not match their custom types.
+When called interactively, show the list."
+  (interactive "p")
+  (let ((vars  ())
+        type)
+    (mapatoms
+     (lambda (var)
+       (when (custom-variable-p var)
+         (setq type  (get var 'custom-type))
+         (unless (or (not type)
+                     (custom-var-val-satisfies-type-p var (list (get var 'custom-type))))
+           (push var vars)))))
+    (when msgp (pp-display-expression vars "*Custom Type Mismatches*"))
+    vars))
+
 
 
 

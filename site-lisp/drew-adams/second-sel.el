@@ -8,9 +8,9 @@
 ;; Created: Fri May 23 09:58:41 2008 ()
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Mon Jan  1 15:36:31 2018 (-0800)
+;; Last-Updated: Sun Sep 16 10:51:59 2018 (-0700)
 ;;           By: dradams
-;;     Update #: 606
+;;     Update #: 625
 ;; URL: https://www.emacswiki.org/emacs/download/second-sel.el
 ;; Doc URL: https://emacswiki.org/emacs/SecondarySelection#second-sel.el
 ;; Keywords: region, selection, yank, paste, edit
@@ -18,7 +18,7 @@
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   None
+;;   `backquote', `bytecomp', `cconv', `cl-lib', `macroexp'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -45,7 +45,7 @@
 ;;  Non-interactive functions defined here:
 ;;
 ;;    `add-secondary-to-ring', `current-secondary-selection',
-;;    `second-sel-msg'.
+;;    `second-sel-msg', `secondary-selection-limits'.
 ;;
 ;;  Internal variables defined here:
 ;;
@@ -68,6 +68,7 @@
 ;;   (define-key isearch-mode-map (kbd "C-M-y")  'isearch-yank-secondary)
 ;;   (global-set-key (kbd "C-x C-M-SPC")         'set-secondary-start)
 ;;   (global-set-key (kbd "C-x C-M-<return>")    'secondary-save-then-kill)
+;;   (global-set-key (kbd "C-M-<mouse-3>")       'mouse-secondary-save-then-kill)
 ;;
 ;;
 ;;  You can enhance what `second-sel.el' offers in these ways:
@@ -101,6 +102,13 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2018/09/16 dadams
+;;     secondary-save-then-kill-1: If not initiated by mouse then do not extend to full word etc.
+;;                                 (Fourth cond clause is mouse-specific.)
+;; 2018/03/31 dadams
+;;     mouse-drag-secondary: Do it with the overlay buffer as current buffer.
+;; 2018/03/18 dadams
+;;     Added: secondary-selection-limits.
 ;; 2016/12/10 dadams
 ;;     primary-to-secondary, secondary-swap-region, secondary-to-primary, mouse-drag-secondary,
 ;;       set-secondary-start, secondary-save-then-kill-1:
@@ -522,6 +530,18 @@ move the yanking point; just return the Nth kill forward."
     (unless do-not-move (setq secondary-selection-ring-yank-pointer  secondary-elt))
     (car secondary-elt)))
 
+(defun secondary-selection-limits ()
+  "Return a list (BUFFER START END) of secondary-selection info.
+Return nil if there is no secondary selection."
+  (let ((sel  (if (fboundp 'gui-get-selection)
+                  (gui-get-selection 'SECONDARY) ; Emacs 25.1+.
+                (x-get-selection 'SECONDARY))))
+    (and sel
+         (overlayp mouse-secondary-overlay)
+         (list (overlay-buffer mouse-secondary-overlay)
+               (overlay-start mouse-secondary-overlay)
+               (overlay-end mouse-secondary-overlay)))))
+
 ;; Not used.
 ;;;###autoload
 (defun rotate-secondary-selection-yank-pointer (arg)
@@ -543,20 +563,18 @@ With prefix arg, rotate that many kills forward or backward."
 ;;
 (defadvice mouse-drag-secondary (after populate-secondary-ring activate)
   "Add secondary selection to `secondary-selection-ring'."
-  (prog1                                ; For the return value.
-      (and (overlayp mouse-secondary-overlay)
-           (overlay-buffer mouse-secondary-overlay)
-           (add-secondary-to-ring
-            (if (fboundp 'gui-set-selection)
-                (gui-set-selection      ; Emacs 25.1+.
-                 'SECONDARY
-                 (buffer-substring (overlay-start mouse-secondary-overlay)
-                                   (overlay-end   mouse-secondary-overlay)))
-              (x-set-selection
-               'SECONDARY
-               (buffer-substring (overlay-start mouse-secondary-overlay)
-                                 (overlay-end   mouse-secondary-overlay))))))
-    (when (interactive-p) (second-sel-msg))))
+  (let* ((ov   (and (overlayp mouse-secondary-overlay)  mouse-secondary-overlay))
+         (buf  (and ov  (overlay-buffer ov))))
+    (when buf
+      (with-current-buffer buf
+        (add-secondary-to-ring
+         (if (fboundp 'gui-set-selection)
+             (gui-set-selection         ; Emacs 25.1+.
+              'SECONDARY (buffer-substring (overlay-start ov) (overlay-end ov)))
+           (x-set-selection
+            'SECONDARY (buffer-substring (overlay-start ov) (overlay-end ov)))))))
+    (when (interactive-p) (second-sel-msg))
+    buf))                               ; Return non-nil if created second sel.
 
 
 ;;; REPLACES ORIGINAL in `mouse.el'.
@@ -619,7 +637,7 @@ Interactively, or with non-nil optional arg MSGP, display a message."
 ;;  Use helper fn `secondary-save-then-kill-1'.
 ;;;
 ;;;###autoload
-(defun mouse-secondary-save-then-kill (click &optional msgp) ; Suggested binding: `C-M-y'
+(defun mouse-secondary-save-then-kill (click &optional msgp) ; Suggested binding: `C-M-mouse-3'
   "Set or delete the secondary selection according to CLICK.
 Add the updated secondary selection to `secondary-selection-ring'.
 CLICK should be a mouse click event.
@@ -697,7 +715,9 @@ Interactively, or with non-nil optional arg MSGP, display a message."
              (when msgp (message "Second sel DELETED: %d chars" (abs (- beg end)))))
 
             ;; Otherwise, adjust overlay by moving one end (whichever is closer) to CLICK-POSN.
-            ((and beg  (eq buf (overlay-buffer mouse-secondary-overlay)))
+            ((and (eq this-command 'mouse-secondary-save-then-kill)
+                  beg
+                  (eq buf (overlay-buffer mouse-secondary-overlay)))
              (let ((range  (mouse-start-end position position click-count)))
                (if (< (abs (- position beg)) (abs (- position end)))
                    (move-overlay mouse-secondary-overlay (car range) end)
@@ -711,7 +731,7 @@ Interactively, or with non-nil optional arg MSGP, display a message."
              (setq secondary-selection-save-posn  position)
              (when msgp (second-sel-msg)))
 
-            ;; Otherwise, set secondary selection overlay.
+            ;; Otherwise, set secondary-selection overlay.
             (t
              (select-window win)
              (when mouse-secondary-start

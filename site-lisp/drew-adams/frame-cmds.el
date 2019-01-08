@@ -8,9 +8,9 @@
 ;; Created: Tue Mar  5 16:30:45 1996
 ;; Version: 0
 ;; Package-Requires: ((frame-fns "0"))
-;; Last-Updated: Fri Jan  5 14:39:57 2018 (-0800)
+;; Last-Updated: Sat Sep 22 16:15:43 2018 (-0700)
 ;;           By: dradams
-;;     Update #: 3120
+;;     Update #: 3138
 ;; URL: https://www.emacswiki.org/emacs/download/frame-cmds.el
 ;; Doc URL: https://emacswiki.org/emacs/FrameModes
 ;; Doc URL: https://www.emacswiki.org/emacs/OneOnOneEmacs
@@ -99,7 +99,7 @@
 ;;
 ;;  Commands defined here:
 ;;
-;;    `create-frame-tiled-horizontally',
+;;    `clone-frame', `create-frame-tiled-horizontally',
 ;;    `create-frame-tiled-vertically', `decrease-frame-transparency'
 ;;    (Emacs 23+), `delete-1-window-frames-on',
 ;;    `delete/iconify-window', `delete/iconify-windows-on',
@@ -126,7 +126,6 @@
 ;;    `show-a-frame-on', `show-buffer-menu', `show-frame',
 ;;    `show-hide', `shrink-frame', `shrink-frame-horizontally',
 ;;    `split-frame-horizontally', `split-frame-vertically',
-;;    `tear-off-window', `tear-off-window-if-not-alone',
 ;;    `tell-customize-var-has-changed', `tile-frames',
 ;;    `tile-frames-horizontally', `tile-frames-side-by-side',
 ;;    `tile-frames-top-to-bottom', `tile-frames-vertically',
@@ -194,10 +193,10 @@
 ;;   (global-set-key [(control meta ?z)]            'show-hide)
 ;;   (global-set-key [vertical-line C-down-mouse-1] 'show-hide)
 ;;   (global-set-key [C-down-mouse-1]               'mouse-show-hide-mark-unmark)
+;;   (substitute-key-definition 'make-frame-command 'clone-frame   global-map)
 ;;   (substitute-key-definition 'delete-window      'remove-window global-map)
 ;;   (define-key ctl-x-map "o"                      'other-window-or-frame)
 ;;   (define-key ctl-x-4-map "1"                    'delete-other-frames)
-;;   (define-key ctl-x-5-map "1"                    'tear-off-window)
 ;;   (define-key ctl-x-5-map "h"                    'show-*Help*-buffer)
 ;;   (substitute-key-definition 'delete-window      'delete-windows-for global-map)
 ;;   (define-key global-map "\C-xt."                'save-frame-config)
@@ -259,7 +258,7 @@
 ;;   (defvar menu-bar-doremi-menu (make-sparse-keymap "Do Re Mi"))
 ;;   (define-key global-map [menu-bar doremi]
 ;;     (cons "Do Re Mi" menu-bar-doremi-menu))
-;;   (define-key menu-bar-doremi-menu [doremi-font+]
+;;   (define-key menu-bar-doremi-menu [doremi-push-current-frame-config]
 ;;     '("Save Frame Configuration" . save-frame-config))
 ;;
 ;;  See also these files for other frame commands:
@@ -283,6 +282,12 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2018/09/22 dadams
+;;     Moved to mouse+.el: tear-off-window(-if-not-alone).
+;; 2018/09/21 dadams
+;;     tear-off-window: Use pop-to-buffer-same-window, not switch-to-buffer.
+;; 2018/09/14 dadams
+;;     Added: clone-frame.
 ;; 2018/01/05 dadams
 ;;     frcmds-available-screen-pixel-bounds:
 ;;       Use display-monitor-attributes-list to compute, if option is nil.
@@ -648,8 +653,8 @@ Candidates include `jump-to-frame-config-register' and `show-buffer-menu'."
 ;; Use `cond', not `case', for Emacs 20 byte-compiler.
 (defcustom window-mgr-title-bar-pixel-height (cond ((eq window-system 'mac) 22)
                                                    ;; For older versions of OS X, 40 might be better.
-						   ((eq window-system 'ns)  50)
-						   (t  27))
+                                                   ((eq window-system 'ns)  50)
+                                                   (t  27))
   "*Height of frame title bar provided by the window manager, in pixels.
 You might alternatively call this constant the title-bar \"width\" or
 \"thickness\".  There is no way for Emacs to determine this, so you
@@ -1022,6 +1027,22 @@ Interactively, FRAME is nil, and FRAME-P depends on the prefix arg:
     (setq frame  (if (eq t frame) nil (if (eq nil frame) t frame)))
     (dolist (fr  (frames-on buffer))
       (delete/iconify-window (get-buffer-window buffer frame) frame-p))))
+
+;;;###autoload
+(defun clone-frame (&optional frame no-clone)
+  "Make a new frame with the same parameters as FRAME.
+With a prefix arg, don't clone - just call `make-frame-command'.
+
+FRAME defaults to the selected frame.  The frame is created on the
+same terminal as FRAME.  If the terminal is a text-only terminal then
+also select the new frame."
+  (interactive "i\nP")
+  (if no-clone
+      (make-frame-command)
+    (let* ((default-frame-alist  (frame-parameters frame))
+           (new-fr  (make-frame)))
+      (unless (if (fboundp 'display-graphic-p) (display-graphic-p) window-system)
+        (select-frame new-fr)))))
 
 ;;;###autoload
 (defun rename-frame (&optional old-name new-name all-named)
@@ -2030,30 +2051,6 @@ VARIABLE is a symbol that names a user option."
   "`other-frame', if `one-window-p'; otherwise, `other-window'."
   (interactive "p")
   (if (one-window-p) (other-frame arg) (other-window arg)))
-
-;;;###autoload
-(defun tear-off-window ()
-  "Create a new frame displaying buffer of window clicked on.
-If window is not the only one in frame, then delete it.
-Otherwise, this command effectively clones the frame and window."
-  (interactive)
-  (let* ((window  (selected-window))
-         (buf     (window-buffer window))
-         (frame   (make-frame)))
-    (select-frame frame)
-    (switch-to-buffer buf)
-    (save-window-excursion (select-window window)
-                           (unless (one-window-p) (delete-window window)))))
-
-;;;###autoload
-(defun tear-off-window-if-not-alone ()
-  "Move selected window to a new frame, unless it is alone in its frame.
-If it is alone, do nothing.  Otherwise, delete it and create a new
-frame showing the same buffer."
-  (interactive)
-  (if (one-window-p 'NOMINI)
-      (message "Sole window in frame")
-    (tear-off-window)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 

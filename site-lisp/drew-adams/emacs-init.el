@@ -8,53 +8,16 @@
 ;; Created: Tue Sep 12 15:54:33 1995
 ;; Version: 0
 ;; Package-Requires: ((start "0"))
-;; Last-Updated: Mon Jan  1 11:10:54 2018 (-0800)
-;;           By: dradams
-;;     Update #: 2188
+;; Last-Updated: Mon Jan  7 18:21:45 2019 (-0500)
+;;           By: Ron Parker
+;;     Update #: 2189
 ;; URL: https://www.emacswiki.org/emacs/download/emacs-init.el
 ;; Keywords: init, .emacs, _emacs, dotemacs
 ;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `advice', `advice-preload', `ange-ftp', `apropos', `apropos+',
-;;   `apropos-fn+var', `assoc', `autofit-frame', `avoid',
-;;   `backquote', `bookmark', `bookmark+', `bookmark+-1',
-;;   `bookmark+-bmu', `bookmark+-key', `bookmark+-lit',
-;;   `browse-kill-ring', `browse-kill-ring+', `buff-menu+',
-;;   `chistory', `cl', `color-moccur', `comint', `compile',
-;;   `compile+20', `compile-20', `cus-edit', `cus-edit+', `cus-face',
-;;   `cus-load', `cus-start', `cus-theme', `custom', `cygwin-mount',
-;;   `dired', `dired+', `dired-aux', `dired-details',
-;;   `dired-details+', `dired-sort-menu', `dired-sort-menu+',
-;;   `dired-x', `doremi', `doremi-cmd', `doremi-frm', `easymenu',
-;;   `ediff', `ediff+', `ediff-diff', `ediff-help', `ediff-init',
-;;   `ediff-merg', `ediff-mult', `ediff-util', `ediff-wind',
-;;   `el-swank-fuzzy', `em-joc', `emacsbug', `eshell-auto',
-;;   `eyedropper', `facemenu', `facemenu+', `faces', `faces+',
-;;   `ffap', `ffap-', `files+', `find-dired', `find-dired+',
-;;   `finder', `finder+', `finder-inf', `fit-frame', `flx',
-;;   `font-lock', `font-lock-menus', `frame-cmds', `frame-fns',
-;;   `fuzzy', `fuzzy-match', `header2', `help+20', `hexrgb',
-;;   `highlight', `highlight-chars', `icicles', `icicles-cmd1',
-;;   `icicles-cmd2', `icicles-face', `icicles-fn', `icicles-mcmd',
-;;   `icicles-mode', `icicles-opt', `icicles-var', `image-dired',
-;;   `image-file', `imenu', `imenu+', `info', `info+20', `isearch+',
-;;   `iso-transl', `kmacro', `lacarte', `levenshtein',
-;;   `lib-requires', `lisp-mnt', `loadhist', `local-lpr',
-;;   `local-ps-print', `lpr', `ls-lisp', `ls-lisp+',
-;;   `ls-lisp-verbosity', `menu-bar', `menu-bar+', `misc-cmds',
-;;   `misc-fns', `moccur-edit', `mouse', `mouse+', `mouse3',
-;;   `mwheel', `naked', `occur-schroeder', `oneonone', `package',
-;;   `paren', `pcmpl-auto', `pp', `pp+', `pp-c-l', `printing',
-;;   `ps-print', `replace+', `ring', `ring+', `savehist-20+',
-;;   `second-sel', `sendmail', `setup', `setup-cygwin', `setup-keys',
-;;   `simple+', `speedbar', `start', `start-opt', `strings', `subr+',
-;;   `subr-21', `swiss-move', `synonyms', `thing-cmds', `thingatpt',
-;;   `thingatpt+', `thumb-frm', `time-date', `timer', `timer+',
-;;   `unaccent', `vc', `vc+', `vc-', `vc-hooks', `vc-hooks+',
-;;   `w32-browser', `w32browser-dlgopen', `wid-edit', `wid-edit+',
-;;   `widget', `wimpy-del', `window+', `zones', `zoom-frm'.
+;;   Cannot open load file: No such file or directory, .emacs.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -434,7 +397,7 @@
 ;;; For example:
 ;;;   (if (eq system-type 'windows-nt)        ; Test
 ;;;       "C:\\drews-lisp-20"                 ; Windows path
-;;;     "~/.emacs.d/site-lisp/drew-adams")                    ; non-Windows path
+;;;     "~/drews-lisp-20")                    ; non-Windows path
 
 
 ;;; COMMENT THESE OUT IF YOU DO NOT WANT TO DEBUG EMACS
@@ -532,7 +495,7 @@
 (defvar drews-lisp-dir
   (if (eq system-type 'windows-nt)      ; Windows
       "C:\\drews-lisp-20"
-    "~/.emacs.d/site-lisp/drew-adams")
+    "~/drews-lisp-20")
   "Address of Drew's lisp libraries.")
 
 

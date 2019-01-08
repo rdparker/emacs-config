@@ -7,9 +7,9 @@
 ;; Copyright (C) 2000-2018, Drew Adams, all rights reserved.
 ;; Copyright (C) 2009, Thierry Volpiatto.
 ;; Created: Mon Jul 12 13:43:55 2010 (-0700)
-;; Last-Updated: Fri Feb 23 10:59:06 2018 (-0800)
+;; Last-Updated: Sun Dec 23 11:33:09 2018 (-0800)
 ;;           By: dradams
-;;     Update #: 8661
+;;     Update #: 8863
 ;; URL: https://www.emacswiki.org/emacs/download/bookmark%2b-1.el
 ;; Doc URL: https://www.emacswiki.org/emacs/BookmarkPlus
 ;; Keywords: bookmarks, bookmark+, placeholders, annotations, search, info, url, eww, w3m, gnus
@@ -113,8 +113,9 @@
 ;;    `bmkp-autonamed-this-buffer-jump',
 ;;    `bmkp-autonamed-this-buffer-jump-other-window',
 ;;    `bmkp-bookmark-a-file' `bmkp-bookmark-file-jump',
-;;    `bmkp-bookmark-linked-at' (Emacs 22+),
-;;    `bmkp-bookmark-linked-at-mouse' (Emacs 22+),
+;;    `bmkp-bookmark-file-load-jump',
+;;    `bmkp-bookmark-file-switch-jump', `bmkp-bookmark-linked-at'
+;;    (Emacs 22+), `bmkp-bookmark-linked-at-mouse' (Emacs 22+),
 ;;    `bmkp-bookmark-list-jump',
 ;;    `bmkp-bookmark-set-confirm-overwrite',
 ;;    `bmkp-choose-navlist-from-bookmark-list',
@@ -125,6 +126,7 @@
 ;;    `bmkp-cycle-autonamed-other-window', `bmkp-cycle-bookmark-list',
 ;;    `bmkp-cycle-bookmark-list-other-window', `bmkp-cycle-desktop',
 ;;    `bmkp-cycle-dired', `bmkp-cycle-dired-other-window',
+;;    `bmkp-cycle-eww', `bmkp-cycle-eww-other-window',
 ;;    `bmkp-cycle-file', `bmkp-cycle-file-other-window',
 ;;    `bmkp-cycle-gnus', `bmkp-cycle-gnus-other-window',
 ;;    `bmkp-cycle-info', `bmkp-cycle-info-other-window',
@@ -205,87 +207,174 @@
 ;;    `bmkp-man-jump-other-window', `bmkp-menu-jump-other-window'
 ;;    (Emacs 20, 21), `bmkp-navlist-bmenu-list',
 ;;    `bmkp-next-autonamed-bookmark',
+;;    `bmkp-next-autonamed-bookmark-other-window',
+;;    `bmkp-next-autonamed-bookmark-other-window-repeat',
 ;;    `bmkp-next-autonamed-bookmark-repeat', `bmkp-next-bookmark',
 ;;    `bmkp-next-bookmark-list-bookmark',
+;;    `bmkp-next-bookmark-list-bookmark-other-window',
+;;    `bmkp-next-bookmark-list-bookmark-other-window-repeat',
 ;;    `bmkp-next-bookmark-list-bookmark-repeat',
+;;    `bmkp-next-bookmark-other-window',
+;;    `bmkp-next-bookmark-other-window-repeat',
 ;;    `bmkp-next-bookmark-repeat', `bmkp-next-bookmark-this-buffer',
+;;    `bmkp-next-bookmark-this-buffer-other-window',
+;;    `bmkp-next-bookmark-this-buffer-other-window-repeat',
 ;;    `bmkp-next-bookmark-this-buffer-repeat',
 ;;    `bmkp-next-bookmark-this-file',
 ;;    `bmkp-next-bookmark-this-file/buffer',
+;;    `bmkp-next-bookmark-this-file/buffer-other-window',
+;;    `bmkp-next-bookmark-this-file/buffer-other-window-repeat',
 ;;    `bmkp-next-bookmark-this-file/buffer-repeat',
-;;    `bmkp-next-bookmark-this-file-repeat', `bmkp-next-bookmark-w32',
-;;    `bmkp-next-bookmark-w32-repeat', `bmkp-next-desktop-bookmark',
+;;    `bmkp-next-bookmark-this-file-other-window',
+;;    `bmkp-next-bookmark-this-file-other-window-repeat',
+;;    `bmkp-next-bookmark-this-file-repeat',
+;;    `bmkp-next-desktop-bookmark',
+;;    `bmkp-next-desktop-bookmark-other-window',
+;;    `bmkp-next-desktop-bookmark-other-window-repeat',
 ;;    `bmkp-next-desktop-bookmark-repeat', `bmkp-next-dired-bookmark',
-;;    `bmkp-next-dired-bookmark-repeat', `bmkp-next-file-bookmark',
+;;    `bmkp-next-dired-bookmark-other-window',
+;;    `bmkp-next-dired-bookmark-other-window-repeat',
+;;    `bmkp-next-dired-bookmark-repeat', `bmkp-next-eww-bookmark',
+;;    `bmkp-next-eww-bookmark-other-window',
+;;    `bmkp-next-eww-bookmark-other-window-repeat',
+;;    `bmkp-next-eww-bookmark-repeat', `bmkp-next-file-bookmark',
+;;    `bmkp-next-file-bookmark-other-window',
+;;    `bmkp-next-file-bookmark-other-window-repeat',
 ;;    `bmkp-next-file-bookmark-repeat', `bmkp-next-gnus-bookmark',
+;;    `bmkp-next-gnus-bookmark-other-window',
+;;    `bmkp-next-gnus-bookmark-other-window-repeat',
 ;;    `bmkp-next-gnus-bookmark-repeat', `bmkp-next-info-bookmark',
+;;    `bmkp-next-info-bookmark-other-window',
+;;    `bmkp-next-info-bookmark-other-window-repeat',
 ;;    `bmkp-next-info-bookmark-repeat', `bmkp-next-lighted-bookmark',
+;;    `bmkp-next-lighted-bookmark-other-window',
+;;    `bmkp-next-lighted-bookmark-other-window-repeat',
 ;;    `bmkp-next-lighted-bookmark-repeat',
 ;;    `bmkp-next-local-file-bookmark',
+;;    `bmkp-next-local-file-bookmark-other-window',
+;;    `bmkp-next-local-file-bookmark-other-window-repeat',
 ;;    `bmkp-next-local-file-bookmark-repeat',
-;;    `bmkp-next-man-bookmark', `bmkp-next-man-bookmark-repeat',
-;;    `bmkp-next-non-file-bookmark',
+;;    `bmkp-next-man-bookmark', `bmkp-next-man-bookmark-other-window',
+;;    `bmkp-next-man-bookmark-other-window-repeat',
+;;    `bmkp-next-man-bookmark-repeat', `bmkp-next-non-file-bookmark',
+;;    `bmkp-next-non-file-bookmark-other-window',
+;;    `bmkp-next-non-file-bookmark-other-window-repeat',
 ;;    `bmkp-next-non-file-bookmark-repeat',
 ;;    `bmkp-next-remote-file-bookmark',
+;;    `bmkp-next-remote-file-bookmark-other-window',
+;;    `bmkp-next-remote-file-bookmark-other-window-repeat',
 ;;    `bmkp-next-remote-file-bookmark-repeat',
 ;;    `bmkp-next-specific-buffers-bookmark',
+;;    `bmkp-next-specific-buffers-bookmark-other-window',
+;;    `bmkp-next-specific-buffers-bookmark-other-window-repeat',
 ;;    `bmkp-next-specific-buffers-bookmark-repeat',
 ;;    `bmkp-next-specific-files-bookmark',
+;;    `bmkp-next-specific-files-bookmark-other-window',
+;;    `bmkp-next-specific-files-bookmark-other-window-repeat',
 ;;    `bmkp-next-specific-files-bookmark-repeat',
 ;;    `bmkp-next-variable-list-bookmark',
+;;    `bmkp-next-variable-list-bookmark-other-window',
+;;    `bmkp-next-variable-list-bookmark-other-window-repeat',
 ;;    `bmkp-next-variable-list-bookmark-repeat',
-;;    `bmkp-next-url-bookmark', `bmkp-next-url-bookmark-repeat',
-;;    `bmkp-non-dir-file-jump', `bmkp-non-dir-file-jump-other-window',
-;;    `bmkp-non-file-jump', `bmkp-non-file-jump-other-window',
+;;    `bmkp-next-url-bookmark', `bmkp-next-url-bookmark-other-window',
+;;    `bmkp-next-url-bookmark-other-window-repeat',
+;;    `bmkp-next-url-bookmark-repeat', `bmkp-next-bookmark-w32',
+;;    `bmkp-next-bookmark-w32-other-window',
+;;    `bmkp-next-bookmark-w32-other-window-repeat',
+;;    `bmkp-next-bookmark-w32-repeat', `bmkp-non-dir-file-jump',
+;;    `bmkp-non-dir-file-jump-other-window', `bmkp-non-file-jump',
+;;    `bmkp-non-file-jump-other-window',
 ;;    `bmkp-occur-create-autonamed-bookmarks',
 ;;    `bmkp-ORIG-bookmark-insert', `bmkp-occur-target-set',
 ;;    `bmkp-occur-target-set-all', `bmkp-paste-add-tags',
-;;    `bmkp-paste-replace-tags', `bmkp-previous-bookmark',
-;;    `bmkp-previous-autonamed-bookmark',
+;;    `bmkp-paste-replace-tags', `bmkp-previous-autonamed-bookmark',
+;;    `bmkp-previous-autonamed-bookmark-other-window',
+;;    `bmkp-previous-autonamed-bookmark-other-window-repeat',
 ;;    `bmkp-previous-autonamed-bookmark-repeat',
+;;    `bmkp-previous-bookmark',
 ;;    `bmkp-previous-bookmark-list-bookmark',
+;;    `bmkp-previous-bookmark-list-bookmark-other-window',
+;;    `bmkp-previous-bookmark-list-bookmark-other-window-repeat',
 ;;    `bmkp-previous-bookmark-list-bookmark-repeat',
+;;    `bmkp-previous-bookmark-list-repeat',
+;;    `bmkp-previous-bookmark-other-window',
+;;    `bmkp-previous-bookmark-other-window-repeat',
 ;;    `bmkp-previous-bookmark-repeat',
 ;;    `bmkp-previous-bookmark-this-buffer',
+;;    `bmkp-previous-bookmark-this-buffer-other-window',
+;;    `bmkp-previous-bookmark-this-buffer-other-window-repeat',
 ;;    `bmkp-previous-bookmark-this-buffer-repeat',
 ;;    `bmkp-previous-bookmark-this-file',
 ;;    `bmkp-previous-bookmark-this-file/buffer',
+;;    `bmkp-previous-bookmark-this-file/buffer-other-window',
+;;    `bmkp-previous-bookmark-this-file/buffer-other-window-repeat',
 ;;    `bmkp-previous-bookmark-this-file/buffer-repeat',
-;;    `bmkp-previous-bookmark-this-file-repeat',
-;;    `bmkp-previous-bookmark-this-buffer-repeat',
-;;    `bmkp-previous-bookmark-this-file',
-;;    `bmkp-previous-bookmark-this-file/buffer',
-;;    `bmkp-previous-bookmark-this-file/buffer-repeat',
+;;    `bmkp-previous-bookmark-this-file-other-window',
+;;    `bmkp-previous-bookmark-this-file-other-window-repeat',
 ;;    `bmkp-previous-bookmark-this-file-repeat',
 ;;    `bmkp-previous-desktop-bookmark',
+;;    `bmkp-previous-desktop-bookmark-other-window',
+;;    `bmkp-previous-desktop-bookmark-other-window-repeat',
 ;;    `bmkp-previous-desktop-bookmark-repeat',
 ;;    `bmkp-previous-dired-bookmark',
+;;    `bmkp-previous-dired-bookmark-other-window',
+;;    `bmkp-previous-dired-bookmark-other-window-repeat',
 ;;    `bmkp-previous-dired-bookmark-repeat',
+;;    `bmkp-previous-eww-bookmark',
+;;    `bmkp-previous-eww-bookmark-other-window',
+;;    `bmkp-previous-eww-bookmark-other-window-repeat',
+;;    `bmkp-previous-eww-bookmark-repeat',
 ;;    `bmkp-previous-file-bookmark',
+;;    `bmkp-previous-file-bookmark-other-window',
+;;    `bmkp-previous-file-bookmark-other-window-repeat',
 ;;    `bmkp-previous-file-bookmark-repeat',
 ;;    `bmkp-previous-gnus-bookmark',
+;;    `bmkp-previous-gnus-bookmark-other-window',
+;;    `bmkp-previous-gnus-bookmark-other-window-repeat',
 ;;    `bmkp-previous-gnus-bookmark-repeat',
 ;;    `bmkp-previous-info-bookmark',
+;;    `bmkp-previous-info-bookmark-other-window',
+;;    `bmkp-previous-info-bookmark-other-window-repeat',
 ;;    `bmkp-previous-info-bookmark-repeat',
 ;;    `bmkp-previous-lighted-bookmark',
+;;    `bmkp-previous-lighted-bookmark-other-window',
+;;    `bmkp-previous-lighted-bookmark-other-window-repeat',
 ;;    `bmkp-previous-lighted-bookmark-repeat',
 ;;    `bmkp-previous-local-file-bookmark',
+;;    `bmkp-previous-local-file-bookmark-other-window',
+;;    `bmkp-previous-local-file-bookmark-other-window-repeat',
 ;;    `bmkp-previous-local-file-bookmark-repeat',
 ;;    `bmkp-previous-man-bookmark',
+;;    `bmkp-previous-man-bookmark-other-window',
+;;    `bmkp-previous-man-bookmark-other-window-repeat',
 ;;    `bmkp-previous-man-bookmark-repeat',
 ;;    `bmkp-previous-non-file-bookmark',
+;;    `bmkp-previous-non-file-bookmark-other-window',
+;;    `bmkp-previous-non-file-bookmark-other-window-repeat',
 ;;    `bmkp-previous-non-file-bookmark-repeat',
 ;;    `bmkp-previous-remote-file-bookmark',
+;;    `bmkp-previous-remote-file-bookmark-other-window',
+;;    `bmkp-previous-remote-file-bookmark-other-window-repeat',
 ;;    `bmkp-previous-remote-file-bookmark-repeat',
 ;;    `bmkp-previous-specific-buffers-bookmark',
+;;    `bmkp-previous-specific-buffers-bookmark-other-window',
+;;    `bmkp-previous-specific-buffers-bookmark-other-window-repeat',
 ;;    `bmkp-previous-specific-buffers-bookmark-repeat',
 ;;    `bmkp-previous-specific-files-bookmark',
+;;    `bmkp-previous-specific-files-bookmark-other-window',
+;;    `bmkp-previous-specific-files-bookmark-other-window-repeat',
 ;;    `bmkp-previous-specific-files-bookmark-repeat',
 ;;    `bmkp-previous-variable-list-bookmark',
+;;    `bmkp-previous-variable-list-bookmark-other-window',
+;;    `bmkp-previous-variable-list-bookmark-other-window-repeat',
 ;;    `bmkp-previous-variable-list-bookmark-repeat',
 ;;    `bmkp-previous-url-bookmark',
+;;    `bmkp-previous-url-bookmark-other-window',
+;;    `bmkp-previous-url-bookmark-other-window-repeat',
 ;;    `bmkp-previous-url-bookmark-repeat',
 ;;    `bmkp-previous-bookmark-w32',
+;;    `bmkp-previous-bookmark-w32-other-window',
+;;    `bmkp-previous-bookmark-w32-other-window-repeat',
 ;;    `bmkp-previous-bookmark-w32-repeat',
 ;;    `bmkp-purge-notags-autofiles', `bmkp-read-bookmark-for-type',
 ;;    `bmkp-region-jump',
@@ -360,7 +449,7 @@
 ;;    `bmkp-default-bookmark-name',
 ;;    `bmkp-default-handlers-for-file-types',
 ;;    `bmkp-desktop-default-directory',
-;;    `bmkp-desktop-jump-save-before-flag.',
+;;    `bmkp-desktop-jump-save-before-flag',
 ;;    `bmkp-desktop-no-save-vars', `bmkp-eww-auto-type' (Emacs 25+),
 ;;    `bmkp-eww-buffer-renaming' (Emacs 25+),
 ;;    `bmkp-eww-generate-buffer-flag' (Emacs 25+),
@@ -408,10 +497,9 @@
 ;;    `bmkp-bookmark-file-bookmark-p',
 ;;    `bmkp-bookmark-list-alist-only',
 ;;    `bmkp-bookmark-list-bookmark-p', `bmkp-bookmark-name-member',
-;;    `bmkp-bookmark-record-from-name', `bmkp-bookmark-type',
-;;    `bmkp-buffer-last-access-cp', `bmkp-buffer-names',
-;;    `bmkp-compilation-file+line-at', `bmkp-completing-read-1',
-;;    `bmkp-completing-read-bookmarks',
+;;    `bmkp-bookmark-record-from-name', `bmkp-buffer-last-access-cp',
+;;    `bmkp-buffer-names', `bmkp-compilation-file+line-at',
+;;    `bmkp-completing-read-1', `bmkp-completing-read-bookmarks',
 ;;    `bmkp-completing-read-buffer-name',
 ;;    `bmkp-completing-read-file-name', `bmkp-completing-read-lax',
 ;;    `bmkp-cp-not', `bmkp-create-variable-list-bookmark',
@@ -488,8 +576,8 @@
 ;;    `bmkp-last-specific-buffer-alist-only',
 ;;    `bmkp-last-specific-buffer-p',
 ;;    `bmkp-last-specific-file-alist-only',
-;;    `bmkp-last-specific-file-p', `bmkp-line-number-at-pos',
-;;    `bmkp-list-position', `bmkp-local-directory-bookmark-p',
+;;    `bmkp-last-specific-file-p', `bmkp-list-position',
+;;    `bmkp-local-directory-bookmark-p',
 ;;    `bmkp-local-file-accessed-more-recently-cp',
 ;;    `bmkp-local-file-alist-only', `bmkp-local-file-bookmark-p',
 ;;    `bmkp-local-file-size-cp', `bmkp-local-file-type-cp',
@@ -585,6 +673,7 @@
 ;;    `bmkp-autotemp-all-when-set-p', `bmkp-before-jump-hook',
 ;;    `bmkp-bookmark-file-history', `bmkp-bookmark-list-history',
 ;;    `bmkp-bookmark-set-confirms-overwrite-p',
+;;    `bmkp-buffer-alist-only', `bmkp-buffer-bookmark-p',
 ;;    `bmkp-current-bookmark-file', `bmkp-current-nav-bookmark',
 ;;    `bmkp-desktop-current-file', `bmkp-desktop-history',
 ;;    `bmkp-dired-history', `bmkp-edit-bookmark-record-mode-map',
@@ -621,7 +710,8 @@
 ;;    `bookmark-edit-annotation-mode', `bookmark-insert',
 ;;    `bookmark-insert-annotation',
 ;;    `bookmark-insert-current-bookmark', `bookmark-insert-location',
-;;    `bookmark-jump', `bookmark-jump-other-window', `bookmark-load',
+;;    `bookmark-jump', `bookmark-jump-other-frame',
+;;    `bookmark-jump-other-window', `bookmark-load',
 ;;    `bookmark-relocate', `bookmark-rename', `bookmark-save',
 ;;    `bookmark-send-edited-annotation', `bookmark-set',
 ;;    `bookmark-set-name', `bookmark-yank-word'.
@@ -933,7 +1023,7 @@ These are the predefined type predicates:
 
 `bmkp-autofile-bookmark-p', `bmkp-annotated-bookmark-p',
 `bmkp-autonamed-bookmark-for-buffer-p', `bmkp-autonamed-bookmark-p',
-`bmkp-autonamed-this-buffer-bookmark-p','
+`bmkp-autonamed-this-buffer-bookmark-p', `bmkp-buffer-bookmark-p',
 `bmkp-bookmark-file-bookmark-p', `bmkp-bookmark-list-bookmark-p',
 `bmkp-desktop-bookmark-p', `bmkp-dired-bookmark-p',
 `bmkp-dired-this-dir-bookmark-p', `bmkp-dired-wildcards-bookmark-p',
@@ -2092,7 +2182,7 @@ provide it.  If that does not provide it then use
                            (let ((val  (funcall fn)))
                              (when (and (stringp val)  (not (string= "" val)))
                                (throw 'bookmark-make-record val)))))
-                       (or bookmark-current-bookmark (bookmark-buffer-name))))
+                       (or bookmark-current-bookmark  (bookmark-buffer-name))))
       (when (and defname  (not (stringp defname))) (setq defname  (format "%s" defname))) ; Just in case.
       (when (string= "" defname) (setq defname "<EMPTY NAME>")) ; You never know.
       (setcar record  defname)
@@ -2369,7 +2459,7 @@ Non-nil NO-REGION means do not include the region end, `end-position'."
       ,@(unless no-context `((rear-context-string . ,rcs)))
       ,@(unless no-context `((front-context-region-string . ,fcrs)))
       ,@(unless no-context `((rear-context-region-string  . ,ecrs)))
-      (visits       . ,(or visits 0))
+      (visits       . ,(or visits  0))
       (time         . ,ctime)
       (created      . ,ctime)
       (position     . ,beg)
@@ -2748,12 +2838,12 @@ candidate.
 In Lisp code:
 BOOKMARK is a bookmark name or a bookmark record.
 Non-nil DISPLAY-FUNCTION is a function to display the bookmark.  By
- default, `switch-to-buffer' is used.
+ default, use `pop-to-buffer-same-window'.
 Non-nil FLIP-USE-REGION-P flips the value of `bmkp-use-region'."
   (interactive (list (bookmark-completing-read "Jump to bookmark" (bmkp-default-bookmark-name))
                      nil
                      current-prefix-arg))
-  (bmkp-jump-1 bookmark (or display-function 'switch-to-buffer) flip-use-region-p))
+  (bmkp-jump-1 bookmark (or display-function  'bmkp--pop-to-buffer-same-window) flip-use-region-p))
 
 
 ;; REPLACES ORIGINAL in `bookmark.el'.
@@ -2771,6 +2861,22 @@ See `bookmark-jump', in particular for info about using a prefix arg."
                                                (bmkp-default-bookmark-name))
                      current-prefix-arg))
   (bmkp-jump-1 bookmark 'bmkp-select-buffer-other-window flip-use-region-p))
+
+
+;; REPLACES ORIGINAL in `bookmark.el' (Emacs 27+)
+;;
+;; 1. Added optional arg FLIP-USE-REGION-P.
+;; 2. Use `bmkp-default-bookmark-name' as default when interactive.
+;; 3. Use `bmkp-jump-1'.
+;;
+;;;###autoload (autoload 'bookmark-jump-other-frame "bookmark+")
+(defun bookmark-jump-other-frame (bookmark &optional flip-use-region-p) ; Bound to `C-x 5 B'
+  "Jump to bookmark BOOKMARK in another frame.
+See `bookmark-jump', in particular for info about using a prefix arg."
+  (interactive (list (bookmark-completing-read "Jump to bookmark (in another frame)"
+                                               (bmkp-default-bookmark-name))
+                     current-prefix-arg))
+  (let ((pop-up-frames  t)) (bookmark-jump-other-window bookmark flip-use-region-p)))
 
 
 ;; REPLACES ORIGINAL in `bookmark.el'.
@@ -2844,7 +2950,7 @@ is handled as follows:
                              ;; better than nothing, and it gives the user a chance to DTRT.
                              (pop-to-buffer (bmkp-get-buffer-name bookmark)) ; Create buffer.
                            (bookmark-relocate bookmark)) ; Relocate to file.
-                         (funcall (or (bookmark-get-handler bookmark) 'bookmark-default-handler)
+                         (funcall (or (bookmark-get-handler bookmark)  'bookmark-default-handler)
                                   (bookmark-get-bookmark bookmark))) ; Try again
                         (t
                          (message "Bookmark not relocated: `%s'" bookmark)
@@ -3087,7 +3193,7 @@ candidate."
               (bmkp-refresh-menu-list newname)) ; So the new name is displayed.
           (bookmark-bmenu-surreptitiously-rebuild-list)))
       (bmkp-maybe-save-bookmarks))
-    (or newname old)))                  ; NEWNAME is nil only if BATCHP is non-nil and NEW was nil.
+    (or newname  old)))                 ; NEWNAME is nil only if BATCHP is non-nil and NEW was nil.
 
 
 ;; REPLACES ORIGINAL in `bookmark.el'.
@@ -3210,6 +3316,22 @@ If called from Lisp:
   (bmkp-refresh/rebuild-menu-list))     ; $$$$$$ Should this be done only when interactive?
 
 
+;; From `mule-util.el'
+;;
+(eval-when-compile
+ (defmacro with-coding-priority (coding-systems &rest body)
+   "Execute BODY like `progn' with CODING-SYSTEMS at the front of priority list.
+CODING-SYSTEMS is a list of coding systems.  See `set-coding-system-priority'.
+This affects the implicit sorting of lists of coding systems returned by
+operations such as `find-coding-systems-region'."
+   (let ((current (make-symbol "current")))
+     `(let ((,current (coding-system-priority-list)))
+       (apply #'set-coding-system-priority ,coding-systems)
+       (unwind-protect
+            (progn ,@body)
+         (apply #'set-coding-system-priority ,current))))))
+
+
 ;; REPLACES ORIGINAL in `bookmark.el'.
 ;;
 ;; 1. Use `write-file', not `write-region', so backup files are made.
@@ -3241,7 +3363,7 @@ Non-nil ALT-MSG is a message format string to use in place of the
 default, \"Saving bookmarks to file `%s'...\".  The string must
 contain a `%s' construct, so that it can be passed along with FILE to
 `format'.  At the end, \"done\" is appended to the message."
-  (let ((msg                      (or alt-msg "Saving bookmarks to file `%s'..."))
+  (let ((msg                      (or alt-msg  "Saving bookmarks to file `%s'..."))
         (coding-system-for-write  (if (boundp 'bookmark-file-coding-system) ; Emacs 25.2+.
                                       (or coding-system-for-write  bookmark-file-coding-system  'utf-8-emacs)
                                     coding-system-for-write))
@@ -3409,24 +3531,26 @@ Return non-nil if the bookmark was renamed, nil otherwise."
 
 ;; REPLACES ORIGINAL in `bookmark.el'.
 ;;
-;; 1. Prefix arg means OVERWRITE.
-;; 2. Use `bmkp-read-bookmark-file-name', not `read-file-name', and use different default.
-;; 3. If OVERWRITE is non-nil:
-;;    * Update `bmkp-last-bookmark-file' to `bmkp-current-bookmark-file'.
-;;    * Update `bmkp-current-bookmark-file' to FILE.
-;;    * Reset bmenu stuff: `bmkp-bmenu-marked-bookmarks', `bmkp-modified-bookmarks',
-;;      `bmkp-flagged-bookmarks', `bmkp-bmenu-omitted-bookmarks', `bmkp-bmenu-filter-function'.
-;;    * If `bmkp-last-as-first-bookmark-file', then update it to FILE and save it to disk.
-;; 4. If the bookmark-file buffer already existed, do not kill it after loading.
-;; 5. Set `bookmarks-already-loaded' regardless of FILE (not just `bookmark-default-file').
-;; 6. Update `bmkp-sorted-alist' (it's a cache).
-;; 7. Final msg says whether overwritten.
-;; 8. Run `bmkp-read-bookmark-file-hook' after reading the bookmark file.
-;; 9. Call `bmkp-bmenu-refresh-menu-list' at end, if interactive.
+;;  1. Prefix arg means OVERWRITE.
+;;  2. Return the list of bookmarks read from FILE.
+;;  3. Use `bmkp-read-bookmark-file-name', not `read-file-name', and use different default.
+;;  4. If OVERWRITE is non-nil:
+;;     * Update `bmkp-last-bookmark-file' to `bmkp-current-bookmark-file'.
+;;     * Update `bmkp-current-bookmark-file' to FILE.
+;;     * Reset bmenu stuff: `bmkp-bmenu-marked-bookmarks', `bmkp-modified-bookmarks',
+;;       `bmkp-flagged-bookmarks', `bmkp-bmenu-omitted-bookmarks', `bmkp-bmenu-filter-function'.
+;;     * If `bmkp-last-as-first-bookmark-file', then update it to FILE and save it to disk.
+;;  5. If the bookmark-file buffer already existed, do not kill it after loading.
+;;  6. Set `bookmarks-already-loaded' regardless of FILE (not just `bookmark-default-file').
+;;  7. Update `bmkp-sorted-alist' (it's a cache).
+;;  8. Final msg says whether overwritten.
+;;  9. Run `bmkp-read-bookmark-file-hook' after reading the bookmark file.
+;; 10. Call `bmkp-bmenu-refresh-menu-list' at end, if interactive.
 ;;
 ;;;###autoload (autoload 'bookmark-load "bookmark+")
 (defun bookmark-load (file &optional overwrite batchp) ; Bound to `C-x p l'
   "Load bookmarks from FILE (which must be in the standard format).
+Return the list of bookmarks read from FILE.
 Without a prefix argument (argument OVERWRITE is nil), add the newly
 loaded bookmarks to those already current.  They are saved to the
 current bookmark file when bookmarks are saved.
@@ -3484,7 +3608,7 @@ bookmark files that were created using the bookmark functions."
                            bmkp-last-bookmark-file)))
            (bmkp-read-bookmark-file-name
             (if current-prefix-arg "Switch to bookmark file: " "Add bookmarks from file: ")
-            (or (file-name-directory default) "~/")
+            (or (file-name-directory default)  "~/")
             default
             t))
          current-prefix-arg))
@@ -3501,40 +3625,42 @@ bookmark files that were created using the bookmark functions."
   (when (file-directory-p file) (error "`%s' is a directory, not a file" file))
   (unless (file-readable-p file) (error "Cannot read bookmark file `%s'" file))
   (unless batchp (message "Loading bookmarks from `%s'..." file))
-  (let ((existing-buf  (get-file-buffer file)))
+  (let ((existing-buf  (get-file-buffer file))
+        blist)
     (with-current-buffer (let ((enable-local-variables  ())) (find-file-noselect file))
       (goto-char (point-min))
       (bookmark-maybe-upgrade-file-format)
-      (let ((blist  (bookmark-alist-from-buffer)))
-        (unless (listp blist) (error "Invalid bookmark list in `%s'" file))
-        (cond (overwrite
-               (setq bmkp-last-bookmark-file            bmkp-current-bookmark-file
-                     bmkp-current-bookmark-file         file
-                     bookmark-alist                     blist
-                     bookmark-alist-modification-count  0)
-               (setq bmkp-bmenu-marked-bookmarks        () ; Start from scratch.
-                     bmkp-modified-bookmarks            ()
-                     bmkp-flagged-bookmarks             ()
-                     bmkp-bmenu-omitted-bookmarks       (condition-case nil
-                                                            (eval (car (get 'bmkp-bmenu-omitted-bookmarks
-                                                                            'saved-value)))
-                                                          (error nil))
-                     bmkp-bmenu-filter-function         nil)
-               (when (and bmkp-last-as-first-bookmark-file
-                          (not (bmkp-same-file-p bmkp-last-as-first-bookmark-file file)))
-                 (customize-save-variable 'bmkp-last-as-first-bookmark-file file)))
-              (t
-               (bookmark-import-new-list blist)
-               (setq bookmark-alist-modification-count  (1+ bookmark-alist-modification-count))))
-        (setq bookmarks-already-loaded  t ; Systematically, whenever any file is loaded.
-              bmkp-sorted-alist         (bmkp-sort-omit bookmark-alist))
-        (when (boundp 'bookmark-file-coding-system) ; Emacs 25.2+
-          (setq bookmark-file-coding-system  buffer-file-coding-system))
-        (run-hook-with-args 'bmkp-read-bookmark-file-hook blist file))
-      (unless (eq existing-buf (current-buffer)) (kill-buffer (current-buffer)))))
-  (unless batchp                        ; If appropriate, *CALLER* MUST refresh/rebuild, if BATCHP.
-    (bmkp-refresh/rebuild-menu-list)
-    (message "%s bookmarks in `%s'" (if overwrite "Switched to" "Added") file)))
+      (setq blist  (bookmark-alist-from-buffer))
+      (unless (listp blist) (error "Invalid bookmark list in `%s'" file))
+      (cond (overwrite
+             (setq bmkp-last-bookmark-file            bmkp-current-bookmark-file
+                   bmkp-current-bookmark-file         file
+                   bookmark-alist                     blist
+                   bookmark-alist-modification-count  0)
+             (setq bmkp-bmenu-marked-bookmarks        () ; Start from scratch.
+                   bmkp-modified-bookmarks            ()
+                   bmkp-flagged-bookmarks             ()
+                   bmkp-bmenu-omitted-bookmarks       (condition-case nil
+                                                          (eval (car (get 'bmkp-bmenu-omitted-bookmarks
+                                                                          'saved-value)))
+                                                        (error nil))
+                   bmkp-bmenu-filter-function         nil)
+             (when (and bmkp-last-as-first-bookmark-file
+                        (not (bmkp-same-file-p bmkp-last-as-first-bookmark-file file)))
+               (customize-save-variable 'bmkp-last-as-first-bookmark-file file)))
+            (t
+             (bookmark-import-new-list blist)
+             (setq bookmark-alist-modification-count  (1+ bookmark-alist-modification-count))))
+      (setq bookmarks-already-loaded  t ; Systematically, whenever any file is loaded.
+            bmkp-sorted-alist         (bmkp-sort-omit bookmark-alist))
+      (when (boundp 'bookmark-file-coding-system) ; Emacs 25.2+
+        (setq bookmark-file-coding-system  buffer-file-coding-system))
+      (run-hook-with-args 'bmkp-read-bookmark-file-hook blist file)
+      (unless (eq existing-buf (current-buffer)) (kill-buffer (current-buffer))))
+    (unless batchp                      ; If appropriate, *CALLER* MUST refresh/rebuild, if BATCHP.
+      (bmkp-refresh/rebuild-menu-list)
+      (message "%s bookmarks in `%s'" (if overwrite "Switched to" "Added") file))
+    blist))                             ; Return the list of bookmarks read from FILE.
 
 
 ;; REPLACES ORIGINAL in `bookmark.el'.
@@ -3858,7 +3984,7 @@ for its existence, as is `bmkp-get-bookmark-in-alist'."
 
 (defun bmkp-default-bookmark-file ()
   "`bmkp-last-as-first-bookmark-file', or `bookmark-default-file' if nil."
-  (or bmkp-last-as-first-bookmark-file bookmark-default-file))
+  (or bmkp-last-as-first-bookmark-file  bookmark-default-file))
 
 (defun bmkp-completing-read-bookmarks (&optional alist pred hist names-only-p)
   "Read bookmark names and return the bookmarks named as a list.
@@ -3911,12 +4037,11 @@ In addition:
   "Helper for `bookmark-completing-read' and `bmkp-completing-read-lax'.
 LAXP non-nil means use lax (non-strict) completion."
   (bookmark-maybe-load-default-file)
-  (setq alist  (or alist bookmark-alist))
+  (setq alist  (or alist  bookmark-alist))
   (if (and (not laxp)
            (listp last-nonmenu-event)
            (or (eq t bmkp-menu-popup-max-length)
-               (and (integerp bmkp-menu-popup-max-length)
-                    (< (length alist) bmkp-menu-popup-max-length))))
+               (and (integerp bmkp-menu-popup-max-length)  (< (length alist) bmkp-menu-popup-max-length))))
       (bookmark-menu-popup-paned-menu
        t prompt
        (if bmkp-sort-comparer           ; Test whether to sort, but always use `string-lessp'.
@@ -3936,7 +4061,7 @@ LAXP non-nil means use lax (non-strict) completion."
                                                                                    default))
                                                              ": ")))
            (str                             (completing-read prompt alist pred (not laxp) nil
-                                                             (or hist 'bookmark-history) default)))
+                                                             (or hist  'bookmark-history) default)))
       str)))
 
 (defun bmkp-jump-1 (bookmark display-function &optional flip-use-region-p)
@@ -3988,14 +4113,14 @@ That is, switch from edit mode to read-only mode."
   (interactive)
   (unless (eq major-mode 'bookmark-edit-annotation-mode)
     (error "Buffer is not in `Edit Bookmark Annotation' mode"))
-  (if (not (or (not (buffer-modified-p)) (y-or-n-p "Annotation was modified.  Lose changes?")))
+  (if (not (or (not (buffer-modified-p))  (y-or-n-p "Annotation was modified.  Lose changes?")))
       (message "OK, canceled - use `C-c C-c' if you want to save changes")
     (let* ((bmk    (bookmark-get-bookmark bookmark-annotation-name 'NOERROR))
            (bname  (bookmark-name-from-full-record bmk))
            (ann    (and bmk  (bookmark-get-annotation bmk)))
            (obuf   (current-buffer)))
       (unless bname (error "No such bookmark: `%s'" bmk))
-      (switch-to-buffer (format "*`%s' Annotation*" bname))
+      (bmkp--pop-to-buffer-same-window (format "*`%s' Annotation*" bname))
       (let ((buffer-read-only  nil)     ; Because buffer might already exist, in view mode.
             (buf-modified-p    (buffer-modified-p)))
         (delete-region (point-min) (point-max))
@@ -4024,7 +4149,7 @@ That is, switch from read-only mode to edit mode."
          (bname  (bookmark-name-from-full-record bmk))
          (obuf   (current-buffer)))
     (unless bname (error "No such bookmark: `%s'" bmk))
-    (switch-to-buffer (generate-new-buffer-name "*Bookmark Annotation Compose*"))
+    (bmkp--pop-to-buffer-same-window (generate-new-buffer-name "*Bookmark Annotation Compose*"))
     (let ((buf-modified-p  (buffer-modified-p)))
       (bookmark-insert-annotation bname)
       (set-buffer-modified-p buf-modified-p))
@@ -4206,7 +4331,7 @@ When you finish editing, use \\<bmkp-edit-bookmark-record-mode-map>\
 (define-key bmkp-edit-bookmark-record-mode-map "\C-c\C-c" 'bmkp-edit-bookmark-record-send)
 
 ;;;###autoload (autoload 'bmkp-edit-bookmark-record "bookmark+")
-(defun bmkp-edit-bookmark-record (bookmark) ; Bound to `C-x p e'.
+(defun bmkp-edit-bookmark-record (bookmark) ; Bound to `C-x p E'.
   "Edit the full record (the Lisp sexp) for BOOKMARK.
 BOOKMARK is a bookmark name or a bookmark record.
 When you finish editing, use \\<bmkp-edit-bookmark-record-mode-map>\
@@ -4333,7 +4458,8 @@ DO NOT MODIFY the header comment lines, which begin with `;;'."
              (error "Bad bookmark name in edit-buffer header"))
            (unless (setq bmk  (bmkp-get-bookmark-in-alist bname 'NOERROR))
              (error "No such bookmark: `%s'" bname))
-           (unless (bmkp-bookmark-type bmk) (error "Invalid bookmark"))
+           (unless (bmkp-bookmark-valid-p bmk)
+             (error "Invalid bookmark: `%s'" bname))
            (goto-char (point-min))
            (setq tags  (read (current-buffer)))
            (unless (listp tags) (error "Tags sexp is not a list of strings or an alist with string keys"))
@@ -4349,45 +4475,8 @@ DO NOT MODIFY the header comment lines, which begin with `;;'."
       (when (equal (buffer-name (current-buffer)) "*Bookmark List*")
         (bmkp-bmenu-goto-bookmark-named bname)))))
 
-(defun bmkp-bookmark-type (bookmark)
-  "Return the type of BOOKMARK or nil if no type is recognized.
-Return nil if the bookmark record is not recognized (invalid).
-See the code for the possible non-nil return values.
-BOOKMARK is a bookmark name or a bookmark record.
-If it is a record then it need not belong to `bookmark-alist'."
-  (condition-case nil
-      (progn
-        ;; If BOOKMARK is already a bookmark record, not a bookmark name, then we must use it.
-        ;; If we used the name instead, then tests such as `bookmark-get-filename' would fail,
-        ;; because they call `bookmark-get-bookmark', which, for a string, checks whether the
-        ;; bookmark exists in `bookmark-alist'.  But we want to be able to use `bmkp-bookmark-type'
-        ;; to get the type of any bookmark record, not necessarily one that is in `bookmark-alist'.
-        (when (stringp bookmark) (setq bookmark  (bookmark-get-bookmark bookmark)))
-        (let ((filep  (bookmark-get-filename bookmark)))
-          (cond ((bmkp-sequence-bookmark-p bookmark)             'bmkp-sequence-bookmark-p)
-                ((bmkp-function-bookmark-p bookmark)             'bmkp-function-bookmark-p)
-                ((bmkp-variable-list-bookmark-p bookmark)        'bmkp-variable-list-bookmark-p)
-                ((bmkp-url-bookmark-p bookmark)                  'bmkp-url-bookmark-p)
-                ((bmkp-gnus-bookmark-p bookmark)                 'bmkp-gnus-bookmark-p)
-                ((bmkp-desktop-bookmark-p bookmark)              'bmkp-desktop-bookmark-p)
-                ((bmkp-bookmark-file-bookmark-p bookmark)        'bmkp-bookmark-file-bookmark-p)
-                ((bmkp-bookmark-list-bookmark-p bookmark)        'bmkp-bookmark-list-bookmark-p)
-                ((bmkp-snippet-bookmark-p bookmark)              'bmkp-snippet-bookmark-p)
-                ((bmkp-man-bookmark-p bookmark)                  'bmkp-man-bookmark-p)
-                ((bmkp-info-bookmark-p bookmark)                 'bmkp-info-bookmark-p)
-                ((bookmark-get-handler bookmark)                 'bookmark-get-handler)
-                ((bmkp-region-bookmark-p bookmark)               'bmkp-region-bookmark-p)
-                ;; Make sure we test for remoteness before any other tests of the file itself
-                ;; (e.g. `file-exists-p'). We do not want to prompt for a password etc.
-                ((and filep  (bmkp-file-remote-p filep))         'remote-file)
-                ((and filep  (file-directory-p filep))           'local-directory)
-                (filep                                           'local-file)
-                ((and (bmkp-get-buffer-name bookmark)
-                      (or (not filep)
-                          (equal filep bmkp-non-file-filename)))
-                 'buffer)
-                (t                                               nil))))
-    (error nil)))
+(defalias 'bmkp-bookmark-type 'bmkp-bookmark-valid-p)
+(make-obsolete 'bmkp-bookmark-type 'bmkp-bookmark-valid-p) ; 2018-12-23
 
 (defun bmkp-record-visit (bookmark &optional batchp)
   "Update the data recording a visit to BOOKMARK.
@@ -4416,8 +4505,8 @@ ALIST."
                     (bookmark-bmenu-bookmark)
                   (if (fboundp 'bmkp-default-lighted)
                       (if (eq 'highlighted bmkp-default-bookmark-name)
-                          (or (bmkp-default-lighted) bookmark-current-bookmark)
-                        (or bookmark-current-bookmark (bmkp-default-lighted)))
+                          (or (bmkp-default-lighted)  bookmark-current-bookmark)
+                        (or bookmark-current-bookmark  (bmkp-default-lighted)))
                     bookmark-current-bookmark))))
     (when (consp bname) (setq bname  (car bname))) ; Since `bmkp-default-lighted' can return a list of names.
     (when (and bname  alist)
@@ -4496,7 +4585,7 @@ Tip: You can use this before quitting Emacs, to not save the state.
 If the initial value of `bmkp-bmenu-state-file' is nil, then this
 command has no effect."
   (interactive)
-  (unless (or bmkp-last-bmenu-state-file bmkp-bmenu-state-file)
+  (unless (or bmkp-last-bmenu-state-file  bmkp-bmenu-state-file)
     (error "Cannot toggle: initial value of `bmkp-bmenu-state-file' is nil"))
   (setq bmkp-last-bmenu-state-file  (prog1 bmkp-bmenu-state-file
                                       (setq bmkp-bmenu-state-file  bmkp-last-bmenu-state-file)))
@@ -4760,7 +4849,7 @@ The other args are the same as for `read-file-name'."
   (let ((insert-default-directory                    t)
         (icicle-unpropertize-completion-result-flag  t)) ; For `read-file-name'.
     (expand-file-name
-     (read-file-name (or prompt "Use bookmark file: ") dir default-filename require-match))))
+     (read-file-name (or prompt  "Use bookmark file: ") dir default-filename require-match))))
 
 (defun bmkp-read-bookmark-file-default ()
   "A default value for `bmkp-read-bookmark-file-name' DEFAULT-FILENAME arg.
@@ -4834,22 +4923,22 @@ navigation list are those that would be currently shown in the
      (list (bmkp-read-bookmark-for-type "bookmark-list" bookmark-alist nil nil
                                         'bmkp-bookmark-list-history "Choose ")
            bookmark-alist)))
-  (let ((state  (let ((bookmark-alist  (or alist (cons (bmkp-current-bookmark-list-state)
-                                                       (bmkp-bookmark-list-alist-only)))))
+  (let ((state  (let ((bookmark-alist  (or alist  (cons (bmkp-current-bookmark-list-state)
+                                                        (bmkp-bookmark-list-alist-only)))))
                   (bookmark-prop-get bookmark-name 'bookmark-list))))
     (let ((bmkp-sort-comparer               (cdr (assq 'last-sort-comparer              state)))
           (bmkp-reverse-sort-p              (cdr (assq 'last-reverse-sort-p             state)))
           (bmkp-reverse-multi-sort-p        (cdr (assq 'last-reverse-multi-sort-p       state)))
           (bmkp-bmenu-omitted-bookmarks     (cdr (assq 'last-bmenu-omitted-bookmarks    state)))
           (bmkp-bmenu-filter-function       (cdr (assq 'last-bmenu-filter-function      state)))
-          (bmkp-bmenu-filter-pattern        (or (cdr (assq 'last-bmenu-filter-pattern   state)) ""))
+          (bmkp-bmenu-filter-pattern        (or (cdr (assq 'last-bmenu-filter-pattern   state))  ""))
           (bmkp-bmenu-title                 (cdr (assq 'last-bmenu-title                state)))
           (bookmark-bmenu-toggle-filenames  (cdr (assq 'last-bmenu-toggle-filenames     state))))
       (setq bmkp-nav-alist             (bmkp-sort-omit
                                         (if bmkp-bmenu-filter-function
                                             (funcall bmkp-bmenu-filter-function)
                                           (if (string= "CURRENT *Bookmark List*" bookmark-name)
-                                              (or bmkp-latest-bookmark-alist bookmark-alist)
+                                              (or bmkp-latest-bookmark-alist  bookmark-alist)
                                             bookmark-alist))
                                         (and (not (eq bmkp-bmenu-filter-function
                                                       'bmkp-omitted-alist-only))
@@ -5276,7 +5365,7 @@ Non-nil UPDATE-TAGS-ALIST-P means update var `bmkp-tags-alist'."
                                                                bmkp-tags-alist) ; Use cached list.
                                                           (bmkp-tags-list)))) ; Update the cache.
         (icicle-unpropertize-completion-result-flag  t))
-    (completing-read (or prompt "Tag: ") cand-tags nil require-match nil 'bmkp-tag-history)))
+    (completing-read (or prompt  "Tag: ") cand-tags nil require-match nil 'bmkp-tag-history)))
 
 (defun bmkp-read-tags-completing (&optional candidate-tags require-match update-tags-alist-p)
   "Read tags with completion, and return them as a list of strings.
@@ -5452,7 +5541,7 @@ is negative."
                      'MSG))
   (let* ((newtags  (copy-alist (bmkp-get-tags bookmark)))
          (olen     (length newtags)))
-    (dolist (tag  tags)  (unless (or (assoc tag newtags) (member tag newtags))  (push tag newtags)))
+    (dolist (tag  tags)  (unless (or (assoc tag newtags)  (member tag newtags))  (push tag newtags)))
     (bookmark-prop-set bookmark 'tags newtags)
     (unless no-update-p
       (bmkp-tags-list) ; Update the tags cache.
@@ -5597,7 +5686,7 @@ deletion."
                  (member-tag  (and (not assoc-tag)  (member tag newtags))))
             (cond (assoc-tag  (setcar assoc-tag newname))
                   (member-tag (setcar member-tag newname)))
-            (when (or assoc-tag member-tag)
+            (when (or assoc-tag  member-tag)
               (setq tag-exists-p  t)
               (bookmark-prop-set bmk 'tags newtags))))))
     (unless tag-exists-p (error "No such tag: `%s'" tag)))
@@ -5843,6 +5932,14 @@ BOOKMARK is a bookmark name or a bookmark record.
 If it is a record then it need not belong to `bookmark-alist'."
   (let ((file  (bookmark-get-filename bookmark)))
     (and (bmkp-local-file-bookmark-p bookmark)  (not (file-directory-p file)))))
+
+(defun bmkp-buffer-bookmark-p (bookmark)
+  "Return non-nil if BOOKMARK bookmarks a non-file buffer.
+BOOKMARK is a bookmark name or a bookmark record.
+If it is a record then it need not belong to `bookmark-alist'."
+  (and (bmkp-get-buffer-name bookmark)
+       (let ((filep  (bookmark-get-filename bookmark)))
+         (or (not filep)  (equal filep bmkp-non-file-filename)))))
 
 (defun bmkp-man-bookmark-p (bookmark)
   "Return non-nil if BOOKMARK is a `man' page bookmark.
@@ -6197,6 +6294,12 @@ A new list is returned (no side effects)."
 A new list is returned (no side effects)."
   (bookmark-maybe-load-default-file)
   (bmkp-remove-if-not #'bmkp-bookmark-list-bookmark-p bookmark-alist))
+
+(defun bmkp-buffer-alist-only ()
+  "`bookmark-alist', filtered to retain only non-file buffer bookmarks.
+A new list is returned (no side effects)."
+  (bookmark-maybe-load-default-file)
+  (bmkp-remove-if-not #'bmkp-buffer-bookmark-p bookmark-alist))
 
 (defun bmkp-desktop-alist-only ()
   "`bookmark-alist', filtered to retain only desktop bookmarks.
@@ -6655,7 +6758,7 @@ A new list is returned (no side effects)."
       "Copy of SEQUENCE with duplicate elements removed.
 Optional arg TEST is the test function.  If nil, test with `equal'.
 See `make-hash-table' for possible values of TEST."
-      (setq test  (or test #'equal))
+      (setq test  (or test  #'equal))
       (let ((htable  (make-hash-table :test test)))
         (loop for elt in sequence
               unless (gethash elt htable)
@@ -6874,7 +6977,7 @@ decide (returns nil).  If FINAL-PRED is nil, then `bmkp-alpha-p', the
 plain-predicate equivalent of `bmkp-alpha-cp' is used as the final
 predicate."
   `(lambda (b1 b2) (let ((res  (funcall ',pred b1 b2)))
-                     (if res (car res) (funcall ',(or final-pred 'bmkp-alpha-p) b1 b2)))))
+                     (if res (car res) (funcall ',(or final-pred  'bmkp-alpha-p) b1 b2)))))
 
 (defun bmkp-repeat-command (command)
   "Repeat COMMAND."
@@ -7029,7 +7132,7 @@ elements with keys in list OMIT."
 ;;; If optional arg OMIT is non-nil, then omit from the return value any
 ;;; elements with keys in list OMIT."
 ;;;   (let ((new  ()))
-;;;     (dolist (ii  alist)  (unless (or (assoc (car ii) new) (member (car ii) omit))  (push ii new)))
+;;;     (dolist (ii  alist)  (unless (or (assoc (car ii) new)  (member (car ii) omit))  (push ii new)))
 ;;;     (nreverse new)))
 
 
@@ -7400,7 +7503,7 @@ If either is a record then it need not belong to `bookmark-alist'."
                         (t
                          (setq i1  (bookmark-get-position b1)
                                i2  (bookmark-get-position b2))
-                         (cond ((or (not i1) (not i2))  '(t)) ; Fallback if no `position' entry.
+                         (cond ((or (not i1)  (not i2)) '(t)) ; Fallback if no `position' entry.
                                ((<= i1 i2)              '(t))
                                ((< i2 i1)               '(nil))))))))
           (i1                                           '(t))
@@ -7439,7 +7542,7 @@ If either is a record then it need not belong to `bookmark-alist'."
                  (t                     ; Compare positions.
                   (setq i1  (bookmark-get-position b1)
                         i2  (bookmark-get-position b2))
-                  (cond ((or (not i1) (not i2))  '(t)) ; Fallback if no `position' entry.
+                  (cond ((or (not i1)  (not i2)) '(t)) ; Fallback if no `position' entry.
                         ((<= i1 i2)              '(t))
                         ((< i2 i1)               '(nil))))))
           (i1                                           '(t))
@@ -7498,8 +7601,8 @@ If either is a record then it need not belong to `bookmark-alist'."
   (let ((u1  (bmkp-url-bookmark-p b1))
         (u2  (bmkp-url-bookmark-p b2)))
     (cond ((and u1 u2)
-           (setq u1  (or (bookmark-prop-get b1 'location) (bookmark-get-filename b1))
-                 u2  (or (bookmark-prop-get b2 'location) (bookmark-get-filename b2)))
+           (setq u1  (or (bookmark-prop-get b1 'location)  (bookmark-get-filename b1))
+                 u2  (or (bookmark-prop-get b2 'location)  (bookmark-get-filename b2)))
            (cond ((string-lessp u1 u2)  '(t))
                  ((string-lessp u2 u1)  '(nil))
                  (t                     nil)))
@@ -7550,7 +7653,7 @@ If either is a record then it need not belong to `bookmark-alist'."
     (and buf1 buf2 (equal buf1 buf2)
          (let ((i1  (bookmark-get-position b1))
                (i2  (bookmark-get-position b2)))
-           (cond ((or (not i1) (not i2))  '(t)) ; Fallback if no `position' entry.
+           (cond ((or (not i1)  (not i2)) '(t)) ; Fallback if no `position' entry.
                  ((<= i1 i2)              '(t))
                  ((< i2 i1)               '(nil)))))))
 
@@ -8020,7 +8123,7 @@ Non-interactively:
          'MSG))
   (let* ((dir-to-use  (if (file-name-absolute-p file)
                           (file-name-directory file)
-                        (or dir default-directory)))
+                        (or dir  default-directory)))
          ;; Look for existing bookmark with same name, same file, in `dir-to-use'.
          (bmk         (bmkp-get-autofile-bookmark file dir-to-use prefix)))
     ;; If BMK was found, then instead of doing nothing we could replace the existing BMK with a new
@@ -8048,7 +8151,7 @@ except possibly for their directory parts (see previous)."
          (bname       (if prefix (concat prefix fname) fname))
          (dir-to-use  (if (file-name-absolute-p file)
                           (file-name-directory file)
-                        (or dir default-directory))))
+                        (or dir  default-directory))))
     ;; Look for existing bookmark with same name, same file, in `dir-to-use'.
     (catch 'bmkp-get-autofile-bookmark
       (dolist (bmk  bookmark-alist)
@@ -8182,7 +8285,7 @@ Non-interactively, non-nil MSG-P means display a status message."
     ;; Needs Bookmark+ version of `bookmark-delete', which accepts a bookmark, not just its name.
     (dolist (bmk  bmks)
       (when (and (setq tags  (assq 'tags (bmkp-bookmark-data-from-record bmk)))
-                 (or (not tags) (null (cdr tags))))
+                 (or (not tags)  (null (cdr tags))))
         (bookmark-delete bmk 'BATCHP)))) ; Do not refresh list here - do it after iterate.
   (bmkp-tags-list)                      ; Update the tags cache now, after iterate.
   (bmkp-maybe-save-bookmarks)           ; Increments `bookmark-alist-modification-count'.
@@ -8357,7 +8460,7 @@ You can use this only in `Occur' mode (commands such as `occur' and
                          ;; We could use [: ] here, to handle `moccur', but that loses anyway for
                          ;; `occur-mode-find-occurrence', so we would need other hoops too.
                          (re-search-forward "^\\s-+\\([0-9]+\\):" (line-end-position) 'NOERROR)
-                         (or (format "%5d" (string-to-number (match-string 1))) ""))))
+                         (or (format "%5d" (string-to-number (match-string 1)))  ""))))
            (mkr   (occur-mode-find-occurrence))
            (buf   (marker-buffer mkr)))
       (save-excursion (with-current-buffer buf
@@ -8913,12 +9016,6 @@ If region was relocated, save it if user confirms saving."
            (goto-char pos) (forward-line 0)
            (message "No region from %d to %d" pos end-pos)))))
 
-;; Same as `line-number-at-pos', which is not available until Emacs 22.
-(defun bmkp-line-number-at-pos (&optional pos)
-  "Buffer line number at position POS. Current line number if POS is nil.
-Counting starts at (point-min), so any narrowing restriction applies."
-  (1+ (count-lines (point-min) (save-excursion (when pos (goto-char pos)) (forward-line 0) (point)))))
-
 (defun bmkp-goto-position (bookmark file buf bufname pos forward-str behind-str)
   "Go to a bookmark that has no region.
 Update the recorded position if POS and `bmkp-save-new-location-flag'
@@ -9009,7 +9106,7 @@ BOOKMARK is a bookmark name or a bookmark record."
           bmkp-reverse-sort-p              (cdr (assq 'last-reverse-sort-p           state))
           bmkp-reverse-multi-sort-p        (cdr (assq 'last-reverse-multi-sort-p     state))
           bmkp-bmenu-filter-function       (cdr (assq 'last-bmenu-filter-function    state))
-          bmkp-bmenu-filter-pattern        (or (cdr (assq 'last-bmenu-filter-pattern state)) "")
+          bmkp-bmenu-filter-pattern        (or (cdr (assq 'last-bmenu-filter-pattern state))  "")
           bmkp-bmenu-omitted-bookmarks     (cdr (assq 'last-bmenu-omitted-bookmarks  state))
           bmkp-bmenu-title                 (cdr (assq 'last-bmenu-title              state))
           bookmark-bmenu-toggle-filenames  (cdr (assq 'last-bmenu-toggle-filenames   state))))
@@ -9040,7 +9137,7 @@ Non-interactively, non-nil MSG-P means display a status message."
                                     std-default)
                                 bmkp-last-bookmark-file)))
            (bmkp-read-bookmark-file-name "Create bookmark to load bookmark file: "
-                                         (or (file-name-directory default) "~/")
+                                         (or (file-name-directory default)  "~/")
                                          default
                                          'confirm)) ; Non-existing file is OK, but must confirm.
          'MSG))
@@ -9097,6 +9194,39 @@ Otherwise, load it to supplement the current bookmark list."
      (list (bmkp-read-bookmark-for-type "bookmark-file" alist nil nil 'bmkp-bookmark-file-history)
            current-prefix-arg)))
   (bmkp-jump-bookmark-file bookmark-name switchp no-msg))
+
+;;;###autoload (autoload 'bmkp-bookmark-file-load-jump "bookmark+")
+(defun bmkp-bookmark-file-load-jump (bookmark &optional nosavep)
+  "Prompt for a bookmark-file BOOKMARK and load that file's bookmarks.
+This adds to the current bookmark list.  It does not overwrite it.
+By default, this first saves the current bookmark list in the current
+bookmark file.  With a prefix argument it does not save first."
+  (interactive
+   (let ((alist  (bmkp-bookmark-file-alist-only)))
+     (list (bmkp-read-bookmark-for-type "bookmark-file" alist nil nil
+                                        'bmkp-bookmark-file-history)
+           current-prefix-arg)))
+  (let ((file  (bookmark-prop-get bookmark 'bookmark-file)))
+    (bookmark-load file nil (if nosavep t 'save))
+    (bmkp-refresh/rebuild-menu-list)
+    (message "Added bookmarks in `%s'" file)))
+
+;;;###autoload (autoload 'bmkp-bookmark-file-switch-jump "bookmark+")
+(defun bmkp-bookmark-file-switch-jump (bookmark &optional nosavep)
+  "Prompt for a bookmark-file BOOKMARK and switch to that bookmark file.
+Unlike `C-u \\[bmkp-bookmark-file-jump]', you are not prompted for confirmation.
+By default, this first saves the current bookmark list in the current
+bookmark file.  With a prefix argument it does not save first."
+  (interactive
+   (let ((alist  (bmkp-bookmark-file-alist-only)))
+     (list (bmkp-read-bookmark-for-type "bookmark-file" alist nil nil
+                                        'bmkp-bookmark-file-history)
+           current-prefix-arg)))
+  (let ((file  (bookmark-prop-get bookmark 'bookmark-file)))
+    (bookmark-load file t (if nosavep t 'save))
+    (bmkp-refresh/rebuild-menu-list)
+    (message "Switched to bookmarks in `%s'" file)))
+
 
 ;; Snippet bookmarks
 ;; Inspired by emacs-devel@gnu.org post from Masatake Yamato [yamato@redhat.com], 2012-01-06.
@@ -9194,7 +9324,7 @@ the display of proxy candidates."
                                                   desktop-globals-to-save)))
     (cond ((< emacs-major-version 22)   ; Emacs 22 introduced `RELEASE' (locking).
            (desktop-save desktop-dir))
-          ((or (< emacs-major-version 24) (and (= emacs-major-version 24)  (< emacs-minor-version 4)))
+          ((or (< emacs-major-version 24)  (and (= emacs-major-version 24)  (< emacs-minor-version 4)))
            (desktop-save desktop-dir 'RELEASE))
           (t                            ; Emacs 24.4 introduced `AUTOSAVE'.
            (desktop-save desktop-dir 'RELEASE 'AUTOSAVE)))
@@ -9339,7 +9469,7 @@ Return t if FILE was loaded, nil otherwise."
       ;; We want buffers existing prior to evaluating the desktop (and not reused) to be placed
       ;; at the end of the buffer list, so we move them here.
       (mapc 'bury-buffer (nreverse (cdr (memq desktop-first-buffer (nreverse (buffer-list))))))
-      (switch-to-buffer (car (buffer-list)))
+      (bmkp--pop-to-buffer-same-window (car (buffer-list)))
       (run-hooks 'desktop-delay-hook)
       (setq desktop-delay-hook  ())
       (run-hooks 'desktop-after-read-hook)
@@ -9463,10 +9593,11 @@ Non-interactively, VARIABLE is the restrictions variable to use."
              (bmkp-make-variable-list-record
               `((,variable              ; Format: (NUM BEGM ENDM), BEGM and ENDM are readable-marker objects.
                  . ,(mapcar (lambda (xx)
-                              (let ((num  (nth 0 xx))
-                                    (beg  (nth 1 xx))
-                                    (end  (nth 2 xx)))
-                                `(,num ,(zz-readable-marker beg) ,(zz-readable-marker end))))
+                              (let ((id     (nth 0 xx))
+                                    (beg    (nth 1 xx))
+                                    (end    (nth 2 xx))
+                                    (extra  (nthcdr 3 xx)))
+                                `(,id ,(zz-readable-marker beg) ,(zz-readable-marker end) ,@extra)))
                             (symbol-value variable))))))))
       (call-interactively #'bookmark-set)
       (when (and msgp  (not (featurep 'zones))
@@ -9717,7 +9848,7 @@ to the cursor if it is a variable."
     (when (and default-value  (symbolp default-value))
       (setq default-value  (symbol-name default-value)))
     (intern (completing-read prompt obarray option t nil 'minibuffer-history
-                             (or default-value (and (funcall option symb)  (symbol-name symb)))
+                             (or default-value  (and (funcall option symb)  (symbol-name symb)))
                              t))))
 
 (defun bmkp-make-variable-list-record (variables &optional buffer-name)
@@ -9925,7 +10056,7 @@ that `bmkp-jump-eww' will use the already visited buffer."
 The bookmark name is the title of the web page.
 
 If option `bmkp-eww-auto-type' is `create-or-update' then such a
-bookmark is created for the node if none exists.  If the option value
+bookmark is created for the URL if none exists.  If the option value
 is `update-only' then no new bookmark is created automatically, but an
 existing bookmark is updated.  (Updating a bookmark increments the
 recorded number of visits.)  You can toggle the option using
@@ -10217,13 +10348,13 @@ BOOKMARK is a bookmark name or a bookmark record."
          ;; `Man-notify-method' binding needs to be in effect during the calls to both
          ;; `Man-getpage-in-background' and `accept-process-output'.
          (Man-notify-method  (case bmkp-jump-display-function
-                               ((nil display-buffer)  'quiet)
-                               (switch-to-buffer      'pushy)
+                               ((nil display-buffer)             'quiet)
+                               (bmkp--pop-to-buffer-same-window  'pushy)
                                ((bmkp-select-buffer-other-window
                                  switch-to-buffer-other-window
                                  pop-to-buffer)
                                 'friendly)
-                               (t                     'quiet)))
+                               (t                                'quiet)))
          (buf                (Man-getpage-in-background man-args))
          (proc               (and (bufferp buf) ; Emacs 24+
                                   (get-buffer-process buf))))
@@ -10284,10 +10415,11 @@ BOOKMARK is a bookmark name or a bookmark record."
         (subdirs      (bookmark-prop-get bookmark 'dired-subdirs))
         (hidden-dirs  (bookmark-prop-get bookmark 'dired-hidden-dirs)))
     (case bmkp-jump-display-function
-      ((nil switch-to-buffer display-buffer)         (dired dir switches))
+      ((nil bmkp--pop-to-buffer-same-window display-buffer)
+       (dired dir switches))
       ((bmkp-select-buffer-other-window pop-to-buffer switch-to-buffer-other-window)
        (dired-other-window dir switches))
-      (t                                             (dired dir switches)))
+      (t (dired dir switches)))
     (let ((inhibit-read-only  t))
       (dired-insert-old-subdirs subdirs)
       (dired-mark-remembered (mapcar (lexical-let ((dd  dir))
@@ -10340,8 +10472,8 @@ with that entry value are then the jump candidates."
                                                         (and (not history)
                                                              (bmkp-handler-pred (intern type)))
                                                         history)))
-     (list bmk-name  (or (equal type "Region") current-prefix-arg))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+     (list bmk-name  (or (equal type "Region")  current-prefix-arg))))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-jump-to-type-other-window "bookmark+")
 (defun bmkp-jump-to-type-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j :'
@@ -10362,7 +10494,7 @@ with that entry value are then the jump candidates."
                                                         (and (not history)
                                                              (bmkp-handler-pred (intern type)))
                                                         history)))
-     (list bmk-name (or (equal type "Region") current-prefix-arg))))
+     (list bmk-name (or (equal type "Region")  current-prefix-arg))))
   (bmkp-jump-1 bookmark-name 'bmkp-select-buffer-other-window flip-use-region-p))
 
 (defun bmkp-handler-pred (type)
@@ -10379,7 +10511,7 @@ This is a specialization of `bookmark-jump'."
   (interactive
    (let ((alist  (bmkp-autonamed-alist-only)))
      (list (bmkp-read-bookmark-for-type "autonamed" alist nil nil 'bmkp-autonamed-history))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window))
 
 ;;;###autoload (autoload 'bmkp-autonamed-jump-other-window "bookmark+")
 (defun bmkp-autonamed-jump-other-window (bookmark-name) ; `C-x 4 j # #'
@@ -10396,7 +10528,7 @@ This is a specialization of `bookmark-jump'."
   (interactive
    (let ((alist  (bmkp-autonamed-this-buffer-alist-only)))
      (list (bmkp-read-bookmark-for-type "autonamed" alist nil nil 'bmkp-autonamed-history))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window))
 
 ;;;###autoload (autoload 'bmkp-autonamed-this-buffer-jump-other-window "bookmark+")
 (defun bmkp-autonamed-this-buffer-jump-other-window (bookmark-name) ; `C-x 4 j # .'
@@ -10415,7 +10547,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-bookmark-list-alist-only)))
      (list (bmkp-read-bookmark-for-type "bookmark-list" alist nil nil 'bmkp-bookmark-list-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-desktop-jump "bookmark+")
 (defun bmkp-desktop-jump (bookmark-name &optional flip-use-region-p) ; `C-x j K'
@@ -10431,7 +10563,7 @@ particular for info about using a prefix argument."
      (list (bmkp-read-bookmark-for-type "desktop" alist nil nil 'bmkp-desktop-history)
            current-prefix-arg)))
   (when bmkp-desktop-jump-save-before-flag (bmkp-desktop-save-as-last))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p)
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p)
   (setq bmkp-desktop-current-file  (bookmark-prop-get bookmark-name 'desktop-file)))
 
 ;;;###autoload (autoload 'bmkp-dired-jump "bookmark+")
@@ -10443,7 +10575,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-dired-alist-only)))
      (list (bmkp-read-bookmark-for-type "Dired" alist nil nil 'bmkp-dired-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-dired-jump-other-window "bookmark+")
 (defun bmkp-dired-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j d'
@@ -10463,7 +10595,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-dired-this-dir-alist-only)))
      (list (bmkp-read-bookmark-for-type "Dired-for-this-dir " alist nil nil 'bmkp-dired-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-dired-this-dir-jump-other-window "bookmark+")
 (defun bmkp-dired-this-dir-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j C-d'
@@ -10485,7 +10617,7 @@ for info about using a prefix argument."
      (let ((alist  (bmkp-eww-alist-only)))
        (list (bmkp-read-bookmark-for-type "EWW" alist nil nil 'bmkp-eww-history)
              current-prefix-arg)))
-    (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+    (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
   ;; ;;;###autoload (autoload 'bmkp-eww-jump-other-window "bookmark+")
   (defun bmkp-eww-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j e'
@@ -10507,7 +10639,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "file" alist nil nil 'bmkp-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-file-jump-other-window "bookmark+")
 (defun bmkp-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j f'
@@ -10527,7 +10659,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-file-this-dir-alist-only)))
      (list (bmkp-read-bookmark-for-type "file-in-this-dir" alist nil nil 'bmkp-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-file-this-dir-jump-other-window "bookmark+")
 (defun bmkp-file-this-dir-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j . f'
@@ -10547,7 +10679,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-gnus-alist-only)))
      (list (bmkp-read-bookmark-for-type "Gnus" alist nil nil 'bmkp-gnus-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-gnus-jump-other-window "bookmark+")
 (defun bmkp-gnus-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j g'
@@ -10567,7 +10699,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-image-alist-only)))
      (list (bmkp-read-bookmark-for-type "image" alist nil nil 'bmkp-image-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-image-jump-other-window "bookmark+")
 (defun bmkp-image-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x j M-i'
@@ -10576,7 +10708,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-image-alist-only)))
      (list (bmkp-read-bookmark-for-type "image" alist t nil 'bmkp-image-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp-select-buffer-other-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-info-jump "bookmark+")
 (defun bmkp-info-jump (bookmark-name &optional flip-use-region-p) ; `C-x j i', (`j' in Info)
@@ -10587,7 +10719,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-info-alist-only)))
      (list (bmkp-read-bookmark-for-type "Info" alist nil nil 'bmkp-info-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-info-jump-other-window "bookmark+")
 (defun bmkp-info-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j i'
@@ -10607,7 +10739,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-local-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "local file" alist nil nil 'bmkp-local-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-local-file-jump-other-window "bookmark+")
 (defun bmkp-local-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j l'
@@ -10627,7 +10759,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-local-non-dir-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "local non-dir file" alist nil nil 'bmkp-local-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-local-non-dir-file-jump-other-window "bookmark+")
 (defun bmkp-local-non-dir-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; Not bound.
@@ -10647,7 +10779,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-man-alist-only)))
      (list (bmkp-read-bookmark-for-type "`man'" alist nil nil 'bmkp-man-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-man-jump-other-window "bookmark+")
 (defun bmkp-man-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j m'
@@ -10667,7 +10799,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-non-dir-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "non-dir file" alist nil nil 'bmkp-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-non-dir-file-jump-other-window "bookmark+")
 (defun bmkp-non-dir-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; Not bound.
@@ -10687,7 +10819,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-non-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "non-file (buffer)" alist nil nil 'bmkp-non-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-non-file-jump-other-window "bookmark+")
 (defun bmkp-non-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j b'
@@ -10704,7 +10836,7 @@ for info about using a prefix argument."
 This is a specialization of `bookmark-jump', but without a prefix arg."
   (interactive (list (bmkp-read-bookmark-for-type "region" (bmkp-region-alist-only) nil nil
                                                   'bmkp-region-history)))
-  (let ((bmkp-use-region  t)) (bmkp-jump-1 bookmark-name 'switch-to-buffer)))
+  (let ((bmkp-use-region  t)) (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window)))
 
 ;;;###autoload (autoload 'bmkp-region-jump-other-window "bookmark+")
 (defun bmkp-region-jump-other-window (bookmark-name) ; `C-x 4 j r'
@@ -10751,7 +10883,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-remote-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "remote file" alist nil nil 'bmkp-remote-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-remote-file-jump-other-window "bookmark+")
 (defun bmkp-remote-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j n'
@@ -10771,7 +10903,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-remote-non-dir-file-alist-only)))
      (list (bmkp-read-bookmark-for-type "remote non-dir file" alist nil nil 'bmkp-remote-file-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-remote-non-dir-file-jump-other-window "bookmark+")
 (defun bmkp-remote-non-dir-file-jump-other-window (bookmark-name &optional flip-use-region-p) ; Not bound.
@@ -10797,7 +10929,7 @@ for info about using a prefix argument."
      (let ((alist  (bmkp-specific-buffers-alist-only buffs)))
        (list buffs (bmkp-read-bookmark-for-type "specific-buffers" alist nil nil 'specific-buffers-history)
              current-prefix-arg))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-specific-buffers-jump-other-window "bookmark+")
 (defun bmkp-specific-buffers-jump-other-window (buffers bookmark-name
@@ -10829,7 +10961,7 @@ for info about using a prefix argument."
      (let ((alist  (bmkp-specific-files-alist-only files)))
        (list files (bmkp-read-bookmark-for-type "specific-files" alist nil nil 'specific-files-history)
              current-prefix-arg))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-specific-files-jump-other-window "bookmark+")
 (defun bmkp-specific-files-jump-other-window (files bookmark-name
@@ -10852,7 +10984,7 @@ for info about using a prefix argument."
 This is a specialization of `bookmark-jump', but without a prefix arg."
   (interactive (list (bmkp-read-bookmark-for-type "temporary" (bmkp-temporary-alist-only) nil nil
                                                   'bmkp-temporary-history)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window))
 
 ;;;###autoload (autoload 'bmkp-temporary-jump-other-window "bookmark+")
 (defun bmkp-temporary-jump-other-window (bookmark-name) ; `C-x 4 j x'
@@ -10872,7 +11004,7 @@ for info about using a prefix argument."
      (list (bookmark-completing-read "Jump to bookmark for this buffer"
                                      (bmkp-default-bookmark-name alist) alist)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-this-buffer-jump-other-window "bookmark+")
 (defun bmkp-this-buffer-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j , ,'
@@ -10891,26 +11023,26 @@ for info about using a prefix argument."
 ;;; This is a specialization of `bookmark-jump' - see that, in particular
 ;;; for info about using a prefix argument."
 ;;;   (interactive
-;;;    (progn (unless (or (buffer-file-name) (and (eq major-mode 'dired-mode)
-;;;                                               (if (consp dired-directory)
-;;;                                                   (car dired-directory)
-;;;                                                 dired-directory)))
+;;;    (progn (unless (or (buffer-file-name)  (and (eq major-mode 'dired-mode)
+;;;                                                (if (consp dired-directory)
+;;;                                                    (car dired-directory)
+;;;                                                  dired-directory)))
 ;;;             (error "This buffer is not associated with a file"))
 ;;;           (let ((alist  (bmkp-this-file-alist-only)))
 ;;;             (unless alist  (error "No bookmarks for this file"))
 ;;;             (list (bookmark-completing-read "Jump to bookmark for this file"
 ;;;                                             (bmkp-default-bookmark-name alist) alist)
 ;;;                   current-prefix-arg))))
-;;;   (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+;;;   (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;; ;;;###autoload
 ;;; (defun bmkp-this-file-jump-other-window (bookmark-name &optional flip-use-region-p)
 ;;;   "`bmkp-this-file-jump', but in another window."
 ;;;   (interactive
-;;;    (progn (unless (or (buffer-file-name) (and (eq major-mode 'dired-mode)
-;;;                                               (if (consp dired-directory)
-;;;                                                   (car dired-directory)
-;;;                                                 dired-directory)))
+;;;    (progn (unless (or (buffer-file-name)  (and (eq major-mode 'dired-mode)
+;;;                                                (if (consp dired-directory)
+;;;                                                    (car dired-directory)
+;;;                                                  dired-directory)))
 ;;;             (error "This buffer is not associated with a file"))
 ;;;           (let ((alist  (bmkp-this-file-alist-only)))
 ;;;             (unless alist  (error "No bookmarks for this file"))
@@ -10926,7 +11058,7 @@ This is a specialization of `bookmark-jump'."
   (interactive
    (let ((alist  (bmkp-variable-list-alist-only)))
      (list (bmkp-read-bookmark-for-type "variable-list" alist nil nil 'bmkp-variable-list-history))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window))
 
 ;;;###autoload (autoload 'bmkp-url-jump "bookmark+")
 (defun bmkp-url-jump (bookmark-name &optional flip-use-region-p) ; `C-x j u'
@@ -10938,7 +11070,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-url-alist-only)))
      (list (bmkp-read-bookmark-for-type "URL" alist nil nil 'bmkp-url-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-url-jump-other-window "bookmark+")
 (defun bmkp-url-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j u'
@@ -10958,7 +11090,7 @@ This is a specialization of `bookmark-jump'."
                                       ;; Use a predicate, since `w32-browser' is a handler, not a type name.
                                       (bmkp-handler-pred 'w32-browser)
                                       'bmkp-w32-browser-history)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window))
 
 ;;;###autoload (autoload 'bmkp-w3m-jump "bookmark+")
 (defun bmkp-w3m-jump (bookmark-name &optional flip-use-region-p) ; `C-x j w', (`j' in W3M)
@@ -10969,7 +11101,7 @@ for info about using a prefix argument."
    (let ((alist  (bmkp-w3m-alist-only)))
      (list (bmkp-read-bookmark-for-type "W3M" alist nil nil 'bmkp-w3m-history)
            current-prefix-arg)))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-w3m-jump-other-window "bookmark+")
 (defun bmkp-w3m-jump-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j w'
@@ -11281,7 +11413,7 @@ This is a specialization of `bookmark-jump'."
   (interactive
    (let ((alist  (bmkp-autofile-alist-only)))
      (list (bmkp-read-bookmark-for-type "autofile" alist nil nil 'bmkp-autofile-history))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window))
 
 ;;;###autoload (autoload 'bmkp-autofile-jump-other-window "bookmark+")
 (defun bmkp-autofile-jump-other-window (bookmark-name) ; `C-x 4 j a'
@@ -11289,7 +11421,7 @@ This is a specialization of `bookmark-jump'."
   (interactive
    (let ((alist  (bmkp-autofile-alist-only)))
      (list (bmkp-read-bookmark-for-type "autofile" alist t nil 'bmkp-autofile-history))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer))
+  (bmkp-jump-1 bookmark-name 'bmkp-select-buffer-other-window))
 
 ;;;###autoload (autoload 'bmkp-autofile-all-tags-jump "bookmark+")
 (defun bmkp-autofile-all-tags-jump (tags bookmark) ; `C-x j t a *'
@@ -11669,10 +11801,9 @@ You are prompted for the REGEXP."
             (setq bmkp-current-nav-bookmark  (car bmkp-nav-alist))
             (message "Bookmark navigation list is now the global bookmark list") (sit-for 2))
           (let ((bookmark-alist  bmkp-nav-alist))
-            (list (bookmark-completing-read "Jump to bookmark (in another window)"
-                                            (bmkp-default-bookmark-name))
+            (list (bookmark-completing-read "Jump to bookmark" (bmkp-default-bookmark-name))
                   current-prefix-arg))))
-  (bmkp-jump-1 bookmark-name 'switch-to-buffer flip-use-region-p))
+  (bmkp-jump-1 bookmark-name 'bmkp--pop-to-buffer-same-window flip-use-region-p))
 
 ;;;###autoload (autoload 'bmkp-jump-in-navlist-other-window "bookmark+")
 (defun bmkp-jump-in-navlist-other-window (bookmark-name &optional flip-use-region-p) ; `C-x 4 j N'
@@ -12137,6 +12268,7 @@ See `bmkp-next-bookmark-w32-repeat'."
 ;; `bmkp-cycle-bookmark-list', `bmkp-cycle-bookmark-list-other-window',
 ;; `bmkp-cycle-desktop',
 ;; `bmkp-cycle-dired', `bmkp-cycle-dired-other-window',
+;; `bmkp-cycle-eww', `bmkp-cycle-eww-other-window',
 ;; `bmkp-cycle-file', `bmkp-cycle-file-other-window',
 ;; `bmkp-cycle-gnus', `bmkp-cycle-gnus-other-window',
 ;; `bmkp-cycle-info', `bmkp-cycle-info-other-window',
@@ -12156,6 +12288,8 @@ See `bmkp-next-bookmark-w32-repeat'."
 (bmkp-define-cycle-command "desktop")   ; No other-window version needed
 (bmkp-define-cycle-command "dired")
 (bmkp-define-cycle-command "dired" 'OTHER-WINDOW)
+(bmkp-define-cycle-command "eww")
+(bmkp-define-cycle-command "eww" 'OTHER-WINDOW)
 (bmkp-define-cycle-command "file")
 (bmkp-define-cycle-command "file" 'OTHER-WINDOW)
 (bmkp-define-cycle-command "gnus")
@@ -12195,6 +12329,10 @@ See `bmkp-next-bookmark-w32-repeat'."
 ;; `bmkp-next-dired-bookmark-repeat',
 ;; `bmkp-next-dired-bookmark-other-window',
 ;; `bmkp-next-dired-bookmark-other-window-repeat',
+;; `bmkp-next-eww-bookmark',
+;; `bmkp-next-eww-bookmark-repeat',
+;; `bmkp-next-eww-bookmark-other-window',
+;; `bmkp-next-eww-bookmark-other-window-repeat',
 ;; `bmkp-next-file-bookmark',
 ;; `bmkp-next-file-bookmark-repeat',
 ;; `bmkp-next-file-bookmark-other-window',
@@ -12260,6 +12398,10 @@ See `bmkp-next-bookmark-w32-repeat'."
 ;; `bmkp-previous-dired-bookmark-repeat',
 ;; `bmkp-previous-dired-bookmark-other-window',
 ;; `bmkp-previous-dired-bookmark-other-window-repeat',
+;; `bmkp-previous-eww-bookmark',
+;; `bmkp-previous-eww-bookmark-repeat',
+;; `bmkp-previous-eww-bookmark-other-window',
+;; `bmkp-previous-eww-bookmark-other-window-repeat',
 ;; `bmkp-previous-file-bookmark',
 ;; `bmkp-previous-file-bookmark-repeat',
 ;; `bmkp-previous-file-bookmark-other-window',
@@ -12315,6 +12457,8 @@ See `bmkp-next-bookmark-w32-repeat'."
 (bmkp-define-next+prev-cycle-commands "desktop")
 (bmkp-define-next+prev-cycle-commands "dired")
 (bmkp-define-next+prev-cycle-commands "dired" 'OTHER-WINDOW)
+(bmkp-define-next+prev-cycle-commands "eww")
+(bmkp-define-next+prev-cycle-commands "eww" 'OTHER-WINDOW)
 (bmkp-define-next+prev-cycle-commands "file")
 (bmkp-define-next+prev-cycle-commands "file" 'OTHER-WINDOW)
 (bmkp-define-next+prev-cycle-commands "gnus")
@@ -12589,7 +12733,7 @@ instead want it to be local only, then do both of the following in
 your init file:
   (make-variable-buffer-local 'bmkp-auto-idle-bookmark-mode)
   (make-variable-buffer-local 'bmkp-auto-idle-bookmark-mode-timer)"
-         (interactive (list (or current-prefix-arg 'toggle)))
+         (interactive (list (or current-prefix-arg  'toggle)))
          (setq bmkp-auto-idle-bookmark-mode  (if (eq arg 'toggle)
                                                  (not bmkp-auto-idle-bookmark-mode)
                                                (> (prefix-numeric-value arg) 0)))
@@ -12627,8 +12771,7 @@ all other automatic bookmarks in the same buffer.  Else return nil."
           (dolist (bmk  bmkp-auto-idle-bookmarks)
             (when (and (bmkp-this-buffer-p bmk)
                        (setq bmk-pos  (bookmark-get-position bmk))
-                       (or (not bmk-pos)
-                           (< (abs (- position bmk-pos)) bmkp-auto-idle-bookmark-min-distance)))
+                       (or (not bmk-pos)  (< (abs (- position bmk-pos)) bmkp-auto-idle-bookmark-min-distance)))
               (throw 'bmkp-not-near-other-auto-idle-bmks nil)))
           t))))
 

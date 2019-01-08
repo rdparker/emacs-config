@@ -8,9 +8,9 @@
 ;; Created: Thu Aug 26 16:05:01 1999
 ;; Version: 0
 ;; Package-Requires: ()
-;; Last-Updated: Mon Jan  1 14:25:10 2018 (-0800)
+;; Last-Updated: Tue Jul 17 16:19:17 2018 (-0700)
 ;;           By: dradams
-;;     Update #: 1048
+;;     Update #: 1110
 ;; URL: https://www.emacswiki.org/emacs/download/imenu%2b.el
 ;; Doc URL: https://emacswiki.org/emacs/ImenuMode
 ;; Keywords: tools, menus
@@ -18,7 +18,7 @@
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `imenu'.
+;;   `find-where', `imenu', `thingatpt', `thingatpt+'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -28,7 +28,6 @@
 ;;
 ;;   User options defined here:
 ;;
-;;    `imenup-ignore-comments-flag' (Emacs 22+),
 ;;    `imenup-sort-ignores-case-flag'.
 ;;
 ;;   Commands defined here:
@@ -40,7 +39,15 @@
 ;;
 ;;   Non-interactive functions defined here:
 ;;
-;;    `imenup--sort-submenu', `imenup-invisible-p'.
+;;    `imenup--sort-submenu', `imenup-delete-if', `imenup-find-where',
+;;    `imenup-find-where-1', `imenup-find-where-color',
+;;    `imenup-find-where-decimal-number',
+;;    `imenup-find-where-hex-number', `imenup-find-where-list',
+;;    `imenup-find-where-number', `imenup-find-where-paragraph',
+;;    `imenup-find-where-sentence', `imenup-find-where-sexp',
+;;    `imenup-find-where-string', `imenup-find-where-symbol',
+;;    `imenup-find-where-vector', `imenup-find-where-word',
+;;    `imenup-invisible-p'.
 ;;
 ;;   Internal variables defined here:
 ;;
@@ -79,6 +86,18 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2018/07/17 dadams
+;;     Added imenup-delete-if.  Removed imenup-delete-if-not.
+;;     imenu--generic-function: Return result of nconc.
+;; 2018/06/30 dadams
+;;     Added: imenup-delete-if-not, imenup-find-where, imenup-find-where-1, imenup-find-where-color,
+;;       imenup-find-where-decimal-number, imenup-find-where-hex-number, imenup-find-where-list,
+;;       imenup-find-where-number, imenup-find-where-paragraph, imenup-find-where-sentence,
+;;       imenup-find-where-sexp, imenup-find-where-string, imenup-find-where-symbol, imenup-find-where-vector,
+;;       imenup-find-where-word.
+;;     imenu--generic-function: Fixed two bugs (Emacs bug #32024).  Do not call imenu-progress-message.
+;; 2018/06/29 dadams
+;;     Removed: imenup-ignore-comments-flag - Use imenu-generic-skip-comments-and-strings (Emacs 24.4+)
 ;; 2014/12/23 dadams
 ;;     lisp-imenu-generic-expression, imenup-emacs-lisp-generic-expression:
 ;;       Use distinct submenu names, so no ambiguity: Others 2, Functions 2.
@@ -210,9 +229,11 @@
 
 (require 'imenu)
 
+(require 'find-where nil t) ;; (no error if not found) gw-to-previous-thing
+
 ;; Quiet the byte-compiler
 (defvar imenu-menubar-modified-tick)
-(defvar imenup-ignore-comments-flag)    ; Here (Emacs 22+).
+(defvar imenu-generic-skip-comments-and-strings)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -231,10 +252,11 @@ Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Description" "https://www.emacswiki.org/emacs/ImenuMode#ImenuPlus")
   :link '(emacs-commentary-link :tag "Commentary" "imenu+"))
 
-(when (fboundp 'syntax-ppss)            ; Emacs 22+.
-  (defcustom imenup-ignore-comments-flag t
-    "Non-nil means Imenu ignores comments."
-    :type 'boolean :group 'Imenu-Plus))
+;; Emacs 22+.  The value assigned here is ignored in Emacs 24.4+, since there is a vanilla defcustom.
+(when (fboundp 'syntax-ppss)
+  (defcustom imenu-generic-skip-comments-and-strings t
+    "Non-nil means Imenu ignores text inside comments and strings."
+    :type 'boolean :group 'imenu))
 
 ;;;###autoload
 (defcustom imenup-sort-ignores-case-flag nil
@@ -410,14 +432,14 @@ This affects menu sorting using `imenu--sort-by-name'."
                                                                   "IGNORE case"
                                                                 "RESPECT case"))))
 
-(when (boundp 'imenup-ignore-comments-flag)
+(when (boundp 'imenu-generic-skip-comments-and-strings)
   (defun imenup-toggle-ignoring-comments ()
-    "Toggle option `imenup-ignore-comments-flag'."
+    "Toggle option `imenu-generic-skip-comments-and-strings'."
     (interactive)
-    (setq imenup-ignore-comments-flag  (not imenup-ignore-comments-flag))
+    (setq imenu-generic-skip-comments-and-strings  (not imenu-generic-skip-comments-and-strings))
     (imenu--menubar-select imenu--rescan-item)
-    (message "Ignoring definitions inside comments is now %s"
-             (if imenup-ignore-comments-flag 'ON 'OFF))))
+    (message "Ignoring definitions inside comments and strings is now %s"
+             (if imenu-generic-skip-comments-and-strings 'ON 'OFF))))
 
 
 ;; REPLACE ORIGINAL in `imenu.el'.
@@ -495,19 +517,21 @@ NOT share structure with ALIST."
                                                                  sm imenu-sort-function))
                                                               index-alist)
                                                     index-alist))
-                menu                             (imenu--split-menu index-alist (buffer-name)))
-          (if (>= emacs-major-version 22)
-              (setq menu1  (imenu--create-keymap (car menu)
-                                                 (cdr (if (< 1 (length (cdr menu)))
-                                                          menu
-                                                        (car (cdr menu))))
-                                                 'imenu--menubar-select))
-            (setq menu1  (imenu--create-keymap-1 (car menu)
-                                                 (if (< 1 (length (cdr menu)))
-                                                     (cdr menu)
-                                                   (cdr (car (cdr menu))))
-                                                 t)))
-          (setq old  (lookup-key (current-local-map) [menu-bar index]))
+                menu                             (imenu--split-menu index-alist (buffer-name))
+                menu1                            (if (>= emacs-major-version 22)
+                                                     (imenu--create-keymap
+                                                      (car menu)
+                                                      (cdr (if (< 1 (length (cdr menu)))
+                                                               menu
+                                                             (car (cdr menu))))
+                                                      'imenu--menubar-select)
+                                                   (imenu--create-keymap-1
+                                                    (car menu)
+                                                    (if (< 1 (length (cdr menu)))
+                                                        (cdr menu)
+                                                      (cdr (car (cdr menu))))
+                                                    t))
+                old                              (lookup-key (current-local-map) [menu-bar index]))
 	  ;; Next line was added in vanilla Emacs 24, with the comment.
           ;; This should never happen, but in some odd cases, potentially,
 	  ;; lookup-key may return a dynamically composed keymap.
@@ -570,9 +594,126 @@ non-nil.  See `imenu--index-alist' for the format of the index alist."
         (or (memq prop buffer-invisibility-spec)  (assq prop buffer-invisibility-spec))))))
 
 
+;; If you use library `find-where.el' then you can get Imenu menus for things at point and any positions
+;; where some predicate starts to return true.
+;;
+(when (featurep 'find-where)
+
+  (defun find-where ()
+    "Function used as REGEXP entry of a generic-expression definition matcher.
+This uses `gw-to-previous-thing' to locate a THING beginning.  On
+first invocation it prompts for the THING.
+
+Instead of that prompting, which is one-time only, use this function
+only to define a function that uses a specific kind of THING.  An
+example of such a function is `find-where-list'."
+    (find-where-1))
+
+  (defun find-where-1 (&optional thing)
+    "Helper for defining `find-where-THING' function."
+    (let* ((res    (gw-to-previous-thing thing))
+           (beg    (car res))
+           (beg    (if imenu-use-markers (copy-marker beg) beg))
+           (thing  (cadr res))
+           (end    (and (consp res)  (cddr res)))
+           (end    (if imenu-use-markers (copy-marker end) end)))
+      (when res (set-match-data (list beg end)))
+      (and res  (format "%s" res))))    ; Convert to string.
+
+  (defun find-where-list ()
+    "Generic-expression definition matcher for Lisp lists.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Lists\" 'find-where-list 0)"
+    (find-where-1 'list))
+
+  (defun find-where-string ()
+    "Generic-expression definition matcher for Lisp strings.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Strings\" 'find-where-string 0)"
+    (find-where-1 'string))
+
+  (defun find-where-vector ()
+    "Generic-expression definition matcher for Lisp vectors.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Vectors\" 'find-where-vector 0)"
+    (find-where-1 'vector))
+
+  (defun find-where-number ()
+    "Generic-expression definition matcher for numbers.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Numbers\" 'find-where-number 0)"
+    (find-where-1 'number))
+
+  (defun find-where-decimal-number ()
+    "Generic-expression definition matcher for decimal numbers.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Decimal Numbers\" 'find-where-decimal-number 0)"
+    (find-where-1 'decimal-number))
+
+  (defun find-where-hex-number ()
+    "Generic-expression definition matcher for hexadecimal numbers.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Hex Numbers\" 'find-where-hex-number 0)"
+    (find-where-1 'hex-number))
+
+  (defun find-where-symbol ()
+    "Generic-expression definition matcher for symbols.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Symbols\" 'find-where-symbol 0)"
+    (find-where-1 'symbol))
+
+  (defun find-where-sexp ()
+    "Generic-expression definition matcher for Lisp S-expressions.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Sexps\" 'find-where-sexp 0)"
+    (find-where-1 'sexp))
+
+  (defun find-where-color ()
+    "Generic-expression definition matcher for color names and hex RGB.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Colors\" 'find-where-color 0)"
+    (find-where-1 'color))
+
+  (defun find-where-word ()
+    "Generic-expression definition matcher for words.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Words\" 'find-where-word 0)"
+    (find-where-1 'word))
+
+  (defun find-where-sentence ()
+    "Generic-expression definition matcher for sentences.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Sentences\" 'find-where-sentence 0)"
+    (find-where-1 'sentence))
+
+  (defun find-where-paragraph ()
+    "Generic-expression definition matcher for paragraphs.
+Use it in an `imenu-generic-expression' value as follows:
+
+ \(list \"Paragraphs\" 'find-where-paragraph 0)"
+    (find-where-1 'paragraph))
+
+  )
+
+
 ;; REPLACE ORIGINAL  in `imenu.el'.
 ;;
-;; Ignore invisible definitions.
+;; 1. Ignore invisible definitions.
+;;
+;; 2. Move to START before checking whether inside a comment or string.  Emacs bug #32024.
+;;
+;; 3. Remove any empty menus added (e.g. skipping things inside comments & strings).  Emacs bug #32024.
 ;;
 (defun imenu--generic-function (patterns)
   "Return an index alist of the current buffer based on PATTERNS.
@@ -586,33 +727,37 @@ special element of the form (INDEX-NAME POSITION-MARKER FUNCTION
 ARGUMENTS...) with FUNCTION and ARGUMENTS copied from PATTERNS.
 
 MENU-TITLE is a string used as the title for the submenu or nil if the
-entries are not nested.
+entries (matches for this alist element) are to be at the top level of
+the menu, not nested.
 
-REGEXP is a regexp that should match a construct in the buffer that is
-to be displayed in the menu; i.e., function or variable definitions,
-etc.  It contains a substring which is the name to appear in the menu.
-See the info section on Regexps for more information.  REGEXP may also
-be a function, called without arguments.  It is expected to search
-backwards.  It shall return true and set `match-data' if it finds
-another element.
+REGEXP is a regular-expression string to match a construct in the
+buffer that is to be displayed in the menu; i.e., function or variable
+definitions, etc.  It contains a substring which is the name to appear
+in the menu.
 
-INDEX points to the substring in REGEXP that contains the name (of the
-function, variable or type) that is to appear in the menu.
+REGEXP can instead be a function, called without arguments.  It is
+expected to search backwards.  It must return true and set
+`match-data' if it finds another element.
 
-The variable `imenu-case-fold-search' determines whether or not the
-regexp matches are case sensitive, and `imenu-syntax-alist' can be
-used to alter the syntax table for the search.
+INDEX is an integer specifying which substring of REGEXP matches the
+definition name (e.g., name of the function, variable or type) that is
+to appear in the menu.
+
+FUNCTION, if present, specifies a function to call when the index item
+is chosen by the user.  It is called with, as arguments, the item
+name, the buffer position, and the elements of list ARGUMENTS.
+
+Variable `imenu-case-fold-search' determines whether or not the regexp
+matches are case sensitive, and `imenu-syntax-alist' can be used to
+alter the syntax table for the search.
 
 See `lisp-imenu-generic-expression' for an example of PATTERNS.
 
 Returns an index of the current buffer as an alist.  The elements in
-the alist look like:
- (INDEX-NAME . INDEX-POSITION)
-or like:
- (INDEX-NAME INDEX-POSITION FUNCTION ARGUMENTS...)
-They may also be nested index alists like:
- (INDEX-NAME . INDEX-ALIST)
-depending on PATTERNS."
+the alist look like (INDEX-NAME . INDEX-POSITION) or like
+\(INDEX-NAME INDEX-POSITION FUNCTION ARGUMENTS...).  They may also be
+nested index alists like: (INDEX-NAME . INDEX-ALIST), depending on
+PATTERNS."
   (let ((index-alist       (list 'dummy))
         (case-fold-search  (if (or (local-variable-p 'imenu-case-fold-search)
                                    (not (local-variable-p 'font-lock-defaults)))
@@ -627,7 +772,7 @@ depending on PATTERNS."
           (modify-syntax-entry (car syn) (cdr syn) table)
         (mapc (lambda (c) (modify-syntax-entry c (cdr syn) table)) (car syn))))
     (goto-char (point-max))
-    (imenu-progress-message prev-pos 0 t)
+    ;; (imenu-progress-message prev-pos 0 t)
     (unwind-protect			; for syntax table
          (save-match-data
            (set-syntax-table table)
@@ -657,7 +802,7 @@ depending on PATTERNS."
                  (goto-char (match-beginning index))
                  (beginning-of-line)
                  (setq beg  (point))
-                 (imenu-progress-message prev-pos nil t)
+                 ;; (imenu-progress-message prev-pos nil t)
                  ;; Add this sort of submenu only when find an item for it, to avoid empty menus.
                  (unless (assoc menu-title index-alist) (push (list menu-title) index-alist))
                  (when imenu-use-markers (setq beg  (copy-marker beg)))
@@ -667,19 +812,24 @@ depending on PATTERNS."
                                 (cons (match-string-no-properties index) beg)))
                        ;; This is the desired submenu, starting with its title (or nil).
                        (menu (assoc menu-title index-alist)))
-                   ;; Insert the item unless it is already present or is in a comment being ignored.
-                   (unless (or (and (boundp 'imenup-ignore-comments-flag)  imenup-ignore-comments-flag
-                                    (nth 8 (syntax-ppss)))
-                               (member item (cdr menu)))
+                   ;; Insert item unless already present or in a comment or string being ignored.
+                   (unless (or (member item (cdr menu))
+                               (and (fboundp 'syntax-ppss)
+                                    imenu-generic-skip-comments-and-strings
+                                    ;; Go to START before checking.  Fixes Emacs bug #32024
+                                    (save-excursion (goto-char start) (nth 8 (syntax-ppss)))))
                      (setcdr menu (cons item (cdr menu)))))
                  ;; Go to the start of the match, to make sure we keep making progress backwards.
                  (goto-char start))))
            (set-syntax-table old-table)))
-    (imenu-progress-message prev-pos 100 t)
+    ;; (imenu-progress-message prev-pos 100 t)
     ;; Sort each submenu by position.
     ;; This is in case one submenu gets items from two different regexps.
     (dolist (item  index-alist)
       (when (listp item) (setcdr item (sort (cdr item) 'imenu--sort-by-position))))
+    ;; Remove any empty menus.  That can happen because of skipping things inside comments or strings.
+    ;; Fixes Emacs bug #32024
+    (setq index-alist (imenup-delete-if (lambda (it) (and (consp it)  (null (cdr it)))) index-alist))
     (let ((main-element  (assq nil index-alist)))
       (nconc (delq main-element (delq 'dummy index-alist)) (cdr main-element)))))
 
@@ -735,6 +885,19 @@ Returns t for rescan, or else an element or subelement of INDEX-ALIST."
                                                    (concat title imenu-level-separator
                                                            (car (rassq position index-alist)))
                                                  (car (rassq position index-alist)))))))))
+;; Same as `doremi-delete-if'.
+;;
+(defun imenup-delete-if (predicate xs)
+  "Remove all elements of list XS that satisfy PREDICATE.
+This operation is destructive, reusing conses of XS whenever possible."
+  (while (and xs  (funcall predicate (car xs)))
+    (setq xs  (cdr xs)))
+  (let ((cl-p  xs))
+    (while (cdr cl-p)
+      (if (funcall predicate (cadr cl-p))
+          (setcdr cl-p (cddr cl-p))
+        (setq cl-p  (cdr cl-p)))))
+  xs)
 
 ;;;;;;;;;;;;;;;;;;
 

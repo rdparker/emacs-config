@@ -6,9 +6,9 @@
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
 ;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Feb 27 09:25:04 2006
-;; Last-Updated: Fri Mar  2 08:49:18 2018 (-0800)
+;; Last-Updated: Fri Sep 21 14:56:02 2018 (-0700)
 ;;           By: dradams
-;;     Update #: 27596
+;;     Update #: 27612
 ;; URL: https://www.emacswiki.org/emacs/download/icicles-cmd1.el
 ;; Doc URL: https://www.emacswiki.org/emacs/Icicles
 ;; Keywords: extensions, help, abbrev, local, minibuffer,
@@ -196,11 +196,12 @@
 ;;    (+)`icicle-customize-face-other-window',
 ;;    `icicle-customize-icicles-group', (+)`icicle-custom-theme',
 ;;    `icicle-dabbrev-completion', (+)`icicle-delete-file',
-;;    (+)`icicle-delete-window', (+)`icicle-describe-option-of-type',
+;;    (+)`icicle-delete-window', (+)`icicle-delete-window-by-name',
+;;    (+)`icicle-delete-windows', (+)`icicle-describe-option-of-type',
 ;;    `icicle-describe-process',
 ;;    (+)`icicle-describe-var-w-val-satisfying',
-;;    (+)`icicle-delete-windows', (+)`icicle-directory-list',
-;;    (+)`icicle-dired', `icicle-dired-chosen-files',
+;;    (+)`icicle-directory-list', (+)`icicle-dired',
+;;    `icicle-dired-chosen-files',
 ;;    `icicle-dired-chosen-files-other-window',
 ;;    (+)`icicle-dired-insert-as-subdir',
 ;;    (+)`icicle-dired-other-window', `icicle-dired-project',
@@ -859,7 +860,7 @@ customize option `icicle-top-level-key-bindings'."
   (message "Evaluating...")
   (if (or (not (boundp 'eval-expression-debug-on-error))
           (null eval-expression-debug-on-error))
-      (setq values  (cons (if (boundp 'lexical-binding) ; Emacs 24+
+      (setq values  (cons (if (and (boundp 'lexical-binding)  (> emacs-major-version 23)) ; Emacs 24+
                               (eval expression lexical-binding)
                             (eval expression))
                           values))
@@ -2083,7 +2084,7 @@ control completion behaviour using `bbdb-completion-type'."
                             (mapcar (lambda (n) (bbdb-dwim-net-address rec n)) ; FREE here: REC.
                                     (bbdb-record-net rec)))
                            (delete-region beg end)
-                           (switch-to-buffer standard-output))
+                           (icicle--pop-to-buffer-same-window standard-output))
                        ;; Use next address
                        (let* ((addrs      (bbdb-record-net rec))
                               (this-addr  (or (cadr (member (car (cdar addr)) addrs))  (nth 0 addrs))))
@@ -5811,12 +5812,12 @@ You probably do not want to use this.  Use
     (setq bookmark  (bookmark-get-bookmark bookmark 'NOERROR))
     (unless bookmark (error "No such bookmark: `%s'" input-bmk)))
   (if (fboundp 'bookmark--jump-via)
-      (bookmark--jump-via bookmark (if other-window-p 'pop-to-buffer 'switch-to-buffer))
+      (bookmark--jump-via bookmark (if other-window-p 'pop-to-buffer 'icicle--pop-to-buffer-same-window))
     (let ((cell  (bookmark-jump-noselect bookmark))) ; Emacs < 23 and without `Bookmark+'.
       (when cell
         (if other-window-p
             (pop-to-buffer (car cell) 'other-window)
-          (switch-to-buffer (car cell)))
+          (icicle--pop-to-buffer-same-window (car cell)))
         (goto-char (cdr cell))
         (unless (pos-visible-in-window-p) (recenter icicle-recenter))
         (progn (run-hooks 'bookmark-after-jump-hook) t)
@@ -6989,6 +6990,32 @@ want this remapping, then customize option
       (icicle-remove-Completions-window)
     (if bufferp (icicle-delete-windows) (delete-window))))
 
+(defun icicle-delete-window-by-name (win-name &optional window-alist)
+  "Delete the window named WIN-NAME.
+Optional arg WINDOW-ALIST is an alist of windows to choose from.  Each
+alist element has the form (WNAME . WINDOW), where WNAME names WINDOW.
+See `icicle-make-window-alist' for more about WNAME.  If WINDOW-ALIST
+is nil then use `icicle-make-window-alist' to create an alist of the
+windows in the selected frame.
+
+Interactively:
+* No prefix arg means windows from the selected frame are candidates.
+* A non-negative prefix arg means include windows from visible frames.
+* A negative prefix arg means include windows from all frames
+  (including iconified and invisible)."
+  (interactive
+   (let* ((parg   (prefix-numeric-value current-prefix-arg))
+          (args   (icicle-read-choose-window-args
+                   nil
+                   (icicle-make-window-alist (and current-prefix-arg  (if (natnump parg) 'visible t))))))
+     (list (car args) (cadr args))))
+  (unless window-alist
+    (setq window-alist  (or (and (boundp 'icicle-window-alist)  icicle-window-alist)
+                            (icicle-make-window-alist))))
+  (let ((window  (cdr (assoc win-name window-alist))))
+    (unless window (icicle-user-error "No such window: `%s'" win-name))
+    (delete-window window)))
+
 
 (put 'icicle-kill-buffer 'icicle-Completions-window-max-height 200)
 (icicle-define-command icicle-kill-buffer ; Bound to `C-x k' in Icicle mode.
@@ -7191,7 +7218,7 @@ the behavior."                          ; Doc string
   (lambda (buf)                         ; Action function
     (when (and (not (get-buffer buf))  (member buf icicle-buffer-easy-files))
       (setq buf  (find-file-noselect buf)))
-    (switch-to-buffer buf))
+    (icicle--pop-to-buffer-same-window buf))
   prompt 'icicle-buffer-multi-complete nil ;  `completing-read' args
   (and (fboundp 'confirm-nonexistent-file-or-buffer)  (confirm-nonexistent-file-or-buffer)) ; Emacs 23.
   nil 'buffer-name-history (icicle-default-buffer-names current-prefix-arg) nil
@@ -7477,7 +7504,7 @@ This is like command `icicle-buffer', but without the possibility of
 searching buffer contents.  That is, completion candidates are just
 buffer names, not multi-completions - they contain no buffer-content
 part."                                  ; Doc string
-  switch-to-buffer                      ; Action function
+  icicle--pop-to-buffer-same-window     ; Action function
   (icicle-buffer-name-prompt "Switch to") ; `completing-read' args
   (mapcar (lambda (buf) (list (buffer-name buf))) icicle-bufflist) nil ; `icicle-bufflist' is free.
   (and (fboundp 'confirm-nonexistent-file-or-buffer)  (confirm-nonexistent-file-or-buffer)) ; Emacs 23.
@@ -7584,7 +7611,7 @@ Dired mode to use it."
     (icicle-new-bufs-to-keep                ())
     (act-fn                                 (if icicle-vmfoc-other-win-p
                                                 'switch-to-buffer-other-window
-                                              'switch-to-buffer))
+                                              'icicle--pop-to-buffer-same-window))
     (icicle-candidate-help-fn               'icicle-buffer-cand-help))
    ((icicle-buffer-complete-fn              'icicle-buffer-multi-complete)
     ;; Bind `icicle-apropos-complete-match-fn' to nil to prevent automatic input matching in
