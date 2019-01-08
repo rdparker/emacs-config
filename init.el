@@ -289,6 +289,7 @@ The value VAL is an expression; it is evaluated."
 ;;
 ;;  See `helm' below for newer Emacsen.
 (use-package anything-config
+  :disabled t
   :if (not (emacs>= 24.3))
   :defer 2
   :load-path "site-lisp/anything"
