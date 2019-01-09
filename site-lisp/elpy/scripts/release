@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+cd "$(dirname "$0")/.."
+
+main() {
+    run bumpversion minor
+    run rm -f dist/*
+    run python setup.py sdist bdist_wheel
+    run twine upload dist/*
+    run git push
+    run git push --tags
+}
+
+run() {
+    echo "\$ $*"
+    "$@"
+}
+
+main
