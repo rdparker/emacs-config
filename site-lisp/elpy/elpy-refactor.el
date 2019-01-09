@@ -1,6 +1,6 @@
 ;;; elpy-refactor.el --- Refactoring mode for Elpy
 
-;; Copyright (C) 2013  Jorgen Schaefer
+;; Copyright (C) 2013-2016  Jorgen Schaefer
 
 ;; Author: Jorgen Schaefer <contact@jorgenschaefer.de>
 ;; URL: https://github.com/jorgenschaefer/elpy
@@ -130,7 +130,7 @@ Available types:
   boolean      - A boolean question"
   (mapcar (lambda (arg)
             (let ((type (cadr arg))
-                  (prompt (caddr arg)))
+                  (prompt (cl-caddr arg)))
               (cond
                ((equal type "offset")
                 (aref pos 0))
@@ -280,6 +280,18 @@ The user can review the changes and confirm them with
   (elpy-rpc "refactor"
             (list (buffer-file-name)
                   method args)))
+
+(defun elpy-refactor-options (option)
+  "Show available refactor options and let user choose one."
+  (interactive "c[i]: importmagic-fixup [p]: autopep8-fix-code [r]: refactor")
+  (let ((choice (char-to-string option)))
+    (cond
+     ((string-equal choice "i")
+      (elpy-importmagic-fixup))
+     ((string-equal choice "p")
+      (elpy-autopep8-fix-code))
+     ((string-equal choice "r")
+      (elpy-refactor)))))
 
 (provide 'elpy-refactor)
 ;;; elpy-refactor.el ends here

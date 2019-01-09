@@ -8,7 +8,7 @@ Configuration
 =============
 
 You can easily configure Elpy to your own preferences. All *Customize
-Options* below are accessible via this interface. Emacs builds heavily
+Options* below are accessible via this interface. Elpy builds heavily
 upon existing extensions for Emacs. The configuration interface tries
 to include the options for those as well.
 
@@ -80,28 +80,11 @@ Backends
 ========
 
 For introspection and analysis of Python sources, Elpy mainly relies
-on external libraries. It currently supports two different ones which
-can not be used at the same time. But you can switch between them.
-They have certain advantages and disadvantages respectively to each
-other, making the choice not trivial.
-
-`Rope`_ is a refactoring library that also provides code
-introspection. It's quite good at finding completions, but can not
-provide locations for
-:command:`elpy-multiedit-python-symbol-at-point`. It also has problems
-with large projects.
-
-`Jedi`_ is a more lightweight library, but has some problems coping
-with badly-formatted Python.
+on `Jedi`_.
+`Jedi`_ is known to have some problems coping with badly-formatted
+Python.
 
 .. _Jedi: https://github.com/davidhalter/jedi/
-.. _Rope: https://github.com/python-rope/rope
-
-.. option:: elpy-rpc-backend
-
-   Elpy will use whichever library is installed, preferring Rope if
-   both are available. If you dislike Elpy's default preference, you
-   can set this option to the backend it should prefer.
 
 
 Virtual Envs
@@ -111,7 +94,7 @@ Elpy has full support for Python's virtual envs. Every RPC process is
 associated with a specific virtual env and completions are done based
 on that environment.
 
-Outside of RPC processes, though, it is not easy to more than one
+Outside of RPC processes, though, it is not easy to have more than one
 virtual env active at the same time. Elpy allows you to set a single
 global virtual env and change it whenever you like, though.
 

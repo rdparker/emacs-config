@@ -1,5 +1,6 @@
 """Tests for the elpy.jedibackend module."""
 
+import sys
 import unittest
 
 import jedi
@@ -12,9 +13,12 @@ from elpy.tests.support import BackendTestCase
 from elpy.tests.support import RPCGetCompletionsTests
 from elpy.tests.support import RPCGetCompletionDocstringTests
 from elpy.tests.support import RPCGetCompletionLocationTests
+from elpy.tests.support import RPCGetDocstringTests
 from elpy.tests.support import RPCGetDefinitionTests
+from elpy.tests.support import RPCGetAssignmentTests
 from elpy.tests.support import RPCGetCalltipTests
 from elpy.tests.support import RPCGetUsagesTests
+from elpy.tests.support import RPCGetNamesTests
 
 
 class JediBackendTestCase(BackendTestCase):
@@ -30,7 +34,7 @@ class TestInit(JediBackendTestCase):
 
 class TestRPCGetCompletions(RPCGetCompletionsTests,
                             JediBackendTestCase):
-    pass
+    BUILTINS = ['object', 'oct', 'open', 'ord', 'OSError', 'OverflowError']
 
 
 class TestRPCGetCompletionDocstring(RPCGetCompletionDocstringTests,
@@ -43,9 +47,74 @@ class TestRPCGetCompletionLocation(RPCGetCompletionLocationTests,
     pass
 
 
+class TestRPCGetDocstring(RPCGetDocstringTests,
+                          JediBackendTestCase):
+
+    def check_docstring(self, docstring):
+        if sys.version_info >= (3, 6):
+            JSON_LOADS_DOCSTRING = (
+                'loads(s, *, encoding=None, cls=None, '
+                'object_hook=None, parse_float=None,'
+            )
+        else:
+            JSON_LOADS_DOCSTRING = (
+                'loads(s, encoding=None, cls=None, '
+                'object_hook=None, parse_float=None,'
+            )
+        lines = docstring.splitlines()
+        self.assertEqual(lines[0], 'Documentation for json.loads:')
+        self.assertEqual(lines[2], JSON_LOADS_DOCSTRING)
+
+    @mock.patch("elpy.jedibackend.run_with_debug")
+    def test_should_not_return_empty_docstring(self, run_with_debug):
+        location = mock.MagicMock()
+        location.full_name = "testthing"
+        location.docstring.return_value = ""
+        run_with_debug.return_value = [location]
+        filename = self.project_file("test.py", "print")
+        docstring = self.backend.rpc_get_docstring(filename, "print", 0)
+        self.assertIsNone(docstring)
+
+
 class TestRPCGetDefinition(RPCGetDefinitionTests,
                            JediBackendTestCase):
-    pass
+    @mock.patch("jedi.Script")
+    def test_should_not_fail_if_module_path_is_none(self, Script):
+        """Do not fail if loc.module_path is None.
+
+        This can happen under some circumstances I am unsure about.
+        See #537 for the issue that reported this.
+
+        """
+        locations = [
+            mock.Mock(module_path=None)
+        ]
+        script = Script.return_value
+        script.goto_definitions.return_value = locations
+        script.goto_assignments.return_value = locations
+
+        location = self.rpc("", "", 0)
+
+        self.assertIsNone(location)
+
+
+class TestRPCGetAssignment(RPCGetAssignmentTests,
+                           JediBackendTestCase):
+    @mock.patch("jedi.Script")
+    def test_should_not_fail_if_module_path_is_none(self, Script):
+        """Do not fail if loc.module_path is None.
+
+        """
+        locations = [
+            mock.Mock(module_path=None)
+        ]
+        script = Script.return_value
+        script.goto_assignments.return_value = locations
+        script.goto_assignments.return_value = locations
+
+        location = self.rpc("", "", 0)
+
+        self.assertIsNone(location)
 
 
 class TestRPCGetCalltip(RPCGetCalltipTests,
@@ -61,26 +130,49 @@ class TestRPCGetCalltip(RPCGetCalltipTests,
                    'name': u'add'}
     if compat.PYTHON3:
         THREAD_CALLTIP = {"name": "Thread",
-                          "params": ["group = None",
-                                     "target = None",
-                                     "name = None",
-                                     "args = ()",
-                                     "kwargs = None",
-                                     "daemon = None"],
+                          "params": ["group=None",
+                                     "target=None",
+                                     "name=None",
+                                     "args=()",
+                                     "kwargs=None",
+                                     "daemon=None"],
                           "index": 0}
     else:
         THREAD_CALLTIP = {"name": "Thread",
-                          "params": ["group = None",
-                                     "target = None",
-                                     "name = None",
-                                     "args = ()",
-                                     "kwargs = None",
-                                     "verbose = None"],
+                          "params": ["group=None",
+                                     "target=None",
+                                     "name=None",
+                                     "args=()",
+                                     "kwargs=None",
+                                     "verbose=None"],
                           "index": 0}
+
+    def test_should_not_fail_with_get_subscope_by_name(self):
+        # Bug #677 / jedi#628
+        source = (
+            u"my_lambda = lambda x: x+1\n"
+            u"my_lambda(1)"
+        )
+        filename = self.project_file("project.py", source)
+        offset = 37
+
+        sigs = self.backend.rpc_get_calltip(filename, source, offset)
+        sigs["index"]
 
 
 class TestRPCGetUsages(RPCGetUsagesTests,
                        JediBackendTestCase):
+    def test_should_not_fail_for_missing_module(self):
+        # This causes use.module_path to be None
+        source = "import sys\n\nsys.path.\n"  # insert()"
+        offset = 21
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+
+class TestRPCGetNames(RPCGetNamesTests,
+                      JediBackendTestCase):
     pass
 
 
@@ -158,6 +250,8 @@ class TestRunWithDebug(unittest.TestCase):
             self.assertEqual(jedi_debug_info["source"], None)
             self.assertEqual(jedi_debug_info["method"], "test_method")
             self.assertEqual(jedi_debug_info["debug_info"], [])
+        else:
+            self.fail("Fault not thrown")
 
     @mock.patch('jedi.Script')
     @mock.patch('jedi.set_debug_function')
@@ -169,6 +263,8 @@ class TestRunWithDebug(unittest.TestCase):
         except rpc.Fault as e:
             self.assertEqual(str(e), str(RuntimeError()))
             self.assertEqual(e.message, str(RuntimeError()))
+        else:
+            self.fail("Fault not thrown")
 
     @mock.patch('jedi.Script')
     @mock.patch('jedi.set_debug_function')
@@ -181,6 +277,8 @@ class TestRunWithDebug(unittest.TestCase):
             self.assertEqual(e.data["jedi_debug_info"]["script_args"],
                              "source=source")
             self.assertEqual(e.data["jedi_debug_info"]["source"], "foo")
+        else:
+            self.fail("Fault not thrown")
 
     @mock.patch('jedi.Script')
     @mock.patch('jedi.set_debug_function')
@@ -206,3 +304,20 @@ class TestRunWithDebug(unittest.TestCase):
                              ["[N] Notice",
                               "[W] Warning",
                               "[?] Other"])
+        else:
+            self.fail("Fault not thrown")
+
+    @mock.patch('jedi.set_debug_function')
+    @mock.patch('jedi.Script')
+    def test_should_not_fail_with_bad_data(self, Script, set_debug_function):
+        import jedi.debug
+
+        def set_debug(function, speed=True):
+            if function is not None:
+                function(jedi.debug.NOTICE, u"\xab")
+
+        set_debug_function.side_effect = set_debug
+        Script.return_value.test_method.side_effect = Exception
+
+        with self.assertRaises(rpc.Fault):
+            jedibackend.run_with_debug(jedi, 'test_method', 1, 2, arg=3)

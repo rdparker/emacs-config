@@ -8,6 +8,7 @@ https://github.com/davidhalter/jedi
 
 import sys
 import traceback
+import re
 
 import jedi
 
@@ -38,8 +39,8 @@ class JediBackend(object):
             return []
         self.completions = dict((proposal.name, proposal)
                                 for proposal in proposals)
-        return [{'name': proposal.name,
-                 'suffix': proposal.complete,
+        return [{'name': proposal.name.rstrip("="),
+                 'suffix': proposal.complete.rstrip("="),
                  'annotation': proposal.type,
                  'meta': proposal.description}
                 for proposal in proposals]
@@ -58,15 +59,22 @@ class JediBackend(object):
         else:
             return (proposal.module_path, proposal.line)
 
+    def rpc_get_docstring(self, filename, source, offset):
+        line, column = pos_to_linecol(source, offset)
+        locations = run_with_debug(jedi, 'goto_definitions',
+                                   source=source, line=line, column=column,
+                                   path=filename, encoding='utf-8')
+        if locations and locations[-1].docstring():
+            return ('Documentation for {0}:\n\n'.format(
+                locations[-1].full_name) + locations[-1].docstring())
+        else:
+            return None
+
     def rpc_get_definition(self, filename, source, offset):
         line, column = pos_to_linecol(source, offset)
-        try:
-            locations = run_with_debug(jedi, 'goto_definitions',
-                                       source=source, line=line, column=column,
-                                       path=filename, encoding='utf-8',
-                                       re_raise=jedi.NotFoundError)
-        except jedi.NotFoundError:
-            return None
+        locations = run_with_debug(jedi, 'goto_definitions',
+                                   source=source, line=line, column=column,
+                                   path=filename, encoding='utf-8')
         # goto_definitions() can return silly stuff like __builtin__
         # for int variables, so we fall back on goto() in those
         # cases. See issue #76.
@@ -93,6 +101,34 @@ class JediBackend(object):
                             offset = linecol_to_pos(f.read(),
                                                     loc.line,
                                                     loc.column)
+                else:
+                    return None
+            except IOError:
+                return None
+            return (loc.module_path, offset)
+
+    def rpc_get_assignment(self, filename, source, offset):
+        line, column = pos_to_linecol(source, offset)
+        locations = run_with_debug(jedi, 'goto_assignments',
+                                   source=source, line=line, column=column,
+                                   path=filename, encoding='utf-8')
+        if not locations:
+            return None
+        else:
+            loc = locations[-1]
+            try:
+                if loc.module_path:
+                    if loc.module_path == filename:
+                        offset = linecol_to_pos(source,
+                                                loc.line,
+                                                loc.column)
+                    else:
+                        with open(loc.module_path) as f:
+                            offset = linecol_to_pos(f.read(),
+                                                    loc.line,
+                                                    loc.column)
+                else:
+                    return None
             except IOError:
                 return None
             return (loc.module_path, offset)
@@ -108,9 +144,73 @@ class JediBackend(object):
             call = None
         if not call:
             return None
+        # Strip 'param' added by jedi at the beggining of
+        # parameter names. Should be unecessary for jedi > 0.13.0
+        params = [re.sub("^param ", '', param.description)
+                  for param in call.params]
         return {"name": call.name,
                 "index": call.index,
-                "params": [param.description for param in call.params]}
+                "params": params}
+
+    def rpc_get_oneline_docstring(self, filename, source, offset):
+        """Return a oneline docstring for the symbol at offset"""
+        line, column = pos_to_linecol(source, offset)
+        definitions = run_with_debug(jedi, 'goto_definitions',
+                                     source=source, line=line, column=column,
+                                     path=filename, encoding='utf-8')
+        assignments = run_with_debug(jedi, 'goto_assignments',
+                                     source=source, line=line, column=column,
+                                     path=filename, encoding='utf-8')
+        if definitions:
+            definition = definitions[0]
+        else:
+            definition = None
+        if assignments:
+            assignment = assignments[0]
+        else:
+            assignment = None
+        if definition:
+            # Get name
+            if definition.type in ['function', 'class']:
+                raw_name = definition.name
+                name = '{}()'.format(raw_name)
+                doc = definition.docstring().split('\n')
+            elif definition.type in ['module']:
+                raw_name = definition.name
+                name = '{} {}'.format(raw_name, definition.type)
+                doc = definition.docstring().split('\n')
+            elif (definition.type in ['instance']
+                  and hasattr(assignment, "name")):
+                raw_name = assignment.name
+                name = raw_name
+                doc = assignment.docstring().split('\n')
+            else:
+                return None
+            # Keep only the first paragraph that is not a function declaration
+            lines = []
+            call = "{}(".format(raw_name)
+            # last line
+            doc.append('')
+            for i in range(len(doc)):
+                if doc[i] == '' and len(lines) != 0:
+                    paragraph = " ".join(lines)
+                    lines = []
+                    if call != paragraph[0:len(call)]:
+                        break
+                    paragraph = ""
+                    continue
+                lines.append(doc[i])
+            # Keep only the first sentence
+            onelinedoc = paragraph.split('. ', 1)
+            if len(onelinedoc) == 2:
+                onelinedoc = onelinedoc[0] + '.'
+            else:
+                onelinedoc = onelinedoc[0]
+            if onelinedoc == '':
+                onelinedoc = "No documentation"
+            return {"name": name,
+                    "doc": onelinedoc}
+        return None
 
     def rpc_get_usages(self, filename, source, offset):
         """Return the uses of the symbol at offset.
@@ -120,21 +220,16 @@ class JediBackend(object):
 
         """
         line, column = pos_to_linecol(source, offset)
-        try:
-            uses = run_with_debug(jedi, 'usages',
-                                  source=source, line=line, column=column,
-                                  path=filename, encoding='utf-8',
-                                  re_raise=(jedi.NotFoundError,))
-        except jedi.NotFoundError:
-            return []
-
+        uses = run_with_debug(jedi, 'usages',
+                              source=source, line=line, column=column,
+                              path=filename, encoding='utf-8')
         if uses is None:
             return None
         result = []
         for use in uses:
             if use.module_path == filename:
                 offset = linecol_to_pos(source, use.line, use.column)
-            else:
+            elif use.module_path is not None:
                 with open(use.module_path) as f:
                     text = f.read()
                 offset = linecol_to_pos(text, use.line, use.column)
@@ -143,6 +238,27 @@ class JediBackend(object):
                            "filename": use.module_path,
                            "offset": offset})
 
+        return result
+
+    def rpc_get_names(self, filename, source, offset):
+        """Return the list of possible names"""
+        names = jedi.api.names(source=source,
+                               path=filename, encoding='utf-8',
+                               all_scopes=True,
+                               definitions=True,
+                               references=True)
+
+        result = []
+        for name in names:
+            if name.module_path == filename:
+                offset = linecol_to_pos(source, name.line, name.column)
+            elif name.module_path is not None:
+                with open(name.module_path) as f:
+                    text = f.read()
+                offset = linecol_to_pos(text, name.line, name.column)
+            result.append({"name": name.name,
+                           "filename": name.module_path,
+                           "offset": offset})
         return result
 
 
@@ -191,23 +307,23 @@ def linecol_to_pos(text, line, col):
 
 def run_with_debug(jedi, name, *args, **kwargs):
     re_raise = kwargs.pop('re_raise', ())
-    # Remove form feed characters, they confuse Jedi (jedi#424)
-    if 'source' in kwargs:
-        kwargs['source'] = kwargs['source'].replace("\f", " ")
     try:
         script = jedi.Script(*args, **kwargs)
         return getattr(script, name)()
     except Exception as e:
         if isinstance(e, re_raise):
             raise
-        # Bug jedi#417
-        if isinstance(e, TypeError) and str(e) == 'no dicts allowed':
+        # Bug jedi#485
+        if (
+                isinstance(e, ValueError) and
+                "invalid \\x escape" in str(e)
+        ):
             return None
-        # Bug jedi#427
-        if isinstance(e, UnicodeDecodeError):
-            return None
-        # Bug jedi#429
-        if isinstance(e, IndexError):
+        # Bug jedi#485 in Python 3
+        if (
+                isinstance(e, SyntaxError) and
+                "truncated \\xXX escape" in str(e)
+        ):
             return None
 
         from jedi import debug
@@ -221,7 +337,7 @@ def run_with_debug(jedi, name, *args, **kwargs):
                 prefix = "[W]"
             else:
                 prefix = "[?]"
-            debug_info.append("{0} {1}".format(prefix, str_out))
+            debug_info.append(u"{0} {1}".format(prefix, str_out))
 
         jedi.set_debug_function(_debug, speed=False)
         try:

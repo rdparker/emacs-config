@@ -6,7 +6,8 @@
     (elpy-module-company 'buffer-init)
 
     (should company-mode)
-    (should (eq company-idle-delay t))
+    (should (< (abs (- company-idle-delay 0.01))
+               0.001))
     (should (eq company-tooltip-align-annotations t))
     (should (member 'elpy-company-backend company-backends))
 

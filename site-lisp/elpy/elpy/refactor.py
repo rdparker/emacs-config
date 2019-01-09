@@ -50,7 +50,12 @@ something wrong.
 
 """
 
+import os
+
+from elpy.rpc import Fault
+
 try:
+    from rope.base.exceptions import RefactoringError
     from rope.base.project import Project
     from rope.base.libutils import path_to_resource
     from rope.base import change as rope_change
@@ -94,12 +99,16 @@ class Refactor(object):
     """
     def __init__(self, project_root, filename):
         self.project_root = project_root
-        if ROPE_AVAILABLE:
-            self.project = Project(project_root, ropefolder=None)
-            self.resource = path_to_resource(self.project, filename)
-        else:
-            self.project = None
-            self.resource = FakeResource(filename)
+        if not ROPE_AVAILABLE:
+            raise Fault('rope not installed, cannot refactor code.',
+                        code=400)
+        if not os.path.exists(project_root):
+            raise Fault(
+                "cannot do refactoring without a local project root",
+                code=400
+            )
+        self.project = Project(project_root, ropefolder=None)
+        self.resource = path_to_resource(self.project, filename)
 
     def get_refactor_options(self, start, end=None):
         """Return a list of options for refactoring at the given position.
@@ -229,18 +238,25 @@ class Refactor(object):
     def refactor_module_to_package(self):
         """Convert the current module into a package."""
         refactor = ModuleToPackage(self.project, self.resource)
-        changes = refactor.get_changes()
-        return translate_changes(changes)
+        return self._get_changes(refactor)
 
     @options("Rename symbol at point", category="Symbol",
              args=[("offset", "offset", None),
-                   ("new_name", "string", "Rename to: ")],
+                   ("new_name", "string", "Rename to: "),
+                   ("in_hierarchy", "boolean",
+                    "Rename in super-/subclasses as well? "),
+                   ("docs", "boolean",
+                    "Replace occurences in docs and strings? ")
+                   ],
              available=ROPE_AVAILABLE)
-    def refactor_rename_at_point(self, offset, new_name):
+    def refactor_rename_at_point(self, offset, new_name, in_hierarchy, docs):
         """Rename the symbol at point."""
-        refactor = Rename(self.project, self.resource, offset)
-        changes = refactor.get_changes(new_name)
-        return translate_changes(changes)
+        try:
+            refactor = Rename(self.project, self.resource, offset)
+        except RefactoringError as e:
+            raise Fault(str(e), code=400)
+        return self._get_changes(refactor, new_name,
+                                 in_hierarchy=in_hierarchy, docs=docs)
 
     @options("Rename current module", category="Module",
              args=[("new_name", "string", "Rename to: ")],
@@ -248,8 +264,7 @@ class Refactor(object):
     def refactor_rename_current_module(self, new_name):
         """Rename the current module."""
         refactor = Rename(self.project, self.resource, None)
-        changes = refactor.get_changes(new_name)
-        return translate_changes(changes)
+        return self._get_changes(refactor, new_name)
 
     @options("Move the current module to a different package",
              category="Module",
@@ -259,8 +274,7 @@ class Refactor(object):
         """Move the current module."""
         refactor = create_move(self.project, self.resource)
         resource = path_to_resource(self.project, new_name)
-        changes = refactor.get_changes(resource)
-        return translate_changes(changes)
+        return self._get_changes(refactor, resource)
 
     @options("Inline function call at point", category="Symbol",
              args=[("offset", "offset", None),
@@ -270,10 +284,9 @@ class Refactor(object):
         """Inline the function call at point."""
         refactor = create_inline(self.project, self.resource, offset)
         if only_this:
-            changes = refactor.get_changes(remove=False, only_current=True)
+            return self._get_changes(refactor, remove=False, only_current=True)
         else:
-            changes = refactor.get_changes(remove=True, only_current=False)
-        return translate_changes(changes)
+            return self._get_changes(refactor, remove=True, only_current=False)
 
     @options("Extract current region as a method", category="Region",
              args=[("start", "start_offset", None),
@@ -285,16 +298,30 @@ class Refactor(object):
                                 make_global):
         """Extract region as a method."""
         refactor = ExtractMethod(self.project, self.resource, start, end)
-        changes = refactor.get_changes(name, similar=True, global_=make_global)
-        return translate_changes(changes)
+        return self._get_changes(
+            refactor, name, similar=True, global_=make_global
+        )
 
     @options("Use the function at point wherever possible", category="Method",
              args=[("offset", "offset", None)],
              available=ROPE_AVAILABLE)
     def refactor_use_function(self, offset):
         """Use the function at point wherever possible."""
-        refactor = UseFunction(self.project, self.resource, offset)
-        changes = refactor.get_changes()
+        try:
+            refactor = UseFunction(self.project, self.resource, offset)
+        except RefactoringError as e:
+            raise Fault(
+                'Refactoring error: {}'.format(e),
+                code=400
+            )
+        return self._get_changes(refactor)
+
+    def _get_changes(self, refactor, *args, **kwargs):
+        try:
+            changes = refactor.get_changes(*args, **kwargs)
+        except Exception as e:
+            raise Fault("Error during refactoring: {}".format(e),
+                        code=400)
         return translate_changes(changes)
 
 

@@ -11,16 +11,15 @@ import pydoc
 
 from elpy.pydocutils import get_pydoc_completions
 from elpy.rpc import JSONRPCServer, Fault
+from elpy.auto_pep8 import fix_code
+from elpy.yapfutil import fix_code as fix_code_with_yapf
+from elpy.blackutil import fix_code as fix_code_with_black
+
 
 try:
     from elpy import jedibackend
 except ImportError:  # pragma: no cover
     jedibackend = None
-
-try:
-    from elpy import ropebackend
-except ImportError:  # pragma: no cover
-    ropebackend = None
 
 
 class ElpyRPCServer(JSONRPCServer):
@@ -29,8 +28,8 @@ class ElpyRPCServer(JSONRPCServer):
     See the rpc_* methods for exported method documentation.
 
     """
-    def __init__(self):
-        super(ElpyRPCServer, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(ElpyRPCServer, self).__init__(*args, **kwargs)
         self.backend = None
         self.project_root = None
 
@@ -56,20 +55,13 @@ class ElpyRPCServer(JSONRPCServer):
     def rpc_init(self, options):
         self.project_root = options["project_root"]
 
-        if ropebackend and options["backend"] == "rope":
-            self.backend = ropebackend.RopeBackend(self.project_root)
-        elif jedibackend and options["backend"] == "jedi":
-            self.backend = jedibackend.JediBackend(self.project_root)
-        elif ropebackend:
-            self.backend = ropebackend.RopeBackend(self.project_root)
-        elif jedibackend:
+        if jedibackend:
             self.backend = jedibackend.JediBackend(self.project_root)
         else:
             self.backend = None
 
         return {
-            'backend': (self.backend.name if self.backend is not None
-                        else None)
+            'jedi_available': (self.backend is not None)
         }
 
     def rpc_get_calltip(self, filename, source, offset):
@@ -79,12 +71,24 @@ class ElpyRPCServer(JSONRPCServer):
         return self._call_backend("rpc_get_calltip", None, filename,
                                   get_source(source), offset)
 
+    def rpc_get_oneline_docstring(self, filename, source, offset):
+        """Get a oneline docstring for the symbol at the offset.
+
+        """
+        return self._call_backend("rpc_get_oneline_docstring", None, filename,
+                                  get_source(source), offset)
+
     def rpc_get_completions(self, filename, source, offset):
         """Get a list of completion candidates for the symbol at offset.
 
         """
-        return self._call_backend("rpc_get_completions", [], filename,
-                                  get_source(source), offset)
+        results = self._call_backend("rpc_get_completions", [], filename,
+                                     get_source(source), offset)
+        # Uniquify by name
+        results = list(dict((res['name'], res) for res in results)
+                       .values())
+        results.sort(key=lambda cand: _pysymbol_key(cand["name"]))
+        return results
 
     def rpc_get_completion_docstring(self, completion):
         """Return documentation for a previously returned completion.
@@ -107,6 +111,13 @@ class ElpyRPCServer(JSONRPCServer):
 
         """
         return self._call_backend("rpc_get_definition", None, filename,
+                                  get_source(source), offset)
+
+    def rpc_get_assignment(self, filename, source, offset):
+        """Get the location of the assignment for the symbol at the offset.
+
+        """
+        return self._call_backend("rpc_get_assignment", None, filename,
                                   get_source(source), offset)
 
     def rpc_get_docstring(self, filename, source, offset):
@@ -133,11 +144,15 @@ class ElpyRPCServer(JSONRPCServer):
 
         """
         try:
-            return pydoc.render_doc(str(symbol),
-                                    "Elpy Pydoc Documentation for %s",
-                                    False)
+            docstring = pydoc.render_doc(str(symbol),
+                                         "Elpy Pydoc Documentation for %s",
+                                         False)
         except (ImportError, pydoc.ErrorDuringImport):
             return None
+        else:
+            if isinstance(docstring, bytes):
+                docstring = docstring.decode("utf-8", "replace")
+            return docstring
 
     def rpc_get_refactor_options(self, filename, start, end=None):
         """Return a list of possible refactoring options.
@@ -181,6 +196,38 @@ class ElpyRPCServer(JSONRPCServer):
             raise Fault("get_usages not implemented by current backend",
                         code=400)
 
+    def rpc_get_names(self, filename, source, offset):
+        """Get all possible names
+
+        """
+        source = get_source(source)
+        if hasattr(self.backend, "rpc_get_names"):
+            return self.backend.rpc_get_names(filename, source, offset)
+        else:
+            raise Fault("get_names not implemented by current backend",
+                        code=400)
+
+    def rpc_fix_code(self, source, directory):
+        """Formats Python code to conform to the PEP 8 style guide.
+
+        """
+        source = get_source(source)
+        return fix_code(source, directory)
+
+    def rpc_fix_code_with_yapf(self, source, directory):
+        """Formats Python code to conform to the PEP 8 style guide.
+
+        """
+        source = get_source(source)
+        return fix_code_with_yapf(source, directory)
+
+    def rpc_fix_code_with_black(self, source, directory):
+        """Formats Python code to conform to the PEP 8 style guide.
+
+        """
+        source = get_source(source)
+        return fix_code_with_black(source, directory)
+
 
 def get_source(fileobj):
     """Translate fileobj into file contents.
@@ -197,7 +244,8 @@ def get_source(fileobj):
         return fileobj
     else:
         try:
-            with io.open(fileobj["filename"], encoding="utf-8") as f:
+            with io.open(fileobj["filename"], encoding="utf-8",
+                         errors="ignore") as f:
                 return f.read()
         finally:
             if fileobj.get('delete_after_use'):
@@ -205,3 +253,18 @@ def get_source(fileobj):
                     os.remove(fileobj["filename"])
                 except:  # pragma: no cover
                     pass
+
+
+def _pysymbol_key(name):
+    """Return a sortable key index for name.
+
+    Sorting is case-insensitive, with the first underscore counting as
+    worse than any character, but subsequent underscores do not. This
+    means that dunder symbols (like __init__) are sorted after symbols
+    that start with an alphabetic character, but before those that
+    start with only a single underscore.
+
+    """
+    if name.startswith("_"):
+        name = "~" + name[1:]
+    return name.lower()

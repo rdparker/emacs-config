@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/jorgenschaefer/elpy.git
+	branch = 1.28.0
+	commit = b4803b554d78941e871cd976ff7828294e85c991
+	parent = ea4900f1da45e539ef2f9df24de88ff50f07ac26
+	method = merge
+	cmdver = 0.4.0

@@ -34,7 +34,7 @@ class ELispMarkup(ObjectDescription):
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              targetname, ''))
+                                              targetname, '', None))
 
 
 class ELispFunction(ELispMarkup):
@@ -144,7 +144,7 @@ class ELispDomain(Domain):
                                     contnode, target + " " + objtype)
 
     def get_objects(self):
-        for (name, type_), docname in self.data['objects'].iteritems():
+        for (name, type_), docname in self.data['objects'].items():
             yield name, name, type_, docname, type_ + '-' + name, 1
 
 

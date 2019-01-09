@@ -47,98 +47,37 @@ class TestRPCEcho(ServerTestCase):
 
 class TestRPCInit(ServerTestCase):
     @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_set_project_root(self, RopeBackend, JediBackend):
-        self.srv.rpc_init({"project_root": "/project/root",
-                           "backend": "rope"})
+    def test_should_set_project_root(self, JediBackend):
+        self.srv.rpc_init({"project_root": "/project/root"})
 
         self.assertEqual("/project/root", self.srv.project_root)
 
     @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_initialize_rope(self, RopeBackend, JediBackend):
-        self.srv.rpc_init({"project_root": "/project/root",
-                           "backend": "rope"})
-
-        RopeBackend.assert_called_with("/project/root")
-
-    @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_initialize_jedi(self, RopeBackend, JediBackend):
-        self.srv.rpc_init({"project_root": "/project/root",
-                           "backend": "jedi"})
+    def test_should_initialize_jedi(self, JediBackend):
+        self.srv.rpc_init({"project_root": "/project/root"})
 
         JediBackend.assert_called_with("/project/root")
 
-    @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_use_rope_if_available_and_requested(
-            self, RopeBackend, JediBackend):
-        RopeBackend.return_value.name = "rope"
-        JediBackend.return_value.name = "jedi"
-
-        self.srv.rpc_init({"project_root": "/project/root",
-                           "backend": "rope"})
-
-        self.assertEqual("rope", self.srv.backend.name)
 
     @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_use_jedi_if_available_and_requested(
-            self, RopeBackend, JediBackend):
-        RopeBackend.return_value.name = "rope"
+    def test_should_use_jedi_if_available(self, JediBackend):
         JediBackend.return_value.name = "jedi"
 
-        self.srv.rpc_init({"project_root": "/project/root",
-                           "backend": "jedi"})
+        self.srv.rpc_init({"project_root": "/project/root"})
 
         self.assertEqual("jedi", self.srv.backend.name)
 
-    @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_use_rope_if_available_and_nothing_requested(
-            self, RopeBackend, JediBackend):
-        RopeBackend.return_value.name = "rope"
-        JediBackend.return_value.name = "jedi"
-
-        self.srv.rpc_init({"project_root": "/project/root",
-                           "backend": None})
-
-        self.assertEqual("rope", self.srv.backend.name)
 
     @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
-    def test_should_use_jedi_if_rope_not_available_and_nothing_requested(
-            self, RopeBackend, JediBackend):
-        RopeBackend.return_value.name = "rope"
-        JediBackend.return_value.name = "jedi"
-        old_rope = server.ropebackend
-        server.ropebackend = None
-
-        try:
-            self.srv.rpc_init({"project_root": "/project/root",
-                               "backend": None})
-        finally:
-            server.ropebackend = old_rope
-
-        self.assertEqual("jedi", self.srv.backend.name)
-
-    @mock.patch("elpy.jedibackend.JediBackend")
-    @mock.patch("elpy.ropebackend.RopeBackend")
     def test_should_use_none_if_nothing_available(
-            self, RopeBackend, JediBackend):
-        RopeBackend.return_value.name = "rope"
+            self, JediBackend):
         JediBackend.return_value.name = "jedi"
-        old_rope = server.ropebackend
         old_jedi = server.jedibackend
-        server.ropebackend = None
         server.jedibackend = None
 
         try:
-            self.srv.rpc_init({"project_root": "/project/root",
-                               "backend": None})
+            self.srv.rpc_init({"project_root": "/project/root"})
         finally:
-            server.ropebackend = old_rope
             server.jedibackend = old_jedi
 
         self.assertIsNone(self.srv.backend)
@@ -163,6 +102,35 @@ class TestRPCGetCompletions(BackendCallTestCase):
         self.assertEqual([],
                          self.srv.rpc_get_completions("filname", "source",
                                                       "offset"))
+
+    def test_should_sort_results(self):
+        with mock.patch.object(self.srv, 'backend') as backend:
+            backend.rpc_get_completions.return_value = [
+                {'name': '_e'},
+                {'name': '__d'},
+                {'name': 'c'},
+                {'name': 'B'},
+                {'name': 'a'},
+            ]
+            expected = list(reversed(backend.rpc_get_completions.return_value))
+
+            actual = self.srv.rpc_get_completions("filename", "source",
+                                                  "offset")
+
+            self.assertEqual(expected, actual)
+
+    def test_should_uniquify_results(self):
+        with mock.patch.object(self.srv, 'backend') as backend:
+            backend.rpc_get_completions.return_value = [
+                {'name': 'a'},
+                {'name': 'a'},
+            ]
+            expected = [{'name': 'a'}]
+
+            actual = self.srv.rpc_get_completions("filename", "source",
+                                                  "offset")
+
+            self.assertEqual(expected, actual)
 
 
 class TestRPCGetCompletionDocs(ServerTestCase):
@@ -198,6 +166,16 @@ class TestRPCGetDefinition(BackendCallTestCase):
     def test_should_handle_no_backend(self):
         self.srv.backend = None
         self.assertIsNone(self.srv.rpc_get_definition("filname", "source",
+                                                      "offset"))
+
+
+class TestRPCGetAssignment(BackendCallTestCase):
+    def test_should_call_backend(self):
+        self.assert_calls_backend("rpc_get_assignment")
+
+    def test_should_handle_no_backend(self):
+        self.srv.backend = None
+        self.assertIsNone(self.srv.rpc_get_assignment("filname", "source",
                                                       "offset"))
 
 
@@ -237,6 +215,13 @@ class TestGetPydocDocumentation(ServerTestCase):
         actual = self.srv.rpc_get_pydoc_documentation("frob.open")
 
         self.assertIsNone(actual)
+
+    def test_should_return_valid_unicode(self):
+        import json
+
+        docstring = self.srv.rpc_get_pydoc_documentation("tarfile")
+
+        json.dumps(docstring)
 
 
 class TestRPCGetRefactorOptions(BackendTestCase):
@@ -305,6 +290,16 @@ class TestRPCGetUsages(BackendCallTestCase):
                                                       "offset"))
 
 
+class TestRPCGetNames(BackendCallTestCase):
+    def test_should_call_backend(self):
+        self.assert_calls_backend("rpc_get_names")
+
+    def test_should_handle_no_backend(self):
+        self.srv.backend = None
+        with self.assertRaises(rpc.Fault):
+            self.assertIsNone(self.srv.rpc_get_names("filname", "source", 0))
+
+
 class TestGetSource(unittest.TestCase):
     def test_should_return_string_by_default(self):
         self.assertEqual(server.get_source("foo"),
@@ -342,3 +337,31 @@ class TestGetSource(unittest.TestCase):
         source = server.get_source({'filename': filename})
 
         self.assertEqual(source, u"möp")
+
+
+class TestPysymbolKey(BackendTestCase):
+    def keyLess(self, a, b):
+        self.assertLess(b, a)
+        self.assertLess(server._pysymbol_key(a),
+                        server._pysymbol_key(b))
+
+    def test_should_be_case_insensitive(self):
+        self.keyLess("bar", "Foo")
+
+    def test_should_sort_private_symbols_after_public_symbols(self):
+        self.keyLess("foo", "_bar")
+
+    def test_should_sort_private_symbols_after_dunder_symbols(self):
+        self.assertLess(server._pysymbol_key("__foo__"),
+                        server._pysymbol_key("_bar"))
+
+    def test_should_sort_dunder_symbols_after_public_symbols(self):
+        self.keyLess("bar", "__foo")
+
+
+class Autopep8TestCase(ServerTestCase):
+
+    def test_rpc_fix_code_should_return_formatted_string(self):
+        code_block = 'x=       123\n'
+        new_block = self.srv.rpc_fix_code(code_block, os.getcwd())
+        self.assertEqual(new_block, 'x = 123\n')

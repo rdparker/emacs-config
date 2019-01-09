@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """Support classes and functions for the elpy test code.
 
 Elpy uses a bit of a peculiar test setup to avoid redundancy. For the
@@ -12,6 +14,7 @@ discovery would find them there and try to run them, which would fail.
 
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 
@@ -43,7 +46,11 @@ class BackendTestCase(unittest.TestCase):
             os.makedirs(os.path.dirname(full_name))
         except OSError:
             pass
-        with open(full_name, "w") as f:
+        if compat.PYTHON3:
+            fobj = open(full_name, "w", encoding="utf-8")
+        else:
+            fobj = open(full_name, "w")
+        with fobj as f:
             f.write(contents)
         return full_name
 
@@ -105,8 +112,18 @@ class GenericRPCTests(object):
     def test_should_not_fail_for_bad_indentation(self):
         source, offset = source_and_offset(
             "def foo():\n"
-            "       print 23_|_\n"
-            "      print 17\n")
+            "       print(23)_|_\n"
+            "      print(17)\n")
+        filename = self.project_file("test.py", source)
+
+        self.rpc(filename, source, offset)
+
+    @unittest.skipIf((3, 3) <= sys.version_info < (3, 4),
+                     "Bug in jedi for Python 3.3")
+    def test_should_not_fail_for_relative_import(self):
+        source, offset = source_and_offset(
+            "from .. import foo_|_"
+        )
         filename = self.project_file("test.py", source)
 
         self.rpc(filename, source, offset)
@@ -122,10 +139,12 @@ class GenericRPCTests(object):
         self.rpc(filename, source, offset)
 
     def test_should_not_fail_with_bad_encoding(self):
-        source = u'# coding: utf-8X\n'
+        source, offset = source_and_offset(
+            u'# coding: utf-8X_|_\n'
+        )
         filename = self.project_file("test.py", source)
 
-        self.rpc(filename, source, 16)
+        self.rpc(filename, source, offset)
 
     def test_should_not_fail_with_form_feed_characters(self):
         # Bug in Jedi: jedi#424
@@ -193,6 +212,121 @@ x._|_
 
         self.rpc(filename, source, offset)
 
+    def test_should_not_fail_on_lambda(self):
+        # Bug #272 / jedi#431, jedi#572
+        source, offset = source_and_offset(
+            "map(lambda_|_"
+        )
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_on_literals(self):
+        # Bug #314, #344 / jedi#466
+        source = u'lit = u"""\\\n# -*- coding: utf-8 -*-\n"""\n'
+        offset = 0
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_with_args_as_args(self):
+        # Bug #347 in rope_py3k
+        source, offset = source_and_offset(
+            "def my_function(*args):\n"
+            "    ret_|_"
+        )
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_for_unicode_chars_in_string(self):
+        # Bug #358 / jedi#482
+        source = '''\
+# coding: utf-8
+
+logging.info(u"Saving «{}»...".format(title))
+requests.get(u"https://web.archive.org/save/{}".format(url))
+'''
+        offset = 57
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_for_bad_escape_sequence(self):
+        # Bug #360 / jedi#485
+        source = r"v = '\x'"
+        offset = 8
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_for_coding_declarations_in_strings(self):
+        # Bug #314 / jedi#465 / python#22221
+        source = u'lit = """\\\n# -*- coding: utf-8 -*-\n"""'
+        offset = 8
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_if_root_vanishes(self):
+        # Bug #353
+        source, offset = source_and_offset(
+            "import foo\n"
+            "foo._|_"
+        )
+        filename = self.project_file("project.py", source)
+        shutil.rmtree(self.project_root)
+
+        self.rpc(filename, source, offset)
+
+    # For some reason, this breaks a lot of other tests. Couldn't
+    # figure out why.
+    #
+    # def test_should_not_fail_for_sys_path(self):
+    #     # Bug #365 / jedi#486
+    #     source, offset = source_and_offset(
+    #         "import sys\n"
+    #         "\n"
+    #         "sys.path.index(_|_\n"
+    #     )
+    #     filename = self.project_file("project.py", source)
+    #
+    #     self.rpc(filename, source, offset)
+
+    def test_should_not_fail_for_key_error(self):
+        # Bug #561, #564, #570, #588, #593, #599 / jedi#572, jedi#579,
+        # jedi#590
+        source, offset = source_and_offset(
+            "map(lambda_|_"
+        )
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_for_badly_defined_global_variable(self):
+        # Bug #519 / jedi#610
+        source, offset = source_and_offset(
+            """\
+def funct1():
+    global global_dict_var
+    global_dict_var = dict()
+
+def funct2():
+    global global_dict_var
+    q = global_dict_var.copy_|_()
+    print(q)""")
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
+
+    def test_should_not_fail_with_mergednamesdict(self):
+        # Bug #563 / jedi#589
+        source, offset = source_and_offset(
+            u'from email import message_|_'
+        )
+        filename = self.project_file("project.py", source)
+
+        self.rpc(filename, source, offset)
 
 
 class RPCGetCompletionsTests(GenericRPCTests):
@@ -201,13 +335,18 @@ class RPCGetCompletionsTests(GenericRPCTests):
     def test_should_complete_builtin(self):
         source, offset = source_and_offset("o_|_")
 
-        expected = ["object", "oct", "open", "or", "ord"]
+        expected = self.BUILTINS
         actual = [cand['name'] for cand in
                   self.backend.rpc_get_completions("test.py",
                                                    source, offset)]
 
         for candidate in expected:
             self.assertIn(candidate, actual)
+
+    if sys.version_info >= (3, 5):
+        JSON_COMPLETIONS = ["SONDecoder", "SONEncoder", "SONDecodeError"]
+    else:
+        JSON_COMPLETIONS = ["SONDecoder", "SONEncoder"]
 
     def test_should_complete_imports(self):
         source, offset = source_and_offset("import json\n"
@@ -218,7 +357,7 @@ class RPCGetCompletionsTests(GenericRPCTests):
                                                        offset)
         self.assertEqual(
             sorted([cand['suffix'] for cand in completions]),
-            sorted(["SONDecoder", "SONEncoder"]))
+            sorted(self.JSON_COMPLETIONS))
 
     def test_should_complete_top_level_modules_for_import(self):
         source, offset = source_and_offset("import multi_|_")
@@ -234,13 +373,13 @@ class RPCGetCompletionsTests(GenericRPCTests):
                          sorted(expected))
 
     def test_should_complete_packages_for_import(self):
-        source, offset = source_and_offset("import elpy.tes_|_")
+        source, offset = source_and_offset("import email.mi_|_")
         filename = self.project_file("test.py", source)
         completions = self.backend.rpc_get_completions(filename,
                                                        source,
                                                        offset)
         self.assertEqual([cand['suffix'] for cand in completions],
-                         ["ts"])
+                         ["me"])
 
     def test_should_not_complete_for_import(self):
         source, offset = source_and_offset("import foo.Conf_|_")
@@ -251,6 +390,8 @@ class RPCGetCompletionsTests(GenericRPCTests):
         self.assertEqual([cand['suffix'] for cand in completions],
                          [])
 
+    @unittest.skipIf((3, 3) <= sys.version_info < (3, 4),
+                     "Bug in jedi for Python 3.3")
     def test_should_not_fail_for_short_module(self):
         source, offset = source_and_offset("from .. import foo_|_")
         filename = self.project_file("test.py", source)
@@ -302,18 +443,18 @@ class RPCGetCompletionsTests(GenericRPCTests):
 class RPCGetCompletionDocstringTests(object):
     def test_should_return_docstring(self):
         source, offset = source_and_offset("import json\n"
-                                           "json.J_|_")
+                                           "json.JSONEnc_|_")
         filename = self.project_file("test.py", source)
         completions = self.backend.rpc_get_completions(filename,
                                                        source,
                                                        offset)
         completions.sort(key=lambda p: p["name"])
         prop = completions[0]
-        self.assertEqual(prop["name"], "JSONDecoder")
+        self.assertEqual(prop["name"], "JSONEncoder")
 
-        docs = self.backend.rpc_get_completion_docstring("JSONDecoder")
+        docs = self.backend.rpc_get_completion_docstring("JSONEncoder")
 
-        self.assertIn("Simple JSON", docs)
+        self.assertIn("Extensible JSON", docs)
 
     def test_should_return_none_if_unknown(self):
         docs = self.backend.rpc_get_completion_docstring("Foo")
@@ -451,9 +592,108 @@ class RPCGetDefinitionTests(GenericRPCTests):
                          (filename, 0))
 
 
+class RPCGetAssignmentTests(GenericRPCTests):
+    METHOD = "rpc_get_assignment"
+
+    def test_should_return_assignment_location_same_file(self):
+        source, offset = source_and_offset("import threading\n"
+                                           "class TestClass(object):\n"
+                                           "    def __init__(self, a, b):\n"
+                                           "        self.a = a\n"
+                                           "        self.b = b\n"
+                                           "\n"
+                                           "testclass = TestClass(2, 4)"
+                                           "\n"
+                                           "testcl_|_ass(\n")
+        filename = self.project_file("test.py", source)
+
+        location = self.backend.rpc_get_assignment(filename,
+                                                   source,
+                                                   offset)
+
+        self.assertEqual(location[0], filename)
+        # On def or on the function name
+        self.assertEqual(location[1], 111)
+
+    def test_should_return_location_in_same_file_if_not_saved(self):
+        source, offset = source_and_offset("import threading\n"
+                                           "class TestClass(object):\n"
+                                           "    def __init__(self, a, b):\n"
+                                           "        self.a = a\n"
+                                           "        self.b = b\n"
+                                           "\n"
+                                           "testclass = TestClass(2, 4)"
+                                           "\n"
+                                           "testcl_|_ass(\n")
+        filename = self.project_file("test.py", "")
+
+        location = self.backend.rpc_get_assignment(filename,
+                                                   source,
+                                                   offset)
+
+        self.assertEqual(location[0], filename)
+        # def or function name
+        self.assertEqual(location[1], 111)
+
+    def test_should_return_location_in_different_file(self):
+        source1 = ("class TestClass(object):\n"
+                   "    def __init__(self, a, b):\n"
+                   "        self.a = a\n"
+                   "        self.b = b\n"
+                   "testclass = TestClass(3, 5)\n")
+        file1 = self.project_file("test1.py", source1)
+        source2, offset = source_and_offset("from test1 import testclass\n"
+                                            "testcl_|_ass.a\n")
+        file2 = self.project_file("test2.py", source2)
+        # First jump goes to import statement
+        assignment = self.backend.rpc_get_assignment(file2,
+                                                     source2,
+                                                     offset)
+        # Second jump goes to test1 file
+        self.assertEqual(assignment[0], file2)
+        assignment = self.backend.rpc_get_assignment(file2,
+                                                     source2,
+                                                     assignment[1])
+
+        self.assertEqual(assignment[0], file1)
+        self.assertEqual(assignment[1], 93)
+
+    def test_should_return_none_if_location_not_found(self):
+        source, offset = source_and_offset("test_f_|_unction()\n")
+        filename = self.project_file("test.py", source)
+
+        assignment = self.backend.rpc_get_assignment(filename,
+                                                     source,
+                                                     offset)
+
+        self.assertIsNone(assignment)
+
+    def test_should_return_none_if_outside_of_symbol(self):
+        source, offset = source_and_offset("testcl(_|_)ass\n")
+        filename = self.project_file("test.py", source)
+
+        assignment = self.backend.rpc_get_assignment(filename,
+                                                     source,
+                                                     offset)
+
+        self.assertIsNone(assignment)
+
+    def test_should_find_variable_assignment(self):
+        source, offset = source_and_offset("SOME_VALUE = 1\n"
+                                           "\n"
+                                           "variable = _|_SOME_VALUE\n")
+        filename = self.project_file("test.py", source)
+        self.assertEqual(self.backend.rpc_get_assignment(filename,
+                                                         source,
+                                                         offset),
+                         (filename, 0))
+
+
 class RPCGetCalltipTests(GenericRPCTests):
     METHOD = "rpc_get_calltip"
 
+    @unittest.skipIf(sys.version_info >= (3, 0),
+                     "Bug in Jedi 0.9.0")
     def test_should_get_calltip(self):
         source, offset = source_and_offset(
             "import threading\nthreading.Thread(_|_")
@@ -466,6 +706,8 @@ class RPCGetCalltipTests(GenericRPCTests):
 
         self.assertEqual(calltip, expected)
 
+    @unittest.skipIf(sys.version_info >= (3, 0),
+                     "Bug in Jedi 0.9.0")
     def test_should_get_calltip_even_after_parens(self):
         source, offset = source_and_offset(
             "import threading\nthreading.Thread(foo()_|_")
@@ -477,6 +719,8 @@ class RPCGetCalltipTests(GenericRPCTests):
 
         self.assertEqual(self.THREAD_CALLTIP, actual)
 
+    @unittest.skipIf(sys.version_info >= (3, 0),
+                     "Bug in Jedi 0.9.0")
     def test_should_get_calltip_at_closing_paren(self):
         source, offset = source_and_offset(
             "import threading\nthreading.Thread(_|_)")
@@ -487,6 +731,14 @@ class RPCGetCalltipTests(GenericRPCTests):
                                               offset)
 
         self.assertEqual(self.THREAD_CALLTIP, actual)
+
+    def test_should_not_missing_attribute_get_definition(self):
+        # Bug #627 / jedi#573
+        source, offset = source_and_offset(
+            "import threading\nthreading.Thread(_|_)")
+        filename = self.project_file("test.py", source)
+
+        self.backend.rpc_get_calltip(filename, source, offset)
 
     def test_should_return_none_for_bad_identifier(self):
         source, offset = source_and_offset(
@@ -554,19 +806,22 @@ class RPCGetCalltipTests(GenericRPCTests):
 class RPCGetDocstringTests(GenericRPCTests):
     METHOD = "rpc_get_docstring"
 
-    def test_should_get_docstring(self):
-        source, offset = source_and_offset(
-            "import threading\nthreading.Thread.join_|_(")
-        filename = self.project_file("test.py", source)
-        docstring = self.backend.rpc_get_docstring(filename,
-                                                   source,
-                                                   offset)
+    def check_docstring(self, docstring):
 
         def first_line(s):
             return s[:s.index("\n")]
 
         self.assertEqual(first_line(docstring),
-                         'Thread.join(self, timeout=None):')
+                         self.JSON_LOADS_DOCSTRING)
+
+    def test_should_get_docstring(self):
+        source, offset = source_and_offset(
+            "import json\njson.loads_|_(")
+        filename = self.project_file("test.py", source)
+        docstring = self.backend.rpc_get_docstring(filename,
+                                                   source,
+                                                   offset)
+        self.check_docstring(docstring)
 
     def test_should_return_none_for_bad_identifier(self):
         source, offset = source_and_offset(
@@ -576,6 +831,53 @@ class RPCGetDocstringTests(GenericRPCTests):
                                                    source,
                                                    offset)
         self.assertIsNone(docstring)
+
+
+class RPCGetNamesTests(GenericRPCTests):
+    METHOD = "rpc_get_names"
+
+    def test_shouldreturn_names_in_same_file(self):
+        filename = self.project_file("test.py", "")
+        source, offset = source_and_offset(
+            "def foo(x, y):\n"
+            "    return x + y\n"
+            "c = _|_foo(5, 2)\n")
+
+        names = self.backend.rpc_get_names(filename,
+                                           source,
+                                           offset)
+
+        self.assertEqual(names,
+                         [{'name': 'foo',
+                           'filename': filename,
+                           'offset': 4},
+                          {'name': 'x',
+                           'filename': filename,
+                           'offset': 8},
+                          {'name': 'y',
+                           'filename': filename,
+                           'offset': 11},
+                          {'name': 'x',
+                           'filename': filename,
+                           'offset': 26},
+                          {'name': 'y',
+                           'filename': filename,
+                           'offset': 30},
+                          {'name': 'c',
+                           'filename': filename,
+                           'offset': 32},
+                          {'name': 'foo',
+                           'filename': filename,
+                           'offset': 36}])
+
+    def test_should_not_fail_without_symbol(self):
+        filename = self.project_file("test.py", "")
+
+        names = self.backend.rpc_get_names(filename,
+                                           "",
+                                           0)
+
+        self.assertEqual(names, [])
 
 
 class RPCGetUsagesTests(GenericRPCTests):

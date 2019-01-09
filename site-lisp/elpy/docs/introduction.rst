@@ -23,7 +23,7 @@ release both, and hit ``t`` (for tutorial).
 .. _quick tour: https://www.gnu.org/software/emacs/tour/
 
 For Python, you can read the `basic tutorial`_. If you already know
-Python, you should check out some `best practices`_
+Python, you should check out some `best practices`_.
 
 .. _basic tutorial: https://docs.python.org/3/tutorial/index.html
 .. _best practices: http://docs.python-guide.org/en/latest/
@@ -43,7 +43,7 @@ file and restart Emacs:
 
    (require 'package)
    (add-to-list 'package-archives
-                '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+                '("melpa-stable" . "https://stable.melpa.org/packages/"))
 
 Now you can run `M-x package-refresh-contents` to download a fresh
 copy of the archive contents, and ``M-x package-install RET elpy RET``
@@ -56,3 +56,7 @@ add the following to your .emacs:
    (elpy-enable)
 
 Congratulations, Elpy is now successfully installed!
+
+In order to use all the features (such as navigation with ``M-.``),
+you'll need to install some python libraries.  You can do that easily
+by typing ``M-x elpy-config RET``, and following the instructions.
