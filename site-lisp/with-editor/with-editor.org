@@ -1,28 +1,23 @@
 #+TITLE: With-Editor User Manual
+:PREAMBLE:
 #+AUTHOR: Jonas Bernoulli
 #+EMAIL: jonas@bernoul.li
-#+DATE: 2015-2016
+#+DATE: 2015-2018
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: With-Editor: (with-editor).
 #+TEXINFO_DIR_DESC: Using the Emacsclient as $EDITOR
+#+SUBTITLE: for version 2.8.0 (v2.8.0-2-g87c96b3+1)
+#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
 #+TEXINFO_DEFFN: t
-#+TEXINFO_CLASS: info+
-#+OPTIONS: H:4 num:nil toc:2
+#+OPTIONS: H:4 num:4 toc:2
 
-* Copying
-:PROPERTIES:
-:COPYING:    t
-:END:
-
-#+BEGIN_EXPORT texinfo
-@ifnottex
-The library @code{with-editor} makes it easy to use the Emacsclient as
-the @code{$EDITOR} of child processes, making sure they know how to call
-home.  For remote processes a substitute is provided, which communicates
-with Emacs on standard output instead of using a socket as the Emacsclient
+The library ~with-editor~ makes it easy to use the Emacsclient as the
+~$EDITOR~ of child processes, making sure they know how to call home.
+For remote processes a substitute is provided, which communicates with
+Emacs on standard output instead of using a socket as the Emacsclient
 does.
 
 This library was written because Magit has to be able to do the above
@@ -33,10 +28,12 @@ Because other packages can benefit from such functionality, this
 library is made available as a separate package.  It also defines some
 additional functionality which makes it useful even for end-users, who
 don't use Magit or another package which uses it internally.
-@end ifnottex
 
-@quotation
-Copyright (C) 2015-2016 Jonas Bernoulli <jonas@@bernoul.li>
+#+TEXINFO: @noindent
+This manual is for With-Editor version 2.8.0 (v2.8.0-2-g87c96b3+1).
+
+#+BEGIN_QUOTE
+Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -47,9 +44,8 @@ This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-@end quotation
-#+END_EXPORT
-
+#+END_QUOTE
+:END:
 * Using the With-Editor package
 
 The ~With-Editor~ package is used internally by Magit when editing
@@ -139,15 +135,19 @@ it receives a signal.
 
   #+BEGIN_SRC emacs-lisp
     "sh -c '\
-    echo \"WITH-EDITOR: $$ OPEN $0\"; \
+    echo \"WITH-EDITOR: $$ OPEN $0 IN $(pwd)\"; \
     trap \"exit 0\" USR1; \
     trap \"exit 1\" USR2; \
     while true; do sleep 1; done'"
   #+END_SRC
 
-  This leads to a delay of up to a second.  The delay can be shortened
-  by replacing ~sleep 1~ with ~sleep 0.01~, or if your implementation does
-  not support floats, then by using ~nanosleep 0.01~ instead.
+  Note that the unit seperator character () right after the file
+  name ($0) is required.
+
+  Also note that using this alternative implementation leads to a
+  delay of up to a second.  The delay can be shortened by replacing
+  ~sleep 1~ with ~sleep 0.01~, or if your implementation does not support
+  floats, then by using ~nanosleep~ instead.
 
 ** Using With-Editor commands
 
@@ -169,10 +169,9 @@ prompt for an alternative environment variable such as ~$GIT_EDITOR~.
 
 - Command: with-editor-shell-command
 
-  This command is like ~async-shell-command~, but it runs the shell
-  command with the current Emacs instance exported as ~$EDITOR~.  This
-  only has an effect if the shell command is run asynchronously,
-  i.e. when the command ends with ~&~.
+  This command is like ~shell-command~, but if the shell command ends
+  with ~&~ and is therefore run asynchronously, then the current Emacs
+  instance is exported as ~$EDITOR~.
 
 To always use these variants add this to you init file:
 
@@ -231,7 +230,7 @@ Some variants of this function exist; these two forms are equivalent:
 
 * Using With-Editor as a library
 
-This section describes how to use the =with-editor= library /outside/ of
+This section describes how to use the ~with-editor~ library /outside/ of
 Magit to teach another package how to have its child processes call
 home, just like Magit does.  You don't need to know any of this just
 to create commits using Magit.  You can also ignore this if you use
@@ -248,10 +247,18 @@ package]].
   call home to the current Emacs instance when they require that the
   user edits a file.
 
-  This is essentially done by establishing a local binding for
-  ~process-environment~ and changing the value of the ~$EDITOR~
-  environment variable in that scope.  This affects all asynchronous
-  processes started by forms (dynamically) inside BODY.
+  This is done by establishing a local binding for ~process-environment~
+  and changing the value of the ~EDITOR~ environment variable in that
+  scope.  This affects all (asynchronous) processes started by forms
+  (dynamically) inside BODY.
+
+  If BODY begins with a literal string, then that variable is set
+  instead of ~EDITOR~.
+
+- Macro: with-editor envvar &rest body
+
+  This macro is like ~with-editor~ instead that the ENVVAR argument is
+  required and that it is evaluated at run-time.
 
 - Function: with-editor-set-process-filter process filter
 
@@ -282,4 +289,34 @@ Emacs and what is the output of ~M-x with-editor-debug RET~.
 
 # Local Variables:
 # eval: (require 'ox-texinfo+ nil t)
+# End:
+* _ Copying
+:PROPERTIES:
+:COPYING:    t
+:END:
+
+#+BEGIN_QUOTE
+Copyright (C) 2015-2018 Jonas Bernoulli <jonas@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+#+END_QUOTE
+
+* _ :ignore:
+
+# IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
+# Local Variables:
+# eval: (require 'magit-utils nil t)
+# eval: (require 'ox-extra    nil t)
+# eval: (require 'ox-texinfo+ nil t)
+# eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
+# indent-tabs-mode: nil
+# org-src-preserve-indentation: nil
 # End:

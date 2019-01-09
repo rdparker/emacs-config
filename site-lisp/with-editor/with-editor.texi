@@ -1,31 +1,14 @@
 \input texinfo    @c -*- texinfo -*-
 @c %**start of header
-@setfilename ./with-editor.info
+@setfilename with-editor.info
 @settitle With-Editor User Manual
 @documentencoding UTF-8
 @documentlanguage en
 @c %**end of header
 
 @copying
-@ifnottex
-The library @code{with-editor} makes it easy to use the Emacsclient as
-the @code{$EDITOR} of child processes, making sure they know how to call
-home.  For remote processes a substitute is provided, which communicates
-with Emacs on standard output instead of using a socket as the Emacsclient
-does.
-
-This library was written because Magit has to be able to do the above
-to allow the user to edit commit messages gracefully and to edit
-rebase sequences, which wouldn't be possible at all otherwise.
-
-Because other packages can benefit from such functionality, this
-library is made available as a separate package.  It also defines some
-additional functionality which makes it useful even for end-users, who
-don't use Magit or another package which uses it internally.
-@end ifnottex
-
 @quotation
-Copyright (C) 2015-2016 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -34,8 +17,9 @@ later version.
 
 This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
 General Public License for more details.
+
 @end quotation
 @end copying
 
@@ -47,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title With-Editor User Manual
-@subtitle for version 2.5.9
+@subtitle for version 2.8.0 (v2.8.0-2-g87c96b3+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -59,7 +43,39 @@ General Public License for more details.
 @ifnottex
 @node Top
 @top With-Editor User Manual
-@insertcopying
+
+The library @code{with-editor} makes it easy to use the Emacsclient as the
+@code{$EDITOR} of child processes, making sure they know how to call home.
+For remote processes a substitute is provided, which communicates with
+Emacs on standard output instead of using a socket as the Emacsclient
+does.
+
+This library was written because Magit has to be able to do the above
+to allow the user to edit commit messages gracefully and to edit
+rebase sequences, which wouldn't be possible at all otherwise.
+
+Because other packages can benefit from such functionality, this
+library is made available as a separate package.  It also defines some
+additional functionality which makes it useful even for end-users, who
+don't use Magit or another package which uses it internally.
+
+@noindent
+This manual is for With-Editor version 2.8.0 (v2.8.0-2-g87c96b3+1).
+
+@quotation
+Copyright (C) 2015-2018 Jonas Bernoulli <jonas@@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
+General Public License for more details.
+
+@end quotation
 @end ifnottex
 
 @menu
@@ -74,10 +90,9 @@ Using the With-Editor package
 
 * Configuring With-Editor::
 * Using With-Editor commands::
+
 @end detailmenu
 @end menu
-
-
 
 @node Using the With-Editor package
 @chapter Using the With-Editor package
@@ -88,7 +103,7 @@ and features which are useful by themselves, even if you don't use
 Magit.
 
 For information about using this library in you own package, see
-@ref{Using With-Editor as a library,Using With-Editor as a library}.
+@ref{Using With-Editor as a library}.
 
 @menu
 * Configuring With-Editor::
@@ -118,7 +133,7 @@ instance.
 
 You should @strong{not} customize this option permanently.  If you have to do
 it, then you should consider that a temporary kludge and inform the
-Magit maintainer as described in @ref{Debugging,Debugging}.
+Magit maintainer as described in @ref{Debugging}.
 
 If With-Editor fails to find a suitable @code{emacsclient} on you system,
 then this should be fixed for all users at once, by teaching
@@ -177,15 +192,19 @@ implementation:
 
 @lisp
 "sh -c '\
-echo \"WITH-EDITOR: $$ OPEN $0\"; \
+echo \"WITH-EDITOR: $$ OPEN $0 IN $(pwd)\"; \
 trap \"exit 0\" USR1; \
 trap \"exit 1\" USR2; \
 while true; do sleep 1; done'"
 @end lisp
 
-This leads to a delay of up to a second.  The delay can be shortened
-by replacing @code{sleep 1} with @code{sleep 0.01}, or if your implementation does
-not support floats, then by using @code{nanosleep 0.01} instead.
+Note that the unit seperator character () right after the file
+name ($0) is required.
+
+Also note that using this alternative implementation leads to a
+delay of up to a second.  The delay can be shortened by replacing
+@code{sleep 1} with @code{sleep 0.01}, or if your implementation does not support
+floats, then by using @code{nanosleep} instead.
 @end defopt
 
 @node Using With-Editor commands
@@ -212,10 +231,9 @@ command with the current Emacs instance exported as @code{$EDITOR}.
 @cindex with-editor-shell-command
 @deffn Command with-editor-shell-command
 
-This command is like @code{async-shell-command}, but it runs the shell
-command with the current Emacs instance exported as @code{$EDITOR}.  This
-only has an effect if the shell command is run asynchronously,
-i.e. when the command ends with @code{&}.
+This command is like @code{shell-command}, but if the shell command ends
+with @code{&} and is therefore run asynchronously, then the current Emacs
+instance is exported as @code{$EDITOR}.
 @end deffn
 
 To always use these variants add this to you init file:
@@ -283,14 +301,14 @@ This command is like @code{with-editor-export-editor} but exports
 @node Using With-Editor as a library
 @chapter Using With-Editor as a library
 
-This section describes how to use the @verb{~with-editor~} library @emph{outside} of
+This section describes how to use the @code{with-editor} library @emph{outside} of
 Magit to teach another package how to have its child processes call
 home, just like Magit does.  You don't need to know any of this just
 to create commits using Magit.  You can also ignore this if you use
 @code{with-editor} outside of Magit, but only as an end-user.
 
 For information about interactive use and options that affect both
-interactive and non-interactive use, see @ref{Using the With-Editor package,Using the With-Editor package}.
+interactive and non-interactive use, see @ref{Using the With-Editor package}.
 
 @defmac with-editor &rest body
 
@@ -299,10 +317,19 @@ used as the editor of child processes, effectively teaching them to
 call home to the current Emacs instance when they require that the
 user edits a file.
 
-This is essentially done by establishing a local binding for
-@code{process-environment} and changing the value of the @code{$EDITOR}
-environment variable in that scope.  This affects all asynchronous
-processes started by forms (dynamically) inside BODY.
+This is done by establishing a local binding for @code{process-environment}
+and changing the value of the @code{EDITOR} environment variable in that
+scope.  This affects all (asynchronous) processes started by forms
+(dynamically) inside BODY@.
+
+If BODY begins with a literal string, then that variable is set
+instead of @code{EDITOR}.
+@end defmac
+
+@defmac with-editor envvar &rest body
+
+This macro is like @code{with-editor} instead that the ENVVAR argument is
+required and that it is evaluated at run-time.
 @end defmac
 
 @defun with-editor-set-process-filter process filter
@@ -311,7 +338,7 @@ This function is like @code{set-process-filter} but ensures that adding the
 new FILTER does not remove the @code{with-editor-process-filter}.  This is
 done by wrapping the two filter functions using a lambda, which
 becomes the actual filter.  It calls @code{with-editor-process-filter}
-first, passing @code{t} as NO-STANDARD-FILTER.  Then it calls FILTER.
+first, passing @code{t} as NO-STANDARD-FILTER@.  Then it calls FILTER@.
 @end defun
 
 @node Debugging
