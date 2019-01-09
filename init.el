@@ -1315,7 +1315,9 @@ a argument to perform the pop instead.."
   :load-path "site-lisp/drew-adams"
   :defer 2
   :config
-  (icy-mode 1))
+  (icy-mode 1)
+  (when (not window-system)
+    (setq icicle-Completions-text-scale-decrease 0)))
 
 ;;; Help extensions
 ;;
