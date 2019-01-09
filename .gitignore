@@ -5,6 +5,9 @@
 data
 elpa/emacs-*/archives
 non-public
+# The private directory is maintained by my dotfiles repo.  It is used
+# for including my private packages when I am playing with Spacemacs.
+private/
 projectile-bookmarks*.eld
 server
 *.bak
