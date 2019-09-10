@@ -11,3 +11,6 @@ private/
 projectile-bookmarks*.eld
 server
 *.bak
+*.elc
+# the forge package compiles emacs-sqlite. It is a system-dependent binary.
+emacsql-sqlite
