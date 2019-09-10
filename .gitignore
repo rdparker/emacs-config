@@ -14,3 +14,5 @@ server
 *.elc
 # the forge package compiles emacs-sqlite. It is a system-dependent binary.
 emacsql-sqlite
+forge-database.sqlite
+/transient

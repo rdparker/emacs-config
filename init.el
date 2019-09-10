@@ -205,6 +205,9 @@ The value VAL is an expression; it is evaluated."
   :pin melpa-stable
   :commands buttercup-run-discover)
 
+(use-package dockerfile-mode
+  :load-path "site-lisp/dockerfile-mode"
+  :mode ("Dockerfile" . dockerfile-mode))
 (use-package dired-config)
 (use-package multiple-cursors-config)
 
@@ -982,6 +985,11 @@ which is an error according to some typographical conventions."
     (add-hook-with-check 'text-mode-hook 'flyspell-mode)
     (add-hook-with-check 'prog-mode-hook 'flyspell-prog-mode 'flyspell-mode)))
 
+;;; forge
+(use-package forge
+  :after magit
+  :ensure t)
+
 ;;; frame
 (use-package frame
   :if (emacs>= 24.4)
@@ -1019,7 +1027,6 @@ which is an error according to some typographical conventions."
 (autoload 'egit-dir "egit" "Emacs git history directory" t)
 
 ;;; magit
-
 (eval-when-compile
   (let ((emacs244 (emacs>= 24.4))
 	(emacs251 (emacs>= 25.1)))
