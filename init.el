@@ -27,6 +27,16 @@
 (require 'use-package)
 (use-package magit :ensure t)
 
+(use-package lacarte
+  :bind (("ESC M-x" . lacarte-execute-command)
+	 ("M-`" . lacarte-execute-menu-command)
+	 ;; I prefer the standard F10 menu behavior when running Emacs
+	 ;; inside of Termius on my iPad.  Using the Smart Keyboard
+	 ;; this is accessed by pressing Option-Shift-0.
+	 ;;
+	 ;; ("<f10>" . lacarte-execute-menu-command)
+	 ))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
