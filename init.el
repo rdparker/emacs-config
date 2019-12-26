@@ -37,6 +37,14 @@
 	 ;; ("<f10>" . lacarte-execute-menu-command)
 	 ))
 
+;; To support the Language Server Protocol with JavaScript, the
+;; following packages should be installed:
+;;
+;;   npm i -g typescript-language-server typescript
+(use-package lsp-mode
+  :ensure t
+  :hook (js-mode . lsp))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
