@@ -9,10 +9,10 @@
 (global-set-key (kbd "M-SPC M-SPC") 'set-mark-command)
 (global-set-key (kbd "M-SPC SPC") 'just-one-space)
 
-
 (column-number-mode 1)
 
-(add-to-list 'load-path (expand-file-name "icicles" user-emacs-directory))
+(setq site-lisp-dir (expand-file-name "site-lisp" user-emacs-directory))
+(add-to-list 'load-path (expand-file-name "icicles" site-lisp-dir))
 
 (require 'icicles)
 (icy-mode 1)
