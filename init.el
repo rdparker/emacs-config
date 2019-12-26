@@ -12,9 +12,12 @@
 (column-number-mode 1)
 
 (setq site-lisp-dir (expand-file-name "site-lisp" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name "icicles" site-lisp-dir))
+(dolist (package '("icicles" "use-package") nil)
+  (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
 
 (require 'icicles)
 (icy-mode 1)
 (when (not window-system)
   (setq icicle-Completions-text-scale-decrease 0))
+
+(require 'use-package)
