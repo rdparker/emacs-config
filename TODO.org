@@ -6,14 +6,25 @@
 
 * Modes to Investigate
 
+** Generic
+
+*** TODO projectile
+
+** Completion
+
+*** TODO Is it possible to hook into Icicle's completion mechanism?
+*** TODO Checkout lsp's presupported mechanisms
+
 ** JavaScript
 
 *** TODO js2-mode
 *** TODO js3-mode
 *** TODO web-mode
+
 If I use this see the prettier-js README for configuring them together.
 
-** TODO add-node-modules-path
+** DONE add-node-modules-path
+
 This could be hooked into any of the modes that prettier-js is hooked
 into so that they use a project's prettier version.
 

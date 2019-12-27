@@ -27,6 +27,10 @@
 (require 'use-package)
 (use-package magit :ensure t)
 
+(use-package add-node-modules-path
+  :load-path "site-lisp/add-node-modules-path"
+  :hook (js-mode . add-node-modules-path))
+
 (use-package prettier-js
   :load-path "site-lisp/prettier-js"
   :hook ((js-mode . prettier-js-mode)))
