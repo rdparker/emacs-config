@@ -1,0 +1,24 @@
+* Configuration Work in Progress
+
+** TODO lsp-mode
+** TODO prettier-js
+*** TODO Checkout the prettier-js-width-mode configuration variable
+
+* Modes to Investigate
+
+** JavaScript
+
+*** TODO js2-mode
+*** TODO js3-mode
+*** TODO web-mode
+If I use this see the prettier-js README for configuring them together.
+
+** TODO add-node-modules-path
+This could be hooked into any of the modes that prettier-js is hooked
+into so that they use a project's prettier version.
+
+* Packages to Find
+
+** Elisp
+
+*** TODO Find something to autoformat Elisp.
