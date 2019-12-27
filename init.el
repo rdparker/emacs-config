@@ -27,6 +27,10 @@
 (require 'use-package)
 (use-package magit :ensure t)
 
+(use-package prettier-js
+  :load-path "site-lisp/prettier-js"
+  :hook ((js-mode . prettier-js-mode)))
+
 (use-package lacarte
   :bind (("ESC M-x" . lacarte-execute-command)
 	 ("M-`" . lacarte-execute-menu-command)
