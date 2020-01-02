@@ -63,7 +63,7 @@ Note that this should end with a directory separator."))
   (dolist (lib list)
     (load (expand-file-name lib user-emacs-directory))))
 
-(load-libraries '("lisp/peeve" "load-path"))
+(load-libraries '("site-lisp/peeve/peeve" "load-path"))
 
 ;; Use package may be fully evaluated at compile time and does not
 ;; need to be loaded at runtime, but it and bind-key may be otherwise
