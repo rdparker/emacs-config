@@ -126,6 +126,25 @@ path.  It is computed by `peeve-byte-compile-dest-directory'."
          (peeve-byte-compile-dest-directory full-path)
          append)))))
 
+;;; (add-to-list LIST-VAR ELEMENT &optional APPEND COMPARE-FN)
+(defadvice add-to-list (around
+			peeve-add-to-list-around
+			(list-var element &optional append compare-fn)
+			activate)
+  "Automagically add byte-compile directory support to `add-to-list'.
+This only affects the `load-path' variable."
+  (if (or (not (eq list-var 'load-path))
+	  ;; Already an elc output directory
+	  (cl-search (concat peeve-prefix emacs-version) element))
+      ad-do-it
+    (let ((elc-dir (peeve-byte-compile-dest-directory element)))
+      (if append
+	  (progn
+	    (add-to-list list-var elc-dir append compare-fn)
+	    ad-do-it)
+	ad-do-it
+	(add-to-list list-var elc-dir append compare-fn)))))
+
 ;;;###autoload
 (defun peeve-byte-compile-dest-file (filename)
   "Convert an Emacs Lisp source file name to compiled file name.
@@ -150,60 +169,6 @@ and will be created by this function."
 
     (make-directory target-directory t)
     (concat target-directory (file-name-nondirectory elc))))
-
-;; This is written as an Emacs 24.4+ advice function, but since I
-;; still use older versions of Emacs, I use a `defadvice' wrapper
-;; below to call it.
-(defun peeve-add-byte-compile-targets (args)
-  "Add byte-compile target directory support to `use-package-normalize-paths'.
-ARGS will be a list containining the LABEL, ARG, and RECURSED
-arguments of `use-package-normalize-paths`"
-  (let ((label (first args))
-	(arg (second args))
-	(recursed (third args)))
-
-    (if recursed
-	args
-
-      (when (stringp arg)
-	(setq arg (list arg)))
-
-      ;; If arg was not a string or list originally do nothing and let
-      ;; `use-package-normalize-paths' deal with the mistake. I don't
-      ;; want or need to replicate its error handling in that case.
-      (if (not (listp arg))
-	  args
-	(setq arg
-	      (mapcon
-	       (lambda (x)
-		 ;; Since `use-package' conses onto `load-path', we
-		 ;; pass directories in reverse order.  So that
-		 ;; ultimately, `load-path' contains the compiled
-		 ;; target directory before the source directory.
-		 (list (car x)
-		       (peeve-byte-compile-dest-directory
-			(expand-file-name (car x) user-emacs-directory))))
-	       arg))
-	(list label arg recursed)))))
-
-;; This is the pre-Emacs 24.4 equivalent of
-;;
-;;   (advice-add 'use-package-normalize-paths
-;;	         :filter-args #'peeve-add-byte-compile-targets)
-;;
-;; with documentation added.
-(defadvice use-package-normalize-paths
-    (before peeve-add-elc-paths-for-use-package disable)
-  "Add byte-compile target directory support to `use-package' :load-path.
-
-To give `use-package' the same out-of-tree byte-compilation
-directory support that `peeve-add-to-load-path' has, apply this
-as :filter-args advice on `use-package-normalize-paths'.
-
-See `peeve-byte-compile-dest-directory' for a detailed
-explanation of these out-of-tree directories."
-  (ad-set-arg
-   1 (second (peeve-add-byte-compile-targets (ad-get-args 0)))))
 
 ;;;###autoload
 (define-minor-mode peeve-mode
@@ -230,11 +195,11 @@ to nil."
       (progn
 	(setq byte-compile-dest-file-function 'peeve-byte-compile-dest-file)
 	(setq auto-compile-delete-stray-dest nil)
-	(ad-enable-advice 'use-package-normalize-paths 'before
-			  'peeve-add-elc-paths-for-use-package))
+	(ad-enable-advice 'add-to-list 'around
+			  'peeve-add-to-list-around))
     (setq byte-compile-dest-file-function nil)
-    (ad-disable-advice 'use-package-normalize-paths 'before
-		       'peeve-add-elc-paths-for-use-package))
+    (ad-disable-advice 'add-to-list 'around
+			  'peeve-add-to-list-around))
   ;; Make the message appear when Emacs is idle.  We can not call message
   ;; directly.  The minor-mode message "Menu-bar mode disabled" comes
   ;; after this function returns, overwriting any message we do here.
