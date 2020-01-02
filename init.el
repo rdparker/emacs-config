@@ -9,6 +9,10 @@
 (global-set-key (kbd "M-SPC M-SPC") 'set-mark-command)
 (global-set-key (kbd "M-SPC SPC") 'just-one-space)
 
+;; Enable per Emacs-version elc directories
+(load (expand-file-name "site-lisp/peeve/peeve" user-emacs-directory))
+(peeve-mode 1)
+
 (package-initialize)
 (add-to-list 'package-archives
 	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
