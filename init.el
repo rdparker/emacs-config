@@ -1,3 +1,5 @@
+;;; init.el --- Emacs initialization -*- coding: utf-8; no-byte-compile: t -*-
+
 ;; Rebind set-mark for Termius.
 ;;
 ;; Since just-one-space is normally bound to M-SPC, rebind it too.
