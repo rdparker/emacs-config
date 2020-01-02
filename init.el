@@ -15,9 +15,18 @@
 (load (expand-file-name "site-lisp/peeve/peeve" user-emacs-directory))
 (peeve-mode 1)
 
+(setq load-prefer-newer t)		; recommended for auto-compile
 (package-initialize)
 (add-to-list 'package-archives
 	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
+(defun emacs>= (version)
+  "Returns t if `emacs-version' is greater than or equal to VERSION."
+  (let* ((major (floor version))
+	 (minor (round (* 10 (- version major)))))
+    (or (> emacs-major-version major)
+	(and (= emacs-major-version major)
+	     (>= emacs-minor-version minor)))))
 
 (column-number-mode 1)
 
@@ -25,14 +34,24 @@
 (dolist (package '("icicles" "use-package") nil)
   (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
 
+(require 'use-package)
+(let ((package-check-signature nil))
+  (use-package gnu-elpa-keyring-update :ensure t))
+
+(use-package auto-compile
+  :if (emacs>= 25.1)
+  :load-path "site-lisp/auto-compile-25.1+"
+  :init
+  (use-package packed :load-path "site-lisp/packed")
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
+
 (require 'icicles)
 (icy-mode 1)
 (when (not window-system)
   (setq icicle-Completions-text-scale-decrease 0))
 
-(require 'use-package)
-(let ((package-check-signature nil))
-  (use-package gnu-elpa-keyring-update :ensure t))
 (use-package magit :ensure t)
 
 (use-package add-node-modules-path
