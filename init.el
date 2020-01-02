@@ -29,6 +29,8 @@
   (setq icicle-Completions-text-scale-decrease 0))
 
 (require 'use-package)
+(let ((package-check-signature nil))
+  (use-package gnu-elpa-keyring-update :ensure t))
 (use-package magit :ensure t)
 
 (use-package add-node-modules-path
