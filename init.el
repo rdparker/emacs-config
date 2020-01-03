@@ -30,6 +30,12 @@
 
 (column-number-mode 1)
 
+;; C-~ aka `icicle-candidate-set-complement' uses `remove-if-not'.  It
+;; works fine when Emacs is started with "emacs -Q" and Icicles is
+;; manually loaded, but failed with this configuration.  So,
+;; explicitly require the old compatability file.
+(require 'cl)
+
 (setq site-lisp-dir (expand-file-name "site-lisp" user-emacs-directory))
 (dolist (package '("icicles" "use-package") nil)
   (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
