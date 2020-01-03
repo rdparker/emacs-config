@@ -28,7 +28,16 @@
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
 
+;;; UI Tweaks
 (column-number-mode 1)
+(setq visible-bell nil
+      ring-bell-function 'double-flash-mode-line)
+(defun double-flash-mode-line ()
+  (let ((flash-sec (/ 1.0 20)))
+    (invert-face 'mode-line)
+    (run-with-timer flash-sec nil #'invert-face 'mode-line)
+    (run-with-timer (* 2 flash-sec) nil #'invert-face 'mode-line)
+    (run-with-timer (* 3 flash-sec) nil #'invert-face 'mode-line)))
 
 ;; C-~ aka `icicle-candidate-set-complement' uses `remove-if-not'.  It
 ;; works fine when Emacs is started with "emacs -Q" and Icicles is
