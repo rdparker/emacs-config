@@ -120,7 +120,7 @@
     (:map lsp-ui-mode-map
      ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
      ([remap xref-find-references] . lsp-ui-peek-find-references)
-     ;; ("C-c u" . lsp-ui-menu))
+     ("C-c l" . lsp-ui-imenu))
     :config (setq lsp-ui-sideline-ignore-duplicate t))
   (use-package company-lsp
     :ensure t
