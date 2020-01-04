@@ -11,6 +11,10 @@
 (global-set-key (kbd "M-SPC M-SPC") 'set-mark-command)
 (global-set-key (kbd "M-SPC SPC") 'just-one-space)
 
+;; Add some dired bindings
+(global-set-key (kbd "C-x C-j") 'dired-jump)
+(global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
+
 ;; Enable per Emacs-version elc directories
 (load (expand-file-name "site-lisp/peeve/peeve" user-emacs-directory))
 (peeve-mode 1)
