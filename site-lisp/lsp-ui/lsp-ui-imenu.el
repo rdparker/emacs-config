@@ -311,7 +311,7 @@ Return the updated COLOR-INDEX."
       (pulse-momentary-highlight-one-line (point) 'next-error))))
 
 (defvar lsp-ui-imenu-mode-map nil
-  "Keymap for ‘lsp-ui-peek-mode’.")
+  "Keymap for ‘lsp-ui-imenu-mode’.")
 (unless lsp-ui-imenu-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'lsp-ui-imenu--kill)
