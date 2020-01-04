@@ -111,6 +111,19 @@
     :load-path "site-lisp/yasnippet-snippets")
   (yas-global-mode 1))
 
+(use-package projectile
+  :ensure t
+  :pin melpa-stable
+  :bind (:map projectile-mode-map
+	 ("s-p" . projectile-command-map)
+	 ("C-c p" . projectile-command-map))
+  :config
+  ;; Projectile defaults to ido completion.  Using the 'default
+  ;; completion system, it calls `completing-read' ivoking Icicles
+  ;; extentions to it.
+  (setq projectile-completion-system 'default)
+  (projectile-mode +1))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
