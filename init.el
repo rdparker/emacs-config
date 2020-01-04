@@ -97,10 +97,53 @@
 ;; To support the Language Server Protocol with JavaScript, the
 ;; following packages should be installed:
 ;;
-;;   npm i -g typescript-language-server typescript
+;;   yarn global add typescript-language-server typescript
+;;
+;; or
+;;
+;;   yarn global add javascript-typescript-langserver
+;;
+;; On https://github.com/emacs-lsp/lsp-mode typescript-language-server
+;; is listed as the recommended package.  Other pages do not list it
+;; at all.
 (use-package lsp-mode
   :ensure t
-  :hook (js-mode . lsp))
+  :hook ((js-mode . lsp)
+	 ;; (js-mode . flycheck-mode)
+	 )
+  :config
+  ;; lsp-ui gives us the blue documentation boxes and the sidebar info
+  (use-package lsp-ui
+    :load-path "site-lisp/lsp-ui"
+    :hook (lsp-mode . lsp-ui-mode)
+    :bind
+    (:map lsp-ui-mode-map
+     ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+     ([remap xref-find-references] . lsp-ui-peek-find-references)
+     ;; ("C-c u" . lsp-ui-menu))
+    :config (setq lsp-ui-sideline-ignore-duplicate t))
+  (use-package company-lsp
+    :ensure t
+    :config
+    (push 'company-lsp company-backends)))
+
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :hook (js-mode . lsp))
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :hook (lsp-mode . lsp-ui-mode))
+;; (use-package company-lsp
+;;   :ensure t
+;;   :commands company-lsp)
+;; Provides completions for xref-apropos using helm
+;; (use-package helm-lsp :commands helm-lsp-workspace-symbol)
+;; (use-package lsp-treemacs
+;;   :ensure t
+;;   :commands lsp-treemacs-errors-list)
+;; optionally if you want to use debugger
+;;( use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
 ;; required by lsp-mode
 (use-package yasnippet
