@@ -72,7 +72,9 @@
 (when (not window-system)
   (setq icicle-Completions-text-scale-decrease 0))
 
-(use-package magit :ensure t)
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status))
 
 (use-package add-node-modules-path
   :load-path "site-lisp/add-node-modules-path"
