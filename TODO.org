@@ -8,7 +8,7 @@
 
 ** Generic
 
-*** TODO projectile
+*** DONE projectile
 
 ** Completion
 
