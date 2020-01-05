@@ -1,9 +1,10 @@
 all: subtrees byte-compile
 
 byte-compile:
-	emacs --eval '(byte-compile-file "site-lisp/icicles/icicles-mac.el")' -e save-buffers-kill-emacs
-	find site-lisp/* -name '*.el' | sed 's/.*/-eval (byte-compile-file\\ \\"&\\")/' | \
-	    (cat -; echo -e save-buffers-kill-emacs) | xargs emacs
+	(find site-lisp/* -name '*-mac.el'; \
+         find site-lisp/* -name '*.el' ! -name '*-mac.el') \
+         | sed 's/.*/-eval (byte-compile-file\\ \\"&\\")/' \
+	 | (cat -; echo -e save-buffers-kill-emacs) | xargs emacs
 
 subtrees:
 	-git remote add use-package https://github.com/jwiegley/use-package.git
