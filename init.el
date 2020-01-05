@@ -19,11 +19,6 @@
 (load (locate-user-emacs-file "site-lisp/peeve/peeve"))
 (peeve-mode 1)
 
-(setq load-prefer-newer t)		; recommended for auto-compile
-(package-initialize)
-(add-to-list 'package-archives
-	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-
 (defun emacs>= (version)
   "Returns t if `emacs-version' is greater than or equal to VERSION."
   (let* ((major (floor version))
@@ -31,6 +26,24 @@
     (or (> emacs-major-version major)
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
+
+(setq site-lisp-dir (locate-user-emacs-file "site-lisp"))
+(dolist (package '("icicles" "use-package") nil)
+  (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
+
+(require 'use-package)
+
+;; Setup per Emacs-version ELPA directories
+(use-package package
+  :init
+  (setq package-user-dir
+	(locate-user-emacs-file (concat "elpa/emacs-" emacs-version)))
+  (package-initialize)
+  :config
+  (add-to-list 'package-archives
+	       '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+  (let ((package-check-signature nil))
+    (use-package gnu-elpa-keyring-update :ensure t)))
 
 ;;; UI Tweaks
 (column-number-mode 1)
@@ -54,19 +67,12 @@
 ;; explicitly require the old compatability file.
 (require 'cl)
 
-(setq site-lisp-dir (locate-user-emacs-file "site-lisp"))
-(dolist (package '("icicles" "use-package") nil)
-  (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
-
-(require 'use-package)
-(let ((package-check-signature nil))
-  (use-package gnu-elpa-keyring-update :ensure t))
-
 (use-package auto-compile
   :if (emacs>= 25.1)
   :load-path "site-lisp/auto-compile-25.1+"
   :init
   (use-package packed :load-path "site-lisp/packed")
+  (setq load-prefer-newer t)
   :config
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
