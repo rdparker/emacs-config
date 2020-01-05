@@ -1,6 +1,7 @@
 all: subtrees byte-compile
 
 byte-compile:
+	emacs --eval '(byte-compile-file "site-lisp/icicles/icicles-mac.el")' -e save-buffers-kill-emacs
 	find site-lisp/* -name '*.el' | sed 's/.*/-eval (byte-compile-file\\ \\"&\\")/' | \
 	    (cat -; echo -e save-buffers-kill-emacs) | xargs emacs
 
