@@ -16,7 +16,7 @@
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 
 ;; Enable per Emacs-version elc directories
-(load (expand-file-name "site-lisp/peeve/peeve" user-emacs-directory))
+(load (locate-user-emacs-file "site-lisp/peeve/peeve"))
 (peeve-mode 1)
 
 (setq load-prefer-newer t)		; recommended for auto-compile
@@ -54,7 +54,7 @@
 ;; explicitly require the old compatability file.
 (require 'cl)
 
-(setq site-lisp-dir (expand-file-name "site-lisp" user-emacs-directory))
+(setq site-lisp-dir (locate-user-emacs-file "site-lisp"))
 (dolist (package '("icicles" "use-package") nil)
   (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
 
