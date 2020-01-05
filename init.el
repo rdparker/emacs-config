@@ -82,6 +82,7 @@
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
+(use-package gitignore-mode :ensure t)
 
 (use-package add-node-modules-path
   :load-path "site-lisp/add-node-modules-path"
