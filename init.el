@@ -72,6 +72,13 @@
 (when (not window-system)
   (setq icicle-Completions-text-scale-decrease 0))
 
+(use-package imenu+
+  :after imenu
+  :hook
+  (lsp-mode
+   . (lambda ()
+       (condition-case nil (imenup-add-defs-to-menubar) (error nil)))))
+
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
