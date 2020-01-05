@@ -45,7 +45,8 @@
     (run-with-timer flash-sec nil #'invert-face 'mode-line)
     (run-with-timer (* 2 flash-sec) nil #'invert-face 'mode-line)
     (run-with-timer (* 3 flash-sec) nil #'invert-face 'mode-line)))
-(setq enable-recursive-minibuffers t)
+(setq inhibit-startup-screen t
+      enable-recursive-minibuffers t)
 
 ;; C-~ aka `icicle-candidate-set-complement' uses `remove-if-not'.  It
 ;; works fine when Emacs is started with "emacs -Q" and Icicles is
