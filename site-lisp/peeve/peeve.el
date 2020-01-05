@@ -1,6 +1,6 @@
 ;;; peeve.el --- PEr-Emacs-Version .Elc directories
 
-;; Copyright (C) 2018 Ron Parker
+;; Copyright (C) 2018, 2020 Ron Parker
 
 ;; Author: Ron Parker <rdparker@gmail.com>
 ;; Keywords: lisp
@@ -209,5 +209,9 @@ to nil."
      'message "Peeve mode disabled.  Use M-x peeve-mode to reenable it.")))
 
 (provide 'peeve)
+
+;; Local Variables:
+;; no-byte-compile: t
+;; End:
 
 ;;; peeve.el ends here
