@@ -34,6 +34,9 @@
 
 ;;; UI Tweaks
 (column-number-mode 1)
+(recentf-mode 1)
+(setq recentf-max-menu-items 25
+      recentf-max-saved-items 25)
 (setq visible-bell nil
       ring-bell-function 'double-flash-mode-line)
 (defun double-flash-mode-line ()
