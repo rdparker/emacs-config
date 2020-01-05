@@ -124,26 +124,35 @@
 ;; On https://github.com/emacs-lsp/lsp-mode typescript-language-server
 ;; is listed as the recommended package.  Other pages do not list it
 ;; at all.
-(use-package lsp-mode
-  :ensure t
-  :hook ((js-mode . lsp)
-	 ;; (js-mode . flycheck-mode)
-	 )
-  :config
-  ;; lsp-ui gives us the blue documentation boxes and the sidebar info
-  (use-package lsp-ui
-    :load-path "site-lisp/lsp-ui"
-    :hook (lsp-mode . lsp-ui-mode)
-    :bind
-    (:map lsp-ui-mode-map
-     ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-     ([remap xref-find-references] . lsp-ui-peek-find-references)
-     ("C-c l" . lsp-ui-imenu))
-    :config (setq lsp-ui-sideline-ignore-duplicate t))
-  (use-package company-lsp
+;;
+;; Eglot is requires Emacs 26.1+.  Use lsp-mode on older versions.  In
+;; use-package, :if does not work when :ensure is true, so in this
+;; case test the emacs version outside of use-package.
+(if (emacs>= 26.1)
+  (use-package eglot
     :ensure t
+    :hook ((js-mode . eglot-ensure))
+    :bind ("C-c h" . eglot-help-at-point))
+  (use-package lsp-mode
+    :ensure t
+    :hook ((js-mode . lsp)
+	   ;; (js-mode . flycheck-mode)
+	   )
     :config
-    (push 'company-lsp company-backends)))
+    ;; lsp-ui gives us the blue documentation boxes and the sidebar info
+    (use-package lsp-ui
+      :load-path "site-lisp/lsp-ui"
+      :hook (lsp-mode . lsp-ui-mode)
+      :bind
+      (:map lsp-ui-mode-map
+	    ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+	    ([remap xref-find-references] . lsp-ui-peek-find-references)
+	    ("C-c l" . lsp-ui-imenu))
+      :config (setq lsp-ui-sideline-ignore-duplicate t))
+    (use-package company-lsp
+      :ensure t
+      :config
+      (push 'company-lsp company-backends))))
 
 ;; (use-package lsp-mode
 ;;   :ensure t
