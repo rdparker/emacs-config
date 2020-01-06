@@ -132,17 +132,13 @@ path.  It is computed by `peeve-byte-compile-dest-directory'."
 			activate)
   "Automagically add `byte-compile' directory support to `add-to-list'.
 This only affects the `load-path' variable."
-  (if (or (not (eq list-var 'load-path))
-	  ;; Already an elc output directory
-	  (cl-search (concat peeve-prefix emacs-version) element))
-      ad-do-it
+  ad-do-it
+  (when (and (eq list-var 'load-path)
+	     ;; Not already an elc output directory
+	     (not (cl-search (concat peeve-prefix emacs-version)
+			     element)))
     (let ((elc-dir (peeve-byte-compile-dest-directory element)))
-      (if append
-	  (progn
-	    (add-to-list list-var elc-dir append compare-fn)
-	    ad-do-it)
-	ad-do-it
-	(add-to-list list-var elc-dir append compare-fn)))))
+      (add-to-list list-var elc-dir append compare-fn))))
 
 ;;;###autoload
 (defun peeve-byte-compile-dest-file (filename)
