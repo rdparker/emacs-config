@@ -79,8 +79,7 @@
 
 (require 'icicles)
 (icy-mode 1)
-(when (not window-system)
-  (setq icicle-Completions-text-scale-decrease 0))
+(defalias 'graphic-display-p 'display-graphic-p)
 
 (use-package imenu+
   :after imenu
