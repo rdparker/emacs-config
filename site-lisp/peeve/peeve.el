@@ -33,7 +33,7 @@
 
 ;; Using `peeve-mode' is not compatible with auto-compile's
 ;; `auto-compile-delete-stray-dest' setting.  Therefore, enabling
-;; `peeve-mode' will automatically disable the setting. See
+;; `peeve-mode' will automatically disable the setting.  See
 ;; `peeve-mode' for a more detailed explaination.
 
 ;; To use `peeve-mode' just add
@@ -107,8 +107,7 @@ will return
 ;;;###autoload
 (defun peeve-add-to-load-path (path &optional dir append)
   "Add PATH within DIR to `load-path' if it isn't there yet.
-
-If DIR isn't specified it defaults to `user-emacs-directory'.  If
+If DIR isn't specified, it defaults to `user-emacs-directory'.  If
 PATH is added, it is added at the beginning of the list, unless
 the optional argument APPEND is non-nil, in which case DIR is
 added at the end.
@@ -131,7 +130,7 @@ path.  It is computed by `peeve-byte-compile-dest-directory'."
 			peeve-add-to-list-around
 			(list-var element &optional append compare-fn)
 			activate)
-  "Automagically add byte-compile directory support to `add-to-list'.
+  "Automagically add `byte-compile' directory support to `add-to-list'.
 This only affects the `load-path' variable."
   (if (or (not (eq list-var 'load-path))
 	  ;; Already an elc output directory
