@@ -97,12 +97,16 @@ will return
 	  (file-name-as-directory (expand-file-name
 				   `,(concat peeve-prefix emacs-version)
 				   peeve-output-directory)))
-	 (relative-path (if (and (>= (length directory) length)
-				 (string= prefix
-					  (substring directory 0 length)))
-			    (substring directory length)
-			  (substring directory 1))))
-    (concat versioned-directory relative-path)))
+	 (relative-path (cond
+			 ((and (>= (length directory) length)
+			       (string= prefix
+					(substring directory 0 length)))
+			  (substring directory length))
+			 ((string= "/" (substring directory 0 1))
+			  (substring directory 1))
+			 (t directory))))
+    (convert-standard-filename (concat versioned-directory
+				       relative-path))))
 
 ;;;###autoload
 (defun peeve-add-to-load-path (path &optional dir append)
