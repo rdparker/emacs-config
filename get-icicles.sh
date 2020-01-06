@@ -30,12 +30,13 @@ OPTIONS:
    -r          Get only required libraries.
    -d <dir>    Specify different directory name prefix, default is "icicles"
    -o          Get only optional libraries.
+   -u          Update the files that are alread in the directory.
    -n          Don't attempt to create backups.
    -v          Be verbose.
 EOF
 }
 
-while getopts “h?rd:onv” OPTION
+while getopts “h?rd:ounv” OPTION
 do
   case $OPTION in
     h)
@@ -54,6 +55,9 @@ do
       ;;
     o)
       libraries=$optional_libraries
+      ;;
+    u)
+      libraries=$(cd "$dir"; echo *.el)
       ;;
     n)
       no_backup=t
