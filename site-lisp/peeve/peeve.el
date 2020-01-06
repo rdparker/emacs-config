@@ -123,11 +123,7 @@ path.  It is computed by `peeve-byte-compile-dest-directory'."
   (when path
     (let ((full-path (expand-file-name path dir)))
       (when (file-exists-p full-path)
-	(add-to-list 'load-path full-path append)
-	(add-to-list
-         'load-path
-         (peeve-byte-compile-dest-directory full-path)
-         append)))))
+	(add-to-list 'load-path full-path append)))))
 
 ;;; (add-to-list LIST-VAR ELEMENT &optional APPEND COMPARE-FN)
 (defadvice add-to-list (around
