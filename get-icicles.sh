@@ -57,7 +57,7 @@ do
       libraries=$optional_libraries
       ;;
     u)
-      libraries=$(cd "$dir"; echo *.el)
+      update=t
       ;;
     n)
       no_backup=t
@@ -67,6 +67,10 @@ do
       ;;
   esac
 done
+
+if [ -n "$update" ]; then
+  libraries=$(cd "$dir"; echo *.el)
+fi
 
 if [ -z "$no_backup" -a -d "$dir" ]; then
   typeset -i i=0
