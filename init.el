@@ -53,7 +53,9 @@
   :commands byte-compile-directory-safely)
 (use-package setup
   :load-path "lisp"
-  :commands setup-my-emacs-config)
+  :commands (setup-my-emacs-config
+	     update-from-emacswiki
+	     update-from-github))
 
 ;;; UI Tweaks
 (column-number-mode 1)
