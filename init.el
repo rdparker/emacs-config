@@ -89,7 +89,6 @@
 
 (require 'icicles)
 (icy-mode 1)
-(defalias 'graphic-display-p 'display-graphic-p)
 
 (use-package imenu+
   :after imenu
