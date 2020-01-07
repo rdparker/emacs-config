@@ -45,6 +45,16 @@
   (let ((package-check-signature nil))
     (use-package gnu-elpa-keyring-update :ensure t)))
 
+;;; Packages for setting up my Emacs config
+;;
+;; This works on Windows, where a Makefile or bash script may not.
+(use-package bytecomp+
+  :load-path "lisp/bytecomp+"
+  :commands byte-compile-directory-safely)
+(use-package setup
+  :load-path "lisp"
+  :commands setup-my-emacs-config)
+
 ;;; UI Tweaks
 (column-number-mode 1)
 (recentf-mode 1)
