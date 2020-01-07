@@ -1,10 +1,22 @@
+MACROS=`find site-lisp -name '*-mac.el'`
+SRC=`find site-lisp -name '*.el' ! -name '*-mac.el'`
+
 all: subtrees byte-compile
 
+# Emacs' batch mode is not used here so that peeve is properly
+# configured and the .elc files are generated in
+# Emacs-version-specific directories.
 byte-compile:
-	(find site-lisp/* -name '*-mac.el'; \
-         find site-lisp/* -name '*.el' ! -name '*-mac.el') \
-         | sed 's/.*/-eval (byte-compile-file\\ \\"&\\")/' \
-	 | (cat -; echo -e save-buffers-kill-emacs) | xargs emacs
+	emacs --eval \
+	      "(progn \
+		 (dolist (pkg '(${MACROS}) nil) \
+		   (byte-compile-file (symbol-name pkg))) \
+		 (kill-emacs))"
+	emacs --eval \
+	      "(progn \
+		 (dolist (pkg '(${SRC}) nil) \
+		   (byte-compile-file (symbol-name pkg))) \
+		 (kill-emacs))"
 
 subtrees:
 	-git remote add use-package https://github.com/jwiegley/use-package.git
