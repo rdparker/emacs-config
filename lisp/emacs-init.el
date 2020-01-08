@@ -93,6 +93,7 @@
 
 (use-package imenu+
   :after imenu
+  :functions imenup-add-defs-to-menubar
   :hook
   (lsp-mode
    . (lambda ()
@@ -196,6 +197,7 @@
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
   :bind ("TAB" . yas-expand-from-trigger-key)
+  :commands yas-global-mode
   :config
   (use-package yasnippet-snippets
     :load-path "site-lisp/yasnippet-snippets")
