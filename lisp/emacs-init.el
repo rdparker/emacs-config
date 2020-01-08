@@ -148,34 +148,37 @@
 ;; is listed as the recommended package.  Other pages do not list it
 ;; at all.
 ;;
-;; Eglot is requires Emacs 26.1+.  Use lsp-mode on older versions.  In
-;; use-package, :if does not work when :ensure is true, so in this
-;; case test the emacs version outside of use-package.
-(if (emacs>= 26.1)
-  (use-package eglot
-    :ensure t
+;; Eglot requires Emacs 26.1+.  Use lsp-mode on older versions.  The
+;; use-package keywords :if and :ensure do not work properly together.
+;; So, use backquote expansion to set :ensure's value based upon the
+;; desired :if condition.
+`(use-package eglot
+    :ensure ,(emacs>= 26.1)
     :hook ((js-mode . eglot-ensure))
     :bind ("C-c h" . eglot-help-at-point))
-  (use-package lsp-mode
-    :ensure t
-    :hook ((js-mode . lsp)
-	   ;; (js-mode . flycheck-mode)
-	   )
+;; Also because some of `use-package' is executed at compile time, the
+;; same condition needs to be applied to any dependent packages.
+`(use-package lsp-mode
+  :ensure ,(not (emacs>= 26.1))
+  :hook ((js-mode . lsp)
+	 ;; (js-mode . flycheck-mode)
+	 )
+  :config
+  ;; lsp-ui gives us the blue documentation boxes and the sidebar info
+  (use-package lsp-ui
+    :ensure ,(not (emacs>= 26.1))
+    :load-path "site-lisp/lsp-ui"
+    :hook (lsp-mode . lsp-ui-mode)
+    :bind
+    (:map lsp-ui-mode-map
+	  ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+	  ([remap xref-find-references] . lsp-ui-peek-find-references)
+	  ("C-c l" . lsp-ui-imenu))
+    :config (setq lsp-ui-sideline-ignore-duplicate t))
+  (use-package company-lsp
+    :ensure ,(not (emacs>= 26.1))
     :config
-    ;; lsp-ui gives us the blue documentation boxes and the sidebar info
-    (use-package lsp-ui
-      :load-path "site-lisp/lsp-ui"
-      :hook (lsp-mode . lsp-ui-mode)
-      :bind
-      (:map lsp-ui-mode-map
-	    ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-	    ([remap xref-find-references] . lsp-ui-peek-find-references)
-	    ("C-c l" . lsp-ui-imenu))
-      :config (setq lsp-ui-sideline-ignore-duplicate t))
-    (use-package company-lsp
-      :ensure t
-      :config
-      (push 'company-lsp company-backends))))
+    (push 'company-lsp company-backends)))
 
 ;; (use-package lsp-mode
 ;;   :ensure t
