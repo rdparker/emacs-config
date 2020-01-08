@@ -218,28 +218,21 @@
   (setq projectile-completion-system 'default)
   (projectile-mode +1))
 
-;;; Late loaders
+;;; Late Loaders
 
-;; Load Icicles and turn on Icicle mode *after* loading your
-;; `custom-file', so Icicles will pick up certain option values, such
-;; as `icicle-touche-pas-aux-menus-flag', and will correctly pick up
-;; all current key definitions, bind the mouse wheel etc.
+;; Setup and load customization file
+(setq custom-file (locate-user-emacs-file "lisp/emacs-custom.el"))
+(when (file-readable-p custom-file)
+  (load (file-name-sans-extension custom-file)))
+
+;; Load and turn on Icicles *after* loading `custom-file', so it can
+;; pick up option values like `icicle-touche-pas-aux-menus-flag', and
+;; will correctly pick up all current key definitions, bind the mouse
+;; wheel, etc.
 (use-package icicles
   :load-path "site-lisp/icicles"
   :config (icicle-mode 1))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (magit))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 (put 'narrow-to-region 'disabled nil)
 
 (provide 'emacs-init)

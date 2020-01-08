@@ -15,8 +15,13 @@
 ;; only loads Peeve and then requires the actual init file, which may
 ;; then be byte-compiled
 ;;
+;; This command must appear in the init file, but it may be commented
+;; out.  The real initialization should occur in the actual init file
+;; that is loaded below.
+;;
+;; (package-initialize)
 
-;;; Setup timeing the init file
+;;; Setup timing the init file
 (defconst emacs-start-time (current-time))
 
 ;;; Setup and load the actual (possibly compiled) init file
@@ -27,6 +32,8 @@
 
 (add-to-list 'load-path (locate-user-emacs-file "lisp"))
 (require 'emacs-init)
+;; (when (not (file-readable-p (peeve-byte-compile-dest-file "lisp/emacs-init.el")))
+;;   (byte-compile-file "lisp/emacs-init.el"))
 
 ;;; Report how long init took
 (when t
@@ -39,15 +46,3 @@
 	    t))
 
 ;;; end of init.el
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (company-lsp magit))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
