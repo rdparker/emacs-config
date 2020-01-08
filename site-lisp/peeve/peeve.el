@@ -44,6 +44,7 @@
 ;; enable `peeve-mode'.
 
 ;;; Code:
+(require 'cl-seq)
 
 (defgroup peeve nil
   "Peeve, per `emacs-version' .elc byte compilation directories."
