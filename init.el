@@ -99,6 +99,17 @@
    . (lambda ()
        (condition-case nil (imenup-add-defs-to-menubar) (error nil)))))
 
+;;; Drew Adam's package extensions
+(use-package hl-line+
+  :load-path "site-lisp/icicles"
+  :commands toggle-hl-line-when-idle
+  :init (toggle-hl-line-when-idle 1))
+(use-package icomplete+
+  :after icomplete)
+(use-package ring+
+  :after ring)
+
+;;; Programming
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
