@@ -49,7 +49,7 @@ first.  This is done in case, like `icicles-mac.el', they contain
 macros which are required to properly compile other files in the
 directory.  After this, all the other *.el files are compiled."
   (interactive "DByte compile files in directory: ")
-  (let ((files (remove-if
+  (let ((files (cl-remove-if
 		(lambda (source)
 		  (let ((file (file-name-nondirectory source)))
 		    (or
