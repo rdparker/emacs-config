@@ -44,6 +44,7 @@
 ;; enable `peeve-mode'.
 
 ;;; Code:
+(require 'bytecomp)
 (require 'cl-seq)
 
 (defgroup peeve nil
