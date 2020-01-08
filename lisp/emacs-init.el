@@ -233,6 +233,14 @@
   :load-path "site-lisp/icicles"
   :config (icicle-mode 1))
 
+;;; Make sure `setup-my-emacs-config' has been run.
+;;
+;; Since one of the things that `setup-my-emacs-config' does is to
+;; byte compile Icicles, this can be used as a check.
+(unless (file-exists-p (peeve-byte-compile-dest-file
+			"site-lisp/icicles/icicles-mac.el"))
+  (setup-my-emacs-config))
+
 (put 'narrow-to-region 'disabled nil)
 
 (provide 'emacs-init)
