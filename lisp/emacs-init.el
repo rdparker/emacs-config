@@ -28,11 +28,18 @@
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
 
-(setq site-lisp-dir (locate-user-emacs-file "site-lisp"))
-(dolist (package '("icicles" "use-package") nil)
-  (add-to-list 'load-path (expand-file-name package site-lisp-dir)))
+(add-to-list 'load-path (locate-user-emacs-file "site-lisp/icicles"))
 
-(require 'use-package)
+;;; Setup use-package
+;;
+;; While `use-package' is only needed at compile time,
+;; `personal-keybindings' must be defined at run time.
+(eval-when-compile
+  (add-to-list 'load-path (locate-user-emacs-file "site-lisp/use-package"))
+  (require 'use-package))
+(use-package bind-key
+  :load-path "site-lisp/use-package"
+  :defines personal-keybindings)
 
 ;; Setup per Emacs-version ELPA directories
 (use-package package
