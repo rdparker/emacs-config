@@ -15,6 +15,11 @@
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-x 4 C-j") 'dired-jump-other-window)
 
+;; Let Emacs, not MS Windows, to use `M-TAB' or `M-S-TAB'.
+(when (fboundp 'w32-register-hot-key)
+  (w32-register-hot-key [M-tab])
+  (w32-register-hot-key [M-S-tab]))
+
 (defun emacs>= (version)
   "Returns t if `emacs-version' is greater than or equal to VERSION."
   (let* ((major (floor version))
