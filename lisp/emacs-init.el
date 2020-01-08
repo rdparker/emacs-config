@@ -28,8 +28,6 @@
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
 
-(add-to-list 'load-path (locate-user-emacs-file "site-lisp/icicles"))
-
 ;;; Setup use-package
 ;;
 ;; While `use-package' is only needed at compile time,
@@ -94,9 +92,6 @@
   :config
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
-
-(require 'icicles)
-(icy-mode 1)
 
 (use-package imenu+
   :after imenu
@@ -222,6 +217,16 @@
   ;; extentions to it.
   (setq projectile-completion-system 'default)
   (projectile-mode +1))
+
+;;; Late loaders
+
+;; Load Icicles and turn on Icicle mode *after* loading your
+;; `custom-file', so Icicles will pick up certain option values, such
+;; as `icicle-touche-pas-aux-menus-flag', and will correctly pick up
+;; all current key definitions, bind the mouse wheel etc.
+(use-package icicles
+  :load-path "site-lisp/icicles"
+  :config (icicle-mode 1))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
