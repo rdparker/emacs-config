@@ -28,24 +28,6 @@
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
 
-;; `user-emacs-directory' subdirectories that need to be compiled and
-;; whether or not to debug errors in them, cf. `byte-compile-debug'.
-(defvar configure-emacs-compile-directories
-  '(("site-lisp" . nil)
-    ("lisp" . t)))
-;; Git subtree remote packages used by this configuration and their
-;; author on GitHub.
-(defvar configure-emacs-subtree-remotes
-  '(("add-node-modules-path" . "codesuki")
-     ("auto-compile" . "emacscollective")
-     ("lsp-ui" . "emacs-lsp")
-     ("packed" . "emacscollective")
-     ("peeve" . "rdparker")
-     ("prettier" . "prettier")
-     ("use-package" . "jwiegley")
-     ("yasnippet" . "joaotavora")
-     ("yasnippet-snippets" . "AndreaCrotti")))
-
 ;;; Setup use-package
 ;;
 ;; While `use-package' is only needed at compile time,
@@ -85,10 +67,6 @@
 ;;; UI Tweaks
 (column-number-mode 1)
 (recentf-mode 1)
-(setq recentf-max-menu-items 25
-      recentf-max-saved-items 25)
-(setq visible-bell nil
-      ring-bell-function 'double-flash-mode-line)
 (defun double-flash-mode-line ()
   "Flash the modeline twice."
   (let ((flash-sec (/ 1.0 20)))
@@ -96,8 +74,6 @@
     (run-with-timer flash-sec nil #'invert-face 'mode-line)
     (run-with-timer (* 2 flash-sec) nil #'invert-face 'mode-line)
     (run-with-timer (* 3 flash-sec) nil #'invert-face 'mode-line)))
-(setq inhibit-startup-screen t
-      enable-recursive-minibuffers t)
 
 ;; C-~ aka `icicle-candidate-set-complement' uses `remove-if-not'.  It
 ;; works fine when Emacs is started with "emacs -Q" and Icicles is
@@ -240,6 +216,108 @@
   ;; extentions to it.
   (setq projectile-completion-system 'default)
   (projectile-mode +1))
+
+;;; PLACE YOUR `DEFVAR' VARIABLE SETTINGS HERE, IF ANY.
+
+;; `user-emacs-directory' subdirectories that need to be compiled and
+;; whether or not to debug errors in them, cf. `byte-compile-debug'.
+(defvar configure-emacs-compile-directories
+  '(("site-lisp" . nil)
+    ("lisp" . t)))
+;; Git subtree remote packages used by this configuration and their
+;; author on GitHub.
+(defvar configure-emacs-subtree-remotes
+  '(("add-node-modules-path" . "codesuki")
+     ("auto-compile" . "emacscollective")
+     ("lsp-ui" . "emacs-lsp")
+     ("packed" . "emacscollective")
+     ("peeve" . "rdparker")
+     ("prettier" . "prettier")
+     ("use-package" . "jwiegley")
+     ("yasnippet" . "joaotavora")
+     ("yasnippet-snippets" . "AndreaCrotti")))
+
+;;; LOAD DREW'S LIBRARY FILES from `drews-lisp-dir'.
+;;; Library file `start.elc' loads *lots* of others.  In particular, it
+;;; loads `oneonone.elc' and `setup-keys.elc', which define
+;;; default frame configurations and key bindings.  You can see
+;;; (roughly) which library files have been loaded at any time via
+;;; `C-h v features'.
+(require 'start)
+
+;;; COMMENT THIS OUT IF YOU DO *NOT* HAVE OR USE CYGWIN
+(when (and (eq system-type 'windows-nt)  (require 'cygwin-mount nil t))
+  (require 'setup-cygwin nil t))
+
+;;; COMMENT THIS OUT IF YOU WANT MS Windows, NOT Emacs, to use `M-TAB' or `M-S-TAB'.
+(when (fboundp 'w32-register-hot-key)
+  (w32-register-hot-key [M-tab])
+  (w32-register-hot-key [M-S-tab]))
+
+;;; COMMENT THIS OUT IF YOU DO *NOT* WANT THE CUSTOMIZATIONS IN library `start-opt'.
+;;; The following setup assignments are done in file `start-opt.elc'.
+;;; Action to change these should be taken *after* loading it.
+;;; (See file `start-opt.el' for more detail.)
+;;;
+;;; 1. Some standard faces are redefined: highlight, modeline, region,
+;;;    secondary-selection, query-replace, isearch, ediff-*-face-*.
+;;; 2. Searching is made case-sensitive by default, but `C-c' while
+;;;    searching (`C-s') toggles case-sensitivity.
+;;;    To inhibit this, do (setq-default case-fold-search t).
+;;; 3. DEL (backspace) removes the current selection, and typing replaces it.
+;;;    To inhibit this, do (delete-selection-mode -1).
+;;; 4. Coloring (font-locking) is the default in all buffers.
+;;;    To inhibit this, do (global-font-lock-mode nil)
+;;; 5. Indenting uses only spaces, not TABs.
+;;;    To inhibit this, do (setq-default indent-tabs-mode t).
+;;; 6. The default mode for buffers is `indented-text-mode'.
+;;;    To inhibit this, do (setq default-major-mode 'fundamental-mode)
+;;; 7. Text mode uses auto-fill, by default.
+;;;    To inhibit this, do (remove-hook 'text-mode-hook 'turn-on-auto-fill).
+;;; 8. Newly created frames are fitted to their buffer/window.  To inhibit this, do
+;;;    (remove-hook 'after-make-frame-functions 'fit-frame)
+;;; 9. One-window frames containing "temporary" buffers (e.g. *Help*) are
+;;;    automatically fit.  To inhibit this, do
+;;;    (remove-hook 'temp-buffer-show-hook 'fit-frame-if-one-window)
+
+(require 'start-opt nil t)              ; Optional startup assignments.
+
+;;; COMMENT THIS OUT IF YOU DO *NOT* WANT THE WINDOW-MANAGER
+;;; "Minimize" BUTTON TO THUMBIFY INSTEAD OF ICONIFY.
+(when (and (eq system-type 'windows-nt) (fboundp 'thumfr-thumbify-frame-upon-event))
+  (define-key special-event-map [iconify-frame] 'thumfr-thumbify-frame-upon-event))
+
+
+;;; DIARY FOR USE WITH CALENDAR AND APPOINTMENTS:
+;;; IF YOU DO *NOT* WANT TO USE A DIARY, THEN UNCOMMENT THESE LINES:
+;;; (setq view-diary-entries-initially nil)
+;;; (setq mark-diary-entries-in-calendar nil)
+;;;
+;;; IF YOU *DO* WANT TO USE A DIARY, THEN CREATE A FILE NAMED `diary'
+;;; IN YOUR HOME DIRECTORY.
+;;;
+;;; For more info on the calendar, the diary and appointments, see the
+;;; Emacs manual (`C-h i', then choose `Calendar/Diary' in the menu).
+
+
+
+;;; PLACE YOUR `SETQ', AND `DEFCONST' VARIABLE SETTINGS HERE, IF ANY.
+
+(setq recentf-max-menu-items 25
+      recentf-max-saved-items 25)
+(setq visible-bell nil
+      ring-bell-function 'double-flash-mode-line)
+(setq inhibit-startup-screen t
+      enable-recursive-minibuffers t)
+
+;;;
+;;; ******************************************************************
+
+
+;;; A HACK FOR WINDOWS - COMMENT THIS OUT IF YOU DO *NOT* USE MS WINDOWS
+(when (and (if (fboundp 'display-graphic-p) (display-graphic-p) window-system)
+           (eq system-type 'windows-nt) (fboundp 'rename-frame))
+  (add-hook 'window-setup-hook 'rename-frame)) ; Defined in `frame-cmds.el'.
 
 ;;; Late Loaders
 
