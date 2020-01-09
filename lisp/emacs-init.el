@@ -28,13 +28,14 @@
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
 
-;; `user-emacs-directory' subdirectorys that need to be compiled and
-;; whether or not to debug any errors in them, cf. `byte-compile-debug'.
-(defvar setup-byte-compile-directories
-  '(("site-lisp" nil)
-    ("lisp" t)))
-;; Git subtree remote packages and their author on GitHub.
-(defvar setup-subtree-remotes
+;; `user-emacs-directory' subdirectories that need to be compiled and
+;; whether or not to debug errors in them, cf. `byte-compile-debug'.
+(defvar configure-emacs-compile-directories
+  '(("site-lisp" . nil)
+    ("lisp" . t)))
+;; Git subtree remote packages used by this configuration and their
+;; author on GitHub.
+(defvar configure-emacs-subtree-remotes
   '(("add-node-modules-path" . "codesuki")
      ("auto-compile" . "emacscollective")
      ("lsp-ui" . "emacs-lsp")
@@ -74,11 +75,12 @@
 (use-package bytecomp+
   :load-path "lisp/bytecomp+"
   :commands byte-compile-directory-safely)
-(use-package setup
+(use-package configure-emacs
   :load-path "lisp"
-  :commands (setup-my-emacs-config
-	     update-from-emacswiki
-	     update-from-github))
+  :commands configure-emacs)
+(use-package emacswiki-update
+  :load-path "lisp"
+  :commands (emacswiki-update emacswiki-update-from-github))
 
 ;;; UI Tweaks
 (column-number-mode 1)
@@ -263,7 +265,7 @@
 ;; Make sure .emacs.d is fully configured once it has been installed.
 ;; This takes care of things like compiling the included Lisp files
 ;; and setting up git subtree remotes.
-(add-hook 'after-init-hook (lambda () (setup-my-emacs-config t)))
+(add-hook 'after-init-hook (lambda () (configure-emacs t)))
 
 (put 'narrow-to-region 'disabled nil)
 

@@ -1,4 +1,4 @@
-;;; setup.el --- Initialize things for my Emacs configuration
+;;; configure-emacs.el --- Configure things in "/.emacs.d
 ;;
 ;; Copyright (C) 2020 by Ron Parker <rdparker@gmail.com>
 ;;
@@ -32,8 +32,8 @@
 ;;
 ;; There are three interactive functions in this library:
 ;;
-;; 1. `setup-my-emacs-config' initializes all the necessary git
-;;    subtree remotes and byte compiles everything in the site-lisp
+;; 1. `configure-emacs' initializes all the necessary git subtree
+;;    remotes and byte compiles everything in the site-lisp
 ;;    subdirectory.
 ;;
 ;; 2. `update-from-emacswiki' updates all the files in a directory
@@ -50,12 +50,12 @@
 ;;
 ;; Place
 ;;
-;;    (add-hook 'after-init-hook (lambda () (setup-my-emacs-config t)))
+;;    (add-hook 'after-init-hook (lambda () (configure-emacs t)))
 ;;
-;; in your init file to make sure `setup-my-emacs-config' has been run
-;; for the current version of Emacs.  Use a hook in case the init
-;; itself has been compiled.  This avoids a locking error when
-;; attempting to recompile it.
+;; in your init file to make sure `configure-emacs' has been run for
+;; the current version of Emacs.  Use a hook in case the init itself
+;; has been compiled.  This avoids a locking error when attempting to
+;; recompile it.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -64,7 +64,7 @@
 (require 'bytecomp+)
 
 
-(defcustom setup-subtree-remotes ()
+(defcustom configure-emacs-subtree-remotes ()
   "The git subtree remotes used for the Emacs configuration.
 
 An alist of values consisting of the subtree remote name and
@@ -89,9 +89,9 @@ same repository as above."
   :type '(alist
 	  :key-type (string :tag "Remote name")
 	  :value-type (string :tag "GitHub author or repository URL"))
-  :group 'setup)
+  :group 'configure-emacs)
 
-(defcustom setup-byte-compile-directories ()
+(defcustom configure-emacs-compile-directories ()
   "The subdirectories to byte compile.
 
 If a relative directory name is used, `user-emacs-directory' is
@@ -99,10 +99,10 @@ used as the parent directory."
   :type '(alist
 	  :key-type directory
 	  :value-type (boolean :tag "byte-compile-debug"))
-  :group 'setup)
+  :group 'configure-emacs)
 
 ;;;###autoload
-(defun setup-my-emacs-config (&optional maybe)
+(defun configure-emacs (&optional maybe)
   "Setup git subtree remotes for my config and compile its Lisp files.
 
 If MAYBE is nil, perform the setup.  Otherwise, only do it if it has
@@ -110,12 +110,12 @@ not already been done for this version of Emacs.
 
 Use a hook like
 
-   (add-hook 'after-init-hook (lambda () (setup-my-emacs-config t)))
+   (add-hook 'after-init-hook (lambda () (configure-emacs t)))
 
-in your init file to make sure `setup-my-emacs-config' has been
-run for the current version of Emacs.  Use a hook in case the
-init itself has been compiled.  This avoids a locking error when
-attempting to recompile it."
+in your init file to make sure `configure-emacs' has been run for
+the current version of Emacs.  Use a hook in case the init itself
+has been compiled.  This avoids a locking error when attempting
+to recompile it."
   (interactive)
   (let ((sentinel (locate-user-emacs-file (concat "data/setup-"
 						  emacs-version)))
@@ -125,7 +125,7 @@ attempting to recompile it."
       ;; Emacs when configuration has already been done.
       (require 'magit-remote)
       (when recentf (recentf-mode -1))
-      (dolist (elt setup-byte-compile-directories)
+      (dolist (elt configure-emacs-compile-directories)
 	(let ((dir (car elt))
 	      (byte-compile-debug (cdr elt)))
 	  (unless (file-name-absolute-p dir)
@@ -134,7 +134,7 @@ attempting to recompile it."
 
       (cd user-emacs-directory)
       (let ((magit-remote-add-set-remote.pushDefault nil))
-	(dolist (subtree setup-subtree-remotes)
+	(dolist (subtree configure-emacs-subtree-remotes)
 	  (let* ((remote (car subtree))
 		 (author-or-url (cdr subtree))
 		 (url (if (cl-search "://" author-or-url)
@@ -148,69 +148,6 @@ attempting to recompile it."
 	  (kill-buffer buffer)))
       (when recentf (recentf-mode 1)))))
 
-(defun update-from-web (baseurl &optional dir delay)
-  "From BASEURL, update files in DIR pausing for DELAY seconds between.
-If DIR is not provided, default to \"site-lisp/icicles\" in the
-user's Emacs directory.  DELAY defaults to 2.
+(provide 'configure-emacs)
 
-Auto-compilation is disable during downloads, but if it was
-enabled, they are recompiled when the download completes."
-  (setq dir (or dir (locate-user-emacs-file "site-lisp/icicles"))
-	delay (or delay 2))
-  (let ((auto-compile-on-load auto-compile-on-load-mode)
-	(auto-compile-on-save auto-compile-on-save-mode))
-    (auto-compile-on-load-mode -1)
-    (auto-compile-on-save-mode -1)
-    (save-excursion
-      (dolist (file (directory-files dir t emacs-lisp-file-regexp t))
-	(let* ((basename (file-name-nondirectory file))
-	       (url (concat baseurl basename))
-	       (buffer (url-retrieve-synchronously url)))
-	  (set-buffer buffer)
-	  (goto-char (point-min))
-	  (if (not (looking-at "^HTTP.* 200 OK$"))
-	      (message "Unable to retrieve %s" url)
-	    (search-forward-regexp "^$")
-	    (forward-line)
-	    (delete-region (point) (point-min))	; remove the headers
-	    (write-file file))
-	  (kill-buffer (current-buffer))
-	  (sleep-for delay))))
-    (if (or auto-compile-on-save auto-compile-on-load)
-	(byte-compile-directory-safely dir))
-    (when auto-compile-on-save (auto-compile-on-save-mode))
-    (when auto-compile-on-load (auto-compile-on-load-mode))))
-
-;;;###autoload
-(defun update-from-emacswiki (&optional dir delay)
-  "Update files in DIR from EmacsWiki pausing for DELAY seconds between.
-If DIR is not provided, default to \"site-lisp/icicles\" in the
-user's Emacs directory.  DELAY defaults to 2.
-
-Auto-compilation is disable during downloads, but if it was
-enabled, they are recompiled when the download completes."
-  (interactive "DDirectory to update: ")
-  (setq delay (or delay 2))
-  (update-from-web "http://www.emacswiki.org/emacs/download/"
-		   dir delay))
-
-;;;###autoload
-(defun update-from-github (&optional dir delay)
-  "Update files in DIR from GitHub pausing for DELAY seconds between.
-This is specific to the EmacsWiki Mirror repo on GitHub.  If DIR
-is not provided, default to \"site-lisp/icicles\" in the user's
-Emacs directory.  DELAY defaults to 0 (zero) seconds.
-
-Auto-compilation is disable during downloads, but if it was
-enabled, they are recompiled when the download completes.
-
-While the GitHub mirror may be slightly out of date compared to
-EmacsWiki, it is often faster and unlikely to throttle you and
-lock you out."
-  (interactive "DDirectory to update: ")
-  (setq delay (or delay 0))
-  (update-from-web
-   "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/"
-   dir delay))
-
-;;; setup.el ends here
+;;; configure-emacs.el ends here
