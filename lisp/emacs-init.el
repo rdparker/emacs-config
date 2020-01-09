@@ -21,7 +21,7 @@
   (w32-register-hot-key [M-S-tab]))
 
 (defun emacs>= (version)
-  "Returns t if `emacs-version' is greater than or equal to VERSION."
+  "Return t if variable `emacs-version' is greater than or equal to VERSION."
   (let* ((major (floor version))
 	 (minor (round (* 10 (- version major)))))
     (or (> emacs-major-version major)
@@ -71,6 +71,7 @@
 (setq visible-bell nil
       ring-bell-function 'double-flash-mode-line)
 (defun double-flash-mode-line ()
+  "Flash the modeline twice."
   (let ((flash-sec (/ 1.0 20)))
     (invert-face 'mode-line)
     (run-with-timer flash-sec nil #'invert-face 'mode-line)
@@ -251,4 +252,4 @@
 
 (provide 'emacs-init)
 
-;;; end of emacs-init.el
+;;; emacs-init.el ends here
