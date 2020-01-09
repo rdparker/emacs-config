@@ -57,11 +57,7 @@
 
 ;;;###autoload
 (defun setup-my-emacs-config ()
-  "Compile all Lisp code contained in DIR and its subdirectories.
-Any files matching *-mac.el will be byte-compiled and loaded
-first.  This is done in case, like `icicles-mac.el', they contain
-macros which are required to properly compile other files in the
-directory.  After this, all the other *.el files are compiled."
+  "Setup git subtree remotes and for my config and compile its lisp files."
   (interactive)
   (byte-compile-directory-safely (locate-user-emacs-file "site-lisp"))
   (byte-compile-directory-safely (locate-user-emacs-file "lisp"))
