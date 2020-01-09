@@ -236,13 +236,16 @@
   :load-path "site-lisp/icicles"
   :config (icicle-mode 1))
 
-;;; Make sure `setup-my-emacs-config' has been run.
-;;
-;; Since one of the things that `setup-my-emacs-config' does is to
-;; byte compile Icicles, this can be used as a check.
-(unless (file-exists-p (peeve-byte-compile-dest-file
-			"site-lisp/icicles/icicles-mac.el"))
-  (setup-my-emacs-config))
+;; Enable `recentf-mode' near the end so files installed from ELPA do
+;; not appear as a side-effect.
+(recentf-mode 1)
+(setq recentf-max-menu-items 25
+      recentf-max-saved-items 25)
+
+;; Make sure .emacs.d is fully configured once it has been installed.
+;; This takes care of things like compiling the included Lisp files
+;; and setting up git subtree remotes.
+(add-hook 'after-init-hook (lambda () (setup-my-emacs-config t)))
 
 (put 'narrow-to-region 'disabled nil)
 

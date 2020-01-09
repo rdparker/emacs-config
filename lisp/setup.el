@@ -48,34 +48,74 @@
 ;;    While it may be slightly out of date compared to EmacsWiki, it
 ;;    is often faster and unlikely to throttle you and lock you out.
 ;;
+;; Place
+;;
+;;    (add-hook 'after-init-hook (lambda () (setup-my-emacs-config t)))
+;;
+;; in your init file to make sure `setup-my-emacs-config' has been run
+;; for the current version of Emacs.  Use a hook in case the init
+;; itself has been compiled.  This avoids a locking error when
+;; attempting to recompile it.
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Code:
 
 (require 'bytecomp+)
-(require 'magit-remote)
 
 ;;;###autoload
-(defun setup-my-emacs-config ()
-  "Setup git subtree remotes and for my config and compile its lisp files."
-  (interactive)
-  (byte-compile-directory-safely (locate-user-emacs-file "site-lisp"))
-  (byte-compile-directory-safely (locate-user-emacs-file "lisp"))
+(defun setup-my-emacs-config (&optional maybe)
+  "Setup git subtree remotes for my config and compile its lisp files.
 
-  (let ((magit-remote-add-set-remote.pushDefault nil))
-    (dolist (remote '(("codesuki" . "add-node-modules-path")
-		      ("emacscollective" . "auto-compile")
-		      ("emacs-lsp" . "lsp-ui")
-		      ("emacscollective" . "packed")
-		      ("rdparker" . "peeve")
-		      ("prettier" . "prettier")
-		      ("jwiegley" . "use-package")
-		      ("joaotavora" . "yasnippet")
-		      ("AndreaCrotti" . "yasnippet-snippets")))
-      (let* ((author (car remote))
-	     (repo (cdr remote))
-	     (url (concat "https://github.com/" author "/" repo ".git")))
-	(magit-remote-add repo url)))))
+If MAYBE is nil, perform the setup.  Otherwise, only do it if it has
+not already been done for this version of Emacs.
+
+Use a hook like
+
+   (add-hook 'after-init-hook (lambda () (setup-my-emacs-config t)))
+
+in your init file to make sure `setup-my-emacs-config' has been
+run for the current version of Emacs.  Use a hook in case the
+init itself has been compiled.  This avoids a locking error when
+attempting to recompile it."
+  (interactive)
+  (let ((sentinel (locate-user-emacs-file (concat "data/setup-"
+						  emacs-version)))
+	(recentf (and (boundp 'recentf-mode) recentf-mode)))
+    (unless (and maybe (file-exists-p sentinel))
+      ;; Requiring 'magit-remote here improves the startup speed of
+      ;; Emacs when configuration has already been done.
+      (require 'magit-remote)
+      (when recentf (recentf-mode -1))
+      ;; Suppress errors while compiling site-lisp.  It may contain
+      ;; conditionally-loaded packages, which may not work with the
+      ;; running version of Emacs.
+      (let ((byte-compile-debug nil))
+	(byte-compile-directory-safely
+	 (locate-user-emacs-file "site-lisp")))
+      (byte-compile-directory-safely (locate-user-emacs-file "lisp"))
+
+      (cd user-emacs-directory)
+      (let ((magit-remote-add-set-remote.pushDefault nil))
+	(dolist (remote '(("codesuki" . "add-node-modules-path")
+			  ("emacscollective" . "auto-compile")
+			  ("emacs-lsp" . "lsp-ui")
+			  ("emacscollective" . "packed")
+			  ("rdparker" . "peeve")
+			  ("prettier" . "prettier")
+			  ("jwiegley" . "use-package")
+			  ("joaotavora" . "yasnippet")
+			  ("AndreaCrotti" . "yasnippet-snippets")))
+	  (let* ((author (car remote))
+		 (repo (cdr remote))
+		 (url (concat "https://github.com/" author "/"
+			      repo ".git")))
+	    (magit-remote-add repo url))))
+      (save-excursion
+	(let ((buffer (find-file sentinel)))
+	  (save-buffer buffer)
+	  (kill-buffer buffer)))
+      (when recentf (recentf-mode 1)))))
 
 (defun update-from-web (baseurl &optional dir delay)
   "From BASEURL, update files in DIR pausing for DELAY seconds between.

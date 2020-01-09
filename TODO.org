@@ -4,6 +4,7 @@
 ** TODO prettier-js
 *** TODO Checkout the prettier-js-width-mode configuration variable
 
+** TODO Turn setup.el into a package complete with defcustom properties
 * Modes to Investigate
 
 ** Generic
