@@ -63,9 +63,47 @@
 
 (require 'bytecomp+)
 
+
+(defcustom setup-subtree-remotes ()
+  "The git subtree remotes used for the Emacs configuration.
+
+An alist of values consisting of the subtree remote name and
+either the URL of the repo or the GitHub author's name.  If an
+author's name is used, the remote name is also used as the GitHub
+repository name.
+
+For example
+
+    (\"peeve\" . \"rdparker\")
+
+would create a remote named \"peeve\" that links to my GitHub
+rdparker/peeve repository.  If the remote and repository had
+different names, the full URL would have to be used.
+
+For example:
+
+    (\"peeve-mode\" . \"https://github.com/rdparker/peeve.git\")
+
+would create a remote named \"peeve-mode\". which pointed to the
+same repository as above."
+  :type '(alist
+	  :key-type (string :tag "Remote name")
+	  :value-type (string :tag "GitHub author or repository URL"))
+  :group 'setup)
+
+(defcustom setup-byte-compile-directories ()
+  "The subdirectories to byte compile.
+
+If a relative directory name is used, `user-emacs-directory' is
+used as the parent directory."
+  :type '(alist
+	  :key-type directory
+	  :value-type (boolean :tag "byte-compile-debug"))
+  :group 'setup)
+
 ;;;###autoload
 (defun setup-my-emacs-config (&optional maybe)
-  "Setup git subtree remotes for my config and compile its lisp files.
+  "Setup git subtree remotes for my config and compile its Lisp files.
 
 If MAYBE is nil, perform the setup.  Otherwise, only do it if it has
 not already been done for this version of Emacs.
@@ -87,30 +125,23 @@ attempting to recompile it."
       ;; Emacs when configuration has already been done.
       (require 'magit-remote)
       (when recentf (recentf-mode -1))
-      ;; Suppress errors while compiling site-lisp.  It may contain
-      ;; conditionally-loaded packages, which may not work with the
-      ;; running version of Emacs.
-      (let ((byte-compile-debug nil))
-	(byte-compile-directory-safely
-	 (locate-user-emacs-file "site-lisp")))
-      (byte-compile-directory-safely (locate-user-emacs-file "lisp"))
+      (dolist (elt setup-byte-compile-directories)
+	(let ((dir (car elt))
+	      (byte-compile-debug (cdr elt)))
+	  (unless (file-name-absolute-p dir)
+	    (setq dir (locate-user-emacs-file dir)))
+	  (byte-compile-directory-safely dir)))
 
       (cd user-emacs-directory)
       (let ((magit-remote-add-set-remote.pushDefault nil))
-	(dolist (remote '(("codesuki" . "add-node-modules-path")
-			  ("emacscollective" . "auto-compile")
-			  ("emacs-lsp" . "lsp-ui")
-			  ("emacscollective" . "packed")
-			  ("rdparker" . "peeve")
-			  ("prettier" . "prettier")
-			  ("jwiegley" . "use-package")
-			  ("joaotavora" . "yasnippet")
-			  ("AndreaCrotti" . "yasnippet-snippets")))
-	  (let* ((author (car remote))
-		 (repo (cdr remote))
-		 (url (concat "https://github.com/" author "/"
-			      repo ".git")))
-	    (magit-remote-add repo url))))
+	(dolist (subtree setup-subtree-remotes)
+	  (let* ((remote (car subtree))
+		 (author-or-url (cdr subtree))
+		 (url (if (cl-search "://" author-or-url)
+			  author-or-url
+			(concat "https://github.com/" author-or-url
+				"/" remote ".git"))))
+	    (magit-remote-add remote url))))
       (save-excursion
 	(let ((buffer (find-file sentinel)))
 	  (save-buffer buffer)

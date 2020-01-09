@@ -28,6 +28,23 @@
 	(and (= emacs-major-version major)
 	     (>= emacs-minor-version minor)))))
 
+;; `user-emacs-directory' subdirectorys that need to be compiled and
+;; whether or not to debug any errors in them, cf. `byte-compile-debug'.
+(defvar setup-byte-compile-directories
+  '(("site-lisp" nil)
+    ("lisp" t)))
+;; Git subtree remote packages and their author on GitHub.
+(defvar setup-subtree-remotes
+  '(("add-node-modules-path" . "codesuki")
+     ("auto-compile" . "emacscollective")
+     ("lsp-ui" . "emacs-lsp")
+     ("packed" . "emacscollective")
+     ("peeve" . "rdparker")
+     ("prettier" . "prettier")
+     ("use-package" . "jwiegley")
+     ("yasnippet" . "joaotavora")
+     ("yasnippet-snippets" . "AndreaCrotti")))
+
 ;;; Setup use-package
 ;;
 ;; While `use-package' is only needed at compile time,
