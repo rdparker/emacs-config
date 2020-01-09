@@ -23,9 +23,16 @@ enabled, they are recompiled when the download completes."
   (setq dir (or dir (locate-user-emacs-file "site-lisp/icicles"))
 	delay (or delay 2))
   (let ((auto-compile-on-load auto-compile-on-load-mode)
-	(auto-compile-on-save auto-compile-on-save-mode))
+	(auto-compile-on-save auto-compile-on-save-mode)
+        ;; Prevent header2 auto-updating from modifying the files
+        ;; before they are saved.
+        (header-auto-update-enabled nil)
+        ;; Temporarily disable recentf to avoid contaminating the
+        ;; recent files list.
+	(recentf (and (boundp 'recentf-mode) recentf-mode)))
     (auto-compile-on-load-mode -1)
     (auto-compile-on-save-mode -1)
+    (when recentf (recentf-mode -1))
     (save-excursion
       (dolist (file (directory-files dir t emacs-lisp-file-regexp t))
 	(let* ((basename (file-name-nondirectory file))
@@ -44,7 +51,8 @@ enabled, they are recompiled when the download completes."
     (when (or auto-compile-on-save auto-compile-on-load)
       (byte-compile-directory-safely dir))
     (when auto-compile-on-save (auto-compile-on-save-mode))
-    (when auto-compile-on-load (auto-compile-on-load-mode))))
+    (when auto-compile-on-load (auto-compile-on-load-mode))
+    (when recentf (recentf-mode 1))))
 
 ;;;###autoload
 (defun emacswiki-update (&optional dir delay)
