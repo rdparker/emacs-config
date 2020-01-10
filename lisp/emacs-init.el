@@ -35,9 +35,17 @@
 (eval-when-compile
   (add-to-list 'load-path (locate-user-emacs-file "site-lisp/use-package"))
   (require 'use-package))
-(use-package bind-key
-  :load-path "site-lisp/use-package"
-  :defines personal-keybindings)
+
+(use-package auto-compile
+  :if (emacs>= 25.1)
+  :load-path "site-lisp/auto-compile-25.1+"
+  :init
+  (setq load-prefer-newer t
+        auto-compile-mode-line-counter t)
+  (use-package packed :load-path "site-lisp/packed")
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
 
 ;; Setup per Emacs-version ELPA directories
 (use-package package
@@ -75,19 +83,10 @@
     (run-with-timer (* 2 flash-sec) nil #'invert-face 'mode-line)
     (run-with-timer (* 3 flash-sec) nil #'invert-face 'mode-line)))
 
-;; C-~ aka `icicle-candidate-set-complement' uses `remove-if-not'.  It
-;; works fine when Emacs is started with "emacs -Q" and Icicles is
-;; manually loaded, but failed with this configuration.  So,
-;; explicitly require the old compatability file.
-(use-package auto-compile
-  :if (emacs>= 25.1)
-  :load-path "site-lisp/auto-compile-25.1+"
-  :init
-  (use-package packed :load-path "site-lisp/packed")
-  (setq load-prefer-newer t)
-  :config
-  (auto-compile-on-load-mode)
-  (auto-compile-on-save-mode))
+(use-package bind-key
+  :load-path "site-lisp/use-package"
+  :defines personal-keybindings)
+
 
 (use-package imenu+
   :after imenu
