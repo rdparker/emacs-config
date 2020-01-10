@@ -218,6 +218,10 @@
   (projectile-mode +1))
 
 ;;; PLACE YOUR `DEFVAR' VARIABLE SETTINGS HERE, IF ANY.
+(when (boundp 'window-system)
+  (if (eq window-system 'x)
+      (defvar 1on1-minibuffer-frame-top/bottom -40)
+    (defvar 1on1-move-minibuffer-frame-near-point 50)))
 
 ;; `user-emacs-directory' subdirectories that need to be compiled and
 ;; whether or not to debug errors in them, cf. `byte-compile-debug'.
