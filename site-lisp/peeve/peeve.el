@@ -128,13 +128,12 @@ path.  It is computed by `peeve-byte-compile-dest-directory'."
 	(add-to-list 'load-path full-path append)))))
 
 ;;; (add-to-list LIST-VAR ELEMENT &optional APPEND COMPARE-FN)
-(defadvice add-to-list (around
-			peeve-add-to-list-around
+(defadvice add-to-list (before
+			peeve-add-to-list-before
 			(list-var element &optional append compare-fn)
 			activate)
   "Automagically add `byte-compile' directory support to `add-to-list'.
 This only affects the `load-path' variable."
-  ad-do-it
   (when (and (eq list-var 'load-path)
 	     ;; Not already an elc output directory
 	     (not (cl-search (concat peeve-prefix emacs-version)
@@ -192,11 +191,11 @@ to nil."
       (progn
 	(setq byte-compile-dest-file-function 'peeve-byte-compile-dest-file)
 	(setq auto-compile-delete-stray-dest nil)
-	(ad-enable-advice 'add-to-list 'around
-			  'peeve-add-to-list-around))
+	(ad-enable-advice 'add-to-list 'before
+			  'peeve-add-to-list-before))
     (setq byte-compile-dest-file-function nil)
-    (ad-disable-advice 'add-to-list 'around
-			  'peeve-add-to-list-around))
+    (ad-disable-advice 'add-to-list 'before
+			  'peeve-add-to-list-before))
   ;; Make the message appear when Emacs is idle.  We can not call message
   ;; directly.  The minor-mode message "Menu-bar mode disabled" comes
   ;; after this function returns, overwriting any message we do here.
