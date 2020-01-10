@@ -42,6 +42,12 @@
 
 (require 'bytecomp)
 
+(defcustom emacs-macro-file-regexp "-mac[^-]*-?\\.el\\'"
+  "Regexp which matches Emacs Lisp macro source files."
+  ;; Eg is_elc in Fload.
+  :group 'bytecomp
+  :type 'regexp)
+
 (defun byte-compile-directory-safely (dir)
   "Compile all Lisp code contained in DIR and its subdirectories.
 Any files matching *-mac.el will be byte-compiled and loaded
@@ -61,10 +67,10 @@ directory.  After this, all the other *.el files are compiled."
 				   (file-name-nondirectory source)))))
 		(directory-files-recursively dir emacs-lisp-file-regexp))))
     (dolist (file files nil)
-      (when (string-match "-mac\\.\\'" file)
+      (when (string-match emacs-macro-file-regexp file)
 	(byte-compile-file file t)))
     (dolist (file files nil)
-      (when (not (string-match "-mac\\.\\'" file))
+      (when (not (string-match emacs-macro-file-regexp file))
 	(byte-compile-file file)))))
 
 (provide 'bytecomp+)
