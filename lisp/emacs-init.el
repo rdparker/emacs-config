@@ -218,6 +218,7 @@
 
 ;;; PLACE YOUR `DEFVAR' VARIABLE SETTINGS HERE, IF ANY.
 (when (boundp 'window-system)
+  (defvar minibuffer-auto-raise t)
   (if (eq window-system 'x)
       (defvar 1on1-minibuffer-frame-top/bottom -40)
     (defvar 1on1-move-minibuffer-frame-near-point 50)))
